@@ -1,6 +1,7 @@
-import React, { Fragment } from "react";
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { routes } from "./routes";
+import HeaderComponent from "./components/HeaderComponent/HeaderComponent";
 import "./App.css";
 
 function renderRoutes(routes) {
@@ -20,6 +21,7 @@ function renderRoutes(routes) {
 function App() {
   return (
     <Router>
+      <HeaderComponent />
       <Routes> {renderRoutes(routes)}</Routes>
     </Router>
   );

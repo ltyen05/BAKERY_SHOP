@@ -4,18 +4,24 @@ import Menu from "../Menu/Menu";
 import Cake from "../Menu/Cake";
 import LogIn from "../LogIn/LogIn";
 import SignUp from "../SignUp/SignUp";
-
+import { Navigate } from "react-router-dom";
 export const routes = [
   {
     path: "/",
     page: HomePage,
     name: "Home",
+    position: "middle",
   },
   {
     path: "/menu",
     page: Menu,
     name: "Menu",
+    position: "middle",
     children: [
+      {
+        path: "",
+        page: () => <Navigate to="cake" replace />,
+      },
       {
         path: "cake",
         name: "Cake",
@@ -29,15 +35,18 @@ export const routes = [
     path: "/aboutUs",
     page: AboutUs,
     name: "About Us",
+    position: "middle",
   },
   {
     path: "/signUp",
     page: SignUp,
     name: "Sign Up",
+    position: "right",
   },
   {
     path: "/logIn",
     page: LogIn,
     name: "Log In",
+    position: "right",
   },
 ];

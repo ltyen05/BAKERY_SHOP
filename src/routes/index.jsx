@@ -11,12 +11,15 @@ export const routes = [
     page: HomePage,
     name: "Home",
     position: "middle",
+    isShowHeader: true,
   },
   {
     path: "/menu",
     page: Menu,
     name: "Menu",
     position: "middle",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
     children: [
       {
         path: "",
@@ -36,6 +39,8 @@ export const routes = [
     page: AboutUs,
     name: "About Us",
     position: "middle",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
   },
   {
     path: "/signUp",

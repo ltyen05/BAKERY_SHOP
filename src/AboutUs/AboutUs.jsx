@@ -1,7 +1,9 @@
+import React from "react";
 function AboutUs() {
   return (
     <div>
-      <h1>This is about us</h1>
+      <h1>About Us Page</h1>
+      <p>This is the About Us page of the application.</p>
     </div>
   );
 }

@@ -2,9 +2,11 @@ import HomePage from "../HomePage/HomePage";
 import AboutUs from "../AboutUs/AboutUs";
 import Menu from "../Menu/Menu";
 import Cake from "../Menu/Cake";
+import React from "react";
 import LogIn from "../LogIn/LogIn";
 import SignUp from "../SignUp/SignUp";
 import { Navigate } from "react-router-dom";
+
 export const routes = [
   {
     path: "/",
@@ -53,5 +55,6 @@ export const routes = [
     page: LogIn,
     name: "Log In",
     position: "right",
+    needHandleLogin: true,
   },
 ];

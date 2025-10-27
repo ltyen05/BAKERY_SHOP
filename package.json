@@ -1,0 +1,8 @@
+{
+  "name": "hus-bakery-admin",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "phosphor-react": "^1.4.1"
+  }
+}

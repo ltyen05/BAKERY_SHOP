@@ -6,12 +6,13 @@ import React from "react";
 import LogIn from "../LogIn/LogIn";
 import SignUp from "../SignUp/SignUp";
 import { Navigate } from "react-router-dom";
+import Facilities from "../Facilities/Facilities";
 
 export const routes = [
   {
     path: "/",
     page: HomePage,
-    name: "Home",
+    name: "Trang chủ",
     position: "middle",
     isShowHeader: true,
   },
@@ -39,7 +40,15 @@ export const routes = [
   {
     path: "/aboutUs",
     page: AboutUs,
-    name: "About Us",
+    name: "Về chúng tôi",
+    position: "middle",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+  },
+  {
+    path: "/facilities",
+    page: Facilities,
+    name: "Các cơ sở",
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,

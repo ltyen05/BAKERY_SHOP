@@ -1,0 +1,16 @@
+/* styles.css */
+.box {
+  width: 300px;
+  margin: 30px;
+}
+
+.cham {
+  background-image: url("../assets/main.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* Kích thước cố định theo breakpoint */

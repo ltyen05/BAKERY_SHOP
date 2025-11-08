@@ -26,6 +26,18 @@ body,
   width: 100%;
   height: 100%;
 }
+.text-main-color {
+  color: #4e423d;
+}
+.my-dropdown {
+  width: 150px;
+}
+.my-dropdown .ant-dropdown-menu-item {
+  color: #4e423d !important;
+}
+.text-16 {
+  font-size: 16px;
+}
 .bg-color {
   background-color: #fdfbf5;
 }
@@ -66,9 +78,13 @@ body,
   height: 50px;
 }
 .btn {
-  height: 40px;
-  font-size: 17px;
+  display: inline-block;
+  min-width: 120px;
+  font-size: 14px;
   font-weight: 600;
+  height: 40px;
+  text-align: center;
+  padding: 0 16px;
 }
 
 .btn-primary:hover {
@@ -82,10 +98,27 @@ body,
   background-color: #f7f4e7;
   color: var(--main-color);
 }
+
+.btn-second:hover {
+  background-color: #7b4418 !important;
+  color: #f7f4e7 !important;
+}
+
+.btn-second {
+  border-radius: 25px;
+  background-color: #a2734c;
+  color: #f7f4e7;
+}
 .fl-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.nav-bar {
+  position: sticky; /* hoặc sticky nếu muốn dính khi cuộn tới */
+  top: -10px;
+  background-color: #fdfbf5;
+  z-index: 1000; /* nằm trên cùng */
 }
 /* Change ant-design */
 

@@ -4,7 +4,7 @@ import { Dropdown, Space, Button } from "antd"; // ⚠️ phải có
 import { DownOutlined } from "@ant-design/icons"; // ⚠️ phải có
 import bakesLogo from "../../assets/bakes.svg";
 import { routes } from "../../routes";
-
+import { UserOutlined, LogoutOutlined, LockOutlined } from "@ant-design/icons";
 function getRoutesByPosition(routesByPosition) {
   return routesByPosition.map((route) => {
     if (route.children && route.children.length > 0) {
@@ -17,15 +17,19 @@ function getRoutesByPosition(routesByPosition) {
       return (
         <Dropdown
           key={route.path}
-          placement="bottomLeft"
-          menu={{ items, style: { width: "150px", textAlign: "center" } }}
+          placement="bottom"
+          menu={{ items, className: "my-dropdown" }}
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>
-              <Link key={route.path} to={route.path}>
+              <Link
+                key={route.path}
+                to={route.path}
+                className="text-main-color text-16"
+              >
                 {route.name}
               </Link>
-              <DownOutlined />
+              <DownOutlined className="text-main-color" />
             </Space>
           </a>
         </Dropdown>
@@ -33,7 +37,11 @@ function getRoutesByPosition(routesByPosition) {
     } else {
       // Route không có children → chỉ là link thường
       return (
-        <Link key={route.path} to={route.path}>
+        <Link
+          key={route.path}
+          to={route.path}
+          className="text-main-color text-16"
+        >
           {route.name}
         </Link>
       );
@@ -42,64 +50,99 @@ function getRoutesByPosition(routesByPosition) {
 }
 
 function NavBar({ username, onLogout }) {
+  const view = {
+    items: [
+      {
+        key: "username",
+        label: <span>{username}</span>, // ✅ phải là JSX hoặc string
+        disabled: true,
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "Tài khoản",
+        label: <Link to="../viewProfile/viewProfile">Tài khoản</Link>,
+        icon: <UserOutlined />,
+      },
+      {
+        key: "3",
+        label: "Đổi mật khẩu",
+        icon: <LockOutlined />,
+      },
+      {
+        key: "logout",
+        label: <span>Đăng xuất</span>,
+        onClick: onLogout,
+        danger: true,
+        icon: <LogoutOutlined />,
+      },
+    ],
+  };
   const routes_middle = routes.filter((route) => route.position === "middle");
   const routes_right = routes.filter((route) => route.position === "right");
   return (
-    <Row style={{ border: "1px solid blue" }}>
-      <Col span={6} style={{ margin: "auto" }}>
+    <Row
+      className="nav-bar"
+      style={{
+        height: "77px",
+        fontSize: "16px",
+      }}
+      justify="space-around"
+      align={{
+        xs: "middle",
+        md: "bottom",
+      }}
+    >
+      <Col span={4} style={{}}>
         <img
           src={bakesLogo}
           alt="Stylized bakery logo"
-          style={{ height: "60px" }}
+          style={{ height: "55px" }}
         />
       </Col>
 
-      <Col span={12} style={{ border: "1px solid red", margin: "auto" }}>
+      <Col span={10} style={{ minHeight: "40px" }}>
         <Row justify="center">
           {getRoutesByPosition(routes_middle).map((comp, idx) => (
             <Col
-              xs={24}
+              xs={0}
               md={24 / routes_middle.length}
               key={idx}
-              style={{ border: "1px solid black", margin: "auto" }}
+              style={{
+                margin: "auto",
+              }}
             >
               {comp}
             </Col>
           ))}
         </Row>
       </Col>
-      <Col span={6} style={{ border: "1px solid black", margin: "auto" }}>
-        <Row justify="end">
+      <Col span={4} style={{ minHeight: "40px" }}>
+        <Row justify="center">
           {username ? (
             <Col span={24}>
-              <div className="flex items-center gap-3 p-2 border rounded-lg">
+              <Dropdown
+                placement="bottom"
+                menu={{
+                  ...view,
+
+                  className: "my-dropdown",
+                }}
+              >
                 <img
                   src={
                     "https://i.pinimg.com/originals/24/bd/d9/24bdd9ec59a9f8966722063fe7791183.jpg"
                   }
                   alt="avatar"
                   className="w-8 h-8 rounded-full"
-                  style={{ width: "50px", borderRadius: "50%" }}
+                  style={{ width: "40px", borderRadius: "50%" }}
                 />
-                <span className="font-medium">{username}</span>
-                <Button
-                  onClick={onLogout}
-                  type="link"
-                  danger
-                  style={{ padding: 0 }}
-                >
-                  Đăng xuất
-                </Button>
-              </div>
+              </Dropdown>
             </Col>
           ) : (
             getRoutesByPosition(routes_right).map((comp, idx) => (
-              <Col
-                xs={24}
-                md={24 / routes_right.length}
-                key={idx}
-                style={{ border: "1px solid black" }}
-              >
+              <Col xs={24} md={18 / routes_right.length} key={idx}>
                 {" "}
                 {comp}{" "}
               </Col>

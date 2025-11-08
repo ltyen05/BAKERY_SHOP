@@ -82,19 +82,8 @@ function NavBar({ username, onLogout }) {
   const routes_middle = routes.filter((route) => route.position === "middle");
   const routes_right = routes.filter((route) => route.position === "right");
   return (
-    <Row
-      className="nav-bar"
-      style={{
-        height: "77px",
-        fontSize: "16px",
-      }}
-      justify="space-around"
-      align={{
-        xs: "middle",
-        md: "bottom",
-      }}
-    >
-      <Col span={4} style={{}}>
+    <Row justify="space-around" align="bottom" style={{ height: "77px" }}>
+      <Col span={4}>
         <img
           src={bakesLogo}
           alt="Stylized bakery logo"
@@ -102,8 +91,8 @@ function NavBar({ username, onLogout }) {
         />
       </Col>
 
-      <Col span={10} style={{ minHeight: "40px" }}>
-        <Row justify="center">
+      <Col span={10}>
+        <Row>
           {getRoutesByPosition(routes_middle).map((comp, idx) => (
             <Col
               xs={0}
@@ -111,6 +100,7 @@ function NavBar({ username, onLogout }) {
               key={idx}
               style={{
                 margin: "auto",
+                minHeight: "35px",
               }}
             >
               {comp}
@@ -118,8 +108,8 @@ function NavBar({ username, onLogout }) {
           ))}
         </Row>
       </Col>
-      <Col span={4} style={{ minHeight: "40px" }}>
-        <Row justify="center">
+      <Col span={4}>
+        <Row justify="center" style={{ minHeight: "35px" }}>
           {username ? (
             <Col span={24}>
               <Dropdown

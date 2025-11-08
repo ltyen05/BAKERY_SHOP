@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import {
   useNavigate,
   BrowserRouter as Router,
@@ -10,7 +10,7 @@ import "./App.css";
 import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
-
+import ScrollToTop from "./components/ScrollToTop";
 function renderRoutes(routes, handleLogin, user, handleLogout) {
   return routes.map((route) => {
     const Page = route.page;
@@ -34,7 +34,7 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
             </HeaderLayout>
           }
         >
-          {renderRoutes(route.children, handleLogin, user)}
+          {renderRoutes(route.children, handleLogin, user, handleLogout)}
         </Route>
       );
     } else {
@@ -54,16 +54,16 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
     }
   });
 }
-function App() {
+function AppContent() {
   const [user, setUser] = useState(() => {
-    return localStorage.getItem("user"); // đọc từ localStorage khi load lần đầu
+    return localStorage.getItem("user");
   });
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // <-- Bây giờ hook này hợp lệ
 
   const handleLogin = (username) => {
     setUser(username);
     localStorage.setItem("user", username);
-    navigate("/"); // Quay lại trang chính sau khi đăng nhập
+    navigate("/");
   };
 
   const handleLogout = () => {
@@ -71,9 +71,20 @@ function App() {
     localStorage.removeItem("user");
     navigate("/");
   };
+
+  return (
+    <Suspense fallback={<div>Đang tải trang...</div>}>
+      <Routes>{renderRoutes(routes, handleLogin, user, handleLogout)}</Routes>
+    </Suspense>
+  );
+}
+
+// Component App chính chỉ làm một việc: Khởi tạo Router
+function App() {
   return (
     <>
-      <Routes> {renderRoutes(routes, handleLogin, user, handleLogout)}</Routes>
+      <ScrollToTop />
+      <AppContent />
     </>
   );
 }

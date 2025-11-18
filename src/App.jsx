@@ -11,6 +11,7 @@ import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
 import ScrollToTop from "./components/ScrollToTop";
+
 function renderRoutes(routes, handleLogin, user, handleLogout) {
   return routes.map((route) => {
     const Page = route.page;
@@ -69,7 +70,7 @@ function AppContent() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    navigate("/");
+    navigate("/logIn");
   };
 
   return (

@@ -18,7 +18,7 @@
   text-align: start;
 }
 
-.animate-on-scroll {
+/* .animate-on-scroll {
   opacity: 0;
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
@@ -32,12 +32,12 @@
 }
 .fade-up {
   transform: translateY(100px);
-}
-
+} */
+/* 
 .is-visible {
   opacity: 1;
   transform: translate(0, 0);
-}
+} */
 @media (max-width: 767px) {
   .section {
     padding: 20px;
@@ -48,7 +48,14 @@
     max-width: 100% !important;
   }
 }
-
+.css-box-shadow {
+  background: #000000;
+  box-shadow: 500px 20px 100px rgba(0, 0, 0, 0.61) inset;
+  -webkit-box-shadow: 500px 20px 100px rgba(0, 0, 0, 0.6) inset;
+  -moz-box-shadow: 500px 20px 100px rgba(0, 0, 0, 0.6) inset;
+  color: white;
+  text-align: start;
+}
 /* Tablet / màn hình vừa: 768px – 1199px */
 @media (min-width: 768px) and (max-width: 950px) {
   .section {

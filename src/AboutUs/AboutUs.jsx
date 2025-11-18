@@ -1,8 +1,30 @@
-import { React, useEffect } from "react";
-import { Row, Col } from "antd";
+import { React, useEffect, useState } from "react";
+import { Row, Col, Carousel } from "antd";
 import aboutUs1 from "../assets/aboutUs1.jpg";
+import aboutUs2 from "../assets/aboutUs2.jpg";
 import "./aboutUs.css";
-
+const carousel = [
+  {
+    head: "Tận tâm",
+    p: "Nỗ lực hết mình trên hành trình sáng tạo sản phẩm, chu đáo và tận tuỵ trong từng dịch vụ gửi đến khách hàng.",
+    img: aboutUs2,
+  },
+  {
+    head: "Sáng tạo",
+    p: "Không ngừng sáng tạo để biến ý tưởng thành những sản phẩm độc đáo, mang đậm “chất” riêng.",
+    img: aboutUs2,
+  },
+  {
+    head: "Trách nhiệm",
+    p: "Dốc lòng mang đến những giá trị tốt nhất cho khách hàng thông qua tinh thần trách nhiệm cao độ.",
+    img: aboutUs2,
+  },
+  {
+    head: "Đáng tin cậy",
+    p: "Chú trọng nâng cao chất lượng sản phẩm, dịch vụ để tạo dựng uy tín thương hiệu và vun đắp sự yêu mến của khách hàng.",
+    img: aboutUs2,
+  },
+];
 function AboutUs() {
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -26,11 +48,21 @@ function AboutUs() {
     return () => {
       elementsToAnimate.forEach((el) => observer.unobserve(el));
     };
-  }, []); // [] đảm bảo hook này chỉ chạy 1 LẦN DUY NHẤT
-  // ===== KẾT THÚC LOGIC ANIMATION =====
+  }, []);
+
+  const [autoplay, setAutoplay] = useState(true);
+
+  const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div>
-      <div style={{ margin: "auto", width: "90%", textAlign: "start" }}>
+      <div
+        style={{
+          margin: "auto",
+          width: "90%",
+          textAlign: "start",
+          marginBottom: "100px",
+        }}
+      >
         <Row gutter={30} align="stretch">
           {/* Cột chứa text */}
           <Col className="text-col" xs={24} sm={24} md={12} xl={16}>
@@ -88,8 +120,67 @@ function AboutUs() {
         </Row>
         {/**/}
       </div>
+
+      {/* --------------------------------------------------------- */}
+      <div style={{ marginBottom: "100px" }}>
+        <Carousel
+          arrows
+          autoplay={autoplay}
+          autoplaySpeed={4000}
+          afterChange={(index) => {
+            // Khi đến slide cuối cùng → tắt autoplay
+            setActiveIndex(index);
+            if (index === carousel.length - 1) {
+              setAutoplay(false);
+            }
+          }}
+          dots
+          pauseOnHover={false}
+        >
+          {carousel.map((item, index) => {
+            const isActive = index === activeIndex;
+            return (
+              <div>
+                <div
+                  className="css-box-shadow"
+                  style={{
+                    backgroundImage: `url(${item.img})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <Row
+                    style={{
+                      width: "80%",
+                      margin: "auto",
+                      minHeight: "400px",
+                    }}
+                  >
+                    <Col xs={12} xl={6} className="fl-center">
+                      <div
+                        style={{
+                          transition: "opacity 0.5s ease, transform 0.5s ease",
+                          opacity: isActive ? 1 : 0, // active = slide hiện tại
+                          transform: isActive
+                            ? "translateX(0)"
+                            : "translateX(50px)",
+                        }}
+                      >
+                        {" "}
+                        {/* chiếm full height Col */}
+                        <h3 className="text-32 mb-3">{item.head}</h3>
+                        <p className="text-16">{item.p}</p>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            );
+          })}
+        </Carousel>
+      </div>
       <div className="vision mission-vision">
-        <Row gutter={30} align="top">
+        <Row gutter={70} align="top">
           {/* Tầm nhìn */}
           <Col
             className="img-col animate-on-scroll fade-up"
@@ -138,8 +229,8 @@ function AboutUs() {
           </Col>
         </Row>
       </div>
-      <div className="mission mission-vision">
-        <Row gutter={30} align="bottom">
+      <div style={{ marginBottom: "120px" }} className="mission mission-vision">
+        <Row gutter={70} align="bottom">
           {/* Sứ mệnh */}
 
           <Col

@@ -36,6 +36,9 @@ body,
 .my-dropdown .ant-dropdown-menu-item {
   color: #4e423d !important;
 }
+.text-32 {
+  font-size: 32px;
+}
 .text-16 {
   font-size: 16px;
 }
@@ -68,6 +71,9 @@ body,
 }
 .pt-3 {
   padding-top: 1rem !important;
+}
+.pt-6 {
+  padding-top: 2rem !important;
 }
 .mb-2 {
   margin-bottom: 0.6rem !important;
@@ -120,6 +126,43 @@ body,
   top: -10px;
   background-color: #fdfbf5;
   z-index: 1000; /* nằm trên cùng */
+}
+.animate-on-scroll {
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-right {
+  transform: translateX(-100px);
+}
+
+.fade-left {
+  transform: translateX(100px);
+}
+.fade-up {
+  transform: translateY(70px);
+}
+
+.is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.bound {
+  min-height: 100%;
+  width: 100%;
+  text-align: start;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.bound div {
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
 }
 /* Change ant-design
 
@@ -181,6 +224,13 @@ body,
 }
 
 /* ------------------------------------ */
+.custom-form .ant-form-item-label {
+  padding-bottom: 2px !important; /* Mặc định là 8px, chỉnh nhỏ lại tùy ý */
+}
+
+.custom-form .form-item {
+  margin-bottom: 20px;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

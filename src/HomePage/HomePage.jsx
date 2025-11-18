@@ -2,6 +2,7 @@ import { Row, Col, Button } from "antd";
 import Product from "../components/Product/Product";
 import { Link } from "react-router-dom";
 import "./homePage.css";
+import { useEffect } from "react";
 function HomePage({ user }) {
   // const [topProducts, setTopProducts] = useState([]);
 
@@ -26,7 +27,29 @@ function HomePage({ user }) {
   //   // Dọn dẹp khi component unmount
   //   return () => clearInterval(interval);
   // }, []);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
 
+    const elementsToAnimate = document.querySelectorAll(".animate-on-scroll");
+
+    elementsToAnimate.forEach((el) => observer.observe(el));
+
+    return () => {
+      elementsToAnimate.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
   return (
     <div>
       {/* <h1>Welcome to the Home Page</h1>
@@ -45,14 +68,23 @@ function HomePage({ user }) {
           </Col>
         </Row>
         <div>
-          <Row justify="center">
-            <Col className="box">
+          <Row align="top" justify="center">
+            <Col
+              className="box animate-on-scroll fade-up "
+              style={{ transitionDelay: "0.05s" }}
+            >
               <Product productName={"Bánh kem chesse"} price={"120000"} />
             </Col>
-            <Col className="box">
+            <Col
+              className="box animate-on-scroll fade-up "
+              style={{ transitionDelay: "0s" }}
+            >
               <Product productName={"Sourdough"} price={"120000"} />
             </Col>
-            <Col className="box">
+            <Col
+              className="box animate-on-scroll fade-up "
+              style={{ transitionDelay: "0.05s" }}
+            >
               <Product productName={"Sourdough"} price={"120000"} />
             </Col>
           </Row>

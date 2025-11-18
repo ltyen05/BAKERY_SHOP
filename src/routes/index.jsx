@@ -13,11 +13,11 @@ import { Navigate } from "react-router-dom";
 const HomePage = lazy(() => import("../HomePage/HomePage"));
 const AboutUs = lazy(() => import("../AboutUs/AboutUs"));
 const Menu = lazy(() => import("../Menu/Menu"));
-const Cake = lazy(() => import("../Menu/Cake"));
+const ProductList = lazy(() => import("../Menu/ProductList"));
 const LogIn = lazy(() => import("../LogIn/LogIn"));
 const SignUp = lazy(() => import("../SignUp/SignUp"));
 const Facilities = lazy(() => import("../Facilities/Facilities"));
-
+const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
 // ----- PHẦN CÒN LẠI GIỮ NGUYÊN -----
 // Mảng 'routes' của bạn không cần thay đổi gì cả
 // vì 'HomePage' (lazy) vẫn là một component hợp lệ.
@@ -45,10 +45,21 @@ export const routes = [
       {
         path: "cake",
         name: "Cake",
-        page: Cake, // Dùng 'Cake' (lazy)
+        page: ProductList,
+        props: { category: "cake" }, // Dùng 'Cake' (lazy)
       },
-      { path: "bread", name: "Bread", page: Cake },
-      { path: "drink", name: "Drink", page: Cake },
+      {
+        path: "bread",
+        name: "Bread",
+        page: ProductList,
+        props: { category: "bread" },
+      },
+      {
+        path: "drink",
+        name: "Drink",
+        page: ProductList,
+        props: { category: "drink" },
+      },
     ],
   },
   {
@@ -79,5 +90,12 @@ export const routes = [
     name: "Log In",
     position: "right",
     needHandleLogin: true,
+  },
+  {
+    path: "/viewProfile",
+    page: viewProfile,
+    name: "View Profile",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
   },
 ];

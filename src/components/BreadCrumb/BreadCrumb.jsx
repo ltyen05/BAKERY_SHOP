@@ -35,7 +35,12 @@ function Breadcrumbs() {
 
   breadcrumbItems.unshift({ key: "/", title: <Link to="/">Home</Link> });
 
-  return <Breadcrumb items={breadcrumbItems} style={{ padding: "10px 0" }} />;
+  return (
+    <Breadcrumb
+      items={breadcrumbItems}
+      style={{ padding: "25px 0 10px", width: "90%", margin: "auto" }}
+    />
+  );
 }
 
 export default Breadcrumbs;

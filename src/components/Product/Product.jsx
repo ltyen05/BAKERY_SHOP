@@ -1,10 +1,10 @@
 import "./productCard.css";
 import starIcon from "../../assets/Star.svg";
 import { Button } from "antd";
-function Product({ productName, price }) {
+function Product({ productName, price, image }) {
   return (
     <div className="list">
-      <img alt="" className="img-course" />
+      <img src={image} alt={productName} className="img-course" />
       <div className="info">
         <div className="info-head mb-3">
           <div style={{ width: "70%", textAlign: "left" }}>

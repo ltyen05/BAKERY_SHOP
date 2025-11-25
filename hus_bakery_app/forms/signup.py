@@ -10,16 +10,16 @@ class SignupForm(FlaskForm):
     ])
     email = StringField('Email', validators=[
         DataRequired(),
-        Email(message='Invalid email address.')
+        Email(message='Email này đã tồn tại')
     ])
     phone = StringField('Phone', validators=[
         DataRequired(),
-        Length(max=20, message='Phone number is at most 20 characters.')
+        Length(max=10, message='Số điện thoại phải có 10 số')
     ])
     password = PasswordField('Password', validators=[
         DataRequired(),
         Length(min=6, message='Password must be at least 6 characters.'),
-        EqualTo('confirm', message='Passwords must match')
+        EqualTo('confirm', message='Mật khẩu không khớp')
     ])
     confirm = PasswordField('Repeat Password')
     submit = SubmitField('Create account')

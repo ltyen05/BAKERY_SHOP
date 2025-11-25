@@ -18,7 +18,4 @@ def test_db():
 
 
 if __name__ == '__main__':
-    from hus_bakery_app.admin import init_admin
-    init_admin(app)
-
     app.run(debug=True)

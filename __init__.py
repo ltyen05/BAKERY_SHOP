@@ -1,10 +1,15 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from dotenv import load_dotenv
 
+from hus_bakery_app.hus_bakery_backend.bin import dotenv
+
+load_dotenv
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/hus_bakery'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 @app.route("/test_db")

@@ -4,6 +4,9 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from ..models.customer import Customer
 
 class SignupForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     name = StringField('Username', validators=[
         DataRequired(message='Please enter your username.'),
         Length(max=50, message='Username is at most 50 characters.')

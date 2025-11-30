@@ -1,0 +1,95 @@
+.sidebar {
+  width: 240px;
+  background: #ffffff;
+  color: #0b0b0b;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+  border-right: 1px solid #e0e0e0;
+  min-height: 100vh;
+}
+
+/* Logo */
+.logo-section {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.logo {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  background: #FFF3E2;
+  padding: 12px;
+  border-radius: 8px;
+}
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #fff;
+}
+.info .role {
+  font-weight: bold;
+  font-size: 15px;
+}
+.info .email {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #0c0c0c;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.menu-item:hover {
+  background: #f0d9b5;
+  color: #000;
+}
+.menu-item.active {
+  background: #A75D5D;
+  color: #fff;
+  font-weight: bold;
+}
+.icon {
+  color: #A75D5D;
+  font-size: 18px;
+}
+
+/* Logout button */
+.logout-btn {
+  margin-top: 20px;
+  background: #A75D5D;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+}
+.logout-btn:hover {
+  background: #8c4a4a;
+}

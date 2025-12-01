@@ -9,10 +9,9 @@ import {
   FaUserTie,
   FaCommentDots,
   FaGift,
-  FaSignOutAlt,
 } from "react-icons/fa";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onCloseSidebar }) {
   const location = useLocation();
 
   const menuItems = [
@@ -26,12 +25,19 @@ export default function Sidebar() {
     { key: "promotions", label: "Promotions", icon: <FaGift className="icon" /> },
   ];
 
+  // Khi bấm vào menu trên mobile, đóng sidebar
+  const handleClick = () => {
+    if (onCloseSidebar) onCloseSidebar();
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+      {/* Logo */}
       <div className="logo-section">
         <img src="/images/logo.png" alt="Logo" className="logo" />
       </div>
 
+      {/* Profile */}
       <div className="profile">
         <img src="/images/avt.png" alt="Admin avatar" className="avatar" />
         <div className="info">
@@ -40,17 +46,18 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* Menu */}
       <nav className="menu">
         {menuItems.map((item) => (
           <Link
             key={item.key}
             to={`/${item.key}`}
             className={`menu-item ${location.pathname === `/${item.key}` ? "active" : ""}`}
+            onClick={handleClick}
           >
             {item.icon} {item.label}
           </Link>
         ))}
-      
       </nav>
     </aside>
   );

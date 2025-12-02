@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from .. import db
 from ..forms.signup import SignupForm
 from ..forms.login import LoginForm
-from ..models.customer import Customer
+from ..models.customer import Customer, Employee, Shipper
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -52,19 +52,62 @@ def lognin():
     if form.validate():
         customer = Customer.query.filter_by(email=form.email.data).first()
         if customer and customer.check_password(form.password.data):
-            access_token = create_access_token(identity=customer.email)
+            access_token_customer = create_access_token(identity={
+                "id": customer.customer_id,
+                "role": "customer"
+            })
             return jsonify({
                 "status": "success",
                 "message": "Đăng nhập thành công!",
-                "access_token": access_token,
+                "access_token": access_token_customer,
                 "data": {
                     "id": customer.customer_id,
                     "name": customer.name,
                     "email": customer.email,
-                    "avatar": customer.avatar
+                    "avatar": customer.avatar,
+                    "role": "customer"
                 }
             }), 200
 
+        employee = Employee.query.filter_by(email=form.email.data).first()
+        if employee and employee.check_password(form.password.data):
+            access_token_employee = create_access_token(identity={
+                "id": employee.employee_id,
+                "role": "employee"
+            })
+
+            return jsonify({
+                "status": "success",
+                "message": "Đăng nhập thành công!",
+                "access_token": access_token_employee,
+                "data": {
+                    "id": employee.employee_id,
+                    "name": employee.name,
+                    "email": employee.email,
+                    "avatar": employee.avatar,
+                    "role": "employee"
+                }
+            }), 200
+
+        shipper = Shipper.query.filter_by(email=form.email.data).first()
+        if shipper and shipper.check_password(form.password.data):
+            access_token_shipper = create_access_token(identity={
+                "id": shipper.shipper_id,
+                "role": "shipper"
+            })
+            return jsonify({
+                "status": "success",
+                "status": "success",
+                "message": "Đăng nhập thành công!",
+                "access_token": access_token_shipper,
+                "data": {
+                    "id": shipper.shipper_id,
+                    "name": shipper.name,
+                    "email": shipper.email,
+                    "avatar": shipper.avatar,
+                    "role": "shipper"
+                }
+            })
         else:
             return jsonify({
                 "status": "fail",

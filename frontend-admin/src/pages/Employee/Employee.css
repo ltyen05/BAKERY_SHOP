@@ -1,0 +1,121 @@
+.staff-container {
+  padding: 25px;
+}
+
+.staff-container h2 {
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+}
+
+.staff-table th {
+  text-align: left;
+  background: #f6f7f8;
+  padding: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.staff-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.staff-user-column {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.email {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Permission Tags */
+.permissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.permission-tag {
+  background: #ececec;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* Status */
+.status-active {
+  background: #d8f6e3;
+  color: #0d8c41;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Actions */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #009688;
+}
+
+.btn-icon.red {
+  color: #591616;
+}
+
+.btn-icon:hover {
+  transform: scale(1.12);
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.page-number {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: #eee;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.page-number.active {
+  background: #00a884;
+  color: #fff;
+}

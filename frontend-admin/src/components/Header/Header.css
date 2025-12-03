@@ -1,0 +1,214 @@
+/* ============================= */
+/* HEADER CHÍNH                  */
+/* ============================= */
+.header-container {
+  width: 100%;              /* chiếm toàn bộ chiều ngang */
+  height: 75px;
+  background: white;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-sizing: border-box;   /* tránh tràn khi có padding */
+  overflow-x: hidden;       /* ngăn tràn ngang */
+}
+
+/* ============================= */
+/* NÚT MENU 3 GẠCH (MOBILE)      */
+/* ============================= */
+.menu-toggle {
+  display: none;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #000;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+    margin-right: 10px;
+  }
+}
+
+/* ============================= */
+/* Ô TÌM KIẾM                    */
+/* ============================= */
+.header-search {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  padding: 12px 18px;
+  border-radius: 10px;
+  width: 100%;              /* chiếm toàn bộ chiều ngang */
+  max-width: 450px;         /* giới hạn tối đa */
+  position: relative;
+  box-sizing: border-box;
+}
+
+.header-search input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* Icon kính lúp */
+.search-icon {
+  position: absolute;
+  right: 20px;
+  font-size: 17px;
+  color: #000;
+  pointer-events: none;
+}
+
+/* ============================= */
+/* NHÓM ICON BÊN PHẢI            */
+/* ============================= */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
+/* Icon trần */
+.header-icon {
+  font-size: 20px; /* desktop */
+  color: #000;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f3f4f6; /* nền xám nhạt */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000; /* icon màu đen */
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.icon-circle:hover {
+  background: #e5e7eb;
+}
+
+
+.header-icon:hover {
+  color: #444;
+}
+
+/* Badge thông báo */
+.icon-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #6366f1;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.profile:hover {
+  background: #f3f4f6;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info .name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.profile-info .role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ============================= */
+/* RESPONSIVE CHO MOBILE         */
+/* ============================= */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0 15px;
+    height: 60px; /* giảm chiều cao header */
+  }
+
+  .header-search {
+    max-width: 180px;       /* thu nhỏ search box */
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .header-search input {
+    font-size: 12px;
+  }
+
+  .search-icon {
+    font-size: 14px;        /* icon search nhỏ hơn */
+  }
+
+  .header-icon {
+    font-size: 16px;        /* icon nhỏ hơn */
+  }
+
+  .profile-img {
+    width: 28px;
+    height: 28px;           /* avatar nhỏ hơn */
+  }
+
+  .badge {
+    font-size: 9px;
+    min-width: 14px;
+    height: 14px;           /* badge nhỏ hơn */
+  }
+}
+/* ... các style khác ... */
+
+
+

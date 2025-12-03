@@ -1,0 +1,84 @@
+.order-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  width: 100%;
+  margin: auto;
+  font-family: "Inter", sans-serif;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-row h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.filter-box select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 15px;
+  background: white;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th {
+  text-align: left;
+  padding: 14px 10px;
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  background: #f9fafb;
+}
+
+.order-table td {
+  padding: 18px 10px;
+  border-top: 1px solid #eee;
+  font-size: 15px;
+}
+
+.order-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge.pending {
+  background: #ffe9a8;
+  color: #9d7b00;
+}
+
+.badge.delivered {
+  background: #c8f6d0;
+  color: #1c7a34;
+}
+
+.badge.canceled {
+  background: #ffd4d4;
+  color: #d13f3f;
+}
+
+.dots {
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+}

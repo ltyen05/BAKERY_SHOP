@@ -1,0 +1,55 @@
+.overview-container {
+  padding: 20px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: #777;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.value.green {
+  color: #00a884;
+}
+
+.value.red {
+  color: #e63946;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-box {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}

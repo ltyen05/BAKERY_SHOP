@@ -1,0 +1,177 @@
+.feedback-page * {
+  color: #333 !important;
+}
+/* PAGE */
+.feedback-page {
+  padding: 25px;
+  font-family: Arial, sans-serif;
+}
+
+/* SEARCH AREA */
+.top-search-area {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 330px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* SORT DROPDOWN */
+.sort-dropdown {
+  position: relative;
+}
+
+.sort-main-btn {
+  padding: 9px 14px;
+  background: #00a884;
+  color: white;
+  border: none;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sort-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  display: none;
+  flex-direction: column;
+  min-width: 120px;
+  z-index: 1000;
+}
+
+.sort-dropdown:hover .sort-menu {
+  display: flex;
+}
+
+.sort-menu button {
+  padding: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sort-menu button:hover {
+  background: #f0f0f0;
+}
+
+/* TITLE */
+.red-background {
+  background: #987261;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.latest-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 12px;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: #eee;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #00a884;
+  color: white;
+}
+
+/* DATE */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* TABLE FIX (thẳng lối 100%) */
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.review-table th {
+  padding: 14px;
+  background: #f6f7f8;
+  font-weight: 600;
+  color: #444;
+}
+
+.review-row td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #eee;
+  height: 95px;    
+  vertical-align: middle !important;
+}
+
+/* PRODUCT */
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.prod-img {
+  width: 55px;
+  height: 55px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+/* REVIEW */
+.review-text {
+  margin-top: 6px;
+}
+
+/* RATING */
+.rating-cell {
+  text-align: center;
+}
+
+/* ACTION */
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* PAGINATION */
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+.page-number.active {
+  background: #00a884;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+}

@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from .. import db
 from ..forms.signup import SignupForm
 from ..forms.login import LoginForm
-from ..models.customer import Customer, Employee, Shipper
+from ..models.customer import Customer
 from ..services.auth_service import login_user, generate_token
 
 auth_bp = Blueprint('auth', __name__)

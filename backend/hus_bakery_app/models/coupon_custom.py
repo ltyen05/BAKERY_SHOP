@@ -8,3 +8,4 @@ class CouponCustomer(db.Model):
 
     status = db.Column(db.String(50))
     used_at = db.Column(db.DateTime)
+

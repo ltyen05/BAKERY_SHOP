@@ -9,6 +9,7 @@ from ..models.coupon_custom import CouponCustomer
 from .. import db
 from datetime import datetime
 import math
+from cart_services import coupon_of_customer
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # km
@@ -33,25 +34,41 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
         return None, "Không có sản phẩm nào được chọn"
 
     # Tính tổng tiền
-    total = 0
+    subtotal = 0
     for item in selected_items:
         product = Product.query.get(item.product_id)
-        total += float(product.price) * item.quantity
+        subtotal += float(product.price) * item.quantity
 
-    # Áp dụng coupon nếu có
+    discount = 0
     if coupon_id:
-        coupon = Coupon.query.get(coupon_id)
-        if coupon and coupon.discount_percent:
-            discount = total * (coupon.discount_percent / 100)
-            if coupon.max_discount:
-                discount = min(discount, float(coupon.max_discount))
-            total -= discount
+        cc = CouponCustomer.query.filter_by(
+            customer_id=customer_id,
+            coupon_id=coupon_id,
+            status="unused"
+        ).first()
 
-        # Cập nhật đã dùng
-        cc = CouponCustomer.query.filter_by(customer_id=customer_id, coupon_id=coupon_id).first()
-        if cc:
-            cc.status = "used"
-            cc.used_at = datetime.now()
+        if not cc:
+            return None, "Coupon không hợp lệ"
+
+        coupon = Coupon.query.get(coupon_id)
+        today = datetime.today().date()
+
+        if subtotal < coupon.min_purchase:
+            return None, f"Bạn phải mua tối thiểu {coupon.min_purchase} để dùng coupon"
+
+        if coupon.discount_type == "percent":
+            discount = subtotal * (coupon.discount_percent / 100)
+            if coupon.max_discount:
+                discount = min(discount, coupon.max_discount)
+        else:
+            discount = coupon.discount_value
+
+        # Đánh dấu coupon đã dùng
+        cc.status = "used"
+        cc.used_at = datetime.now()
+
+        # Tổng cuối sau giảm giá
+    total = subtotal - discount
 
     # Tìm branch gần nhất
     branches = Branch.query.all()

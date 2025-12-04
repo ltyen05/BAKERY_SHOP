@@ -1,16 +1,5 @@
 /* styles.css */
-.box {
-  width: 300px;
-  margin: 30px;
 
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.box:hover {
-  transform: scale(1.05); /* phóng to 5% */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* optional: bóng mượt hơn */
-  border-radius: 15px;
-}
 .cham {
   background-image: url("../assets/main.svg");
   background-size: contain;

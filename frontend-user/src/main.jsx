@@ -10,7 +10,7 @@ createRoot(document.getElementById("root")).render(
     <ConfigProvider
       theme={{
         token: {
-          fontFamily: '"Raleway", sans-serif',
+          fontFamily: '"Google Sans Flex", sans-serif',
         },
       }}
     >

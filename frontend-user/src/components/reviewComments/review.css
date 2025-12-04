@@ -1,0 +1,44 @@
+.review-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: start;
+  padding: 20px;
+  background-color: rgb(247, 242, 235);
+  border-radius: 1rem;
+}
+
+.review-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-content {
+  flex: 1;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.review-name {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.review-stars {
+  display: flex;
+  gap: 0.25rem;
+  color: #facc15; /* vàng */
+  font-size: 20px;
+}
+
+.review-text {
+  color: #4b5563; /* xám */
+  font-size: 16px;
+}

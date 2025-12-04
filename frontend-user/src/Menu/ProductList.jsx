@@ -3,7 +3,7 @@ import { Row, Col, Spin, message } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 // Import component Product bạn vừa viết
 import Product from "../components/Product/Product";
-
+import ProductDetail from "../components/Product/ProductDetails";
 export default function ProductList({ category }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ export default function ProductList({ category }) {
   }, [category]);
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" style={{ border: "1px solid" }}>
       {loading ? (
         <div className="fl-center" style={{ minHeight: "200px" }}>
           <Spin indicator={<LoadingOutlined spin />} />
@@ -54,6 +54,7 @@ export default function ProductList({ category }) {
           ))}
         </Row>
       )}
+      <ProductDetail />
     </div>
   );
 }

@@ -62,6 +62,7 @@ function AboutUs() {
           textAlign: "start",
           marginBottom: "100px",
         }}
+        className="mt-3"
       >
         <Row gutter={30} align="stretch">
           {/* Cột chứa text */}
@@ -153,7 +154,7 @@ function AboutUs() {
                     style={{
                       width: "80%",
                       margin: "auto",
-                      minHeight: "400px",
+                      minHeight: "450px",
                     }}
                   >
                     <Col xs={12} xl={6} className="fl-center">
@@ -179,7 +180,7 @@ function AboutUs() {
           })}
         </Carousel>
       </div>
-      <div className="vision mission-vision">
+      <div className="vision center-box">
         <Row gutter={70} align="top">
           {/* Tầm nhìn */}
           <Col
@@ -214,7 +215,7 @@ function AboutUs() {
             xl={12}
           >
             <div>
-              <h1 className="mb-3" style={{ fontSize: "32px" }}>
+              <h1 className="mb-2" style={{ fontSize: "32px" }}>
                 Tầm nhìn
               </h1>
               <div className="body">
@@ -229,7 +230,7 @@ function AboutUs() {
           </Col>
         </Row>
       </div>
-      <div style={{ marginBottom: "120px" }} className="mission mission-vision">
+      <div style={{ marginBottom: "120px" }} className="mission center-box">
         <Row gutter={70} align="bottom">
           {/* Sứ mệnh */}
 
@@ -241,17 +242,16 @@ function AboutUs() {
             xl={12}
           >
             <div>
-              <h1 className="mb-3" style={{ fontSize: "32px" }}>
+              <h1 className="mb-2" style={{ fontSize: "32px" }}>
                 Sứ mệnh
               </h1>
               <div className="body">
                 <p style={{ textAlign: "justify", fontSize: "16px" }}>
-                  Với quyết tâm “tái định vị” vị thế của chiếc bánh sinh nhật
-                  trên bàn tiệc, chúng tôi nỗ lực sáng tạo nên những hương vị
-                  khác biệt, độc đáo và ngon miệng để mang đến những trải nghiệm
-                  tuyệt vời nhất cho khách hàng; đồng thời xây dựng chuẩn mực
-                  mới của hương vị, đó là: không chỉ ngon mà còn chạm đến cảm
-                  xúc.
+                  Với quyết tâm “tái định vị” vị thế của chiếc bánh trên bàn
+                  tiệc, chúng tôi nỗ lực sáng tạo nên những hương vị khác biệt,
+                  độc đáo và ngon miệng để mang đến những trải nghiệm tuyệt vời
+                  nhất cho khách hàng; đồng thời xây dựng chuẩn mực mới của
+                  hương vị, đó là: không chỉ ngon mà còn chạm đến cảm xúc.
                 </p>
               </div>
             </div>

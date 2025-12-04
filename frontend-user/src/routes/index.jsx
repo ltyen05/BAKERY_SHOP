@@ -18,6 +18,8 @@ const LogIn = lazy(() => import("../LogIn/LogIn"));
 const SignUp = lazy(() => import("../SignUp/SignUp"));
 const Facilities = lazy(() => import("../Facilities/Facilities"));
 const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
+const Admin = lazy(() => import("../admin"));
+const Shipper = lazy(() => import("../OnlyShipperPage/ShipperPage"));
 // ----- PHẦN CÒN LẠI GIỮ NGUYÊN -----
 // Mảng 'routes' của bạn không cần thay đổi gì cả
 // vì 'HomePage' (lazy) vẫn là một component hợp lệ.
@@ -28,6 +30,7 @@ export const routes = [
     name: "Trang chủ",
     position: "middle",
     isShowHeader: true,
+    roles: ["user", "admin", "guest"],
   },
   {
     path: "/menu",
@@ -36,6 +39,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
+    roles: ["user", "admin", "guest"],
     children: [
       {
         path: "",
@@ -69,6 +73,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
+    roles: ["user", "admin", "guest"],
   },
   {
     path: "/facilities",
@@ -77,12 +82,14 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
+    roles: ["user", "admin", "guest"],
   },
   {
     path: "/signUp",
     page: SignUp, // Dùng 'SignUp' (lazy)
     name: "Sign Up",
     position: "right",
+    roles: ["guest"],
   },
   {
     path: "/logIn",
@@ -90,6 +97,7 @@ export const routes = [
     name: "Log In",
     position: "right",
     needHandleLogin: true,
+    roles: ["guest"],
   },
   {
     path: "/viewProfile",
@@ -97,5 +105,22 @@ export const routes = [
     name: "View Profile",
     isShowHeader: true,
     isShowBreadCrumbs: true,
+    roles: ["user", "admin"],
+  },
+  {
+    path: "/admin",
+    page: Admin,
+    name: "Admin Page",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["admin"],
+  },
+  {
+    path: "/shipper",
+    page: Shipper,
+    name: "Shipper Page",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["shipper"],
   },
 ];

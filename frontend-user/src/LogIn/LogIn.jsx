@@ -1,14 +1,75 @@
 import { Form, Button, Input, Checkbox } from "antd";
 import { Link } from "react-router-dom";
+import { useState, useNavigate } from "react";
 import bakesLogo from "../assets/bakes.svg";
 export default function Login({ onLogin }) {
+  // const [loading, setLoading] = useState(false);
+  // const navigate = useNavigate();
+
+  // const handleSubmit = async (values) => {
+  //   // values từ Ant Design Form: { email, password, remember }
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await fetch("http://localhost:5000/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         email: values.email,
+  //         password: values.password,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (res.ok && data.status === 'success') {
+  //       // Lưu token
+  //       localStorage.setItem('access_token', data.access_token);
+
+  //       // Gọi handleLogin từ App với thông tin user
+  //       onLogin({
+  //         id: data.data.id,
+  //         name: data.data.name,
+  //         email: data.data.email,
+  //         avatar: data.data.avatar,
+  //         role: data.data.role
+  //       });
+
+  //       // Hiển thị thông báo thành công
+  //       alert(data.message);
+
+  //       // Navigate dựa vào role
+  //       if (data.data.role === 'admin') {
+  //         navigate('/admin');
+  //       } else {
+  //         navigate('/');
+  //       }
+  //     } else {
+  //       // Xử lý lỗi validation
+  //       if (data.errors) {
+  //         // Hiển thị lỗi từ backend
+  //         const errorMessages = Object.values(data.errors).flat().join('\n');
+  //         alert(errorMessages);
+  //       } else {
+  //         alert(data.message || 'Đăng nhập thất bại');
+  //       }
+  //     }
+  //   } catch (err) {
+  //     alert("Lỗi kết nối server: " + err.message);
+  //     console.error('Login error:', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleSubmit = (values) => {
-    const { username, password } = values;
-    // Giả sử chỉ cần nhập đúng "admin" và "123"
-    if (username === "admin" && password === "123") {
-      onLogin(username); // Gọi callback để App biết đã login
+    if (values.username === "admin" && values.password === "1234567979") {
+      onLogin({ username: "admin", role: "admin" });
+      alert("Đăng nhập thành công!");
+    } else if (values.username === "user" && values.password === "1234567979") {
+      onLogin({ username: "user", role: "user" });
+      alert("Đăng nhập thành công!");
     } else {
-      alert("Sai tài khoản hoặc mật khẩu!");
+      alert("Tên đăng nhập hoặc mật khẩu không đúng!");
     }
   };
 

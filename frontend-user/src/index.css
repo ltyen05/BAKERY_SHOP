@@ -1,7 +1,6 @@
 :root {
-  font-family: "Raleway", sans-serif !important;
+  font-family: "Google Sans Flex", sans-serif !important;
   line-height: 1.5;
-  font-weight: 400;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -20,7 +19,7 @@
 html,
 body,
 #root {
-  font-family: "Raleway", sans-serif !important;
+  font-family: "Google Sans Flex", sans-serif !important;
   margin: auto;
   padding: 0;
   width: 100%;
@@ -45,8 +44,21 @@ body,
 .bg-color {
   background-color: #fdfbf5;
 }
+.out-line {
+  border: none !important;
+  background-color: transparent !important;
+}
 .main-font {
-  font-family: "Raleway", sans-serif !important;
+  font-family: "Google Sans Flex", sans-serif !important;
+}
+.showUp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.46);
+  z-index: 10;
 }
 .m-0 {
   margin: 0;
@@ -59,6 +71,13 @@ body,
 }
 .mt-6 {
   margin-top: 2rem !important;
+}
+.mt-12 {
+  margin-top: 4rem !important;
+}
+
+.mt-18 {
+  margin-top: 6rem !important;
 }
 .mb-3 {
   margin-bottom: 1rem !important;
@@ -78,6 +97,18 @@ body,
 .mb-2 {
   margin-bottom: 0.6rem !important;
 }
+.mb-1 {
+  margin-bottom: 0.3rem !important;
+}
+.mb-6 {
+  margin-bottom: 2rem !important;
+}
+.mb-18 {
+  margin-bottom: 6rem !important;
+}
+.mb-24 {
+  margin-bottom: 8rem !important;
+}
 .als-start {
   align-self: flex-start;
 }
@@ -88,21 +119,21 @@ body,
   display: inline-block;
   min-width: 120px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 300 !important;
   height: 40px;
   text-align: center;
   padding: 0 16px;
 }
 
 .btn-primary:hover {
-  border: none !important;
+  border: 2px solid var(--main-color) !important;
   background-color: var(--main-color) !important;
   color: #f7f4e7 !important;
 }
 
 .btn-primary {
-  border: 1px solid var(--main-color);
-  background-color: #f7f4e7;
+  border: 2px solid var(--main-color);
+  background-color: #fdfbf5;
   color: var(--main-color);
 }
 
@@ -116,6 +147,11 @@ body,
   background-color: #a2734c;
   color: #f7f4e7;
 }
+
+.hover-grey:hover {
+  background-color: #dbdbdbb9 !important;
+}
+
 .fl-center {
   display: flex;
   align-items: center;
@@ -129,9 +165,9 @@ body,
 }
 .animate-on-scroll {
   opacity: 0;
-  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fade-right {
@@ -231,6 +267,15 @@ body,
 .custom-form .form-item {
   margin-bottom: 20px;
 }
+.no-border {
+  border: none;
+  background-color: inherit;
+}
+.center-box {
+  margin: auto;
+  width: 70%;
+  text-align: start;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -241,5 +286,6 @@ body,
   }
   button {
     background-color: #f9f9f9;
+    cursor: pointer !important;
   }
 }

@@ -1,17 +1,12 @@
 import { Fragment, Suspense } from "react";
-import {
-  useNavigate,
-  BrowserRouter as Router,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { useNavigate, Route, Routes } from "react-router-dom";
 import { routes } from "./routes";
 import "./App.css";
 import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
 import ScrollToTop from "./components/ScrollToTop";
-
+import RoleGuard from "./components/RoleGuard/RoleGuard";
 function renderRoutes(routes, handleLogin, user, handleLogout) {
   return routes.map((route) => {
     const Page = route.page;
@@ -28,11 +23,13 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
           key={route.path}
           path={route.path}
           element={
-            <HeaderLayout username={user} onLogout={handleLogout}>
-              <BreadCrumbsLayout>
-                <Page {...pageProps} />
-              </BreadCrumbsLayout>
-            </HeaderLayout>
+            <RoleGuard user={user} roles={route.roles}>
+              <HeaderLayout user={user} onLogout={handleLogout}>
+                <BreadCrumbsLayout>
+                  <Page {...pageProps} />
+                </BreadCrumbsLayout>
+              </HeaderLayout>
+            </RoleGuard>
           }
         >
           {renderRoutes(route.children, handleLogin, user, handleLogout)}
@@ -44,11 +41,13 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
           key={route.path}
           path={route.path}
           element={
-            <HeaderLayout username={user} onLogout={handleLogout}>
-              <BreadCrumbsLayout>
-                <Page {...pageProps} />
-              </BreadCrumbsLayout>
-            </HeaderLayout>
+            <RoleGuard user={user} roles={route.roles}>
+              <HeaderLayout user={user} onLogout={handleLogout}>
+                <BreadCrumbsLayout>
+                  <Page {...pageProps} />
+                </BreadCrumbsLayout>
+              </HeaderLayout>
+            </RoleGuard>
           }
         />
       );
@@ -56,14 +55,35 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
   });
 }
 function AppContent() {
+  // const [user, setUser] = useState(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   return storedUser ? JSON.parse(storedUser) : null;
+  // });
+  // const navigate = useNavigate();
+
+  // const handleLogin = (userInfo) => {
+  //   // userInfo: { id, name, email, avatar, role }
+  //   setUser(userInfo);
+  //   localStorage.setItem("user", JSON.stringify(userInfo));
+  // };
+
+  // const handleLogout = () => {
+  //   setUser(null);
+  //   localStorage.removeItem("user");
+  //   localStorage.removeItem("access_token"); // Xóa cả token
+  //   navigate("/logIn");
+  // };
   const [user, setUser] = useState(() => {
-    return localStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
+    // Lấy thông tin user (dạng đối tượng) từ localStorage
+    return storedUser ? JSON.parse(storedUser) : null;
   });
   const navigate = useNavigate(); // <-- Bây giờ hook này hợp lệ
 
-  const handleLogin = (username) => {
-    setUser(username);
-    localStorage.setItem("user", username);
+  const handleLogin = (userInfo) => {
+    // userInfo: { username: '...', role: 'user' hoặc 'admin' }
+    setUser(userInfo);
+    localStorage.setItem("user", JSON.stringify(userInfo));
     navigate("/");
   };
 

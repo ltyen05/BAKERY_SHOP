@@ -31,9 +31,9 @@
 }
 
 .info-foot .price {
-  font-size: 16px;
+  font-size: 12px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300;
   line-height: 30px; /* 166.667% */
 }
 
@@ -57,7 +57,20 @@
   color: #171100;
   font-size: 18px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 400;
 
   line-height: 30px; /* 166.667% */
+}
+/* styles.css */
+.box {
+  width: 300px;
+  margin: 30px;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.box:hover {
+  transform: scale(1.05); /* phóng to 5% */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* optional: bóng mượt hơn */
+  border-radius: 15px;
 }

@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-import { Dropdown, Space, Button, Avatar, Badge } from "antd"; // ⚠️ phải có
-import {
-  DownOutlined,
-  ShoppingCartOutlined,
-  BellOutlined,
-} from "@ant-design/icons"; // ⚠️ phải có
+import { Dropdown, Space, Button, Avatar, Badge, Drawer } from "antd";
+import { useState } from "react"; // ⚠️ phải có// ⚠️ phải có
 import bakesLogo from "../../assets/bakes.svg";
 import { routes } from "../../routes";
-import { UserOutlined, LogoutOutlined, LockOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  LogoutOutlined,
+  LockOutlined,
+  DownOutlined,
+} from "@ant-design/icons";
+import bell from "../../assets/bell.svg";
+import cart from "../../assets/cart.svg";
 function getRoutesByPosition(routesByPosition) {
   return routesByPosition.map((route) => {
     if (route.children && route.children.length > 0) {
@@ -24,18 +27,19 @@ function getRoutesByPosition(routesByPosition) {
           placement="bottom"
           menu={{ items, className: "my-dropdown" }}
         >
-          <a onClick={(e) => e.preventDefault()}>
+          <span onClick={(e) => e.preventDefault()}>
             <Space>
               <Link
                 key={route.path}
                 to={route.path}
                 className="text-main-color text-16"
+                style={{ fontWeight: "200" }}
               >
                 {route.name}
               </Link>
               <DownOutlined className="text-main-color" />
             </Space>
-          </a>
+          </span>
         </Dropdown>
       );
     } else {
@@ -45,6 +49,7 @@ function getRoutesByPosition(routesByPosition) {
           key={route.path}
           to={route.path}
           className="text-main-color text-16"
+          style={{ fontWeight: "200" }}
         >
           {route.name}
         </Link>
@@ -53,12 +58,12 @@ function getRoutesByPosition(routesByPosition) {
   });
 }
 
-function NavBar({ username, onLogout }) {
+function NavBar({ user, onLogout }) {
   const view = {
     items: [
       {
         key: "username",
-        label: <span>{username}</span>, // ✅ phải là JSX hoặc string
+        label: user?.username, // ✅ phải là JSX hoặc string
         disabled: true,
       },
       {
@@ -82,6 +87,13 @@ function NavBar({ username, onLogout }) {
         icon: <LogoutOutlined />,
       },
     ],
+  };
+  const [open, setOpen] = useState(false);
+  const showDrawer = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
   };
   const routes_middle = routes.filter((route) => route.position === "middle");
   const routes_right = routes.filter((route) => route.position === "right");
@@ -121,7 +133,7 @@ function NavBar({ username, onLogout }) {
         </Col>
         <Col xs={12} md={4}>
           <Row justify="end" style={{ minHeight: "55px" }} align="middle">
-            {username ? (
+            {user ? (
               <>
                 <div
                   style={{
@@ -130,13 +142,27 @@ function NavBar({ username, onLogout }) {
                     alignItems: "center",
                   }}
                 >
-                  <Space size="middle">
-                    <Badge count={1} showZero color="#ab5506ff">
-                      <BellOutlined style={{ fontSize: "25px" }} />
-                    </Badge>
-                  </Space>
-                  <ShoppingCartOutlined style={{ fontSize: "25px" }} />
+                  <Badge count={1} showZero color="#ab5506ff">
+                    <div className="fl-center">
+                      <img src={bell} alt="bell-image" width="25px" color="" />
+                    </div>
+                  </Badge>
 
+                  <button className="no-border" onClick={showDrawer}>
+                    <div className="fl-center">
+                      <img src={cart} alt="cart-image" width="30px" />
+                    </div>
+                  </button>
+                  <Drawer
+                    title="Giỏ hàng"
+                    closable={{ "aria-label": "Close Button" }}
+                    onClose={onClose}
+                    open={open}
+                  >
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p>
+                  </Drawer>
                   <Dropdown
                     placement="bottom"
                     menu={{

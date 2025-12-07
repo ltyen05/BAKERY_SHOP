@@ -1,3 +1,4 @@
+import requests
 from ..models.order import Order
 from ..models.order_item import OrderItem
 from ..models.cart_item import CartItem
@@ -10,6 +11,25 @@ from .. import db
 from datetime import datetime
 import math
 from cart_services import coupon_of_customer
+
+# =============================
+# Lấy tọa độ từ địa chỉ (FREE API)
+# =============================
+def geocode_address(address):
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": address,
+        "format": "json",
+        "limit": 1
+    }
+
+    res = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"})
+    data = res.json()
+
+    if not data:
+        return None, None
+
+    return float(data[0]["lat"]), float(data[0]["lon"])
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # km
@@ -28,6 +48,12 @@ def haversine(lat1, lon1, lat2, lon2):
 # Tạo đơn hàng
 # ==========================
 def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, coupon_id=None):
+    # Lấy tọa độ khách hàng từ địa chỉ
+    customer_lat, customer_lng = geocode_address(shipping_address)
+    if not customer_lat:
+        return None, "Không thể tìm tọa độ từ địa chỉ"
+
+    # lấy item được chọn
     selected_items = CartItem.query.filter_by(customer_id=customer_id, selected=True).all()
 
     if not selected_items:
@@ -83,8 +109,14 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             min_dist = dist
             nearest_branch = b
 
+    shipping_fee = min_dist * 5000
+
     # Tìm shipper
     shipper = Shipper.query.filter_by(branch_id=nearest_branch.branch_id, status="active").first()
+    if shipper:
+        shipper.status = "busy"
+
+    total = subtotal - discount + shipping_fee
 
     # Tạo Order
     order = Order(
@@ -109,8 +141,6 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             price=product.price
         )
         db.session.add(order_item)
-
-        # Xóa item khỏi giỏ hàng sau khi đặt hàng
         db.session.delete(item)
 
     db.session.commit()

@@ -30,7 +30,7 @@ export const routes = [
     name: "Trang chủ",
     position: "middle",
     isShowHeader: true,
-    roles: ["user", "admin", "guest"],
+    roles: ["customer", "admin", "guest"],
   },
   {
     path: "/menu",
@@ -39,7 +39,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["user", "admin", "guest"],
+    roles: ["customer", "admin", "guest"],
     children: [
       {
         path: "",
@@ -73,7 +73,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["user", "admin", "guest"],
+    roles: ["customer", "admin", "guest"],
   },
   {
     path: "/facilities",
@@ -82,7 +82,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["user", "admin", "guest"],
+    roles: ["customer", "admin", "guest"],
   },
   {
     path: "/signUp",
@@ -105,7 +105,7 @@ export const routes = [
     name: "View Profile",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["user", "admin"],
+    roles: ["customer", "admin"],
   },
   {
     path: "/admin",

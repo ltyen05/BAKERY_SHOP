@@ -63,7 +63,7 @@ function NavBar({ user, onLogout }) {
     items: [
       {
         key: "username",
-        label: user?.username, // ✅ phải là JSX hoặc string
+        label: user?.name, // ✅ phải là JSX hoặc string
         disabled: true,
       },
       {

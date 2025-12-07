@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { Table, Input, Button, Tag, Space, Typography, Card } from "antd";
-import {
-  SearchOutlined,
-  FilterOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 

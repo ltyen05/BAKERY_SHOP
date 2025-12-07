@@ -7,26 +7,26 @@ const SignUp = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false); // State để hiển thị loading
-  const checkEmailExists = async (email) => {
-    try {
-      const response = await fetch("http://localhost:5000/signup/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email }),
-      });
+  // const checkEmailExists = async (email) => {
+  //   try {
+  //     const response = await fetch("http://localhost:5000/signup/check-email", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email: email }),
+  //     });
 
-      if (!response.ok) {
-        // Nếu server lỗi 500, vẫn cho qua để validator không chặn người dùng (hoặc xử lý tuỳ bạn)
-        return { isDuplicate: false, error: null };
-      }
+  //     if (!response.ok) {
+  //       // Nếu server lỗi 500, vẫn cho qua để validator không chặn người dùng (hoặc xử lý tuỳ bạn)
+  //       return { isDuplicate: false, error: null };
+  //     }
 
-      const data = await response.json();
-      return { isDuplicate: data.exists, error: null };
-    } catch (error) {
-      console.error("Lỗi kiểm tra email:", error);
-      return { isDuplicate: false, error: "Lỗi kết nối Server" };
-    }
-  };
+  //     const data = await response.json();
+  //     return { isDuplicate: data.exists, error: null };
+  //   } catch (error) {
+  //     console.error("Lỗi kiểm tra email:", error);
+  //     return { isDuplicate: false, error: "Lỗi kết nối Server" };
+  //   }
+  // };
 
   // 2. Hàm xử lý khi bấm nút Đăng Ký
   const onFinish = async (values) => {
@@ -42,6 +42,7 @@ const SignUp = () => {
           email: values.email,
           phone: values.phone,
           password: values.password,
+          confirm: values.confirm,
         }),
       });
 
@@ -51,13 +52,11 @@ const SignUp = () => {
         // Hiển thị thông báo thành công
         message.success(data.message);
 
-        // Reset form
         form.resetFields();
 
-        // Chuyển hướng đến trang đăng nhập sau 1.5 giây
         setTimeout(() => {
           navigate("/login");
-        }, 1500);
+        }, 1000);
       } else if (data.status === "fail") {
         // Xử lý lỗi validation từ backend
         if (data.errors) {
@@ -136,26 +135,26 @@ const SignUp = () => {
             rules={[
               { type: "email", message: "Email không hợp lệ!" },
               { required: true, message: "Vui lòng nhập E-mail!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value) return Promise.resolve();
+              // ({ getFieldValue }) => ({
+              //   validator(_, value) {
+              //     if (!value) return Promise.resolve();
 
-                  return checkEmailExists(value).then((result) => {
-                    if (result.error) {
-                      return Promise.reject(new Error(result.error));
-                    }
+              //     return checkEmailExists(value).then((result) => {
+              //       if (result.error) {
+              //         return Promise.reject(new Error(result.error));
+              //       }
 
-                    if (result.isDuplicate) {
-                      return Promise.reject(
-                        new Error("Email này đã được sử dụng!")
-                      );
-                    }
+              //       if (result.isDuplicate) {
+              //         return Promise.reject(
+              //           new Error("Email này đã được sử dụng!")
+              //         );
+              //       }
 
-                    // 3. Nếu không lỗi mạng và không trùng => Hợp lệ
-                    return Promise.resolve();
-                  });
-                },
-              }),
+              //       // 3. Nếu không lỗi mạng và không trùng => Hợp lệ
+              //       return Promise.resolve();
+              //     });
+              // },
+              // }),
             ]}
           >
             <Input placeholder="example@email.com" />

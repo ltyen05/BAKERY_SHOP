@@ -58,7 +58,7 @@ const style = {
 
 const UserProfile = ({ user }) => {
   const initialUserInfo = {
-    name: user?.username,
+    name: user?.name,
     rank: "Rank Gold",
     email: "husbakery@hus.edu.vn",
     phone: "0123456789",

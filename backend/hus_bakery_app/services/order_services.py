@@ -2,7 +2,7 @@ import requests
 from ..models.order import Order
 from ..models.order_item import OrderItem
 from ..models.cart_item import CartItem
-from ..models.product import Product
+from ..models.products import Product
 from ..models.branch import Branch
 from ..models.shipper import Shipper
 from ..models.coupon import Coupon
@@ -10,7 +10,7 @@ from ..models.coupon_custom import CouponCustomer
 from .. import db
 from datetime import datetime
 import math
-from cart_services import coupon_of_customer
+from .cart_services import coupon_of_customer
 
 # =============================
 # Lấy tọa độ từ địa chỉ (FREE API)

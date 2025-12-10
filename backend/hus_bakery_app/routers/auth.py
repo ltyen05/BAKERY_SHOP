@@ -4,7 +4,7 @@ from .. import db
 from ..forms.signup import SignupForm
 from ..forms.login import LoginForm
 from ..models.customer import Customer
-from ..services.auth_service import login_user, generate_token
+from ..services.auth_services import login_user, generate_token
 
 auth_bp = Blueprint('auth', __name__)
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 
 class Product(db.Model):
-    __tablename__ = 'categories'
+    __tablename__ = 'products'
     
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200), nullable=False)

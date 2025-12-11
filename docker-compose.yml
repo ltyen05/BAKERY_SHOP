@@ -1,18 +1,23 @@
+version: "3.9"
+
 services:
+
   # ==========================
-  # 1. Backend (Flask)
+  # 1. Backend Flask API (CHỈNH SỬA Ở ĐÂY)
   # ==========================
   hus_bakery_web:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    volumes:
-      - ./backend:/app/backend
-    environment:
-      - FLASK_APP=main.py
-      - FLASK_ENV=development
+      context: ./backend        # <-- CHỈNH SỬA: Trỏ Context Build tới thư mục chứa Dockerfile
+      dockerfile: Dockerfile    # <-- CHỈNH SỬA: Chỉ cần tên file
+    container_name: hus_bakery_backend
+    restart: always
     ports:
       - "5001:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    working_dir: /app          # <-- THÊM: Đặt thư mục làm việc cho container là /app
     depends_on:
       hus_bakery_db:
         condition: service_healthy
@@ -24,6 +29,7 @@ services:
   # ==========================
   hus_bakery_db:
     image: mysql:8.0
+    container_name: hus_bakery_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -31,14 +37,14 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
+    networks:
+      - bakery-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 3s
       retries: 10
-    networks:
-      - bakery-network
 
   # ==========================
   # 3. Frontend User Website
@@ -55,7 +61,7 @@ services:
       - ./frontend-user:/app
       - /app/node_modules
     environment:
-      VITE_API_URL: http://hus_bakery_web:5000/api
+      VITE_API_URL: http://hus_bakery_web:5001/api
     command: npm run dev -- --host 0.0.0.0 --port 5173
     depends_on:
       - hus_bakery_web
@@ -70,25 +76,27 @@ services:
       context: ./frontend-admin
       dockerfile: Dockerfile
     container_name: bakery_frontend_admin
-    restart: always
     ports:
       - "3001:5173"
     volumes:
       - ./frontend-admin:/app
       - /app/node_modules
+      - /app/dist
     environment:
-      VITE_API_URL: http://hus_bakery_web:5000/api
-    command: npm run admin -- --host 0.0.0.0 --port 5173
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
+      VITE_APP_NAME: "Bakery Admin"
     depends_on:
-      - hus_bakery_web
+      - backend
+    stdin_open: true
+    tty: true
+    command: npm run dev -- --host 0.0.0.0 --port 5173
     networks:
       - bakery-network
 
-# ==========================
-# Volumes & Networks
-# ==========================
+
 volumes:
-  mysql_data:
+  db_data:
 
 networks:
   bakery-network:

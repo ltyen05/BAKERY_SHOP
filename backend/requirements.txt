@@ -9,9 +9,5 @@ SQLAlchemy==2.0.45
 Werkzeug==3.1.4
 WTForms==3.2.1
 pymysql
-<<<<<<< HEAD
 requests
 cryptography
-=======
-cryptography
->>>>>>> backend

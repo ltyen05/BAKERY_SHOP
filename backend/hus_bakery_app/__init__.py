@@ -25,8 +25,8 @@ def create_app():
 
     from .routers.auth import auth_bp
     from .routers.order_process import order_bp
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(order_bp)
+    app.register_blueprint(auth_bp, url_prefix='/api')
+    app.register_blueprint(order_bp, url_prefix='/api')
 
     @app.route("/test_db")
     def test_db():

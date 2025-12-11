@@ -6,5 +6,5 @@ class OrderStatus(db.Model):
 
     order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id', ondelete="CASCADE"), primary_key=True)
     status = db.Column(db.String(50), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())
     note = db.Column(db.Text, nullable=False)

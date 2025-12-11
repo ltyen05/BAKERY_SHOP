@@ -11,6 +11,7 @@ class Product(db.Model):
     image_url = db.Column(db.String(500), nullable=True)
     unit_price = db.Column(db.Numeric(10, 2), nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id', ondelete='SET NULL'), nullable=True)
+
     def __init__(self, name, description=None, short_desc=None, image_url=None, unit_price=None, category_id=None):
         self.name = name
         self.description = description

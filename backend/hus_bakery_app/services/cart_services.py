@@ -1,4 +1,4 @@
-from ..models.product import Product
+from ..models.products import Product
 from ..models.coupon import Coupon
 from ..models.coupon_custom import CouponCustomer
 from ..models.cart_item import CartItem

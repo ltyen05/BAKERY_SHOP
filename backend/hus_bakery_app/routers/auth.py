@@ -5,6 +5,7 @@ from ..forms.signup import SignupForm
 from ..forms.login import LoginForm
 from ..models.customer import Customer
 from ..services.auth_services import login_user, generate_token
+
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/', methods=['GET', 'POST'])

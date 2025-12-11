@@ -14,7 +14,7 @@ export default function ProductList({ category }) {
       try {
         // Gọi API Flask
         const response = await fetch(
-          `http://127.0.0.1:5000/api/products?category=${category}`
+          `http://127.0.0.1:5001/api/products?category=${category}`
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();

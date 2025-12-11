@@ -13,3 +13,4 @@ requests
 cryptography
 pymongo
 flask-pymongo
+email-validator

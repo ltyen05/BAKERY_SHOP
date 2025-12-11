@@ -76,3 +76,20 @@ def login():
             "role": role
         }
     }), 200
+    
+@auth_bp.route('/check-email', methods=['POST'])
+def check_email():
+    data = request.get_json()
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({"error": "Vui lòng cung cấp email"}), 400
+        
+    # Kiểm tra trong DB xem email có tồn tại không
+    user = Customer.query.filter_by(email=email).first()
+    
+    if user:
+        return jsonify({"exists": True}), 200 # Trùng email
+    else:
+        return jsonify({"exists": False}), 200 # Chưa trùng
+    

@@ -1,7 +1,8 @@
+import requests
 from ..models.order import Order
 from ..models.order_item import OrderItem
 from ..models.cart_item import CartItem
-from ..models.product import Product
+from ..models.products import Product
 from ..models.branch import Branch
 from ..models.shipper import Shipper
 from ..models.coupon import Coupon
@@ -9,6 +10,26 @@ from ..models.coupon_custom import CouponCustomer
 from .. import db
 from datetime import datetime
 import math
+from .cart_services import coupon_of_customer
+
+# =============================
+# Lấy tọa độ từ địa chỉ (FREE API)
+# =============================
+def geocode_address(address):
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": address,
+        "format": "json",
+        "limit": 1
+    }
+
+    res = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"})
+    data = res.json()
+
+    if not data:
+        return None, None
+
+    return float(data[0]["lat"]), float(data[0]["lon"])
 
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # km
@@ -27,31 +48,53 @@ def haversine(lat1, lon1, lat2, lon2):
 # Tạo đơn hàng
 # ==========================
 def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, coupon_id=None):
+    # Lấy tọa độ khách hàng từ địa chỉ
+    customer_lat, customer_lng = geocode_address(shipping_address)
+    if not customer_lat:
+        return None, "Không thể tìm tọa độ từ địa chỉ"
+
+    # lấy item được chọn
     selected_items = CartItem.query.filter_by(customer_id=customer_id, selected=True).all()
 
     if not selected_items:
         return None, "Không có sản phẩm nào được chọn"
 
     # Tính tổng tiền
-    total = 0
+    subtotal = 0
     for item in selected_items:
         product = Product.query.get(item.product_id)
-        total += float(product.price) * item.quantity
+        subtotal += float(product.price) * item.quantity
 
-    # Áp dụng coupon nếu có
+    discount = 0
     if coupon_id:
-        coupon = Coupon.query.get(coupon_id)
-        if coupon and coupon.discount_percent:
-            discount = total * (coupon.discount_percent / 100)
-            if coupon.max_discount:
-                discount = min(discount, float(coupon.max_discount))
-            total -= discount
+        cc = CouponCustomer.query.filter_by(
+            customer_id=customer_id,
+            coupon_id=coupon_id,
+            status="unused"
+        ).first()
 
-        # Cập nhật đã dùng
-        cc = CouponCustomer.query.filter_by(customer_id=customer_id, coupon_id=coupon_id).first()
-        if cc:
-            cc.status = "used"
-            cc.used_at = datetime.now()
+        if not cc:
+            return None, "Coupon không hợp lệ"
+
+        coupon = Coupon.query.get(coupon_id)
+        today = datetime.today().date()
+
+        if subtotal < coupon.min_purchase:
+            return None, f"Bạn phải mua tối thiểu {coupon.min_purchase} để dùng coupon"
+
+        if coupon.discount_type == "percent":
+            discount = subtotal * (coupon.discount_percent / 100)
+            if coupon.max_discount:
+                discount = min(discount, coupon.max_discount)
+        else:
+            discount = coupon.discount_value
+
+        # Đánh dấu coupon đã dùng
+        cc.status = "used"
+        cc.used_at = datetime.now()
+
+        # Tổng cuối sau giảm giá
+    total = subtotal - discount
 
     # Tìm branch gần nhất
     branches = Branch.query.all()
@@ -66,8 +109,14 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             min_dist = dist
             nearest_branch = b
 
+    shipping_fee = min_dist * 5000
+
     # Tìm shipper
     shipper = Shipper.query.filter_by(branch_id=nearest_branch.branch_id, status="active").first()
+    if shipper:
+        shipper.status = "busy"
+
+    total = subtotal - discount + shipping_fee
 
     # Tạo Order
     order = Order(
@@ -92,8 +141,6 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             price=product.price
         )
         db.session.add(order_item)
-
-        # Xóa item khỏi giỏ hàng sau khi đặt hàng
         db.session.delete(item)
 
     db.session.commit()

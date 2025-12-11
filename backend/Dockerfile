@@ -1,23 +1,17 @@
-# Sử dụng base image Python 3.10 slim để tối ưu kích thước
-FROM python:3.10-slim
+# Sử dụng Python Slim cho nhẹ
+FROM python:3.11-slim
 
-# Thiết lập biến môi trường
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Thiết lập thư mục làm việc mặc định trong container
+# Thiết lập thư mục làm việc là /app
 WORKDIR /app
 
-# Cài đặt dependency trước
-# Chỉ cần COPY requirements.txt để tận dụng Docker cache (tăng tốc độ build)
-COPY requirements.txt /app/
+# Copy file requirements trước để tận dụng cache của Docker
+COPY requirements.txt .
+
+# Cài đặt thư viện
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy toàn bộ code
-COPY . /app/
+# Copy toàn bộ code từ máy thật (thư mục backend) vào container
+COPY . .
 
-# Mở cổng 5000 (cổng mà Flask server lắng nghe)
-EXPOSE 5000
-
-# Lệnh khởi động sẽ được override bởi docker-compose.yml
-# CMD ["python", "main.py"]
+# Lệnh chạy server (dự phòng, thực tế docker-compose sẽ ghi đè lệnh này)
+CMD ["python", "main.py"]

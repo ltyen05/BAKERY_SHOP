@@ -14,3 +14,4 @@ class Order(db.Model):
     shipping_address = db.Column(db.Text)
     payment_method = db.Column(db.String(50))
     created_at = db.Column(db.DateTime)
+

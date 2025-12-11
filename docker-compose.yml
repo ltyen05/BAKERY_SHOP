@@ -7,13 +7,16 @@ services:
     container_name: bakery_mysql
     restart: always
     environment:
+      # Mình giữ password của file gốc để code backend kết nối được
+      # Nếu muốn đổi password, phải đổi cả trong file .env của backend
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: bakery_db
       MYSQL_USER: bakery_user
       MYSQL_PASSWORD: bakery123
-    # LƯU Ý: Cổng 3306 không được mở ra ngoài host vì lý do bảo mật
+    ports:
+      # Map ra port 3307 để tránh đụng port 3306 gốc trên máy (giống file của bạn)
+      - "3307:3306"
     volumes:
-      # LƯU Ý: Đảm bảo bạn có thư mục ./docker/mysql/ và file init.sql
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
@@ -32,20 +35,30 @@ services:
     container_name: bakery_backend
     restart: always
     ports:
-      - "5000:5000"
+      # SỬA: Đổi sang 5001 để tránh lỗi AirPlay trên Mac (giống file của bạn)
+      - "5001:5000"
     environment:
       FLASK_APP: main.py
       FLASK_ENV: development
-      # Tên host phải là tên service DB: 'mysql'
-      DATABASE_URL: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
-      JWT_SECRET_KEY: dev-secret-key-change-in-production
+      
+      # 1. Biến quan trọng nhất: Cấu hình kết nối DB
+      # Bạn PHẢI đổi host từ 'hus_bakery_db' thành 'mysql' (tên service trong file compose này)
+      # Bạn NÊN dùng user 'bakery_user' đã được tạo sẵn trong file compose thay vì root
+      DB_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
+      
+      # 2. Map thêm biến này để Flask-SQLAlchemy không bị lỗi RuntimeError
+      # (Giá trị giống hệt DB_URI)
+      SQLALCHEMY_DATABASE_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
+      
+      # 3. Các biến Key bảo mật của bạn
+      SECRET_KEY: nguyenbaothach
+      JWT_SECRET_KEY: hus_bakery_backend
     volumes:
       - ./backend:/app
       - /app/__pycache__
     depends_on:
       mysql:
         condition: service_healthy
-    # Hoặc gunicorn/waitress để chạy Production
     command: >
       sh -c "pip install --upgrade pip && 
       pip install -r requirements.txt && 
@@ -66,8 +79,8 @@ services:
       - /app/node_modules
       - /app/dist
     environment:
-      # Sử dụng tên host 'localhost' cho API vì frontend chạy trên trình duyệt host
-      VITE_API_URL: http://localhost:5000/api
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
       VITE_APP_NAME: "Bakery Shop"
     depends_on:
       - backend
@@ -90,8 +103,8 @@ services:
       - /app/node_modules
       - /app/dist
     environment:
-      # Sử dụng tên host 'localhost' cho API vì frontend chạy trên trình duyệt host
-      VITE_API_URL: http://localhost:5000/api
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
       VITE_APP_NAME: "Bakery Admin"
     depends_on:
       - backend

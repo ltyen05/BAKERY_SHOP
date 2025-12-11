@@ -11,3 +11,5 @@ WTForms==3.2.1
 pymysql
 requests
 cryptography
+pymongo
+flask-pymongo

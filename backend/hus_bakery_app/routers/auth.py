@@ -6,7 +6,7 @@ from ..forms.login import LoginForm
 from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
-from ..services.auth_services import login_user, generate_token, check_email_exist
+from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -111,3 +111,37 @@ def login():
         import traceback
         traceback.print_exc()
         return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
+
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"message": "Vui lòng nhập email"}), 400
+
+    success, message = request_password_reset(email)
+
+    if success:
+        return jsonify({"status": "success", "message": message}), 200
+    else:
+        # Lưu ý bảo mật: Đôi khi nên luôn trả về success để tránh hacker dò email
+        return jsonify({"status": "fail", "message": message}), 400
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')  # Token lấy từ URL (Frontend cắt ra gửi xuống)
+    new_password = data.get('new_password')
+
+    if not token or not new_password:
+        return jsonify({"message": "Thiếu thông tin"}), 400
+
+    success, message = reset_password_with_token(token, new_password)
+
+    if success:
+        return jsonify({"status": "success", "message": message}), 200
+    else:
+        return jsonify({"status": "fail", "message": message}), 400

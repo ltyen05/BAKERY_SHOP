@@ -7,21 +7,21 @@ feedback_bp = Blueprint('feedback', __name__)
 
 
 @feedback_bp.route('/add', methods=['POST'])
-@jwt_required()  # Bắt buộc phải có Token đăng nhập mới được đánh giá
+@jwt_required()
 def add_feedback():
-    # Lấy ID của người đang đăng nhập từ Token
     current_user = get_jwt_identity()
-    user_id = current_user['id']  # Hoặc current_user.get('id') tùy cấu trúc token của bạn
+    user_id = current_user['id']
 
     data = request.get_json()
     form = FeedbackForm(data=data, meta={'csrf': False})
 
     if form.validate():
+        # Gọi hàm service đã sửa (chỉ truyền user_id, order_id, rating)
         success, message = create_feedback(
             user_id=user_id,
             order_id=form.order_id.data,
-            rating=form.rating.data,
-            comment=form.comment.data
+            rating=form.rating.data
+            # Đã xóa dòng comment=form.comment.data
         )
 
         if success:

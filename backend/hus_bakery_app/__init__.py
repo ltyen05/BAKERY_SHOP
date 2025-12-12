@@ -48,7 +48,7 @@ def create_app():
         from .models.coupon_custom import CouponCustomer
         from .models.customer import Customer
         from .models.employee import Employee
-        from .models.feed_back import Feedback
+        from .models.feedback import Feedback
         from .models.order import Order
         from .models.order_item import OrderItem
         from .models.order_status import OrderStatus

@@ -1,23 +1,25 @@
 import { useState } from "react";
-import { Form, Button, Input, Checkbox, message } from "antd"; // Nhớ import message
-import { Link, useNavigate } from "react-router-dom"; // Nhớ import useNavigate
-import bakesLogo from "../assets/bakes.svg";
+import { Form, Button, Input, Checkbox, message } from "antd"; 
+import { Link, useNavigate } from "react-router-dom"; 
+import bakesLogo from "../assets/bakes.svg"; // Đảm bảo đường dẫn ảnh đúng
 
-export default function Login({ onLogin }) { // Thêm prop onLogin nếu bạn dùng nó để update state App
+export default function Login({ onLogin }) { 
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Hook để chuyển trang
+  const navigate = useNavigate();
+  
+  // KHẮC PHỤC 1: Sử dụng hook useMessage để thông báo hoạt động ổn định
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // Gọi API Login thực tế
       const response = await fetch("http://127.0.0.1:5001/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: values.email, // Backend cần 'email', không phải 'username'
+          email: values.email, 
           password: values.password,
         }),
       });
@@ -25,24 +27,40 @@ export default function Login({ onLogin }) { // Thêm prop onLogin nếu bạn d
       const data = await response.json();
 
       if (response.ok) {
-        message.success("Đăng nhập thành công!");
+        // Đăng nhập thành công
+        messageApi.success("Đăng nhập thành công!");
         
-        // Lưu token vào localStorage để dùng cho các request sau
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("user_info", JSON.stringify(data.data));
 
-        // Cập nhật trạng thái đăng nhập (nếu app của bạn cần)
         if (onLogin) onLogin(data.data);
 
-        // Chuyển hướng về trang chủ
-        navigate("/");
+        // Chờ 1 chút để user đọc thông báo rồi mới chuyển trang (tuỳ chọn)
+        setTimeout(() => {
+            navigate("/");
+        }, 500);
+        
       } else {
-        // Backend trả về lỗi (401, 400...)
-        message.error(data.message || "Sai email hoặc mật khẩu!");
+        // KHẮC PHỤC 2: Xử lý hiển thị lỗi chi tiết
+        // Backend có thể trả về 'message' (sai pass) hoặc 'errors' (lỗi form/token)
+        let errorContent = "Đã có lỗi xảy ra!";
+        
+        if (data.message) {
+            errorContent = data.message;
+        } else if (data.errors) {
+            // Nếu trả về errors dạng object {email: [...], password: [...]}, lấy lỗi đầu tiên
+            const firstErrorKey = Object.keys(data.errors)[0];
+            errorContent = data.errors[firstErrorKey];
+            // Nếu lỗi là mảng thì lấy phần tử đầu, nếu là string thì giữ nguyên
+            if (Array.isArray(errorContent)) errorContent = errorContent[0];
+        }
+
+        messageApi.error(errorContent);
       }
+
     } catch (error) {
       console.error("Lỗi đăng nhập:", error);
-      message.error("Lỗi kết nối đến Server!");
+      messageApi.error("Không thể kết nối đến Server!");
     } finally {
       setLoading(false);
     }
@@ -50,6 +68,9 @@ export default function Login({ onLogin }) { // Thêm prop onLogin nếu bạn d
 
   return (
     <div className="bound">
+      {/* Quan trọng: Đặt contextHolder ở đây để hiển thị thông báo */}
+      {contextHolder}
+
       <div className="fl-center bg-color pb-6 pt-3">
         <Link to={"/"}>
           <img
@@ -72,7 +93,6 @@ export default function Login({ onLogin }) { // Thêm prop onLogin nếu bạn d
           onFinish={handleSubmit}
           layout="vertical"
         >
-          {/* Sửa name="username" thành "email" cho khớp backend */}
           <Form.Item
             name="email"
             label="Email"

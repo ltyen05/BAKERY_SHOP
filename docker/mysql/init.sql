@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 02, 2025 lúc 03:45 AM
+-- Thời gian đã tạo: Th12 12, 2025 lúc 05:55 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -126,30 +126,29 @@ CREATE TABLE `cart_items` (
   `customer_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `quantity` int(11) DEFAULT NULL,
-  `added_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `selected` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `cart_items`
 --
 
-INSERT INTO `cart_items` (`customer_id`, `product_id`, `quantity`, `added_at`, `updated_at`) VALUES
-(1, 1, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(2, 2, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(3, 3, 2, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(4, 4, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(5, 5, 3, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(6, 6, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(7, 7, 2, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(8, 8, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(9, 9, 2, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(10, 10, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(11, 11, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(12, 12, 2, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(13, 13, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(14, 14, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(15, 15, 1, '2025-11-06 14:02:06', '2025-11-06 14:02:06');
+INSERT INTO `cart_items` (`customer_id`, `product_id`, `quantity`, `selected`) VALUES
+(1, 1, 1, 1),
+(2, 2, 1, 1),
+(3, 3, 2, 1),
+(4, 4, 1, 1),
+(5, 5, 3, 1),
+(6, 6, 1, 1),
+(7, 7, 2, 1),
+(8, 8, 1, 1),
+(9, 9, 2, 1),
+(10, 10, 1, 1),
+(11, 11, 1, 1),
+(12, 12, 2, 1),
+(13, 13, 1, 1),
+(14, 14, 1, 1),
+(15, 15, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -583,7 +582,6 @@ CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
   `name` varchar(200) NOT NULL,
   `description` text DEFAULT NULL,
-  `short_desc` varchar(255) DEFAULT NULL,
   `image_url` varchar(500) DEFAULT NULL,
   `unit_price` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -595,22 +593,22 @@ CREATE TABLE `products` (
 -- Đang đổ dữ liệu cho bảng `products`
 --
 
-INSERT INTO `products` (`product_id`, `name`, `description`, `short_desc`, `image_url`, `unit_price`, `created_at`, `updated_at`, `category_id`) VALUES
-(1, 'Bánh kem dâu tây', 'Bánh kem tươi với dâu tây tươi ngon', 'Kem dâu tươi', 'cake1.jpg', 250000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
-(2, 'Bánh kem socola', 'Bánh kem phủ socola đen ngọt đậm', 'Kem socola', 'cake2.jpg', 270000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
-(3, 'Bánh mì bơ tỏi', 'Bánh mì giòn với bơ tỏi thơm', 'Bánh mì bơ tỏi', 'bread1.jpg', 25000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
-(4, 'Bánh mì chà bông', 'Bánh mì mềm với chà bông và mayonnaise', 'Bánh mì chà bông', 'bread2.jpg', 30000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
-(5, 'Bánh su kem vanilla', 'Bánh su kem nhân vani béo ngậy', 'Su kem vani', 'choux1.jpg', 20000.00, '2025-11-06 14:02:06', '2025-11-06', 4),
-(6, 'Bánh cupcake socola', 'Cupcake nhỏ phủ kem socola ngọt', 'Cupcake socola', 'cupcake1.jpg', 35000.00, '2025-11-06 14:02:06', '2025-11-06', 5),
-(7, 'Bánh mousse chanh leo', 'Mousse chanh leo chua ngọt thanh mát', 'Mousse chanh leo', 'mousse1.jpg', 45000.00, '2025-11-06 14:02:06', '2025-11-06', 7),
-(8, 'Bánh tiramisu truyền thống', 'Bánh tiramisu Ý truyền thống vị cà phê', 'Tiramisu', 'tiramisu1.jpg', 55000.00, '2025-11-06 14:02:06', '2025-11-06', 8),
-(9, 'Bánh quy bơ', 'Bánh quy giòn tan vị bơ thơm lừng', 'Bánh quy bơ', 'cookie1.jpg', 15000.00, '2025-11-06 14:02:06', '2025-11-06', 6),
-(10, 'Bánh ngọt phô mai', 'Bánh phô mai mềm mịn vị béo nhẹ', 'Bánh phô mai', 'sweet1.jpg', 40000.00, '2025-11-06 14:02:06', '2025-11-06', 3),
-(11, 'Bánh kem matcha', 'Kem trà xanh đậm đà', 'Kem matcha', 'cake3.jpg', 260000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
-(12, 'Bánh mì trứng muối', 'Bánh mì mềm thơm nhân trứng muối', 'Trứng muối', 'bread3.jpg', 28000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
-(13, 'Bánh mousse dâu', 'Mousse dâu tây ngọt nhẹ', 'Mousse dâu', 'mousse2.jpg', 42000.00, '2025-11-06 14:02:06', '2025-11-06', 7),
-(14, 'Bánh cupcake vani', 'Cupcake vani phủ kem tươi', 'Cupcake vani', 'cupcake2.jpg', 33000.00, '2025-11-06 14:02:06', '2025-11-06', 5),
-(15, 'Bánh quy hạnh nhân', 'Bánh quy giòn hạnh nhân', 'Quy hạnh nhân', 'cookie2.jpg', 18000.00, '2025-11-06 14:02:06', '2025-11-06', 6);
+INSERT INTO `products` (`product_id`, `name`, `description`, `image_url`, `unit_price`, `created_at`, `updated_at`, `category_id`) VALUES
+(1, 'Bánh kem dâu tây', 'Bánh kem tươi với dâu tây tươi ngon', 'cake1.jpg', 250000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
+(2, 'Bánh kem socola', 'Bánh kem phủ socola đen ngọt đậm', 'cake2.jpg', 270000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
+(3, 'Bánh mì bơ tỏi', 'Bánh mì giòn với bơ tỏi thơm', 'bread1.jpg', 25000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
+(4, 'Bánh mì chà bông', 'Bánh mì mềm với chà bông và mayonnaise', 'bread2.jpg', 30000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
+(5, 'Bánh su kem vanilla', 'Bánh su kem nhân vani béo ngậy', 'choux1.jpg', 20000.00, '2025-11-06 14:02:06', '2025-11-06', 4),
+(6, 'Bánh cupcake socola', 'Cupcake nhỏ phủ kem socola ngọt', 'cupcake1.jpg', 35000.00, '2025-11-06 14:02:06', '2025-11-06', 5),
+(7, 'Bánh mousse chanh leo', 'Mousse chanh leo chua ngọt thanh mát', 'mousse1.jpg', 45000.00, '2025-11-06 14:02:06', '2025-11-06', 7),
+(8, 'Bánh tiramisu truyền thống', 'Bánh tiramisu Ý truyền thống vị cà phê', 'tiramisu1.jpg', 55000.00, '2025-11-06 14:02:06', '2025-11-06', 8),
+(9, 'Bánh quy bơ', 'Bánh quy giòn tan vị bơ thơm lừng', 'cookie1.jpg', 15000.00, '2025-11-06 14:02:06', '2025-11-06', 6),
+(10, 'Bánh ngọt phô mai', 'Bánh phô mai mềm mịn vị béo nhẹ', 'sweet1.jpg', 40000.00, '2025-11-06 14:02:06', '2025-11-06', 3),
+(11, 'Bánh kem matcha', 'Kem trà xanh đậm đà', 'cake3.jpg', 260000.00, '2025-11-06 14:02:06', '2025-11-06', 1),
+(12, 'Bánh mì trứng muối', 'Bánh mì mềm thơm nhân trứng muối', 'bread3.jpg', 28000.00, '2025-11-06 14:02:06', '2025-11-06', 2),
+(13, 'Bánh mousse dâu', 'Mousse dâu tây ngọt nhẹ', 'mousse2.jpg', 42000.00, '2025-11-06 14:02:06', '2025-11-06', 7),
+(14, 'Bánh cupcake vani', 'Cupcake vani phủ kem tươi', 'cupcake2.jpg', 33000.00, '2025-11-06 14:02:06', '2025-11-06', 5),
+(15, 'Bánh quy hạnh nhân', 'Bánh quy giòn hạnh nhân', 'cookie2.jpg', 18000.00, '2025-11-06 14:02:06', '2025-11-06', 6);
 
 -- --------------------------------------------------------
 
@@ -661,39 +659,40 @@ CREATE TABLE `shippers` (
   `email` varchar(150) DEFAULT NULL,
   `status` varchar(50) DEFAULT NULL,
   `salary` decimal(10,2) DEFAULT NULL,
-  `branch_id` int(11) DEFAULT NULL
+  `branch_id` int(11) DEFAULT NULL,
+  `password` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `shippers`
 --
 
-INSERT INTO `shippers` (`shipper_id`, `name`, `phone`, `email`, `status`, `salary`, `branch_id`) VALUES
-(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 1),
-(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@husbakery.vn', 'Đang hoạt động', 8000000.00, 1),
-(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@husbakery.vn', 'Đang hoạt động', 8100000.00, 1),
-(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@husbakery.vn', 'Đang hoạt động', 8000000.00, 1),
-(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@husbakery.vn', 'Đang hoạt động', 8200000.00, 1),
-(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@husbakery.vn', 'Đang hoạt động', 8000000.00, 2),
-(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 2),
-(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@husbakery.vn', 'Đang hoạt động', 8100000.00, 2),
-(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@husbakery.vn', 'Đang hoạt động', 8000000.00, 2),
-(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@husbakery.vn', 'Đang hoạt động', 8200000.00, 2),
-(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 3),
-(12, 'Lê Văn Duy', '0913000302', 'duy.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 3),
-(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 3),
-(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@husbakery.vn', 'Đang hoạt động', 8000000.00, 3),
-(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 3),
-(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@husbakery.vn', 'Đang hoạt động', 8000000.00, 4),
-(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 4),
-(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@husbakery.vn', 'Đang hoạt động', 8100000.00, 4),
-(19, 'Lê Thị Diễm', '0914000404', 'diem.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 4),
-(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 4),
-(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@husbakery.vn', 'Đang hoạt động', 8000000.00, 5),
-(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 5),
-(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 5),
-(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@husbakery.vn', 'Đang hoạt động', 8000000.00, 5),
-(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 5);
+INSERT INTO `shippers` (`shipper_id`, `name`, `phone`, `email`, `status`, `salary`, `branch_id`, `password`) VALUES
+(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@husbakery.vn', 'Đang hoạt động', 8100000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@husbakery.vn', 'Đang hoạt động', 8200000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@husbakery.vn', 'Đang hoạt động', 8100000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@husbakery.vn', 'Đang hoạt động', 8200000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(12, 'Lê Văn Duy', '0913000302', 'duy.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@husbakery.vn', 'Đang hoạt động', 8100000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(19, 'Lê Thị Diễm', '0914000404', 'diem.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
+(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.');
 
 -- --------------------------------------------------------
 

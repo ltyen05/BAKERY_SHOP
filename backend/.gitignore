@@ -4,3 +4,5 @@ hus_bakery_env/
 .idea
 *.pyc
 venv/
+__pycache__/
+*.pyc

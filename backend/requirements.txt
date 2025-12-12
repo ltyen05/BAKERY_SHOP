@@ -4,6 +4,13 @@ flask_jwt_extended==4.7.1
 flask_sqlalchemy==3.1.1
 flask_wtf==1.2.2
 python-dotenv==1.2.1
-SQLAlchemy==2.0.44
+Requests==2.32.5
+SQLAlchemy==2.0.45
 Werkzeug==3.1.4
 WTForms==3.2.1
+pymysql
+requests
+cryptography
+pymongo
+flask-pymongo
+email-validator

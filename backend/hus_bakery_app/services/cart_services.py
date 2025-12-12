@@ -1,4 +1,4 @@
-from ..models.product import Product
+from ..models.products import Product
 from ..models.coupon import Coupon
 from ..models.coupon_custom import CouponCustomer
 from ..models.cart_item import CartItem
@@ -81,16 +81,7 @@ def coupon_of_customer(customer_id):
 
     return result
 
-def coupon_info(customer_id, coupon_id):
-    cc = CouponCustomer.query.filter_by(
-        customer_id=customer_id,
-        coupon_id=coupon_id,
-        status="unused"
-    ).first()
-
-    if not cc:
-        return None
-
+def coupon_info(coupon_id):
     coupon = Coupon.query.get(coupon_id)
     if not coupon:
         return None

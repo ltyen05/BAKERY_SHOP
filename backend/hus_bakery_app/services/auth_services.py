@@ -4,6 +4,7 @@ from ..models.employee import Employee
 from ..models.shipper import Shipper
 from werkzeug.security import check_password_hash
 
+
 def generate_token(user, role):
     return create_access_token(identity={
         "id": user.get_id(),
@@ -11,20 +12,41 @@ def generate_token(user, role):
         "email": user.email
     })
 
+# Thêm vào services/auth_services.py
+
+def check_email_exist(email):
+    # Kiểm tra lần lượt trong 3 bảng
+    if Customer.query.filter_by(email=email).first():
+        return True
+    if Employee.query.filter_by(email=email).first():
+        return True
+    if Shipper.query.filter_by(email=email).first():
+        return True
+    return False
+
 def login_user(email, password):
     # Try Customer
     user = Customer.query.filter_by(email=email).first()
-    if user and user.check_password(password):
-        return user, "customer"
+    if user:
+        if user.check_password(password):
+            return user, "customer", None  # Thành công (Error = None)
+        else:
+            return None, None, "Mật khẩu không đúng!"
 
     # Try Employee
     user = Employee.query.filter_by(email=email).first()
-    if user and user.check_password(password):
-        return user, "employee"
+    if user:
+        if user.check_password(password):
+            return user, "employee", None
+        else:
+            return None, None, "Mật khẩu nhân viên không đúng!"
 
     # Try Shipper
     user = Shipper.query.filter_by(email=email).first()
-    if user and user.check_password(password):
-        return user, "shipper"
+    if user:
+        if user.check_password(password):
+            return user, "shipper", None
+        else:
+            return None, None, "Mật khẩu shipper không đúng!"
 
-    return None, None
+    return None, None, "Email không tồn tại"

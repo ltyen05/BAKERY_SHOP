@@ -1,3 +1,8 @@
 __pycache__/
 hus_bakery_env/
 .DS_store
+.idea
+*.pyc
+venv/
+__pycache__/
+*.pyc

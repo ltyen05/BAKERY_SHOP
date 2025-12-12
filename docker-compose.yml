@@ -1,1 +1,122 @@
+version: '3.8'
 
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: bakery_mysql
+    restart: always
+    environment:
+      # Mình giữ password của file gốc để code backend kết nối được
+      # Nếu muốn đổi password, phải đổi cả trong file .env của backend
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: bakery_db
+      MYSQL_USER: bakery_user
+      MYSQL_PASSWORD: bakery123
+    ports:
+      # Map ra port 3307 để tránh đụng port 3306 gốc trên máy (giống file của bạn)
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bakery-network
+
+  # Flask Backend
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bakery_backend
+    restart: always
+    ports:
+      # SỬA: Đổi sang 5001 để tránh lỗi AirPlay trên Mac (giống file của bạn)
+      - "5001:5000"
+    environment:
+      FLASK_APP: main.py
+      FLASK_ENV: development
+      
+      # 1. Biến quan trọng nhất: Cấu hình kết nối DB
+      # Bạn PHẢI đổi host từ 'hus_bakery_db' thành 'mysql' (tên service trong file compose này)
+      # Bạn NÊN dùng user 'bakery_user' đã được tạo sẵn trong file compose thay vì root
+      DB_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
+      
+      # 2. Map thêm biến này để Flask-SQLAlchemy không bị lỗi RuntimeError
+      # (Giá trị giống hệt DB_URI)
+      SQLALCHEMY_DATABASE_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
+      
+      # 3. Các biến Key bảo mật của bạn
+      SECRET_KEY: nguyenbaothach
+      JWT_SECRET_KEY: hus_bakery_backend
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: >
+      sh -c "pip install --upgrade pip && 
+      pip install -r requirements.txt && 
+      python main.py"
+    networks:
+      - bakery-network
+
+  # Frontend User (Customer Website)
+  frontend-user:
+    build: 
+      context: ./frontend-user
+      dockerfile: Dockerfile
+    container_name: bakery_frontend_user
+    ports:
+      - "3000:5173" 
+    volumes:
+      - ./frontend-user:/app
+      - /app/node_modules
+      - /app/dist
+    environment:
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
+      VITE_APP_NAME: "Bakery Shop"
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    networks:
+      - bakery-network
+
+  # Frontend Admin
+  frontend-admin:
+    build:
+      context: ./frontend-admin
+      dockerfile: Dockerfile
+    container_name: bakery_frontend_admin
+    ports:
+      - "3001:5173"
+    volumes:
+      - ./frontend-admin:/app
+      - /app/node_modules
+      - /app/dist
+    environment:
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
+      VITE_APP_NAME: "Bakery Admin"
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    networks:
+      - bakery-network
+
+volumes:
+  mysql_data:
+
+networks:
+  bakery-network:
+    driver: bridge

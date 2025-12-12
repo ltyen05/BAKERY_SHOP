@@ -12,6 +12,17 @@ def generate_token(user, role):
         "email": user.email
     })
 
+# Thêm vào services/auth_services.py
+
+def check_email_exist(email):
+    # Kiểm tra lần lượt trong 3 bảng
+    if Customer.query.filter_by(email=email).first():
+        return True
+    if Employee.query.filter_by(email=email).first():
+        return True
+    if Shipper.query.filter_by(email=email).first():
+        return True
+    return False
 
 def login_user(email, password):
     # Try Customer

@@ -25,6 +25,8 @@ def create_app():
 
     from .routers.auth import auth_bp
     from .routers.order_process import order_bp
+    from .routers.feedback import feedback_bp
+    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(order_bp, url_prefix='/api')
 

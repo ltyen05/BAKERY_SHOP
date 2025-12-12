@@ -3,8 +3,8 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from .. import db
 from ..forms.signup import SignupForm
 from ..forms.login import LoginForm
-from ..models.customer import Customer
-from ..services.auth_services import login_user, generate_token
+from ..models.customer import Customer, Employee, Shipper
+from ..services.auth_service import login_user, generate_token
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -48,48 +48,40 @@ def signup():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    form = LoginForm(data=data)
+    try:
+        data = request.get_json()
+        form = LoginForm(data=data, meta={'csrf': False})
 
-    if not form.validate():
-        return jsonify({"status": "fail", "errors": form.errors}), 400
-
-    user, role = login_user(form.email.data, form.password.data)
-
-    if not user:
-        return jsonify({
-            "status": "fail",
-            "message": "Sai email hoặc mật khẩu."
-        }), 401
-
-    token = generate_token(user, role)
-
-    return jsonify({
-        "status": "success",
-        "message": "Đăng nhập thành công!",
-        "access_token": token,
-        "data": {
-            "id": user.get_id(),
-            "name": user.name,
-            "email": user.email,
-            "avatar": user.avatar,
-            "role": role
-        }
-    }), 200
-    
-@auth_bp.route('/check-email', methods=['POST'])
-def check_email():
-    data = request.get_json()
-    email = data.get('email')
-    
-    if not email:
-        return jsonify({"error": "Vui lòng cung cấp email"}), 400
+        if not form.validate():
+            return jsonify({"status": "fail", "errors": form.errors}), 400
         
-    # Kiểm tra trong DB xem email có tồn tại không
-    user = Customer.query.filter_by(email=email).first()
-    
-    if user:
-        return jsonify({"exists": True}), 200 # Trùng email
-    else:
-        return jsonify({"exists": False}), 200 # Chưa trùng
-    
+        user, role, error_message = login_user(form.email.data, form.password.data)
+
+        # Nếu có tin nhắn lỗi (tức là đăng nhập thất bại)
+        if error_message:
+            return jsonify({
+                "status": "fail", 
+                "message": error_message # Trả về đúng câu: "Mật khẩu không đúng" hoặc "Email ko tồn tại"
+            }), 401
+            
+        # Nếu không có lỗi -> Tạo token
+        token = generate_token(user, role)
+
+        return jsonify({
+            "status": "success",
+            "message": "Đăng nhập thành công!",
+            "access_token": token,
+            "data": {
+                "id": user.get_id(), 
+                "name": user.name,
+                "role": role
+            }
+        }), 200
+
+    except Exception as e:
+        print("Lỗi Server:", str(e))
+        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
+        print("LỖI SERVER (500):", str(e))
+        import traceback
+        traceback.print_exc()
+        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500

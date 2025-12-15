@@ -20,6 +20,8 @@ const Facilities = lazy(() => import("../Facilities/Facilities"));
 const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
 const Admin = lazy(() => import("../admin"));
 const Shipper = lazy(() => import("../OnlyShipperPage/ShipperPage"));
+const ForgotPassword = lazy(() => import("../ForgotPassword/ForgotPassword"));
+const ResetPassword = lazy(() => import("../ForgotPassword/ResetPassword"));
 // ----- PHẦN CÒN LẠI GIỮ NGUYÊN -----
 // Mảng 'routes' của bạn không cần thay đổi gì cả
 // vì 'HomePage' (lazy) vẫn là một component hợp lệ.
@@ -97,6 +99,18 @@ export const routes = [
     name: "Log In",
     position: "right",
     needHandleLogin: true,
+    roles: ["guest"],
+  },
+  {
+    path: "/forgotPassword",
+    page: ForgotPassword, // Dùng 'LogIn' (lazy)
+    name: "Forgot Password",
+    roles: ["guest"],
+  },
+  {
+    path: "/reset-password",
+    page: ResetPassword,
+    name: "Reset Password",
     roles: ["guest"],
   },
   {

@@ -288,13 +288,7 @@ const OrderHistory = () => {
           background: #fdfbf5 !important;
         }
     
-        .custom-pagination .ant-pagination-item-active {
-          background: #f97316;
-          border-color: #f97316;
-        }
-
-        .custom-pagination .ant-pagination-item-active a {
-          color: white;
+        
         }
         .custom-table .ant-table-column-has-sorters.ant-table-column-sort, .custom-table .ant-table-column-has-sorters:hover {
             background: #fdfbf5 !important;
@@ -325,26 +319,6 @@ const OrderHistory = () => {
 }
 
           
-
-/* 2) Xoá hover nền xanh cho các nút (nếu muốn) */
-.custom-pagination .ant-pagination-item a:hover,
-.custom-pagination .ant-pagination-item:hover {
-  background:  #ffd3b3ff !important;
-  color: black !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-
-/* 4) Nếu muốn active vẫn có màu theme (ví dụ cam) thay vì xanh, đặt ở đây */
-.custom-pagination .ant-pagination-item-active a {
-  /* thay màu theo ý bạn, hoặc để transparent như trên */
-  
-  border-color: #f97316 !important;
-}
-.custom-pagination .ant-pagination-item-active a {
-  color: black !important;
-}
 
         .ant-table-wrapper {
           overflow: hidden;

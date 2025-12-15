@@ -3,6 +3,13 @@ import Product from "../components/Product/Product";
 import { Link } from "react-router-dom";
 import "./homePage.css";
 import { useEffect } from "react";
+import {
+  DoubleRightOutlined,
+  HeartOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import chef from "../assets/chef.svg";
+import award from "../assets/award.svg";
 import homePage from "../assets/HomePage.png";
 function HomePage() {
   // const [topProducts, setTopProducts] = useState([]);
@@ -61,10 +68,10 @@ function HomePage() {
         <p className="text-gray-600">Bạn chưa đăng nhập.</p>
       )} */}
 
-      <div className="cham"></div>
-      <div>
+      <div className="cham mb-24"></div>
+      <div className="mb-6">
         <Row>
-          <Col span={24} className="fl-center mt-3">
+          <Col span={24} className="fl-center">
             <h1>Sản phẩm bán chạy</h1>
           </Col>
         </Row>
@@ -98,7 +105,7 @@ function HomePage() {
               borderRadius: "25px",
               height: "50px",
             }}
-            className="mb-3 btn btn-primary"
+            className="mb-12 btn btn-primary"
           >
             Xem thêm &gt;
           </Button>
@@ -106,10 +113,13 @@ function HomePage() {
       </div>
 
       {/* -------------------------------------------------------------------------------------- */}
-      <div className="center-box mt-18 mb-18 " style={{ width: "85%" }}>
-        <Row gutter={50}>
-          <Col span={14}>
-            <Row gutter={20}>
+      <div
+        className="center-box mt-18 "
+        style={{ width: "90%", maxWidth: "1350px" }}
+      >
+        <Row gutter={40}>
+          <Col xs={24} xl={14}>
+            <Row gutter={10}>
               <Col span={16}>
                 <Row style={{ borderRadius: "12px", overflow: "hidden" }}>
                   <img
@@ -141,7 +151,7 @@ function HomePage() {
                 </Row>
                 <Row
                   style={{
-                    marginTop: "20px",
+                    marginTop: "10px",
                     borderRadius: "12px",
                     overflow: "hidden",
                   }}
@@ -158,8 +168,8 @@ function HomePage() {
               </Col>
             </Row>
           </Col>
-          <Col span={10} className="fl-center">
-            <div className="animate-on-scroll fade-left">
+          <Col xs={24} xl={10} className="fl-center">
+            <div className="animate-on-scroll fade-right">
               <p
                 style={{
                   fontSize: "58px",
@@ -210,6 +220,106 @@ function HomePage() {
             </div>
           </Col>
         </Row>
+      </div>
+      {/* ------------------------------------------------------------------------ */}
+      {/* ------------------------------------------------------------------------ */}
+      <div
+        className="container mt-42 mb-36"
+        style={{ width: "90%", maxWidth: "1350px" }}
+      >
+        <div className="fl-center">
+          <Row style={{ width: "100%" }} justify="space-between">
+            <Col xs={24} md={10} xl={5} className="feature-card">
+              <div className="icon-wrapper fl-center icon-wrapper-1">
+                <img src={chef} alt="chefhat" style={{ width: "35px" }} />
+              </div>
+              <h4 className="feature-title">Thợ Làm Bánh Chuyên Nghiệp</h4>
+              <p className="feature-text">
+                Đội ngũ đầu bếp giàu kinh nghiệm, tay nghề cao với niềm đam mê
+                vô hạn
+              </p>
+            </Col>
+
+            <Col xs={24} md={10} xl={5} className="feature-card">
+              <div className="icon-wrapper fl-center icon-wrapper-2">
+                <HeartOutlined
+                  style={{ fontSize: "33px", color: " rgba(46, 33, 0, 1)" }}
+                />
+              </div>
+              <h4 className="feature-title">Làm Từ Trái Tim</h4>
+              <p className="feature-text">
+                Mỗi sản phẩm được làm với tình yêu, sự tận tâm và chăm sóc tỉ mỉ
+              </p>
+            </Col>
+
+            <Col xs={24} md={10} xl={5} className="feature-card">
+              <div className="icon-wrapper fl-center icon-wrapper-3">
+                <img src={award} alt="award" style={{ width: "40px" }} />
+              </div>
+              <h4 className="feature-title">Nguyên Liệu Cao Cấp</h4>
+              <p className="feature-text">
+                100% nguyên liệu tự nhiên, tươi ngon được chọn lọc kỹ càng mỗi
+                ngày
+              </p>
+            </Col>
+
+            <Col xs={24} md={10} xl={5} className="feature-card">
+              <div className="icon-wrapper fl-center icon-wrapper-4">
+                <UserOutlined
+                  style={{ fontSize: "32px", color: " rgba(46, 33, 0, 1)" }}
+                />
+              </div>
+              <h4 className="feature-title">Khách Hàng Hài Lòng</h4>
+              <p className="feature-text">
+                Hơn 10,000+ khách hàng tin tưởng, yêu mến và luôn quay lại
+              </p>
+            </Col>
+          </Row>
+        </div>
+
+        <div className="fl-center mt-36">
+          <Row style={{ width: "100%" }} justify="space-around" align="middle">
+            <Col
+              md={22}
+              xl={11}
+              className="text-content"
+              style={{ textAlign: "center" }}
+            >
+              <div className="content-badge">VỀ CHÚNG TÔI</div>
+              <h3 className="content-title">
+                Được Nặn Từ Tình Yêu & Tâm Huyết
+              </h3>
+              <p className="content-text mb-6">
+                Chúng tôi tin rằng những nguyên liệu tươi ngon nhất, kết hợp với
+                tay nghề thủ công tinh tế và công thức truyền thống được truyền
+                qua nhiều thế hệ, sẽ mang đến cho bạn những trải nghiệm vị giác
+                khó quên nhất.
+              </p>
+              <Link
+                to="/aboutUs"
+                className="btn btn-primary fl-center"
+                style={{ width: "200px" }}
+              >
+                <p>
+                  Khám Phá Thêm <DoubleRightOutlined />
+                </p>
+              </Link>
+            </Col>
+            <Col md={22} xl={11} className="image-container">
+              <div className="image-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1610963812725-3945efe1009f?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Tiệm bánh"
+                  className="about-image"
+                />
+                <div className="image-overlay">
+                  <p className="overlay-number">15+</p>
+                  <p className="overlay-text">NĂM KINH NGHIỆM</p>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
       </div>
     </div>
   );

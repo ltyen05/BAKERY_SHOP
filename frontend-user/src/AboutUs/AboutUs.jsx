@@ -60,7 +60,7 @@ function AboutUs() {
           margin: "auto",
           width: "90%",
           textAlign: "start",
-          marginBottom: "100px",
+          marginBottom: "150px",
         }}
         className="mt-3"
       >
@@ -123,7 +123,7 @@ function AboutUs() {
       </div>
 
       {/* --------------------------------------------------------- */}
-      <div style={{ marginBottom: "100px" }}>
+      <div style={{ marginBottom: "150px" }}>
         <Carousel
           arrows
           autoplay={autoplay}
@@ -154,7 +154,7 @@ function AboutUs() {
                     style={{
                       width: "80%",
                       margin: "auto",
-                      minHeight: "450px",
+                      minHeight: "500px",
                     }}
                   >
                     <Col xs={12} xl={6} className="fl-center">
@@ -230,7 +230,7 @@ function AboutUs() {
           </Col>
         </Row>
       </div>
-      <div style={{ marginBottom: "120px" }} className="mission center-box">
+      <div style={{ marginBottom: "170px" }} className="mission center-box">
         <Row gutter={70} align="bottom">
           {/* Sứ mệnh */}
 

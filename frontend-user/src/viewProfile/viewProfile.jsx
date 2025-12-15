@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Row,
   Col,
@@ -65,11 +65,26 @@ const UserProfile = ({ user }) => {
     totalSpent: "10,000,000",
     avatarUrl: "https://i.pravatar.cc/150?img=5",
   };
-  const voucherList = [
-    { discount: 20, minOrder: 100000, expiryDate: "31/12/2024" },
-    { discount: 15, minOrder: 50000, expiryDate: "30/11/2024" },
-    { discount: 10, minOrder: 20000, expiryDate: "31/10/2024" },
-  ];
+  const [loading, setLoading] = useState(true);
+  // Voucher list--------------------------------------
+  const [voucherList, setVoucherList] = useState([]);
+  useEffect(() => {
+    fetch(`http://localhost:5000/coupon/${user?.id}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setVoucherList(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching coupons:", error);
+        setLoading(false);
+      });
+  }, [user?.id]);
   const [isShowingVoucher, setIsShowingVoucher] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [userInfo, setUserInfo] = useState(initialUserInfo);
@@ -308,47 +323,56 @@ const UserProfile = ({ user }) => {
           <div
             style={{
               width: "95%",
-              maxWidth: "450px",
+              maxWidth: "420px",
               backgroundColor: " #fdfbf5",
-              padding: "20px",
-              paddingBottom: "40px",
+
+              height: "90%",
               borderRadius: "8px",
               flexDirection: "column",
               position: "relative",
             }}
             className="fl-center"
           >
-            <p>Mã Giảm Giá</p>
-            <button
-              onClick={() => setIsShowingVoucher(false)}
+            <div
+              className="scrollbar"
               style={{
-                position: "absolute",
-                top: "15px",
-                right: "15px",
-
-                fontSize: "15px",
+                width: "100%",
+                maxHeight: "100%",
+                overflowY: "auto",
+                padding: "20px",
               }}
-              className="out-line"
             >
-              <CloseOutlined />
-            </button>
-
-            {voucherList.map((voucher) => (
-              <div
-                className="mt-3"
+              <p style={{ fontSize: "20px", fontWeight: "500" }}>Mã Giảm Giá</p>
+              <button
+                onClick={() => setIsShowingVoucher(false)}
                 style={{
-                  borderRadius: "12px",
-                  border: "1px solid",
-                  overflow: "hidden",
+                  position: "absolute",
+                  top: "15px",
+                  right: "15px",
+
+                  fontSize: "15px",
                 }}
+                className="out-line"
               >
-                <Voucher
-                  discount={voucher.discount}
-                  minOrder={voucher.minOrder}
-                  expiryDate={voucher.expiryDate}
-                />
-              </div>
-            ))}
+                <CloseOutlined />
+              </button>
+
+              {voucherList.map((voucher) => (
+                <div
+                  className="mt-3"
+                  style={{
+                    borderRadius: "12px",
+                    border: "1px solid",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Voucher
+                    description={voucher?.description}
+                    expiryDate={voucher?.end_date}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

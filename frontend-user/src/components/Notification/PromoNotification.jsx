@@ -2,7 +2,7 @@ import React from "react";
 import { Badge, List, Avatar, Button, Space } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import "./notification.css";
-function ReviewNotification({ notification, onMarkRead, onDelete }) {
+function PromoNotification({ notification, onMarkRead, onDelete }) {
   return (
     <List.Item
       className={`notification-item ${notification.unread ? "unread" : ""}`}
@@ -25,11 +25,11 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
       />
       <List.Item.Meta
         avatar={
-          <Badge color="#92400e" className="mb-1">
+          <Badge color="#be185d" className="mb-1">
             <Avatar
               size={40}
-              className="notification-avatar-review"
-              icon={<span style={{ fontSize: "20px" }}>⭐</span>}
+              className="notification-avatar-promo"
+              icon={<span style={{ fontSize: "20px" }}>❤️</span>}
             />
           </Badge>
         }
@@ -38,7 +38,12 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
             <p strong style={{ fontSize: "14px" }}>
               {notification.title}
             </p>
-            {notification.unread && <span className="unread-badge" />}
+            {notification.unread && (
+              <span
+                className="unread-badge"
+                style={{ backgroundColor: "#be185d" }}
+              />
+            )}
           </Space>
         }
         description={
@@ -66,7 +71,7 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
               <Button
                 type="link"
                 size="small"
-                style={{ color: "#92400e", padding: 0, height: "auto" }}
+                style={{ color: "#be185d", padding: 0, height: "auto" }}
               >
                 {notification.actionText}
               </Button>
@@ -77,5 +82,4 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
     </List.Item>
   );
 }
-
-export default ReviewNotification;
+export default PromoNotification;

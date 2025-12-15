@@ -12,7 +12,7 @@ export default function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/login", {
+      const res = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -100,11 +100,9 @@ export default function Login({ onLogin }) {
         >
           <Form.Item
             name="email"
-            rules={[
-              { required: true, message: "Vui lòng nhập tên đăng nhập!" },
-            ]}
+            rules={[{ required: true, message: "Vui lòng nhập Email!" }]}
           >
-            <Input placeholder="Tên đăng nhập" className="newHeight" />
+            <Input placeholder="Email" className="newHeight" />
           </Form.Item>
 
           <Form.Item
@@ -114,14 +112,22 @@ export default function Login({ onLogin }) {
           >
             <Input.Password placeholder="Mật khẩu" className="newHeight" />
           </Form.Item>
-          <Form.Item
-            name="remember"
-            valuePropName="checked"
-            label={null}
-            className="m-0 p-0 mb-2 als-start"
+          <div
+            style={{
+              flexDirection: "row",
+            }}
+            className="fl mb-2"
           >
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
+            <Form.Item
+              name="remember"
+              valuePropName="checked"
+              label={null}
+              className="m-0"
+            >
+              <Checkbox>Remember me</Checkbox>
+            </Form.Item>
+            <Link to="/forgotPassword">Forgot Password</Link>
+          </div>
           <Form.Item style={{ width: "100%" }} className="m-0">
             <Button
               htmlType="submit"

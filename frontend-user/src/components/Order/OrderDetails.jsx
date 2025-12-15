@@ -53,7 +53,7 @@ const OrderDetails = () => {
 
   return (
     <div
-      className="order-container"
+      className="scrollbar"
       style={{
         width: "100%",
         maxHeight: "100%",

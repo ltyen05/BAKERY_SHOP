@@ -175,7 +175,7 @@ export default function ProductDetail() {
       </Row>
       {/* ------------------------------------------------ */}
       <div
-        className="mt-18"
+        className="mt-24 mb-24"
         style={{ maxWidth: "1300px", width: "100%", margin: "0 auto" }}
       >
         <div style={{ justifyContent: "start" }} className="fl-center mb-6">
@@ -228,9 +228,10 @@ export default function ProductDetail() {
             <Pagination
               current={page}
               total={reviews.length}
-              align="center"
+              align="start"
               pageSize={pageSize}
               onChange={(p) => setPage(p)}
+              className="custom-pagination"
             />
           </div>
         </div>

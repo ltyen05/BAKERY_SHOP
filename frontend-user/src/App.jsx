@@ -55,24 +55,6 @@ function renderRoutes(routes, handleLogin, user, handleLogout) {
   });
 }
 function AppContent() {
-  // const [user, setUser] = useState(() => {
-  //   const storedUser = localStorage.getItem("user");
-  //   return storedUser ? JSON.parse(storedUser) : null;
-  // });
-  // const navigate = useNavigate();
-
-  // const handleLogin = (userInfo) => {
-  //   // userInfo: { id, name, email, avatar, role }
-  //   setUser(userInfo);
-  //   localStorage.setItem("user", JSON.stringify(userInfo));
-  // };
-
-  // const handleLogout = () => {
-  //   setUser(null);
-  //   localStorage.removeItem("user");
-  //   localStorage.removeItem("access_token"); // Xóa cả token
-  //   navigate("/logIn");
-  // };
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     // Lấy thông tin user (dạng đối tượng) từ localStorage

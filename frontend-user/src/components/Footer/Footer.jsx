@@ -1,6 +1,6 @@
 import React from "react";
 import "./Footer.css"; // nếu bạn có CSS riêng
-import logo from "../../assets/bakes.svg";
+import logo from "../../assets/logo-noText.svg";
 import fb from "../../assets/fb.svg";
 import ig from "../../assets/ig.svg";
 import x from "../../assets/x.svg";

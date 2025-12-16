@@ -12,32 +12,7 @@
   border-left: 2px solid #f7c27c;
   padding-left: 30px;
 }
-.mission-vision {
-  margin: auto;
-  width: 70%;
-  text-align: start;
-}
 
-/* .animate-on-scroll {
-  opacity: 0;
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.fade-right {
-  transform: translateX(-100px);
-}
-
-.fade-left {
-  transform: translateX(100px);
-}
-.fade-up {
-  transform: translateY(100px);
-} */
-/* 
-.is-visible {
-  opacity: 1;
-  transform: translate(0, 0);
-} */
 @media (max-width: 767px) {
   .section {
     padding: 20px;

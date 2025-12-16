@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+# Import từ cart_services
 from ..services.cart_services import (
     add_to_cart,
     update_selected,
@@ -6,10 +7,10 @@ from ..services.cart_services import (
     coupon_of_customer,
     coupon_info
 )
+# Import từ order_services
 from ..services.order_services import create_order
 
 order_bp = Blueprint("order_bp", __name__)
-
 
 # ==========================
 # 1. GET CART
@@ -18,7 +19,6 @@ order_bp = Blueprint("order_bp", __name__)
 def api_get_cart(customer_id):
     cart = get_cart(customer_id)
     return jsonify(cart), 200
-
 
 # ==========================
 # 2. ADD TO CART
@@ -31,8 +31,8 @@ def api_add_to_cart():
     quantity = data.get("quantity", 1)
 
     item = add_to_cart(customer_id, product_id, quantity)
+    # Lưu ý: item có thể là object, cần lấy product_id để trả về json
     return jsonify({"message": "Added to cart", "item": item.product_id}), 200
-
 
 # ==========================
 # 3. UPDATE SELECTED ITEM
@@ -51,7 +51,6 @@ def api_update_selected():
 
     return jsonify({"message": "Selection updated"}), 200
 
-
 # ==========================
 # 4. GET COUPONS OF CUSTOMER
 # ==========================
@@ -59,7 +58,6 @@ def api_update_selected():
 def api_coupon_of_customer(customer_id):
     coupons = coupon_of_customer(customer_id)
     return jsonify(coupons), 200
-
 
 # ==========================
 # 5. GET COUPON INFO
@@ -72,7 +70,6 @@ def api_coupon_info(coupon_id):
 
     return jsonify(info), 200
 
-
 # ==========================
 # 6. CREATE ORDER
 # ==========================
@@ -83,7 +80,7 @@ def api_create_order():
     customer_id = data.get("customer_id")
     shipping_address = data.get("shipping_address")
     recipient_name = data.get("recipient_name")
-    coupon_id = data.get("coupon_id")  # ← FE gửi coupon đã chọn
+    coupon_id = data.get("coupon_id")
     customer_lat = data.get("lat")
     customer_lng = data.get("lng")
 

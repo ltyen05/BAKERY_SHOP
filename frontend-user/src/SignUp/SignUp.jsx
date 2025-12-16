@@ -9,7 +9,7 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false); // State để hiển thị loading
   // const checkEmailExists = async (email) => {
   //   try {
-  //     const response = await fetch("http://localhost:5000/signup/check-email", {
+  //     const response = await fetch("http://localhost:5001/signup/check-email", {
   //       method: "POST",
   //       headers: { "Content-Type": "application/json" },
   //       body: JSON.stringify({ email: email }),

@@ -1,107 +1,106 @@
-from ..models.products import Product
-from ..models.coupon import Coupon
-from ..models.coupon_custom import CouponCustomer
-from ..models.cart_item import CartItem
 from .. import db
-from datetime import date
+from ..models.order import Order
+from ..models.order_item import OrderItem
+from ..models.products import Product
+from ..models.shipper import Shipper
+from sqlalchemy import desc
 
-def add_to_cart(customer_id, product_id, quantity = 1):
-    item = CartItem.query.filter_by(customer_id = customer_id, product_id = product_id).first()
-    if item:
-        item.quantity += quantity
-    else:
-        item = CartItem(
-            customer_id = customer_id,
-            product_id = product_id,
-            quantity = quantity,
-        )
-        db.session.add(item)
 
-    db.session.commit()
-    return item
+# 1. Lấy danh sách toàn bộ đơn hàng (Có lọc và phân trang)
+def get_all_orders_service(status=None, page=1, per_page=10):
+    query = Order.query
 
-def update_selected(customer_id, product_id, selected: bool):
-    item = CartItem.query.filter_by(
-        customer_id=customer_id,
-        product_id=product_id
-    ).first()
+    # Nếu có lọc theo trạng thái (vd: chỉ xem đơn pending)
+    if status:
+        query = query.filter_by(status=status)
 
-    if not item:
-        return None
+    # Luôn sắp xếp đơn mới nhất lên đầu
+    query = query.order_by(desc(Order.created_at))
 
-    item.selected = selected
-    db.session.commit()
-    return item
+    # Phân trang
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    orders = pagination.items
 
-def get_cart(customer_id):
-    items = CartItem.query.filter_by(customer_id=customer_id).all()
+    # Format dữ liệu đẹp để trả về FE
     result = []
-
-    for item in items:
-        product = Product.query.get(item.product_id)
+    for order in orders:
         result.append({
-            "product_id": item.product_id,
-            "quantity": item.quantity,
-            "selected": item.selected,
-            "product_name": product.name,
-            "price": float(product.price)
+            "order_id": order.order_id,
+            "customer_name": order.recipient_name,  # Hoặc lấy từ bảng Customer nếu cần
+            "total_money": float(order.total_money),
+            "status": order.status,
+            "created_at": order.created_at.strftime('%Y-%m-%d %H:%M'),
+            "shipper_id": order.shipper_id,
+            "address": order.shipping_address
         })
-
-    return result
-
-def coupon_of_customer(customer_id):
-    coupons = CouponCustomer.query.filter_by(customer_id=customer_id, status="unused").all()
-
-    result = []
-    for cc in coupons:
-        coupon = Coupon.query.get(cc.coupon_id)
-        if coupon is None:
-            continue
-
-        # kiểm tra hạn sử dụng
-        today = date.today()
-        if coupon.begin_date and today < coupon.begin_date:
-            continue
-        if coupon.end_date and today > coupon.end_date:
-            continue
-        if coupon.status != "active":
-            continue
-
-        result.append({
-            "coupon_id": coupon.coupon_id,
-            "description": coupon.description,
-            "discount_type": coupon.discount_type,
-            "discount_percent": coupon.discount_percent,
-            "discount_value": float(coupon.discount_value) if coupon.discount_value else None,
-            "min_purchase": float(coupon.min_purchase) if coupon.min_purchase else None,
-            "max_discount": float(coupon.max_discount) if coupon.max_discount else None,
-            "begin_date": coupon.begin_date,
-            "end_date": coupon.end_date
-        })
-
-    return result
-
-def coupon_info(coupon_id):
-    coupon = Coupon.query.get(coupon_id)
-    if not coupon:
-        return None
-
-    today = date.today()
-    if coupon.begin_date and today < coupon.begin_date:
-        return None
-    if coupon.end_date and today > coupon.end_date:
-        return None
-    if coupon.status != "active":
-        return None
 
     return {
-        "coupon_id": coupon_id,
-        "description": coupon.description,
-        "discount_type": coupon.discount_type,
-        "discount_percent": coupon.discount_percent,
-        "discount_value": float(coupon.discount_value) if coupon.discount_value else None,
-        "min_purchase": float(coupon.min_purchase) if coupon.min_purchase else None,
-        "max_discount": float(coupon.max_discount) if coupon.max_discount else None,
+        "orders": result,
+        "total": pagination.total,
+        "pages": pagination.pages,
+        "current_page": page
     }
 
 
+# 2. Xem chi tiết một đơn hàng (Kèm danh sách món ăn)
+def get_order_detail_service(order_id):
+    order = Order.query.get(order_id)
+    if not order:
+        return None, "Không tìm thấy đơn hàng"
+
+    # Lấy danh sách món trong đơn
+    items = []
+    # Giả sử bạn có relationship order.items hoặc query thủ công:
+    order_items = OrderItem.query.filter_by(order_id=order_id).all()
+
+    for item in order_items:
+        product = Product.query.get(item.product_id)
+        items.append({
+            "product_name": product.name if product else "Sản phẩm đã xóa",
+            "quantity": item.quantity,
+            "price": float(item.price),  # Giá tại thời điểm mua
+            "image": product.image if product else None
+        })
+
+    data = {
+        "order_id": order.order_id,
+        "status": order.status,
+        "recipient_name": order.recipient_name,
+        "phone": order.phone,  # Giả sử model Order có lưu sđt nhận hàng
+        "address": order.shipping_address,
+        "total_money": float(order.total_money),
+        "note": order.note,
+        "items": items,
+        "shipper_id": order.shipper_id
+    }
+    return data, None
+
+
+# 3. Cập nhật trạng thái đơn (Duyệt đơn / Hủy đơn)
+def update_order_status_service(order_id, new_status):
+    order = Order.query.get(order_id)
+    if not order:
+        return False, "Đơn hàng không tồn tại"
+
+    # Có thể thêm logic kiểm tra: Không cho chuyển từ 'completed' về 'pending'
+    order.status = new_status
+    db.session.commit()
+    return True, "Cập nhật trạng thái thành công"
+
+
+# 4. Gán Shipper cho đơn hàng
+def assign_shipper_service(order_id, shipper_id):
+    order = Order.query.get(order_id)
+    if not order:
+        return False, "Đơn hàng không tồn tại"
+
+    shipper = Shipper.query.get(shipper_id)
+    if not shipper:
+        return False, "Shipper không tồn tại"
+
+    order.shipper_id = shipper_id
+    # Thường khi gán shipper xong thì status chuyển thành 'shipping' luôn
+    order.status = 'shipping'
+
+    db.session.commit()
+    return True, f"Đã gán đơn cho shipper {shipper.full_name}"

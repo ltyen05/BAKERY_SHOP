@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { Row, Col, Spin, message } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, CloseOutlined } from "@ant-design/icons";
 // Import component Product bạn vừa viết
 import Product from "../components/Product/Product";
-
+import ProductDetail from "../components/Product/ProductDetails";
+import FeedbackComponent from "../components/Feedback/Feedback";
 export default function ProductList({ category }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [showFeedback, setShowFeedback] = useState(false);
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         // Gọi API Flask
         const response = await fetch(
-          `http://127.0.0.1:5001/api/products?category=${category}`
+          `http://127.0.0.1:5000/api/products?category=${category}`
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();
@@ -30,7 +31,7 @@ export default function ProductList({ category }) {
   }, [category]);
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" style={{ border: "1px solid" }}>
       {loading ? (
         <div className="fl-center" style={{ minHeight: "200px" }}>
           <Spin indicator={<LoadingOutlined spin />} />
@@ -53,6 +54,51 @@ export default function ProductList({ category }) {
             </Col>
           ))}
         </Row>
+      )}
+      <ProductDetail />
+      <button onClick={() => setShowFeedback(true)}>Đánh giá ngay</button>
+      {showFeedback && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "500px",
+              backgroundColor: " #fdfbf5",
+              maxHeight: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <div
+              className="scrollbar"
+              style={{
+                width: "100%",
+                maxHeight: "100%",
+                maxWidth: "450px",
+                overflowY: "auto",
+                padding: "20px",
+              }}
+            >
+              <button
+                onClick={() => setShowFeedback(false)}
+                style={{
+                  position: "absolute",
+                  top: "15px",
+                  right: "15px",
+
+                  fontSize: "15px",
+                }}
+                className="out-line"
+              >
+                <CloseOutlined />
+              </button>
+
+              <FeedbackComponent />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

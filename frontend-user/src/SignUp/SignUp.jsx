@@ -3,61 +3,86 @@ import { Button, Checkbox, Form, Input, message } from "antd"; // Thêm message
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import bakesLogo from "../assets/bakes.svg";
 
-const checkEmailExists = async (email) => {
-  try {
-    const response = await fetch("http://127.0.0.1:5001/api/check-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email }),
-    });
-
-    if (!response.ok) {
-      // Nếu server lỗi 500, vẫn cho qua để validator không chặn người dùng (hoặc xử lý tuỳ bạn)
-      return { isDuplicate: false, error: null };
-    }
-
-    const data = await response.json();
-    return { isDuplicate: data.exists, error: null };
-  } catch (error) {
-    console.error("Lỗi kiểm tra email:", error);
-    return { isDuplicate: false, error: "Lỗi kết nối Server" };
-  }
-};
-
 const SignUp = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false); // State để hiển thị loading
+  // const checkEmailExists = async (email) => {
+  //   try {
+  //     const response = await fetch("http://localhost:5001/signup/check-email", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email: email }),
+  //     });
+
+  //     if (!response.ok) {
+  //       // Nếu server lỗi 500, vẫn cho qua để validator không chặn người dùng (hoặc xử lý tuỳ bạn)
+  //       return { isDuplicate: false, error: null };
+  //     }
+
+  //     const data = await response.json();
+  //     return { isDuplicate: data.exists, error: null };
+  //   } catch (error) {
+  //     console.error("Lỗi kiểm tra email:", error);
+  //     return { isDuplicate: false, error: "Lỗi kết nối Server" };
+  //   }
+  // };
 
   // 2. Hàm xử lý khi bấm nút Đăng Ký
   const onFinish = async (values) => {
+    // values: { name, email, phone, password, confirmPassword }
     setLoading(true);
+
     try {
-      const response = await fetch("http://127.0.0.1:5001/api/signup", {
+      const res = await fetch("http://localhost:5001/api/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name,
           email: values.email,
-          password: values.password,
           phone: values.phone,
+          password: values.password,
           confirm: values.confirm,
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
-        message.success("Đăng ký thành công! Vui lòng đăng nhập.");
-        navigate("/logIn");
-      } else {
-        message.error(data.message || "Đăng ký thất bại!");
+      if (res.ok && data.status === "success") {
+        // Hiển thị thông báo thành công
+        message.success(data.message);
+
+        form.resetFields();
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      } else if (data.status === "fail") {
+        // Xử lý lỗi validation từ backend
+        if (data.errors) {
+          // Hiển thị tất cả lỗi validation
+          Object.entries(data.errors).forEach(([field, errors]) => {
+            errors.forEach((error) => {
+              message.error(`${field}: ${error}`);
+            });
+          });
+
+          // Hoặc set lỗi trực tiếp vào form fields
+          const formErrors = Object.entries(data.errors).map(
+            ([field, errors]) => ({
+              name: field,
+              errors: errors,
+            })
+          );
+          form.setFields(formErrors);
+        }
+      } else if (data.status === "error") {
+        // Lỗi server
+        message.error(data.message || "Có lỗi xảy ra từ server");
       }
-    } catch (error) {
-      console.error("Lỗi đăng ký:", error);
-      message.error("Không thể kết nối đến Server!");
+    } catch (err) {
+      message.error("Lỗi kết nối server: " + err.message);
+      console.error("Signup error:", err);
     } finally {
       setLoading(false);
     }
@@ -110,26 +135,26 @@ const SignUp = () => {
             rules={[
               { type: "email", message: "Email không hợp lệ!" },
               { required: true, message: "Vui lòng nhập E-mail!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value) return Promise.resolve();
+              // ({ getFieldValue }) => ({
+              //   validator(_, value) {
+              //     if (!value) return Promise.resolve();
 
-                  return checkEmailExists(value).then((result) => {
-                    if (result.error) {
-                      return Promise.reject(new Error(result.error));
-                    }
+              //     return checkEmailExists(value).then((result) => {
+              //       if (result.error) {
+              //         return Promise.reject(new Error(result.error));
+              //       }
 
-                    if (result.isDuplicate) {
-                      return Promise.reject(
-                        new Error("Email này đã được sử dụng!")
-                      );
-                    }
+              //       if (result.isDuplicate) {
+              //         return Promise.reject(
+              //           new Error("Email này đã được sử dụng!")
+              //         );
+              //       }
 
-                    // 3. Nếu không lỗi mạng và không trùng => Hợp lệ
-                    return Promise.resolve();
-                  });
-                },
-              }),
+              //       // 3. Nếu không lỗi mạng và không trùng => Hợp lệ
+              //       return Promise.resolve();
+              //     });
+              // },
+              // }),
             ]}
           >
             <Input placeholder="example@email.com" />

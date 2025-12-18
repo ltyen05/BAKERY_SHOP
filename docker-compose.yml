@@ -40,6 +40,13 @@ services:
     environment:
       FLASK_APP: main.py
       FLASK_ENV: development
+      MAIL_SERVER: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USE_TLS: "True"
+      MAIL_USE_SSL: "False"
+      MAIL_USERNAME: "thachnb.mathtech@gmail.com"
+      MAIL_PASSWORD: "heey znwd nrbb ynqq"
+      MAIL_DEFAULT_SENDER: "hus_bakery <thachnb.mathtech@gmail.com>"
       
       # 1. Biến quan trọng nhất: Cấu hình kết nối DB
       # Bạn PHẢI đổi host từ 'hus_bakery_db' thành 'mysql' (tên service trong file compose này)

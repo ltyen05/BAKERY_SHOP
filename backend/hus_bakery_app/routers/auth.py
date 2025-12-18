@@ -7,9 +7,51 @@ from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
 from ..services.auth_services import login_user, generate_token, check_email_exist
+from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role
 
 auth_bp = Blueprint('auth', __name__)
 
+@auth_bp.route('/profile', methods=['GET', 'PUT'])
+@jwt_required()
+def profile():
+    identity = get_jwt_identity()
+    user = get_user_by_id_and_role(identity['id'], identity['role'])
+    
+    if request.method == 'GET':
+        return jsonify({
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone,
+            "avatar": getattr(user, 'avatar', None)
+        })
+
+    # Chỉnh sửa thông tin
+    data = request.get_json()
+    user.name = data.get('name', user.name)
+    user.phone = data.get('phone', user.phone)
+    db.session.commit()
+    return jsonify({"message": "Cập nhật thành công"})
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    identity = get_jwt_identity()
+    user = get_user_by_id_and_role(identity['id'], identity['role'])
+    data = request.get_json()
+
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    confirm_password = data.get('confirm_password')
+
+    if not user.check_password(old_password):
+        return jsonify({"message": "Mật khẩu cũ không chính xác"}), 400
+    
+    if new_password != confirm_password:
+        return jsonify({"message": "Xác nhận mật khẩu không khớp"}), 400
+
+    user.set_password(new_password)
+    db.session.commit()
+    return jsonify({"message": "Đổi mật khẩu thành công"})
 
 @auth_bp.route('/', methods=['GET', 'POST'])
 @auth_bp.route('/index', methods=['GET', 'POST'])
@@ -111,3 +153,38 @@ def login():
         import traceback
         traceback.print_exc()
         return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
+        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
+
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"message": "Vui lòng nhập email"}), 400
+
+    success, message = request_password_reset(email)
+
+    if success:
+        return jsonify({"status": "success", "message": message}), 200
+    else:
+        # Lưu ý bảo mật: Đôi khi nên luôn trả về success để tránh hacker dò email
+        return jsonify({"status": "fail", "message": message}), 400
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')  # Token lấy từ URL (Frontend cắt ra gửi xuống)
+    new_password = data.get('new_password')
+
+    if not token or not new_password:
+        return jsonify({"message": "Thiếu thông tin"}), 400
+
+    success, message = reset_password_with_token(token, new_password)
+
+    if success:
+        return jsonify({"status": "success", "message": message}), 200
+    else:
+        return jsonify({"status": "fail", "message": message}), 400

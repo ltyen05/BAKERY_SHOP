@@ -14,7 +14,6 @@ from ..models.shipper import Shipper
 from ..models.coupon import Coupon
 from ..models.coupon_custom import CouponCustomer
 
-
 # --- SECTION A: UTILS & HELPERS ---
 def geocode_address(address):
     try:

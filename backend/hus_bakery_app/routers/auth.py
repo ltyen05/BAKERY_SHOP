@@ -6,6 +6,7 @@ from ..forms.login import LoginForm
 from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
+from ..services.auth_services import login_user, generate_token, check_email_exist
 from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist
 
 auth_bp = Blueprint('auth', __name__)
@@ -110,6 +111,7 @@ def login():
         print("LỖI SERVER (500):", str(e))
         import traceback
         traceback.print_exc()
+        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
         return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
 
 

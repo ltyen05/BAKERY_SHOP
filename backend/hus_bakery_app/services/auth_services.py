@@ -26,38 +26,35 @@ def find_user_instance(email):
 
 
 def request_password_reset(email):
-    # 1. Tìm user
+    # 1. Tìm user (Giữ nguyên code cũ của bạn)
     user, role = find_user_instance(email)
     if not user:
         return False, "Email này chưa được đăng ký trong hệ thống."
 
-    # 2. Tạo Token Reset (Hết hạn sau 15 phút)
-    # Token này chứa ID và Role để lát sau biết đường tìm lại User
+    # 2. Tạo Token (Giữ nguyên code cũ)
     reset_token = create_access_token(
         identity={"id": user.get_id(), "role": role, "type": "reset"},
         expires_delta=timedelta(minutes=15)
     )
 
-    # 3. Tạo Link Reset (Giả sử Frontend chạy ở localhost:3000)
-    # Bạn thay localhost:3000 bằng domain thật của bạn sau này
+    # 3. Tạo Link (Sửa localhost:3000 thành domain thật nếu có)
     link = f"http://localhost:3000/reset-password?token={reset_token}"
 
-    # 4. Gửi Email
+    # 4. GỬI EMAIL THẬT (Sửa đoạn này)
     try:
         msg = Message(
-            subject="[Bakery App] Yêu cầu đặt lại mật khẩu",
-            sender="noreply@bakeryapp.com",  # Email gửi đi (cần khớp config)
-            recipients=[email]
+            subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
+            recipients=[email],  # Gửi đến email khách hàng nhập
+            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
         )
-        msg.body = f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây để đổi mật khẩu (Link hết hạn sau 15 phút):\n\n{link}\n\nNếu bạn không yêu cầu, vui lòng bỏ qua email này."
 
-        mail.send(msg)
+        mail.send(msg)  # <--- Lệnh gửi quan trọng nhất
+
         return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
+
     except Exception as e:
         print(f"Lỗi gửi mail: {str(e)}")
-        # Mẹo: Khi đang test ở máy (chưa cấu hình mail server), bạn in link ra terminal để click
-        print(f"DEBUG LINK RESET: {link}")
-        return True, "Đã tạo link reset (kiểm tra Terminal vì chưa config mail server)."
+        return False, "Gửi email thất bại. Vui lòng thử lại sau."
 
 
 def reset_password_with_token(token, new_password):
@@ -97,12 +94,14 @@ def reset_password_with_token(token, new_password):
     except Exception as e:
         return False, "Link đã hết hạn hoặc không hợp lệ."
 
+
 def generate_token(user, role):
     return create_access_token(identity={
         "id": user.get_id(),
         "role": role,
         "email": user.email
     })
+
 
 # Thêm vào services/auth_services.py
 
@@ -115,6 +114,7 @@ def check_email_exist(email):
     if Shipper.query.filter_by(email=email).first():
         return True
     return False
+
 
 def login_user(email, password):
     # Try Customer

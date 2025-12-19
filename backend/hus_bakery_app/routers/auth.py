@@ -11,27 +11,6 @@ from ..services.auth_services import request_password_reset, reset_password_with
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/profile', methods=['GET', 'PUT'])
-@jwt_required()
-def profile():
-    identity = get_jwt_identity()
-    user = get_user_by_id_and_role(identity['id'], identity['role'])
-    
-    if request.method == 'GET':
-        return jsonify({
-            "name": user.name,
-            "email": user.email,
-            "phone": user.phone,
-            "avatar": getattr(user, 'avatar', None)
-        })
-
-    # Chỉnh sửa thông tin
-    data = request.get_json()
-    user.name = data.get('name', user.name)
-    user.phone = data.get('phone', user.phone)
-    db.session.commit()
-    return jsonify({"message": "Cập nhật thành công"})
-
 @auth_bp.route('/change-password', methods=['POST'])
 @jwt_required()
 def change_password():

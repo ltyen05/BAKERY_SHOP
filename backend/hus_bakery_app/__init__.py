@@ -12,28 +12,31 @@ db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
 
+
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:3000",  # Frontend User
-                "http://localhost:3001"  # Frontend Admin
-            ],
-            "methods": ["GET", "POST", "PUT", "DELETE"],
-            "allow_headers": ["Content-Type", "Authorization"]
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={
+            r"/api/*": {
+                "origins": ["http://localhost:3000", "http://localhost:3001"],
+                "allow_headers": ["Content-Type", "Authorization"],
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+            }
         }
-    })
+    )
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['JWT_SECRET_KEY']=os.getenv('JWT_SECRET_KEY')
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == "True"
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
     db.init_app(app)
     jwt.init_app(app)
@@ -43,7 +46,7 @@ def create_app():
     from .routers.order_process import order_bp
     from .routers.feedback import feedback_bp
     from .routers.account import account_bp
-    app.register_blueprint(account_bp, url_prefix='/api')
+    app.register_blueprint(account_bp, url_prefix="/api/account")
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(order_bp, url_prefix='/api')

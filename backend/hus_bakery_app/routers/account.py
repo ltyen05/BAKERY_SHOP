@@ -10,22 +10,23 @@ account_bp = Blueprint("account", __name__)
 @jwt_required()
 def profile_api():
     identity = get_jwt_identity()
-    current_user_id = identity["id"]
+    current_user_id = identity["id"] 
+    
+    user = Customer.query.get(current_user_id)
+    if not user:
+        return jsonify({"message": "Người dùng không tồn tại"}), 404
     
     if request.method == "GET":
-        user = Customer.query.get_or_404(current_user_id)
         return jsonify({
-            "full_name": user.full_name,
+            "name": user.name,  # Thống nhất dùng "name"
             "email": user.email,
             "phone": user.phone,
             "address": user.address,
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
+    # Khi PUT (Lưu dữ liệu)
     data = request.get_json()
-    if not data:
-        return jsonify({"message": "Invalid JSON body"}), 400
-
     success, msg = update_profile(current_user_id, data)
     return jsonify({"message": msg}), (200 if success else 400)
 

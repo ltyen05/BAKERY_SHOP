@@ -37,8 +37,10 @@ def update_profile(customer_id, profile):
         user.email = email
 
     # ===== OTHER FIELDS =====
-    if "full_name" in profile:
-        user.full_name = profile["full_name"]
+    if "name" in profile:
+        user.name = profile["name"]
+    elif "full_name" in profile:
+        user.name = profile["full_name"]
 
     if "phone" in profile:
         user.phone = profile["phone"]

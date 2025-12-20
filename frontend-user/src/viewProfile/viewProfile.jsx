@@ -112,64 +112,39 @@ const UserProfile = ({ user }) => {
   };
 
   /* ================= SAVE PROFILE ================= */
+  // viewProfile.jsx
+
   const handleSave = async (values) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
 
-      const updateData = {
-        full_name: values.full_name,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-      };
+      const profileRes = await fetch(`${API_BASE}/api/account/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: values.email,
+          phone: values.phone,
+        }),
+      });
 
-
-      /* ---- UPDATE PROFILE ---- */
-      const profileRes = await fetch(
-        `${API_BASE}/api/account/profile`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
-
-      if (!profileRes.ok) throw new Error("Update profile failed");
-
-      /* ---- UPDATE AVATAR ---- */
-      const file = fileInputRef.current?.files[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append("avatar", file);
-
-        const avatarRes = await fetch(
-          `${API_BASE}/api/account/avatar`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
-
-        if (!avatarRes.ok) throw new Error("Upload avatar failed");
+      // --- PHẦN CẦN BỔ SUNG ---
+      const data = await profileRes.json();
+      
+      if (profileRes.ok) {
+        setUserInfo((prev) => ({ ...prev, ...values })); // Cập nhật hiển thị
+        setIsEditing(false);
+        alert("Cập nhật thành công!");
+      } else {
+        const errorMsg = data.message || data.msg || "Cập nhật thất bại";
+        alert("Lỗi: " + errorMsg);
       }
-
-      setUserInfo((prev) => ({
-        ...prev,
-        ...values,
-        name: values.full_name,
-      }));
-
-      setIsEditing(false);
-      alert("Cập nhật thành công!");
+      // ------------------------
     } catch (err) {
-      console.error("Update error:", err);
-      alert("Cập nhật thất bại");
+      alert("Lỗi kết nối: " + err.message);
     }
   };
 

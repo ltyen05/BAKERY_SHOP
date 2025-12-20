@@ -18,38 +18,24 @@ def update_profile(customer_id, profile):
     if not user:
         return False, "Người dùng không tồn tại"
 
-    # ===== EMAIL =====
+    # Cập nhật Email
     if "email" in profile:
         email = profile["email"].strip().lower()
-
         if not email:
-            return False, "Email không hợp lệ"
-
-        # Check trùng
-        exists = Customer.query.filter(
-            Customer.email == email,
-            Customer.id != customer_id
-        ).first()
-
+            return False, "Email không được để trống"
+        
+        # Kiểm tra trùng email
+        exists = Customer.query.filter(Customer.email == email, Customer.customer_id != customer_id).first()
         if exists:
             return False, "Email đã được sử dụng"
-
         user.email = email
 
-    # ===== OTHER FIELDS =====
-    if "name" in profile:
-        user.name = profile["name"]
-    elif "full_name" in profile:
-        user.name = profile["full_name"]
-
+    # Cập nhật Số điện thoại
     if "phone" in profile:
-        user.phone = profile["phone"]
-
-    if "address" in profile:
-        user.address = profile["address"]
+        user.phone = profile["phone"].strip()
 
     db.session.commit()
-    return True, "Cập nhật thông tin thành công"
+    return True, "Cập nhật thành công"
 
 
 

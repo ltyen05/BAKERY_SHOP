@@ -101,11 +101,11 @@ def reset_password_with_token(token, new_password):
 
 
 def generate_token(user, role):
-    return create_access_token(identity={
-        "id": user.get_id(),
-        "role": role,
-        "email": user.email
-    })
+    return create_access_token(
+        identity={"id": user.get_id(), "role": role},
+        expires_delta=timedelta(days=1)
+    )
+
 
 # Thêm vào services/auth_services.py
 

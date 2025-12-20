@@ -3,34 +3,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..services.account_services import update_profile, change_password, update_avatar
 from ..models.customer import Customer
 
-account_bp = Blueprint("account", __name__, url_prefix="/account")
-
-# ===================== OPTIONS =====================
-@account_bp.route("/profile", methods=["OPTIONS"])
-def profile_options():
-    return "", 200
-
-@account_bp.route("/avatar", methods=["OPTIONS"])
-def avatar_options():
-    return "", 200
-
-@account_bp.route("/change-password", methods=["OPTIONS"])
-def change_password_options():
-    return "", 200
-# ==================================================
+account_bp = Blueprint("account", __name__)
 
 
-@account_bp.route(
-    "/profile",
-    methods=["GET", "PUT"],
-    provide_automatic_options=False,  # 🔥 QUAN TRỌNG
-)
+@account_bp.route("/profile", methods=["GET", "PUT"])
 @jwt_required()
 def profile_api():
-    current_user_id = get_jwt_identity()["id"]
-
+    identity = get_jwt_identity()
+    current_user_id = identity["id"]
+    
     if request.method == "GET":
-        user = Customer.query.get(current_user_id)
+        user = Customer.query.get_or_404(current_user_id)
         return jsonify({
             "full_name": user.full_name,
             "email": user.email,
@@ -39,20 +22,21 @@ def profile_api():
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
-    if request.method == "PUT":
-        data = request.get_json()
-        success, msg = update_profile(current_user_id, data)
-        return jsonify({"message": msg}), (200 if success else 400)
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "Invalid JSON body"}), 400
+
+    success, msg = update_profile(current_user_id, data)
+    return jsonify({"message": msg}), (200 if success else 400)
 
 
-@account_bp.route(
-    "/avatar",
-    methods=["POST"],
-    provide_automatic_options=False,
-)
+
+@account_bp.route("/avatar", methods=["POST"])
 @jwt_required()
 def update_avatar_api():
-    current_user_id = get_jwt_identity()["id"]
+    identity = get_jwt_identity()
+    current_user_id = identity["id"]
+
 
     if "avatar" not in request.files:
         return jsonify({"message": "Không tìm thấy file"}), 400
@@ -68,11 +52,12 @@ def update_avatar_api():
 @account_bp.route(
     "/change-password",
     methods=["PUT"],
-    provide_automatic_options=False,
 )
 @jwt_required()
 def change_password_api():
-    current_user_id = get_jwt_identity()["id"]
+    identity = get_jwt_identity()
+    current_user_id = identity["id"]
+
     data = request.json
 
     success, msg = change_password(

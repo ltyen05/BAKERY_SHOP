@@ -43,9 +43,9 @@ def create_app():
     mail.init_app(app)
 
     from .routers.auth import auth_bp
-    from .routers.order_process import order_bp
-    from .routers.feedback import feedback_bp
-    from .routers.account import account_bp
+    from .routers.customer.order_process import order_bp
+    from .routers.customer.feedback import feedback_bp
+    from .routers.customer.account import account_bp
     app.register_blueprint(account_bp, url_prefix="/api/account")
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')

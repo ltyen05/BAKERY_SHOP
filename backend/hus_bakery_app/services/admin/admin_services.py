@@ -1,8 +1,8 @@
-from .. import db
-from ..models.order import Order
-from ..models.order_item import OrderItem
-from ..models.products import Product
-from ..models.shipper import Shipper
+from ... import db
+from ...models.order import Order
+from ...models.order_item import OrderItem
+from ...models.products import Product
+from ...models.shipper import Shipper
 from sqlalchemy import desc
 
 

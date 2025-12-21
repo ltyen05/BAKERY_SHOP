@@ -1,7 +1,7 @@
 from datetime import datetime
-from .. import db
-from ..models.feedback import Feedback
-from ..models.order import Order
+from backend.hus_bakery_app import db
+from backend.hus_bakery_app.models.feedback import Feedback
+from backend.hus_bakery_app.models.order import Order
 
 
 # Bỏ tham số comment ở đây

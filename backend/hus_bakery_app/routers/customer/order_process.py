@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 # Import từ cart_services
-from ..services.cart_services import (
+from backend.hus_bakery_app.services.customer.customer_cart_services import (
     add_to_cart,
     update_selected,
     get_cart,
@@ -8,7 +8,7 @@ from ..services.cart_services import (
     coupon_info
 )
 # Import từ order_services
-from ..services.order_services import create_order
+from backend.hus_bakery_app.services.customer.customer_order_services import create_order
 
 order_bp = Blueprint("order_bp", __name__)
 

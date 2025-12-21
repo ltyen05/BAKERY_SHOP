@@ -1,8 +1,8 @@
 import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
-from .. import db
-from ..models.customer import Customer
+from backend.hus_bakery_app import db
+from backend.hus_bakery_app.models.customer import Customer
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')

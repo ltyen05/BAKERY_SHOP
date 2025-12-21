@@ -14,16 +14,18 @@ mail = Mail()
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:3000",  # Frontend User
-                "http://localhost:3001"  # Frontend Admin
-            ],
-            "methods": ["GET", "POST", "PUT", "DELETE"],
-            "allow_headers": ["Content-Type", "Authorization"]
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={
+            r"/api/*": {
+                "origins": ["http://localhost:3000", "http://localhost:3001"],
+                "allow_headers": ["Content-Type", "Authorization"],
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+            }
         }
-    })
+    )
+
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -43,6 +45,8 @@ def create_app():
     from .routers.auth import auth_bp
     from .routers.order_process import order_bp
     from .routers.feedback import feedback_bp
+    from .routers.account import account_bp
+    app.register_blueprint(account_bp, url_prefix="/api/account")
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(order_bp, url_prefix='/api')

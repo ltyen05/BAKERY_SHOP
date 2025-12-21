@@ -23,7 +23,7 @@ def update_profile(customer_id, profile):
         email = profile["email"].strip().lower()
         if not email:
             return False, "Email không được để trống"
-        
+
         # Kiểm tra trùng email
         exists = Customer.query.filter(Customer.email == email, Customer.customer_id != customer_id).first()
         if exists:
@@ -36,7 +36,6 @@ def update_profile(customer_id, profile):
 
     db.session.commit()
     return True, "Cập nhật thành công"
-
 
 
 def update_avatar(customer_id, file):

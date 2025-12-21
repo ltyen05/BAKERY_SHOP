@@ -1,151 +1,73 @@
-from flask_jwt_extended import create_access_token
-from ..models.customer import Customer
-from ..models.employee import Employee
-from ..models.shipper import Shipper
-from werkzeug.security import check_password_hash
-from flask_mail import Message
-from datetime import timedelta
-from flask_jwt_extended import decode_token
+import os
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
-import json
-# Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
-from .. import db, mail
+from .. import db
+from ..models.customer import Customer
 
-def get_user_by_id_and_role(user_id, role):
-    if role == 'customer': return Customer.query.get(user_id)
-    if role == 'employee': return Employee.query.get(user_id)
-    if role == 'shipper': return Shipper.query.get(user_id)
-    return None
-
-def find_user_instance(email):
-    """Tìm user trong 3 bảng và trả về (user_object, role)"""
-    user = Customer.query.filter_by(email=email).first()
-    if user: return user, 'customer'
-
-    user = Employee.query.filter_by(email=email).first()
-    if user: return user, 'employee'
-
-    user = Shipper.query.filter_by(email=email).first()
-    if user: return user, 'shipper'
-
-    return None, None
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 
-def request_password_reset(email):
-    # 1. Tìm user (Giữ nguyên code cũ của bạn)
-    user, role = find_user_instance(email)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def update_profile(customer_id, profile):
+    user = Customer.query.get(customer_id)
     if not user:
-        return False, "Email này chưa được đăng ký trong hệ thống."
+        return False, "Người dùng không tồn tại"
 
-    # 2. Tạo Token (Giữ nguyên code cũ)
-    reset_token = create_access_token(
-        identity={"id": user.get_id(), "role": role, "type": "reset"},
-        expires_delta=timedelta(minutes=15)
-    )
+    # Cập nhật Email
+    if "email" in profile:
+        email = profile["email"].strip().lower()
+        if not email:
+            return False, "Email không được để trống"
 
-    # 3. Tạo Link (Sửa localhost:3000 thành domain thật nếu có)
-    link = f"http://localhost:3000/reset-password?token={reset_token}"
+        # Kiểm tra trùng email
+        exists = Customer.query.filter(Customer.email == email, Customer.customer_id != customer_id).first()
+        if exists:
+            return False, "Email đã được sử dụng"
+        user.email = email
 
-    # 4. GỬI EMAIL THẬT (Sửa đoạn này)
-    try:
-        msg = Message(
-            subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
-            recipients=[email], # Gửi đến email khách hàng nhập
-            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
-        )
-        
-        mail.send(msg) # <--- Lệnh gửi quan trọng nhất
-        
-        return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
-        
-    except Exception as e:
-        print(f"Lỗi gửi mail: {str(e)}")
-        return False, "Gửi email thất bại. Vui lòng thử lại sau."
+    # Cập nhật Số điện thoại
+    if "phone" in profile:
+        user.phone = profile["phone"].strip()
+
+    db.session.commit()
+    return True, "Cập nhật thành công"
 
 
-def reset_password_with_token(token, new_password):
-    try:
-        # 1. Giải mã token
-        decoded = decode_token(token)
-        identity = decoded['sub']  # Lấy phần identity đã lưu lúc tạo token
+def update_avatar(customer_id, file):
+    user = Customer.query.get(customer_id)
+    if not user:
+        return False, "Người dùng không tồn tại"
 
-        # Check an toàn: đảm bảo đây là token reset chứ không phải token đăng nhập
-        if identity.get('type') != 'reset':
-            return False, "Token không hợp lệ cho việc đổi mật khẩu."
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
 
-        user_id = identity['id']
-        role = identity['role']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"user_{customer_id}_{file.filename}")
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
 
-        # 2. Tìm lại User trong DB để sửa pass
-        if role == 'customer':
-            user = Customer.query.get(user_id)
-        elif role == 'employee':
-            user = Employee.query.get(user_id)
-        elif role == 'shipper':
-            user = Shipper.query.get(user_id)
-        else:
-            return False, "Role không hợp lệ."
-
-        if not user:
-            return False, "Người dùng không tồn tại."
-
-        # 3. Cập nhật mật khẩu mới (Mã hóa)
-        # Giả sử trong model bạn đặt tên cột là password_hash
-        # Nếu model bạn dùng hàm set_password() thì gọi user.set_password(new_password)
-        user.password_hash = generate_password_hash(new_password)
-
+        user.avatar = filename
         db.session.commit()
-        return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
+        return True, filename
 
-    except Exception as e:
-        return False, "Link đã hết hạn hoặc không hợp lệ."
-
-
-def generate_token(user, role):
-    # Chuyển Dictionary thành chuỗi String để tránh lỗi "Subject must be a string"
-    identity_data = json.dumps({"id": user.get_id(), "role": role})
-    
-    return create_access_token(
-        identity=identity_data, 
-        expires_delta=timedelta(days=1)
-    )
+    return False, "File không hợp lệ"
 
 
-# Thêm vào services/auth_services.py
+def change_password(customer_id, old_pass, new_pass, confirm_pass):
+    user = Customer.query.get(customer_id)
 
-def check_email_exist(email):
-    # Kiểm tra lần lượt trong 3 bảng
-    if Customer.query.filter_by(email=email).first():
-        return True
-    if Employee.query.filter_by(email=email).first():
-        return True
-    if Shipper.query.filter_by(email=email).first():
-        return True
-    return False
+    if not user or not user.check_password(old_pass):
+        return False, "Mật khẩu cũ không chính xác"
+    if new_pass != confirm_pass:
+        return False, "Mật khẩu xác nhận không khớp"
+    if len(new_pass) < 6:
+        return False, "Mật khẩu mới phải ≥ 6 ký tự"
 
-def login_user(email, password):
-    # Try Customer
-    user = Customer.query.filter_by(email=email).first()
-    if user:
-        if user.check_password(password):
-            return user, "customer", None  # Thành công (Error = None)
-        else:
-            return None, None, "Mật khẩu không đúng!"
-
-    # Try Employee
-    user = Employee.query.filter_by(email=email).first()
-    if user:
-        if user.check_password(password):
-            return user, "employee", None
-        else:
-            return None, None, "Mật khẩu nhân viên không đúng!"
-
-    # Try Shipper
-    user = Shipper.query.filter_by(email=email).first()
-    if user:
-        if user.check_password(password):
-            return user, "shipper", None
-        else:
-            return None, None, "Mật khẩu shipper không đúng!"
-
-    return None, None, "Email không tồn tại"
+    user.password_hash = generate_password_hash(new_pass)
+    db.session.commit()
+    return True, "Đổi mật khẩu thành công"

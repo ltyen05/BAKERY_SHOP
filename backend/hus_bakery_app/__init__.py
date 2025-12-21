@@ -12,6 +12,7 @@ db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
 
+
 def create_app():
     app = Flask(__name__)
     CORS(
@@ -26,11 +27,10 @@ def create_app():
         }
     )
 
-
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['JWT_SECRET_KEY']=os.getenv('JWT_SECRET_KEY')
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == "True"
@@ -40,8 +40,8 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    mail.init_app(app)  
-    
+    mail.init_app(app)
+
     from .routers.auth import auth_bp
     from .routers.order_process import order_bp
     from .routers.feedback import feedback_bp

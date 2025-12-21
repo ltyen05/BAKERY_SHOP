@@ -10,8 +10,8 @@ account_bp = Blueprint("account", __name__)
 @account_bp.route("/profile", methods=["GET", "PUT"])
 @jwt_required()
 def profile_api():
-    identity_str = get_jwt_identity() # Lúc này là chuỗi '{"id": 17, "role": "customer"}'
-    
+    identity_str = get_jwt_identity()  # Lúc này là chuỗi '{"id": 17, "role": "customer"}'
+
     try:
         # Chuyển từ chuỗi JSON ngược lại thành Dictionary
         identity = json.loads(identity_str)
@@ -19,7 +19,7 @@ def profile_api():
     except Exception:
         # Phòng trường hợp Token cũ vẫn còn là dạng số
         current_user_id = identity_str
-    
+
     user = Customer.query.get(current_user_id)
     if not user:
         return jsonify({"message": "Không tìm thấy người dùng"}), 404
@@ -40,13 +40,11 @@ def profile_api():
     return jsonify({"message": msg}), (200 if success else 400)
 
 
-
 @account_bp.route("/avatar", methods=["POST"])
 @jwt_required()
 def update_avatar_api():
     identity = get_jwt_identity()
     current_user_id = identity["id"]
-
 
     if "avatar" not in request.files:
         return jsonify({"message": "Không tìm thấy file"}), 400

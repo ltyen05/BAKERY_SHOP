@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 18, 2025 lúc 09:49 AM
+-- Thời gian đã tạo: Th12 21, 2025 lúc 04:31 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -33,19 +33,22 @@ CREATE TABLE `branches` (
   `address` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
-  `manager_id` int(11) DEFAULT NULL
+  `manager_id` int(11) DEFAULT NULL,
+  `mapSrc` text DEFAULT NULL,
+  `lat` decimal(10,8) DEFAULT NULL,
+  `lng` decimal(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `branches`
 --
 
-INSERT INTO `branches` (`branch_id`, `name`, `address`, `phone`, `email`, `manager_id`) VALUES
-(1, 'HUS Bakery - Hoàn Kiếm', '15 Hàng Bạc, Hoàn Kiếm, Hà Nội', '0241234567', 'hoankiem@husbakery.vn', 1),
-(2, 'HUS Bakery - Cầu Giấy', '89 Trần Duy Hưng, Cầu Giấy, Hà Nội', '0242345678', 'caugiay@husbakery.vn', 9),
-(3, 'HUS Bakery - Đống Đa', '120 Tây Sơn, Đống Đa, Hà Nội', '0243456789', 'dongda@husbakery.vn', 17),
-(4, 'HUS Bakery - Hà Đông', '65 Quang Trung, Hà Đông, Hà Nội', '0244567890', 'hadong@husbakery.vn', 25),
-(5, 'HUS Bakery - Long Biên', '20 Nguyễn Văn Cừ, Long Biên, Hà Nội', '0245678901', 'longbien@husbakery.vn', 33);
+INSERT INTO `branches` (`branch_id`, `name`, `address`, `phone`, `email`, `manager_id`, `mapSrc`, `lat`, `lng`) VALUES
+(1, 'HUS Bakery - Hoàn Kiếm', '15 Hàng Bạc, Hoàn Kiếm, Hà Nội', '0241234567', 'hoankiem@husbakery.vn', 1, 'https://maps.google.com/maps?q=21.033425,105.852317&hl=vi&z=15&output=embed', 21.03342500, 105.85231700),
+(2, 'HUS Bakery - Cầu Giấy', '89 Trần Duy Hưng, Cầu Giấy, Hà Nội', '0242345678', 'caugiay@husbakery.vn', 9, 'https://maps.google.com/maps?q=21.009123,105.798952&hl=vi&z=15&output=embed', 21.00912300, 105.79895200),
+(3, 'HUS Bakery - Đống Đa', '120 Tây Sơn, Đống Đa, Hà Nội', '0243456789', 'dongda@husbakery.vn', 17, 'https://maps.google.com/maps?q=21.011681,105.823412&hl=vi&z=15&output=embed', 21.01168100, 105.82341200),
+(4, 'HUS Bakery - Hà Đông', '65 Quang Trung, Hà Đông, Hà Nội', '0244567890', 'hadong@husbakery.vn', 25, 'https://maps.google.com/maps?q=20.972235,105.776123&hl=vi&z=15&output=embed', 20.97223500, 105.77612300),
+(5, 'HUS Bakery - Thanh Xuân', '334, Nguyễn Trãi, Thanh Xuân, Hà Nội', '0245678901', 'thanhxuan@husbakery.vn', 33, 'https://maps.google.com/maps?q=20.995872,105.807977&hl=vi&z=15&output=embed', 20.99587220, 105.80797720);
 
 -- --------------------------------------------------------
 

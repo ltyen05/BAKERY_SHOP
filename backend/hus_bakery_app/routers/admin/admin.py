@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from ..utils import admin_required
-from ...services.admin.admin_services import (
+from ..services.admin_services import (
     get_all_orders_service,
     get_order_detail_service,
     update_order_status_service,

@@ -1,4 +1,4 @@
-#!/Users/nguyenbaothach/Study/HK1_25-26/Web/BE_hus_bakery/hus_bakery_env/bin/python3.11
+#!/Users/nguyenbaothach/Study/HK1_25-26/Web/BE_hus_bakery/hus_bakery_env/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

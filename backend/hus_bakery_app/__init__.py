@@ -43,9 +43,9 @@ def create_app():
     mail.init_app(app)
 
     from .routers.auth import auth_bp
-    from .routers.customer.order_process import order_bp
-    from .routers.customer.feedback import feedback_bp
-    from .routers.customer.account import account_bp
+    from backend.hus_bakery_app.routers.customer.order_process import order_bp
+    from backend.hus_bakery_app.routers.customer.feedback import feedback_bp
+    from backend.hus_bakery_app.routers.customer.account import account_bp
     app.register_blueprint(account_bp, url_prefix="/api/account")
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')
@@ -62,7 +62,7 @@ def create_app():
     with app.app_context():
         from .models.categories import Category
         from .models.products import Product
-        from .models.branch import Branch
+        from .models.branches import Branch
         from .models.branch_product import BranchProduct
         from .models.cart_item import CartItem
         from .models.coupon import Coupon

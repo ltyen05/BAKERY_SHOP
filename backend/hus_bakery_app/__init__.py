@@ -51,6 +51,13 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(order_bp, url_prefix='/api')
 
+    from backend.hus_bakery_app.routers.admin.dashboard import dashboard_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
+    from backend.hus_bakery_app.routers.admin.order_management import order_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/order_management')
+    from backend.hus_bakery_app.routers.admin.product_management import product_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/product_management')
+
     @app.route("/test_db")
     def test_db():
         try:

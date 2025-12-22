@@ -62,7 +62,7 @@ def create_app():
     with app.app_context():
         from .models.categories import Category
         from .models.products import Product
-        from .models.branch import Branch
+        from .models.branches import Branch
         from .models.branch_product import BranchProduct
         from .models.cart_item import CartItem
         from .models.coupon import Coupon

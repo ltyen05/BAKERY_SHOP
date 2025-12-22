@@ -9,7 +9,7 @@ from backend.hus_bakery_app.models.order import Order
 from backend.hus_bakery_app.models.order_item import OrderItem
 from backend.hus_bakery_app.models.cart_item import CartItem
 from backend.hus_bakery_app.models.products import Product
-from backend.hus_bakery_app.models.branch import Branch
+from backend.hus_bakery_app.models.branches import Branch
 from backend.hus_bakery_app.models.shipper import Shipper
 from backend.hus_bakery_app.models.coupon import Coupon
 from backend.hus_bakery_app.models.coupon_custom import CouponCustomer
@@ -212,3 +212,26 @@ def assign_shipper_service(order_id, shipper_id):
     order.status = 'shipping'
     db.session.commit()
     return True, f"Assigned to {shipper.full_name}"
+
+
+def calculate_shipping_preview(address, lat=None, lng=None):
+    if not lat or not lng:
+        lat, lng = geocode_address(address)
+
+    if not lat:
+        return None, "Địa chỉ không hợp lệ"
+
+    branches = Branch.query.all()
+    min_dist = 10 ** 9
+    for b in branches:
+        dist = haversine(lat, lng, b.lat, b.lng)
+        if dist < min_dist:
+            min_dist = dist
+
+    shipping_fee = min_dist * 5000  # 5k/km
+    return {
+        "lat": lat,
+        "lng": lng,
+        "distance": round(min_dist, 2),
+        "shipping_fee": round(shipping_fee, -3)  # Làm tròn đến nghìn
+    }, None

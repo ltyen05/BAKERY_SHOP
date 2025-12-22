@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-# Import từ cart_services
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from backend.hus_bakery_app.models.order import Order
 from backend.hus_bakery_app.services.customer.cart_services import (
     add_to_cart,
     update_selected,
@@ -7,8 +8,7 @@ from backend.hus_bakery_app.services.customer.cart_services import (
     coupon_of_customer,
     coupon_info
 )
-# Import từ order_services
-from backend.hus_bakery_app.services.customer.order_services import create_order
+from backend.hus_bakery_app.services.customer.order_services import create_order, calculate_shipping_preview
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -54,8 +54,11 @@ def api_update_selected():
 # ==========================
 # 4. GET COUPONS OF CUSTOMER
 # ==========================
-@order_bp.route("/coupon/<int:customer_id>", methods=["GET"])
-def api_coupon_of_customer(customer_id):
+@order_bp.route("/my-coupons", methods=["GET"])
+@jwt_required()
+def my_coupons():
+    identity = get_jwt_identity()
+    customer_id = identity["id"]
     coupons = coupon_of_customer(customer_id)
     return jsonify(coupons), 200
 
@@ -100,3 +103,18 @@ def api_create_order():
         "message": msg,
         "order_id": order.order_id
     }), 200
+
+# API tính phí ship trước khi đặt
+@order_bp.route("/order/preview-ship", methods=["POST"])
+def api_preview_ship():
+    data = request.json
+    res, error = calculate_shipping_preview(data.get("address"), data.get("lat"), data.get("lng"))
+    if error: return jsonify({"error": error}), 400
+    return jsonify(res), 200
+
+# API Lịch sử đơn hàng của khách
+@order_bp.route("/order/history/<int:customer_id>", methods=["GET"])
+def api_order_history(customer_id):
+    orders = Order.query.filter_by(customer_id=customer_id).order_by(Order.created_at.desc()).all()
+    # Serialize orders here...
+    return jsonify([...]), 200

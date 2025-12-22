@@ -1,11 +1,22 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar
+from backend.hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, get_current_customer_service
 from backend.hus_bakery_app.models.customer import Customer
 import json
 
 account_bp = Blueprint("account", __name__)
 
+@account_bp.route("/me", methods=["GET"])
+@jwt_required()
+def api_get_me():
+    identity_str = get_jwt_identity()
+    indetity = json.loads(identity_str)
+    current_user_id = indetity["id"]
+    customer_data = get_current_customer_service(current_user_id)
+    if not customer_data:
+        return jsonify({"error": "Customer not found"}), 404
+
+    return jsonify(customer_data), 200
 
 @account_bp.route("/profile", methods=["GET", "PUT"])
 @jwt_required()

@@ -111,3 +111,21 @@ def coupon_info(coupon_id):
         "min_purchase": float(coupon.min_purchase),
         "description": coupon.description
     }
+
+def update_cart_quantity(customer_id, product_id, quantity):
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+    if item:
+        if quantity <= 0:
+            db.session.delete(item)
+        else:
+            item.quantity = quantity
+        db.session.commit()
+    return item
+
+def remove_from_cart(customer_id, product_id):
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        return True
+    return False

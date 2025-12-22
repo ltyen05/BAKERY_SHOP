@@ -8,6 +8,22 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+def get_current_customer_service(customer_id):
+    # Chỉ tìm kiếm trong bảng Customer
+    user = Customer.query.get(customer_id)
+
+    if not user:
+        return None
+
+    return {
+        "user_id": user.customer_id,
+        "full_name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "avatar": user.avatar,
+        "created_at": user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+        "role": "customer"
+    }
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

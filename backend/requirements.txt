@@ -9,6 +9,7 @@ SQLAlchemy==2.0.45
 Werkzeug==3.1.4
 WTForms==3.2.1
 pymysql
+requests
 cryptography
 pymongo
 flask-pymongo

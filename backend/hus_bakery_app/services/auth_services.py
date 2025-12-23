@@ -11,6 +11,8 @@ import json
 # Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
 
+
+
 def get_current_customer_service(customer_id):
     # Chỉ tìm kiếm trong bảng Customer
     user = Customer.query.get(customer_id)

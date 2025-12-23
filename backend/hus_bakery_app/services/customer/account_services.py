@@ -3,12 +3,19 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from backend.hus_bakery_app import db
 from backend.hus_bakery_app.models.customer import Customer
+from backend.hus_bakery_app.models.order import Order
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+def total_amount_of_customer(customer_id):
+    order_of_customer = db.sessionl.query(Order).filter_by(customer_id=customer_id).all()
+    total_amount = 0
+    for order in order_of_customer:
+        total_amount += order.amount
 
+    return total_amount
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

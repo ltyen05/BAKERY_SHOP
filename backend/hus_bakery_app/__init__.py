@@ -43,13 +43,15 @@ def create_app():
     mail.init_app(app)
 
     from .routers.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/api')
     from backend.hus_bakery_app.routers.customer.order_process import order_bp
+    app.register_blueprint(order_bp, url_prefix='/api')
     from backend.hus_bakery_app.routers.customer.feedback import feedback_bp
+    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     from backend.hus_bakery_app.routers.customer.account import account_bp
     app.register_blueprint(account_bp, url_prefix="/api/account")
-    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
-    app.register_blueprint(auth_bp, url_prefix='/api')
-    app.register_blueprint(order_bp, url_prefix='/api')
+    from backend.hus_bakery_app.routers.customer.product import product_bp
+    app.register_blueprint(product_bp, url_prefix="/api/product")
 
     from backend.hus_bakery_app.routers.admin.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
@@ -57,6 +59,10 @@ def create_app():
     app.register_blueprint(dashboard_bp, url_prefix='/admin/order_management')
     from backend.hus_bakery_app.routers.admin.product_management import product_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/product_management')
+    from backend.hus_bakery_app.routers.admin.customer_management import customer_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/customer_management')
+    from backend.hus_bakery_app.routers.admin.employee_management import employee_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/employee_management')
 
     @app.route("/test_db")
     def test_db():

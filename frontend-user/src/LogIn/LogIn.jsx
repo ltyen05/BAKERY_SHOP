@@ -2,62 +2,30 @@ import { Form, Button, Input, Checkbox } from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import bakesLogo from "../assets/bakes.svg";
-export default function Login({ onLogin }) {
+export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (values) => {
     // values từ Ant Design Form: { email, password, remember }
+
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
-      });
+      const user = await login(values.email, values.password);
 
-      const data = await res.json();
-
-      if (res.ok && data.status === "success") {
-        // Lưu token
-        localStorage.setItem("access_token", data.access_token);
-
-        // Gọi handleLogin từ App với thông tin user
-        onLogin({
-          id: data.data.id,
-          name: data.data.name,
-          email: data.data.email,
-          avatar: data.data.avatar,
-          role: data.data.role,
-        });
-
-        // Hiển thị thông báo thành công
-        alert(data.message);
-
-        // Navigate dựa vào role
-        if (data.data.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+      // điều hướng theo role
+      if (user.role === "admin") {
+        navigate("/admin");
       } else {
-        // Xử lý lỗi validation
-        if (data.errors) {
-          // Hiển thị lỗi từ backend
-          const errorMessages = Object.values(data.errors).flat().join("\n");
-          alert(errorMessages);
-        } else {
-          alert(data.message || "Đăng nhập thất bại");
-        }
+        alert(`Đăng nhập thành công! ${user.role}`);
+        navigate("/");
       }
     } catch (err) {
-      alert("Lỗi kết nối server: " + err.message);
-      console.error("Login error:", err);
+      alert(err.message || "Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }

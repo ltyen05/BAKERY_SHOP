@@ -1,9 +1,11 @@
 import HeaderComponent from "../HeaderComponent/HeaderComponent";
 import Footer from "../Footer/Footer";
-const DefaultHeader = ({ children, user, onLogout }) => {
+import { useAuth } from "../../context/AuthContext";
+const DefaultHeader = ({ children }) => {
+  const { user, logout } = useAuth();
   return (
     <div className="bg-color">
-      <HeaderComponent user={user} onLogout={onLogout} />
+      <HeaderComponent user={user} onLogout={logout} />
 
       {children}
       <Footer />

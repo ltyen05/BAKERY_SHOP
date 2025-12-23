@@ -1,44 +1,50 @@
 import React, { useState } from "react";
+import { Row, Col } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
+
 const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
-      className="p-4 border-b border-gray-200 relative"
+      className="mb-6"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="fl align-center">
+      <Row align="middle" gutter={10}>
         {isHovered && (
           <button
             onClick={() => onRemove(product.id)}
-            className="w-12 h-12 bg-red-400 rounded-xl flex items-center justify-center text-white hover:bg-red-500 transition-all"
+            style={{
+              width: "25px",
+              height: "25px",
+              borderRadius: "50%",
+              border: "none",
+            }}
+            className="fl-center hover-grey"
           >
-            <CloseOutlined />
+            <CloseOutlined style={{ fontSize: "15px" }} />
           </button>
         )}
 
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-20 h-20 rounded-xl object-cover"
-        />
+        <Col span={8} className="fl-center">
+          <img
+            src={product.image}
+            alt={product.name}
+            style={{ borderRadius: "50%", width: "100%" }}
+          />
+        </Col>
 
-        <div>
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-800 mb-1">{product.name}</h3>
-            <p className="text-red-500 font-semibold">
-              {product.price.toLocaleString("vi-VN")} VNĐ
-            </p>
+        <Col span={14} style={{ overflowWrap: "break-word" }}>
+          <div className="mt-1">
+            <h3 className="mb-1">{product.name}</h3>
+            <p className="mb-1">{product.price.toLocaleString("vi-VN")} VNĐ</p>
           </div>
           <div
             style={{
               justifyContent: "start",
-
-              gap: "10px",
             }}
-            className="fl-center mb-6"
+            className="fl-center"
           >
             <div
               style={{
@@ -46,9 +52,8 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
                 borderRadius: "14px",
                 overflow: "hidden",
                 display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
+              className="fl-center mb-1"
             >
               <button
                 onClick={() =>
@@ -99,8 +104,8 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
               </button>
             </div>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   );
 };

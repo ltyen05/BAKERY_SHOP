@@ -2,12 +2,12 @@ import { Row, Col, Button } from "antd";
 import logo from "../../assets/logo-noText.svg";
 import { RightOutlined } from "@ant-design/icons";
 export default function Voucher({
-  discount = 15,
-  minOrder = 0,
-  expiryDate = "10/10/2025",
+  voucher,
+  setSelectedVoucher,
+  disabled = false,
 }) {
   return (
-    <div style={{ textAlign: "start", width: "360px" }}>
+    <div style={{ textAlign: "start", maxWidth: "360px" }}>
       <Row>
         <Col
           span={6}
@@ -23,24 +23,36 @@ export default function Voucher({
           }}
         >
           <Row>
-            <p style={{ fontSize: "16px" }}>
-              Giảm {discount}% cho đơn từ {minOrder}đ
+            <p
+              style={{
+                fontSize: "16px",
+                whiteSpace: "normal",
+                wordBreak: "break-word",
+              }}
+            >
+              {voucher?.discount <= 1
+                ? `Giảm ${
+                    voucher?.discount
+                  }% cho đơn từ ${voucher?.minOrder.toLocaleString()}đ`
+                : `Giảm ${voucher?.discount.toLocaleString()}đ cho đơn từ ${voucher?.minOrder.toLocaleString()}đ`}
             </p>
           </Row>
           <Row align="bottom" className="mt-3">
-            <Col span={12}>HSD: {expiryDate}</Col>
+            <Col span={12}>HSD: {voucher?.expiryDate}</Col>
             <Col span={12} style={{ textAlign: "end" }}>
-              <button
+              <Button
                 style={{
                   textDecoration: "underline",
                   padding: "0",
                   fontWeight: "400",
                   fontFamily: "inherit",
                 }}
+                disabled={disabled}
                 className="out-line"
+                onClick={() => setSelectedVoucher(voucher)}
               >
                 Dùng ngay <RightOutlined />
-              </button>
+              </Button>
             </Col>
           </Row>
         </Col>

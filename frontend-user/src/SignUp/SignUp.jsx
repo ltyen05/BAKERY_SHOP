@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Button, Checkbox, Form, Input, message } from "antd"; // Thêm message
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { useAuth } from "../context/AuthContext";
 import bakesLogo from "../assets/bakes.svg";
 
 const SignUp = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const [loading, setLoading] = useState(false); // State để hiển thị loading
   // const checkEmailExists = async (email) => {
   //   try {
@@ -29,26 +31,20 @@ const SignUp = () => {
   // };
 
   // 2. Hàm xử lý khi bấm nút Đăng Ký
-  const onFinish = async (values) => {
-    // values: { name, email, phone, password, confirmPassword }
-    setLoading(true);
 
+  const onFinish = async (values) => {
+    setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          password: values.password,
-          confirm: values.confirm,
-        }),
+      // Dùng hàm từ Context
+      const data = await signup({
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        password: values.password,
+        confirm: values.confirm,
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.status === "success") {
+      if (data.status === "success") {
         // Hiển thị thông báo thành công
         message.success(data.message);
 
@@ -87,7 +83,6 @@ const SignUp = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="bound">
       <div className="fl-center bg-color pb-6 pt-3">

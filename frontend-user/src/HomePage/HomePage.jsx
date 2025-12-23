@@ -2,7 +2,7 @@ import { Row, Col, Button } from "antd";
 import Product from "../components/Product/Product";
 import { Link } from "react-router-dom";
 import "./homePage.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   DoubleRightOutlined,
   HeartOutlined,
@@ -12,29 +12,27 @@ import chef from "../assets/chef.svg";
 import award from "../assets/award.svg";
 import homePage from "../assets/HomePage.png";
 function HomePage() {
-  // const [topProducts, setTopProducts] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
 
-  // useEffect(() => {
-  //   // Hàm tải dữ liệu
-  //   const fetchData = async () => {
-  //     try {
-  //       const res = await fetch("http://localhost:8000/api/products/top5");
-  //       const data = await res.json();
-  //       setTopProducts(data);
-  //     } catch (err) {
-  //       console.error("Lỗi khi tải top sản phẩm:", err);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/product/top-selling"
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setTopProducts(data);
+        } else {
+          setTopProducts([]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  //   // Gọi ngay lần đầu
-  //   fetchData();
-
-  //   // Cập nhật mỗi 1 giây
-  //   const interval = setInterval(fetchData, 1000);
-
-  //   // Dọn dẹp khi component unmount
-  //   return () => clearInterval(interval);
-  // }, []);
+    fetchData();
+  }, []);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -77,7 +75,7 @@ function HomePage() {
         </Row>
         <div>
           <Row align="top" justify="center">
-            <Col
+            {/* <Col
               className="animate-on-scroll fade-up "
               style={{ transitionDelay: "0.05s" }}
             >
@@ -94,7 +92,21 @@ function HomePage() {
               style={{ transitionDelay: "0.05s" }}
             >
               <Product productName={"Sourdough"} price={"120000"} />
-            </Col>
+            </Col> */}
+            {topProducts.map((item) => (
+              <Col
+                className="animate-on-scroll fade-up "
+                style={{ transitionDelay: "0.05s" }}
+                key={item?.product_id}
+              >
+                <Product
+                  product_id={item?.product_id} // DB trả về 'id' -> truyền vào prop 'productId'
+                  productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
+                  price={item?.price} // DB trả về 'price'
+                  image={item?.image} // DB trả về 'image_url' -> truyền vào prop 'image'
+                />
+              </Col>
+            ))}
           </Row>
         </div>
       </div>

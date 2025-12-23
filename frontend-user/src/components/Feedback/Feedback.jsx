@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Rate, Input, Button, message } from "antd";
+import { Rate, Input, Button, message } from "antd";
 
 const { TextArea } = Input;
 

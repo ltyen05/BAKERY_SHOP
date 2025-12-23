@@ -1,14 +1,15 @@
 // src/components/RoleGuard.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-
+import { useAuth } from "../../context/AuthContext";
 /**
  * Component bảo vệ route dựa trên vai trò người dùng.
  * @param {object} user - Đối tượng người dùng (chứa role) hoặc null.
  * @param {Array<string>} roles - Mảng các vai trò được phép truy cập (e.g., ["admin", "user"]).
  * @param {React.ReactNode} children - Component con (trang cần bảo vệ).
  */
-const RoleGuard = ({ user, roles, children }) => {
+const RoleGuard = ({ roles, children }) => {
+  const { user } = useAuth();
   // 1. Xác định vai trò hiện tại
   const currentRole = user?.role || "guest"; // Nếu user là null, vai trò là "guest"
 

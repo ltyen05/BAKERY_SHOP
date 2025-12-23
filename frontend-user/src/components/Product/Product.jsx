@@ -2,7 +2,7 @@ import "./productCard.css";
 import starIcon from "../../assets/Star.svg";
 import { Button } from "antd";
 
-function Product({ productName, price, image }) {
+function Product({ product_id, productName, price, image }) {
   return (
     <div className="box">
       <div className="list">

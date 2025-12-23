@@ -3,13 +3,9 @@ import { Tabs } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { routes } from "../routes";
 import { useMemo } from "react";
-import Cake from "../assets/cake.svg";
 import Bread from "../assets/Bread.svg";
-import Coffee from "../assets/Coffee.svg";
 const iconMap = {
-  Cake: Cake,
   Bread: Bread,
-  Drink: Coffee,
 };
 export default function Menu() {
   const navigate = useNavigate();
@@ -36,7 +32,7 @@ export default function Menu() {
   const activeKey = location.pathname.split("/")[2] || "cake";
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ width: "100%", maxWidth: 1400, margin: "0 auto" }}>
       <h2>Menu</h2>
       <Tabs
         centered

@@ -81,6 +81,9 @@ body,
 .mt-18 {
   margin-top: 6rem !important;
 }
+.mt-1 {
+  margin-top: 0.3rem !important;
+}
 .mt-24 {
   margin-top: 8rem !important;
 }
@@ -164,16 +167,18 @@ body,
 .btn-second:hover {
   background-color: #7b4418 !important;
   color: #f7f4e7 !important;
+  border: none !important;
 }
 
 .btn-second {
   border-radius: 25px;
   background-color: #a2734c;
   color: #f7f4e7;
+  border: "none" !important;
 }
 
 .hover-grey:hover {
-  background-color: #e5e5e5b9 !important;
+  background-color: #dbdbdbe9 !important;
 }
 
 .fl-center {
@@ -259,9 +264,13 @@ body,
 
 /* ================= Focus ================= */
 .ant-input-affix-wrapper-focused,
+.ant-select-focused .ant-select-selector,
 .ant-input:focus {
   border-color: #b96d2a !important;
   box-shadow: 0 0 0 2px rgba(185, 109, 42, 0.35) !important;
+}
+.ant-radio-checked .ant-radio-inner {
+  background-color: #b96d2a !important;
 }
 
 .ant-input-affix-wrapper-focused .ant-input-suffix {
@@ -273,7 +282,11 @@ body,
 .ant-input:hover:not(.ant-input-focused) {
   border-color: #b96d2a !important;
 }
-
+.ant-input,
+.ant-select-selector,
+.ant-radio .ant-radio-inner {
+  border-color: #47688575 !important;
+}
 .ant-input-affix-wrapper:hover:not(.ant-input-affix-wrapper-focused) {
   border-color: #b96d2a !important;
 }
@@ -384,4 +397,22 @@ body,
   flex-shrink: 0;
   margin: 5px 0px;
   align-self: start;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.info-value {
+  text-align: end;
+}
+.radio-vertical .ant-radio-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
+.radio-vertical .ant-radio {
+  margin-top: 8px;
 }

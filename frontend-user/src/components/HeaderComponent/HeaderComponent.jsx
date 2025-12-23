@@ -101,7 +101,7 @@ function NavBar({ user, onLogout }) {
     items: [
       {
         key: "username",
-        label: user?.name, // ✅ phải là JSX hoặc string
+        label: user?.full_name, // ✅ phải là JSX hoặc string
         disabled: true,
       },
       {
@@ -343,9 +343,9 @@ function NavBar({ user, onLogout }) {
                     closable={{ "aria-label": "Close Button" }}
                     onClose={onClose}
                     open={open}
+                    width={400}
                   >
-                    <h1>Giỏ hàng</h1>
-                    <Cart productList={productList} />
+                    <Cart productList={productList} onCloseDrawer={onClose} />
                   </Drawer>
                   <Dropdown
                     placement="bottom"

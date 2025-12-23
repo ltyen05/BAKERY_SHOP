@@ -10,12 +10,22 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def total_amount_of_customer(customer_id):
-    order_of_customer = db.sessionl.query(Order).filter_by(customer_id=customer_id).all()
+    order_of_customer = db.session.query(Order).filter_by(customer_id=customer_id).all()
     total_amount = 0
     for order in order_of_customer:
         total_amount += order.amount
 
     return total_amount
+
+def get_customer_rank_service(total_amount):
+    # Logic phân hạng dựa trên tổng chi tiêu
+    if total_amount >= 10000000:
+        return "diamond"
+    elif total_amount >= 5000000:
+        return "gold"
+    elif total_amount >= 1000000:
+        return "silver"
+    return "bronze"
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, total_amount_of_customer
+from backend.hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, total_amount_of_customer, get_customer_rank_service
 from backend.hus_bakery_app.models.customer import Customer
 import json
 
@@ -16,36 +16,23 @@ def total_amount():
     return jsonify({
         "customer_id": current_user_id,
         "total_amount": total_amount
-    })
+    }), 200
 
-@account_bp.route("/rank", methods=["POST"])
+@account_bp.route("/rank", methods=["GET"])
 @jwt_required()
 def rank():
     identity_str = get_jwt_identity()
     identity = json.loads(identity_str)
     current_user_id = identity["id"]
     total_amount = total_amount_of_customer(current_user_id)
-
-    if total_amount >= 1000000 and total_amount < 5000000:
-        return jsonify({
-            "customer_id": current_user_id,
-            "rank": "silver"
-        })
-    elif total_amount >= 5000000 and total_amount < 10000000:
-        return jsonify({
-            "customer_id": current_user_id,
-            "rank": "gold"
-        })
-    elif total_amount >= 10000000:
-        return jsonify({
-            "customer_id": current_user_id,
-            "rank": "diamond"
-        })
+    rank = get_customer_rank_service(total_amount)
 
     return jsonify({
         "customer_id": current_user_id,
-        "rank": "bronze"
-    })
+        "total_amount_spent": total_amount,
+        "rank": rank
+    }), 200
+
 @account_bp.route("/profile", methods=["GET", "PUT"])
 @jwt_required()
 def profile_api():

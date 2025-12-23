@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 18, 2025 lúc 09:49 AM
+-- Thời gian đã tạo: Th12 23, 2025 lúc 04:17 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -33,19 +33,22 @@ CREATE TABLE `branches` (
   `address` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
-  `manager_id` int(11) DEFAULT NULL
+  `manager_id` int(11) DEFAULT NULL,
+  `mapSrc` text DEFAULT NULL,
+  `lat` decimal(10,8) DEFAULT NULL,
+  `lng` decimal(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `branches`
 --
 
-INSERT INTO `branches` (`branch_id`, `name`, `address`, `phone`, `email`, `manager_id`) VALUES
-(1, 'HUS Bakery - Hoàn Kiếm', '15 Hàng Bạc, Hoàn Kiếm, Hà Nội', '0241234567', 'hoankiem@husbakery.vn', 1),
-(2, 'HUS Bakery - Cầu Giấy', '89 Trần Duy Hưng, Cầu Giấy, Hà Nội', '0242345678', 'caugiay@husbakery.vn', 9),
-(3, 'HUS Bakery - Đống Đa', '120 Tây Sơn, Đống Đa, Hà Nội', '0243456789', 'dongda@husbakery.vn', 17),
-(4, 'HUS Bakery - Hà Đông', '65 Quang Trung, Hà Đông, Hà Nội', '0244567890', 'hadong@husbakery.vn', 25),
-(5, 'HUS Bakery - Long Biên', '20 Nguyễn Văn Cừ, Long Biên, Hà Nội', '0245678901', 'longbien@husbakery.vn', 33);
+INSERT INTO `branches` (`branch_id`, `name`, `address`, `phone`, `email`, `manager_id`, `mapSrc`, `lat`, `lng`) VALUES
+(1, 'HUS Bakery - Hoàn Kiếm', '15 Hàng Bạc, Hoàn Kiếm, Hà Nội', '0241234567', 'hoankiem@husbakery.vn', 1, 'https://maps.google.com/maps?q=21.033425,105.852317&hl=vi&z=15&output=embed', 21.03342500, 105.85231700),
+(2, 'HUS Bakery - Cầu Giấy', '89 Trần Duy Hưng, Cầu Giấy, Hà Nội', '0242345678', 'caugiay@husbakery.vn', 9, 'https://maps.google.com/maps?q=21.009123,105.798952&hl=vi&z=15&output=embed', 21.00912300, 105.79895200),
+(3, 'HUS Bakery - Đống Đa', '120 Tây Sơn, Đống Đa, Hà Nội', '0243456789', 'dongda@husbakery.vn', 17, 'https://maps.google.com/maps?q=21.011681,105.823412&hl=vi&z=15&output=embed', 21.01168100, 105.82341200),
+(4, 'HUS Bakery - Hà Đông', '65 Quang Trung, Hà Đông, Hà Nội', '0244567890', 'hadong@husbakery.vn', 25, 'https://maps.google.com/maps?q=20.972235,105.776123&hl=vi&z=15&output=embed', 20.97223500, 105.77612300),
+(5, 'HUS Bakery - Thanh Xuân', '334, Nguyễn Trãi, Thanh Xuân, Hà Nội', '0245678901', 'thanhxuan@husbakery.vn', 33, 'https://maps.google.com/maps?q=20.995872,105.807977&hl=vi&z=15&output=embed', 20.99587220, 105.80797720);
 
 -- --------------------------------------------------------
 
@@ -629,7 +632,6 @@ CREATE TABLE `product_reviews` (
   `product_id` int(11) DEFAULT NULL,
   `customer_id` int(11) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL CHECK (`rating` >= 1 and `rating` <= 5),
-  `comment` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -637,22 +639,22 @@ CREATE TABLE `product_reviews` (
 -- Đang đổ dữ liệu cho bảng `product_reviews`
 --
 
-INSERT INTO `product_reviews` (`order_item_id`, `product_id`, `customer_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 1, 1, 5, 'Bánh mousse dứa rất thơm và thanh mát!', '2025-12-18 08:22:43'),
-(2, 2, 2, 4, 'Bánh xoài ngon nhưng hơi ngọt một chút.', '2025-12-18 08:22:43'),
-(3, 3, 3, 5, 'Vị dâu tây rất tươi, nhà mình ai cũng thích.', '2025-12-18 08:22:43'),
-(4, 4, 4, 5, 'Mousse việt quất đỉnh cao, màu rất đẹp.', '2025-12-18 08:22:43'),
-(5, 5, 5, 4, 'Bánh ngàn lớp giòn, xoài chín mọng.', '2025-12-18 08:22:43'),
-(6, 6, 6, 3, 'Giao hàng hơi chậm làm bánh bị chảy nhẹ.', '2025-12-18 08:22:43'),
-(7, 7, 7, 5, 'Rất hài lòng với chất lượng bánh Mille-feuille.', '2025-12-18 08:22:43'),
-(8, 8, 8, 5, 'Bánh Danish táo thơm mùi quế, rất chuẩn vị.', '2025-12-18 08:22:43'),
-(9, 9, 9, 4, 'Nhân dâu tây hơi ít nhưng vỏ bánh rất ngon.', '2025-12-18 08:22:43'),
-(10, 10, 10, 5, 'Socola đậm đà, bánh rất đáng tiền.', '2025-12-18 08:22:43'),
-(11, 11, 11, 5, 'Croissant nguyên bản cực kỳ thơm bơ.', '2025-12-18 08:22:43'),
-(12, 12, 12, 4, 'Bánh sừng bò socola ăn kèm cafe rất hợp.', '2025-12-18 08:22:43'),
-(13, 13, 13, 5, 'Vị matcha đậm, không bị đắng quá.', '2025-12-18 08:22:43'),
-(14, 1, 14, 5, 'Mua lần 2 vẫn thấy rất tuyệt vời.', '2025-12-18 08:22:43'),
-(15, 2, 15, 4, 'Đóng gói đẹp, thích hợp làm quà tặng.', '2025-12-18 08:22:43');
+INSERT INTO `product_reviews` (`order_item_id`, `product_id`, `customer_id`, `rating`, `created_at`) VALUES
+(1, 1, 1, 5, '2025-12-18 08:22:43'),
+(2, 2, 2, 4, '2025-12-18 08:22:43'),
+(3, 3, 3, 5, '2025-12-18 08:22:43'),
+(4, 4, 4, 5, '2025-12-18 08:22:43'),
+(5, 5, 5, 4, '2025-12-18 08:22:43'),
+(6, 6, 6, 3, '2025-12-18 08:22:43'),
+(7, 7, 7, 5, '2025-12-18 08:22:43'),
+(8, 8, 8, 5, '2025-12-18 08:22:43'),
+(9, 9, 9, 4, '2025-12-18 08:22:43'),
+(10, 10, 10, 5, '2025-12-18 08:22:43'),
+(11, 11, 11, 5, '2025-12-18 08:22:43'),
+(12, 12, 12, 4, '2025-12-18 08:22:43'),
+(13, 13, 13, 5, '2025-12-18 08:22:43'),
+(14, 1, 14, 5, '2025-12-18 08:22:43'),
+(15, 2, 15, 4, '2025-12-18 08:22:43');
 
 -- --------------------------------------------------------
 

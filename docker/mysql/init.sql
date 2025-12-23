@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 23, 2025 lúc 04:17 AM
+-- Thời gian đã tạo: Th12 23, 2025 lúc 08:53 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -187,7 +187,8 @@ INSERT INTO `categories` (`category_id`, `name`) VALUES
 (1, 'Mousse'),
 (2, 'Mille-feuille'),
 (3, 'Danish'),
-(4, 'Croissant');
+(4, 'Croissant'),
+(5, 'Cheesecake');
 
 -- --------------------------------------------------------
 
@@ -619,7 +620,31 @@ INSERT INTO `products` (`product_id`, `name`, `description`, `image_url`, `unit_
 (10, 'Danish vị Socola', 'Dành riêng cho những tín đồ socola với lớp vỏ bánh xếp lớp kỳ công, bao phủ nhân socola nguyên chất đậm đà, mang lại dư vị ngọt đắng quyến luyến.', 'https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400233880002.jpg.webp', 45000.00, '2025-12-18 08:22:43', '2025-12-18', 3),
 (11, 'Croissant nguyên bản', 'Chiếc bánh sừng bò huyền thoại với cấu trúc rỗng bên trong, vỏ ngoài giòn tan và đậm đà hương vị bơ cao cấp. Đơn giản nhưng đầy tinh tế cho một ngày mới.', 'https://i.pinimg.com/736x/ea/0b/c6/ea0bc6f4213d99c0b35dfac08b5bd7c1.jpg', 35000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
 (12, 'Croissant Socola', 'Sự nâng cấp ngọt ngào của Croissant truyền thống với hai thanh socola đen ẩn hiện bên trong lớp bột bánh ngàn lớp vàng ruộm, giòn tan.', 'https://www.pinterest.com/pin/23151385579418817/', 40000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
-(13, 'Croissant Matcha', 'Sự kết hợp thú vị giữa kỹ thuật Pháp và hương trà xanh Nhật Bản. Lớp vỏ xanh thơm mát bao bọc nhân kem matcha tan chảy, đắng nhẹ mà ngọt hậu.', 'https://odouceurs.com/img/client/shop/1727601201_croissant%20matrcha.jpg', 40000.00, '2025-12-18 08:22:43', '2025-12-18', 4);
+(13, 'Croissant Matcha', 'Sự kết hợp thú vị giữa kỹ thuật Pháp và hương trà xanh Nhật Bản. Lớp vỏ xanh thơm mát bao bọc nhân kem matcha tan chảy, đắng nhẹ mà ngọt hậu.', 'https://odouceurs.com/img/client/shop/1727601201_croissant%20matrcha.jpg', 40000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
+(14, 'Mousse Socola', 'Mousse Socola đậm đà dành cho tín đồ yêu thích vị đắng ngọt.', 'https://the350f.com/wp-content/uploads/2025/05/ChiTietTiramisu-4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 1),
+(15, 'Mille-feuille vị socola', 'Sự hòa quyện giữa lớp bánh giòn và kem socola.', 'https://i.pinimg.com/736x/ee/89/8f/ee898f6631acbce5be9c90304f611e68.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
+(16, 'Mille-feuille vị caramel', 'Hương vị caramel ngọt ngào trong từng lớp bánh Mille-feuille.', 'https://i.pinimg.com/1200x/d9/69/22/d96922c32062b1381152b6d00bcf4373.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
+(17, 'Mille-feuille vị chanh', 'Vị chanh thanh mát làm nổi bật độ giòn của bánh ngàn lớp.', 'https://i.pinimg.com/1200x/bd/ff/cb/bdffcb7d5eda6eab2c5f957350803dfb.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
+(18, 'Mile-feuille vị bơ', 'Hương vị bơ béo ngậy tan chảy ngay trong miệng.', 'https://i.pinimg.com/1200x/7a/a0/a0/7aa0a0b83727e74bd05a691e8464ff56.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
+(19, 'Danish vị Việt quất', 'Bánh Danish nhân việt quất chua ngọt đậm đà.', 'https://i.pinimg.com/1200x/ab/38/2e/ab382e82813890eebb883a31a8c6a045.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(20, 'Danish vị Dâu', 'Bánh Danish với những lát dâu tây tươi mọng.', 'https://i.pinimg.com/1200x/f4/41/f2/f441f29cf44cb77caa9ea6ca523fa84c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(21, 'Danish vị Phô mai', 'Nhân phô mai béo ngậy trong lớp vỏ bánh Danish vàng ruộm.', 'https://i.pinimg.com/1200x/1a/55/4c/1a554c2a493d90967d1d2c71cfbbd1db.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(22, 'Danish vị Xoài', 'Sự kết hợp nhiệt đới hoàn hảo giữa xoài và bánh Danish.', 'https://i.pinimg.com/1200x/e1/db/3a/e1db3ae3632d008da5ace7533fc0957c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(23, 'Danish vị hạnh nhân', 'Lớp hạnh nhân lát giòn tan phủ trên mặt bánh Danish.', 'https://i.pinimg.com/736x/cc/41/b0/cc41b0a8f195ce3c71d2b0203015d23b.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(24, 'Danish vị caramel', 'Caramel óng ả phủ trên nền bánh Danish xốp mềm.', 'https://i.pinimg.com/1200x/74/d5/a0/74d5a0360cb524dd0c98a8f496163d0c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(25, 'Danish vị matcha', 'Matcha Nhật Bản tinh tế quyện trong từng lớp bánh Danish.', 'https://i.pinimg.com/1200x/ae/32/be/ae32be93eb76f1cb2f5c7f4c6e9f6cb4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
+(26, 'Croissant Dâu', 'Sự kết hợp giữa bơ thơm và dâu tây tươi căng mọng.', 'https://i.pinimg.com/736x/5d/0c/3a/5d0c3ab1d58234694c315ebb1905c87c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
+(27, 'Croissant hạnh nhân', 'Lớp hạnh nhân giòn rụm phủ trên bánh sừng bò xốp mềm.', 'https://i.pinimg.com/736x/f5/ad/2f/f5ad2f8642b7bbeb2b5ada054f18dedc.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
+(28, 'Croissant phô mai', 'Vị mặn béo của phô mai hòa quyện tinh tế trong Croissant.', 'https://i.pinimg.com/736x/f8/a3/d0/f8a3d02c9cc676914dfa8d27d4761130.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
+(29, 'Croissant nhân kem', 'Lớp kem mềm mịn tan chảy trong lòng bánh Croissant.', 'https://i.pinimg.com/736x/64/35/f3/6435f3864b539d0e39bbca11aded8d2b.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
+(30, 'Croissaant Caramel', 'Vị caramel ngọt ngào bao phủ lớp vỏ bánh sừng bò giòn.', 'https://i.pinimg.com/1200x/64/fb/6a/64fb6abe60d306c58fe8406cc0b6ef45.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
+(31, 'Cheesecake vị dâu', 'Bánh phô mai nướng mịn màng ăn kèm mứt dâu tươi.', 'https://i.pinimg.com/1200x/de/a0/1a/dea01a87b4e0389b06ea43a19e6af30c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(32, 'Cheesecake vị chanh dây', 'Vị chua chanh dây cân bằng độ béo của phô mai thượng hạng.', 'https://i.pinimg.com/736x/2c/a2/df/2ca2df237d7b79ff401c1f45eb646db5.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(33, 'Cheesecake vị cam', 'Cheesecake hương cam thanh khiết mang lại cảm giác tươi mới.', 'https://i.pinimg.com/736x/1d/25/5e/1d255e5d8f7c97afc0649226479f4114.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(34, 'Cheesecake vị socola', 'Sự kết hợp hoàn hảo giữa phô mai béo và socola đậm vị.', 'https://i.pinimg.com/1200x/3b/48/b3/3b48b33bf1c512e214ff08ce9fdb6b31.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(35, 'Cheesecake vị caramel', 'Caramel mặn ngọt làm tăng thêm sự hấp dẫn cho Cheesecake.', 'https://i.pinimg.com/1200x/9c/f0/0b/9cf00bf8ef682ad06da17eb3b84c3d45.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(36, 'Cheesecake vị việt quất', 'Những trái việt quất căng mọng bên trong cốt bánh phô mai.', 'https://i.pinimg.com/1200x/7b/ea/91/7bea9133b85f8124f32a3a17e38cf103.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
+(37, 'Cheesecake vị matcha', 'Hương vị trà xanh Nhật Bản thanh tao trong từng miếng Cheesecake.', 'https://i.pinimg.com/736x/a1/7e/8c/a17e8c58427594ea8f608c82b834a6c4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5);
 
 -- --------------------------------------------------------
 
@@ -870,7 +895,7 @@ ALTER TABLE `branches`
 -- AUTO_INCREMENT cho bảng `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `coupons`
@@ -906,7 +931,7 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT cho bảng `shippers`

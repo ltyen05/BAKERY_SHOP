@@ -1,98 +1,97 @@
-import React from "react";
-import "./Employee.css";
+import React, { useMemo, useState } from 'react';
+import { FaUsers, FaUserCheck, FaUserSlash, FaEdit, FaTrash } from 'react-icons/fa';
+import './Employee.css';
 
-const staffList = [
-  {
-    id: 3,
-    name: "John Doe",
-    email: "admin@demo.com",
-    avatar: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=200&h=200&crop=faces",
-    permissions: ["super_admin", "customer", "store_owner"],
-    wallet: "-",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Customer",
-    email: "customer@demo.com",
-    avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200&h=200&crop=faces",
-    permissions: ["customer"],
-    wallet: "1090",
-    status: "Active",
-  },
-  {
-    id: 1,
-    name: "Store Owner",
-    email: "store_owner@demo.com",
-    avatar: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200&h=200&crop=faces",
-    permissions: ["customer", "store_owner"],
-    wallet: "-",
-    status: "Active",
-  },
+const tabs = [
+  { key: 'Nhân viên', label: 'Nhân viên', count: 496, icon: <FaUsers /> },
+  { key: 'Hoạt động', label: 'Hoạt động', count: 293, icon: <FaUserCheck /> },
+  { key: 'Inactive', label: 'Inactive', count: 62, icon: <FaUserSlash /> },
 ];
 
-export default function Staff() {
-  return (
-    <div className="staff-container">
-      <h2>Staff Management</h2>
+const employees = [
+  { id: 101, name: 'Starwindee', role: 'CSKH', phone: '0123456789', email: 'abc@gmail.com', status: 'Active' },
+  { id: 102, name: 'Minh Anh', role: 'Quản lý đơn hàng', phone: '0987654321', email: 'minh.anh@gmail.com', status: 'Active' },
+  { id: 103, name: 'Uyên', role: 'receptionist', phone: '0909090909', email: 'uyen@gmail.com', status: 'Inactive' },
+  ...Array(9).fill({ id: 111, name: 'Starwindee', role: 'receptionist', phone: '123456789', email: 'abc@gmail.com', status: 'Active' }),
+];
 
-      <table className="staff-table">
+export default function Employee() {
+  const [activeTab, setActiveTab] = useState('Nhân viên');
+
+  // lọc theo tab
+  const filteredEmployees = useMemo(() => {
+    let data = employees;
+    if (activeTab === 'Hoạt động') {
+      data = data.filter(e => e.status === 'Active');
+    } else if (activeTab === 'Inactive') {
+      data = data.filter(e => e.status !== 'Active');
+    }
+    return data;
+  }, [activeTab]);
+
+  return (
+    
+    <div className="employee-container">
+      <div className="recent-review-card">
+  <h3>Employee Overview</h3>
+  <p>Here is Employees in your restaurant</p>
+</div>
+
+      {/* Tab cards */}
+      <div className="tab-cards">
+        {tabs.map(tab => (
+          <div
+            key={tab.key}
+            className={`tab-card ${activeTab === tab.key ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <div className="tab-icon">{tab.icon}</div>
+            <div>
+              <h3>{tab.label}</h3>
+              <p>{tab.count} người</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bảng nhân viên */}
+      <table className="employee-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Permissions</th>
-            <th>Available wallet points</th>
+            <th>Họ tên</th>
+            <th>Role</th>
+            <th>Số điện thoại</th>
+            <th>Email</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th>Hành động</th>
           </tr>
         </thead>
-
         <tbody>
-          {staffList.map((staff) => (
-            <tr key={staff.id}>
-              <td>#ID: {staff.id}</td>
-
-              <td className="staff-user-column">
-                <img className="avatar" src={staff.avatar} alt="avatar" />
-                <div>
-                  <div className="name">{staff.name}</div>
-                  <div className="email">{staff.email}</div>
-                </div>
-              </td>
-
+          {filteredEmployees.map((emp, index) => (
+            <tr key={`${emp.id}-${index}`}>
+              <td>{emp.id}</td>
+              <td>{emp.name}</td>
+              <td>{emp.role}</td>
+              <td>{emp.phone}</td>
+              <td>{emp.email}</td>
               <td>
-                <div className="permissions">
-                  {staff.permissions.map((p, index) => (
-                    <span key={index} className="permission-tag">
-                      {p}
-                    </span>
-                  ))}
-                </div>
+                <span className={emp.status === 'Active' ? 'status-active' : 'status-inactive'}>
+                  {emp.status}
+                </span>
               </td>
-
-              <td>{staff.wallet}</td>
-
               <td>
-                <span className="status-active">Active</span>
-              </td>
-
-              <td className="action-buttons">
-                <button className="btn-icon">👤</button>
-                <button className="btn-icon">👑</button>
-                <button className="btn-icon red">🚫</button>
+                <button className="icon-btn edit-btn" title="Chỉnh sửa">
+                  <FaEdit />
+                </button>
+                <button className="icon-btn delete-btn" title="Xóa">
+                  <FaTrash />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* SIMPLE PAGINATION */}
-      <div className="pagination">
-        <button>{"<"}</button>
-        <span className="page-number active">1</span>
-        <button>{">"}</button>
-      </div>
     </div>
   );
 }

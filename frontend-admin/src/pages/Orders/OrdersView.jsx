@@ -1,85 +1,36 @@
 import React, { useState } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa"; // import icon từ react-icons
 import "./OrdersView.css";
 
 const OrdersView = () => {
-  const [filter, setFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const orders = [
-    {
-      id: "#5552323",
-      date: "02 Oct 2024 06:24 AM",
-      customer: "Veronica",
-      location: "Corner Street 5th London",
-      amount: "$164.52",
-      status: "PENDING",
-    },
-    {
-      id: "#5552375",
-      date: "03 Oct 2024 07:24 AM",
-      customer: "Emilia Johanson",
-      location: "21 King Street London",
-      amount: "$74.92",
-      status: "CANCELED",
-    },
-    {
-      id: "#5552311",
-      date: "04 Oct 2024 08:24 AM",
-      customer: "Olivia Shine",
-      location: "67 St. John's Road London",
-      amount: "$251.16",
-      status: "DELIVERED",
-    },
-    {
-      id: "#5552388",
-      date: "05 Oct 2024 09:24 AM",
-      customer: "Jessica Wong",
-      location: "35 Station Road London",
-      amount: "$82.46",
-      status: "PENDING",
-    },
-    {
-      id: "#5552358",
-      date: "06 Oct 2024 10:24 AM",
-      customer: "David Horison",
-      location: "11 Church Road",
-      amount: "$24.17",
-      status: "CANCELED",
-    },
-    {
-      id: "#5552322",
-      date: "07 Oct 2024 11:24 AM",
-      customer: "Samantha Bake",
-      location: "981 St. John's Road London",
-      amount: "$24.55",
-      status: "PENDING",
-    },
-    {
-      id: "#5552397",
-      date: "08 Oct 2024 12:20 PM",
-      customer: "Franky Sihotang",
-      location: "79 The Drive London",
-      amount: "$22.18",
-      status: "DELIVERED",
-    },
+    { id: "#4546563", date: "26 March 2020, 12:42 AM", customer: "Roberto Carlo", location: "Roberto Carlo", amount: "$34.41", status: "New Order" },
+    { id: "#5552351", date: "26 March 2020, 12:42 AM", customer: "James Wltcwicky", location: "Corner Street 5th London", amount: "$164.52", status: "New Order" },
+    { id: "#5552351", date: "26 March 2020, 12:42 AM", customer: "Emilia Johanson", location: "67 St. John's Road London", amount: "$251.16", status: "On Delivery" },
+    { id: "#5552351", date: "26 March 2020, 12:42 AM", customer: "Jessica Wong", location: "11 Church Road London", amount: "$24.17", status: "New Order" },
+    { id: "#5552351", date: "26 March 2020, 12:42 AM", customer: "Olivia Shine", location: "35 Station Road London", amount: "$82.46", status: "Delivered" },
   ];
 
   const filteredOrders =
-    filter === "ALL"
+    statusFilter === "ALL"
       ? orders
-      : orders.filter((o) => o.status === filter);
+      : orders.filter((order) => order.status === statusFilter);
 
   return (
     <div className="order-container">
       <div className="header-row">
-        <h2>Orders</h2>
-
-        {/* Bộ lọc */}
+        <div>
+          <h2>Orders</h2>
+          <p className="subtitle">Here is your order list data</p>
+        </div>
         <div className="filter-box">
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="ALL">All</option>
-            <option value="PENDING">Pending</option>
-            <option value="DELIVERED">Delivered</option>
-            <option value="CANCELED">Canceled</option>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="ALL">All Status</option>
+            <option value="New Order">New Order</option>
+            <option value="On Delivery">On Delivery</option>
+            <option value="Delivered">Delivered</option>
           </select>
         </div>
       </div>
@@ -87,16 +38,15 @@ const OrdersView = () => {
       <table className="order-table">
         <thead>
           <tr>
-            <th>ORDER ID</th>
-            <th>DATE</th>
-            <th>CUSTOMER NAME</th>
-            <th>LOCATION</th>
-            <th>AMOUNT</th>
-            <th>STATUS ORDER</th>
-            <th>EDIT</th>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Customer Name</th>
+            <th>Location</th>
+            <th>Amount</th>
+            <th>Status Order</th>
+            <th>Edit</th>
           </tr>
         </thead>
-
         <tbody>
           {filteredOrders.map((order, index) => (
             <tr key={index}>
@@ -106,11 +56,14 @@ const OrdersView = () => {
               <td>{order.location}</td>
               <td>{order.amount}</td>
               <td>
-                <span className={`badge ${order.status.toLowerCase()}`}>
+                <span className={`badge ${order.status.replace(" ", "-").toLowerCase()}`}>
                   {order.status}
                 </span>
               </td>
-              <td className="dots">⋮</td>
+              <td className="edit-icons">
+                <FaEdit className="icon edit" />
+                <FaTrash className="icon delete" />
+              </td>
             </tr>
           ))}
         </tbody>

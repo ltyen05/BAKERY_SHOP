@@ -32,10 +32,9 @@ def delete_order(order_id):
     return False
 
 def get_all_orders_service():
-    # Join với bảng Customer để lấy tên người mua thay vì chỉ thấy ID
     results = db.session.query(Order, Customer.name).join(
         Customer, Order.customer_id == Customer.customer_id
-    ).order_by(desc(Order.created_at)).all() # Sắp xếp theo thời gian mới nhất
+    ).order_by(desc(Order.created_at)).all()
 
     orders_list = []
     for order, customer_id in results:

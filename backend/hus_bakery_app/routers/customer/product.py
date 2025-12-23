@@ -1,11 +1,33 @@
 from flask import Blueprint, jsonify, request
 from backend.hus_bakery_app.services.customer.product_services import (
     get_top_3_products_service,
-    get_products_by_category_service
+    get_products_by_category_service,
+    get_product_details_service
 )
 
 product_bp = Blueprint('product_bp', __name__)
 
+
+@product_bp.route("/api/products/<int:product_id>", methods=["GET"])
+def get_product_details(product_id):
+    # Gọi hàm service để lấy dữ liệu
+    data = get_product_details_service(product_id)
+
+    if not data:
+        return jsonify({"error": "Sản phẩm không tồn tại"}), 404
+
+    product, category_name = data
+
+    # Trả về dữ liệu chi tiết dưới dạng JSON
+    return jsonify({
+        "product_id": product.product_id,
+        "name": product.name,
+        "price": float(product.price),  # Ép kiểu Numeric về float để tránh lỗi JSON
+        "description": product.description,
+        "image": product.avatar,
+        "category_name": category_name,
+        "created_at": product.created_at.strftime('%Y-%m-%d %H:%M:%S') if product.created_at else None
+    }), 200
 
 @product_bp.route("/top-selling", methods=["GET"])
 def api_get_top_products():

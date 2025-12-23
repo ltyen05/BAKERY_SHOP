@@ -63,6 +63,10 @@ def create_app():
     app.register_blueprint(dashboard_bp, url_prefix='/admin/customer_management')
     from backend.hus_bakery_app.routers.admin.employee_management import employee_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/employee_management')
+    from backend.hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/coupon_management')
+    from backend.hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/shipper_management')
 
     @app.route("/test_db")
     def test_db():

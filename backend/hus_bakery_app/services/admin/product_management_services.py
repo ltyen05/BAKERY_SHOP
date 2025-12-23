@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from backend.hus_bakery_app import db
 from backend.hus_bakery_app.models.products import Product
 

@@ -31,3 +31,11 @@ def get_products_by_category_service(cat_id):
     ).filter(Product.category_id == cat_id).all()
 
     return results
+
+
+def get_product_details_service(p_id):
+    result = db.session.query(Product, Category.name).join(
+        Category, Product.category_id == Category.category_id
+    ).filter(Product.product_id == p_id).first()
+
+    return result

@@ -1,0 +1,141 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  width: 450px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, sans-serif;
+}
+
+.modal-content header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-content header h3 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.3s;
+}
+.close-btn:hover {
+  color: #000;
+}
+
+.add-employee-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.form-row {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row.full-width {
+  flex-basis: 100%;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.required {
+  color: #d93025;
+  margin-left: 3px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 5px #646cff80;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.error-msg {
+  color: #d93025;
+  font-weight: 600;
+  margin-top: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn {
+  padding: 0.6em 1.4em;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.btn.cancel {
+  background-color: #e0e0e0;
+  color: #444;
+}
+.btn.cancel:hover {
+  background-color: #bdbdbd;
+}
+
+.btn.submit {
+  background-color: #646cff;
+  color: white;
+}
+.btn.submit:hover {
+  background-color: #535bf2;
+}

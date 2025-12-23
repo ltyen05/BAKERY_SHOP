@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 23, 2025 lúc 08:53 AM
+-- Thời gian đã tạo: Th12 23, 2025 lúc 06:14 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -63,77 +63,6 @@ CREATE TABLE `branch_products` (
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Đang đổ dữ liệu cho bảng `branch_products`
---
-
-INSERT INTO `branch_products` (`branch_id`, `product_id`, `created_at`, `updated_at`) VALUES
-(1, 1, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 2, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 3, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 4, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 5, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 6, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 7, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 8, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 9, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 10, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 11, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 12, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(1, 13, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 1, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 2, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 3, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 4, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 5, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 6, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 7, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 8, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 9, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 10, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 11, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 12, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(2, 13, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 1, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 2, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 3, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 4, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 5, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 6, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 7, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 8, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 9, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 10, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 11, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 12, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(3, 13, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 1, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 2, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 3, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 4, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 5, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 6, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 7, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 8, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 9, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 10, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 11, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 12, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(4, 13, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 1, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 2, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 3, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 4, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 5, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 6, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 7, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 8, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 9, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 10, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 11, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 12, '2025-12-18 08:22:43', '2025-12-18 08:22:43'),
-(5, 13, '2025-12-18 08:22:43', '2025-12-18 08:22:43');
-
 -- --------------------------------------------------------
 
 --
@@ -146,27 +75,6 @@ CREATE TABLE `cart_items` (
   `quantity` int(11) DEFAULT NULL,
   `selected` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `cart_items`
---
-
-INSERT INTO `cart_items` (`customer_id`, `product_id`, `quantity`, `selected`) VALUES
-(1, 2, 2, 1),
-(1, 11, 1, 1),
-(2, 5, 1, 1),
-(3, 8, 3, 1),
-(4, 1, 1, 0),
-(5, 13, 2, 1),
-(6, 12, 4, 1),
-(7, 4, 1, 1),
-(8, 7, 2, 1),
-(9, 3, 1, 1),
-(10, 10, 1, 0),
-(11, 6, 2, 1),
-(12, 9, 3, 1),
-(13, 11, 5, 1),
-(14, 1, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -184,11 +92,9 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`category_id`, `name`) VALUES
-(1, 'Mousse'),
-(2, 'Mille-feuille'),
-(3, 'Danish'),
-(4, 'Croissant'),
-(5, 'Cheesecake');
+(1, 'Bread'),
+(2, 'Cookie'),
+(3, 'Pastry');
 
 -- --------------------------------------------------------
 
@@ -500,7 +406,37 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `branch_id`, `shipper_id`, `cou
 (12, 12, 2, 12, 11, 420000.00, 'Nguyễn Hữu Dũng', '55 Trần Duy Hưng, Cầu Giấy', 'COD', '2025-11-06 14:02:06'),
 (13, 13, 3, 13, 12, 340000.00, 'Đào Minh Tuấn', '110 Tây Sơn, Đống Đa', 'Online', '2025-11-06 14:02:06'),
 (14, 14, 4, 14, 13, 275000.00, 'Bùi Quỳnh Chi', '72 Quang Trung, Hà Đông', 'COD', '2025-11-06 14:02:06'),
-(15, 15, 5, 15, 14, 900000.00, 'Trần Thị Vân', '89 Nguyễn Văn Cừ, Long Biên', 'Online', '2025-11-06 14:02:06');
+(15, 15, 5, 15, 14, 900000.00, 'Trần Thị Vân', '89 Nguyễn Văn Cừ, Long Biên', 'Online', '2025-11-06 14:02:06'),
+(101, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(102, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(103, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(104, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(105, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(106, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(107, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(108, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(109, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(110, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(111, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(112, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(113, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(114, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(115, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(116, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(117, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(118, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(119, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(120, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(121, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(122, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(123, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(124, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(125, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(126, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(127, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(128, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(129, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(130, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17');
 
 -- --------------------------------------------------------
 
@@ -521,36 +457,36 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
-(1, 1, NULL, 1, 250000.00),
-(2, 1, NULL, 2, 15000.00),
-(3, 2, NULL, 1, 270000.00),
-(4, 2, NULL, 2, 30000.00),
-(5, 3, NULL, 2, 25000.00),
-(6, 3, NULL, 1, 20000.00),
-(7, 4, NULL, 2, 35000.00),
-(8, 4, NULL, 1, 55000.00),
-(9, 5, NULL, 2, 40000.00),
-(10, 5, NULL, 3, 15000.00),
-(11, 6, NULL, 1, 250000.00),
-(12, 6, NULL, 1, 260000.00),
-(13, 7, NULL, 2, 33000.00),
-(14, 7, NULL, 1, 28000.00),
-(15, 8, NULL, 2, 42000.00),
-(16, 8, NULL, 2, 15000.00),
-(17, 9, NULL, 3, 45000.00),
-(18, 9, NULL, 1, 40000.00),
-(19, 10, NULL, 3, 20000.00),
-(20, 10, NULL, 2, 35000.00),
-(21, 11, NULL, 2, 250000.00),
-(22, 11, NULL, 1, 270000.00),
-(23, 12, NULL, 2, 25000.00),
-(24, 12, NULL, 2, 30000.00),
-(25, 13, NULL, 3, 18000.00),
-(26, 13, NULL, 1, 40000.00),
-(27, 14, NULL, 2, 15000.00),
-(28, 14, NULL, 1, 20000.00),
-(29, 15, NULL, 2, 55000.00),
-(30, 15, NULL, 1, 45000.00);
+(1, 101, 1, 4, 800000.00),
+(2, 101, 23, 2, 120000.00),
+(3, 102, 1, 5, 1000000.00),
+(4, 102, 23, 3, 180000.00),
+(5, 103, 1, 3, 600000.00),
+(6, 103, 5, 2, 100000.00),
+(7, 104, 12, 4, 260000.00),
+(8, 104, 1, 2, 400000.00),
+(9, 105, 23, 4, 240000.00),
+(10, 105, 12, 3, 195000.00),
+(11, 106, 1, 5, 1000000.00),
+(12, 106, 2, 2, 100000.00),
+(13, 107, 12, 5, 325000.00),
+(14, 108, 23, 5, 300000.00),
+(15, 109, 1, 4, 800000.00),
+(16, 110, 12, 3, 195000.00),
+(17, 111, 23, 2, 120000.00),
+(18, 112, 1, 3, 600000.00),
+(19, 113, 12, 2, 130000.00),
+(20, 114, 23, 1, 60000.00),
+(21, 115, 3, 2, 100000.00),
+(22, 116, 4, 3, 120000.00),
+(23, 117, 6, 1, 60000.00),
+(24, 118, 7, 2, 60000.00),
+(25, 119, 8, 1, 75000.00),
+(26, 120, 9, 2, 40000.00),
+(27, 121, 10, 1, 20000.00),
+(28, 122, 11, 2, 90000.00),
+(29, 123, 1, 2, 400000.00),
+(30, 124, 12, 1, 65000.00);
 
 -- --------------------------------------------------------
 
@@ -608,43 +544,40 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `description`, `image_url`, `unit_price`, `created_at`, `updated_at`, `category_id`) VALUES
-(1, 'Mousse Dứa lưới', 'Sự kết hợp hoàn hảo giữa lớp kem tươi mềm mịn và cốt dứa lưới thơm lừng, ngọt thanh. Bánh có kết cấu tan ngay đầu lưỡi, mang lại cảm giác sảng khoái của vùng nhiệt đới.', 'https://i.pinimg.com/1200x/e3/2c/30/e32c3000e782ee17f7a2a3ff1661ccb9.jpg', 50000.00, '2025-12-18 08:22:43', '2025-12-18', 1),
-(2, 'Mousse Xoài', 'Hương vị xoài chín mọng nồng nàn hòa quyện cùng lớp mousse béo ngậy. Vị chua nhẹ đặc trưng của xoài tươi giúp cân bằng độ ngọt, tạo nên một món tráng miệng khó cưỡng.', 'https://the350f.com/wp-content/uploads/2025/05/Ban-sao-cua-_IMG2338-copy.jpg', 50000.00, '2025-12-18 08:22:43', '2025-12-18', 1),
-(3, 'Mousse Dâu tây', 'Quyến rũ với sắc đỏ tự nhiên và hương thơm dịu dàng từ dâu tây Đà Lạt. Lớp mousse mịn màng như mây bao phủ nhân mứt dâu tươi bên trong, ngọt ngào và đầy tinh tế.', 'https://the350f.com/wp-content/uploads/2025/05/CT-Dau-4.jpg', 50000.00, '2025-12-18 08:22:43', '2025-12-18', 1),
-(4, 'Mousse Việt Quất', 'Đánh thức vị giác bằng sự kết hợp giữa vị chua thanh tao của việt quất và kem tươi cao cấp. Bánh giàu chất chống oxy hóa, mang màu tím mộng mơ và hương vị sang trọng.', 'https://the350f.com/wp-content/uploads/2025/05/CTVietQuat-1.jpg', 50000.00, '2025-12-18 08:22:43', '2025-12-18', 1),
-(5, 'Mille-feuille vị xoài', 'Tuyệt phẩm \"ngàn lớp\" kiểu Pháp với các lớp vỏ bánh nướng giòn tan, xen kẽ lớp kem béo và những lát xoài tươi chín mọng, tạo nên sự bùng nổ về cả khứu giác lẫn vị giác.', 'https://i.pinimg.com/736x/1d/6a/7c/1d6a7cf0e193941665b00b4843b1c725.jpg', 65000.00, '2025-12-18 08:22:43', '2025-12-18', 2),
-(6, 'Mille-feuille vị dâu', 'Cấu trúc bánh giòn rụm đặc trưng kết hợp cùng kem custard vani mượt mà và dâu tây tươi mọng nước. Một trải nghiệm ẩm thực đẳng cấp, vừa thanh lịch vừa đậm đà.', 'https://i.pinimg.com/736x/6f/22/ac/6f22ac7350a2135edeb2b597fb426b92.jpg', 65000.00, '2025-12-18 08:22:43', '2025-12-18', 2),
-(7, 'Mille-feuille vị việt quất', 'Sự giao thoa giữa nghệ thuật làm bánh ngàn lớp và hương vị trái cây rừng. Vị ngọt bùi của vỏ bánh nướng hòa quyện cùng nhân kem việt quất chua ngọt đầy mê hoặc.', 'https://i.pinimg.com/1200x/ce/66/cb/ce66cbccae2bb90dcb4a933113bac793.jpg', 65000.00, '2025-12-18 08:22:43', '2025-12-18', 2),
-(8, 'Danish vị Táo', 'Bánh nướng vàng ươm với lớp vỏ xốp giòn bao bọc nhân táo sên đường phèn thơm nồng mùi quế. Một lựa chọn ấm áp và tràn đầy năng lượng cho buổi sáng.', 'https://i.pinimg.com/1200x/b2/85/bc/b285bc21a8dacea333377477f8ec34f6.jpg', 45000.00, '2025-12-18 08:22:43', '2025-12-18', 3),
-(9, 'Danish vị Dâu', 'Vỏ bánh Danish thơm mùi bơ Pháp, giòn tan trong từng thớ bánh, kết hợp cùng dâu tây tươi và lớp gel trái cây óng ánh hấp dẫn.', 'https://i.pinimg.com/1200x/f4/41/f2/f441f29cf44cb77caa9ea6ca523fa84c.jpg', 45000.00, '2025-12-18 08:22:43', '2025-12-18', 3),
-(10, 'Danish vị Socola', 'Dành riêng cho những tín đồ socola với lớp vỏ bánh xếp lớp kỳ công, bao phủ nhân socola nguyên chất đậm đà, mang lại dư vị ngọt đắng quyến luyến.', 'https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400233880002.jpg.webp', 45000.00, '2025-12-18 08:22:43', '2025-12-18', 3),
-(11, 'Croissant nguyên bản', 'Chiếc bánh sừng bò huyền thoại với cấu trúc rỗng bên trong, vỏ ngoài giòn tan và đậm đà hương vị bơ cao cấp. Đơn giản nhưng đầy tinh tế cho một ngày mới.', 'https://i.pinimg.com/736x/ea/0b/c6/ea0bc6f4213d99c0b35dfac08b5bd7c1.jpg', 35000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
-(12, 'Croissant Socola', 'Sự nâng cấp ngọt ngào của Croissant truyền thống với hai thanh socola đen ẩn hiện bên trong lớp bột bánh ngàn lớp vàng ruộm, giòn tan.', 'https://www.pinterest.com/pin/23151385579418817/', 40000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
-(13, 'Croissant Matcha', 'Sự kết hợp thú vị giữa kỹ thuật Pháp và hương trà xanh Nhật Bản. Lớp vỏ xanh thơm mát bao bọc nhân kem matcha tan chảy, đắng nhẹ mà ngọt hậu.', 'https://odouceurs.com/img/client/shop/1727601201_croissant%20matrcha.jpg', 40000.00, '2025-12-18 08:22:43', '2025-12-18', 4),
-(14, 'Mousse Socola', 'Mousse Socola đậm đà dành cho tín đồ yêu thích vị đắng ngọt.', 'https://the350f.com/wp-content/uploads/2025/05/ChiTietTiramisu-4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 1),
-(15, 'Mille-feuille vị socola', 'Sự hòa quyện giữa lớp bánh giòn và kem socola.', 'https://i.pinimg.com/736x/ee/89/8f/ee898f6631acbce5be9c90304f611e68.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
-(16, 'Mille-feuille vị caramel', 'Hương vị caramel ngọt ngào trong từng lớp bánh Mille-feuille.', 'https://i.pinimg.com/1200x/d9/69/22/d96922c32062b1381152b6d00bcf4373.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
-(17, 'Mille-feuille vị chanh', 'Vị chanh thanh mát làm nổi bật độ giòn của bánh ngàn lớp.', 'https://i.pinimg.com/1200x/bd/ff/cb/bdffcb7d5eda6eab2c5f957350803dfb.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
-(18, 'Mile-feuille vị bơ', 'Hương vị bơ béo ngậy tan chảy ngay trong miệng.', 'https://i.pinimg.com/1200x/7a/a0/a0/7aa0a0b83727e74bd05a691e8464ff56.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 2),
-(19, 'Danish vị Việt quất', 'Bánh Danish nhân việt quất chua ngọt đậm đà.', 'https://i.pinimg.com/1200x/ab/38/2e/ab382e82813890eebb883a31a8c6a045.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(20, 'Danish vị Dâu', 'Bánh Danish với những lát dâu tây tươi mọng.', 'https://i.pinimg.com/1200x/f4/41/f2/f441f29cf44cb77caa9ea6ca523fa84c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(21, 'Danish vị Phô mai', 'Nhân phô mai béo ngậy trong lớp vỏ bánh Danish vàng ruộm.', 'https://i.pinimg.com/1200x/1a/55/4c/1a554c2a493d90967d1d2c71cfbbd1db.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(22, 'Danish vị Xoài', 'Sự kết hợp nhiệt đới hoàn hảo giữa xoài và bánh Danish.', 'https://i.pinimg.com/1200x/e1/db/3a/e1db3ae3632d008da5ace7533fc0957c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(23, 'Danish vị hạnh nhân', 'Lớp hạnh nhân lát giòn tan phủ trên mặt bánh Danish.', 'https://i.pinimg.com/736x/cc/41/b0/cc41b0a8f195ce3c71d2b0203015d23b.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(24, 'Danish vị caramel', 'Caramel óng ả phủ trên nền bánh Danish xốp mềm.', 'https://i.pinimg.com/1200x/74/d5/a0/74d5a0360cb524dd0c98a8f496163d0c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(25, 'Danish vị matcha', 'Matcha Nhật Bản tinh tế quyện trong từng lớp bánh Danish.', 'https://i.pinimg.com/1200x/ae/32/be/ae32be93eb76f1cb2f5c7f4c6e9f6cb4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 3),
-(26, 'Croissant Dâu', 'Sự kết hợp giữa bơ thơm và dâu tây tươi căng mọng.', 'https://i.pinimg.com/736x/5d/0c/3a/5d0c3ab1d58234694c315ebb1905c87c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
-(27, 'Croissant hạnh nhân', 'Lớp hạnh nhân giòn rụm phủ trên bánh sừng bò xốp mềm.', 'https://i.pinimg.com/736x/f5/ad/2f/f5ad2f8642b7bbeb2b5ada054f18dedc.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
-(28, 'Croissant phô mai', 'Vị mặn béo của phô mai hòa quyện tinh tế trong Croissant.', 'https://i.pinimg.com/736x/f8/a3/d0/f8a3d02c9cc676914dfa8d27d4761130.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
-(29, 'Croissant nhân kem', 'Lớp kem mềm mịn tan chảy trong lòng bánh Croissant.', 'https://i.pinimg.com/736x/64/35/f3/6435f3864b539d0e39bbca11aded8d2b.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
-(30, 'Croissaant Caramel', 'Vị caramel ngọt ngào bao phủ lớp vỏ bánh sừng bò giòn.', 'https://i.pinimg.com/1200x/64/fb/6a/64fb6abe60d306c58fe8406cc0b6ef45.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 4),
-(31, 'Cheesecake vị dâu', 'Bánh phô mai nướng mịn màng ăn kèm mứt dâu tươi.', 'https://i.pinimg.com/1200x/de/a0/1a/dea01a87b4e0389b06ea43a19e6af30c.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(32, 'Cheesecake vị chanh dây', 'Vị chua chanh dây cân bằng độ béo của phô mai thượng hạng.', 'https://i.pinimg.com/736x/2c/a2/df/2ca2df237d7b79ff401c1f45eb646db5.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(33, 'Cheesecake vị cam', 'Cheesecake hương cam thanh khiết mang lại cảm giác tươi mới.', 'https://i.pinimg.com/736x/1d/25/5e/1d255e5d8f7c97afc0649226479f4114.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(34, 'Cheesecake vị socola', 'Sự kết hợp hoàn hảo giữa phô mai béo và socola đậm vị.', 'https://i.pinimg.com/1200x/3b/48/b3/3b48b33bf1c512e214ff08ce9fdb6b31.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(35, 'Cheesecake vị caramel', 'Caramel mặn ngọt làm tăng thêm sự hấp dẫn cho Cheesecake.', 'https://i.pinimg.com/1200x/9c/f0/0b/9cf00bf8ef682ad06da17eb3b84c3d45.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(36, 'Cheesecake vị việt quất', 'Những trái việt quất căng mọng bên trong cốt bánh phô mai.', 'https://i.pinimg.com/1200x/7b/ea/91/7bea9133b85f8124f32a3a17e38cf103.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5),
-(37, 'Cheesecake vị matcha', 'Hương vị trà xanh Nhật Bản thanh tao trong từng miếng Cheesecake.', 'https://i.pinimg.com/736x/a1/7e/8c/a17e8c58427594ea8f608c82b834a6c4.jpg', 125000.00, '2025-12-23 07:52:16', NULL, 5);
+(1, 'Sourdough', 'Bánh mì Sourdough được lên men tự nhiên trong thời gian dài, tạo nên lớp vỏ giòn đậm, ruột bánh dai nhẹ và hương vị chua thanh đặc trưng.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766480196/Sourdough_zjrw2e.jpg', 200000.00, '2025-12-18 01:22:43', '2025-12-18', 1),
+(2, 'Bánh mì Pháp', 'Bánh mì Pháp truyền thống với lớp vỏ nướng giòn rụm, ruột bánh mềm xốp và thơm mùi bột mì tự nhiên.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766480540/Baguette.jpg', 50000.00, '2025-12-18 01:22:43', '2025-12-18', 1),
+(3, 'Bánh mì nho khô', 'Bánh mì nho khô mềm mịn với những hạt nho khô ngọt tự nhiên được phân bố đều trong ruột bánh.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766481167/80b5897399d3b8674fd026a16632fad1_euci0a.jpg', 50000.00, '2025-12-18 01:22:43', '2025-12-18', 1),
+(4, 'Bánh Waffle', 'Bánh waffle được nướng vàng đều với lớp ngoài giòn nhẹ và phần ruột bên trong mềm xốp, thơm mùi bơ sữa.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766481351/3c9a37cf55e7f8d63f849c38448ea48a_ypgtfi.jpg', 40000.00, '2025-12-18 01:22:43', '2025-12-18', 1),
+(5, 'Bánh mì bơ tỏi', 'Bánh mì bơ tỏi được nướng giòn, phủ đều lớp bơ tỏi thơm lừng với vị mặn nhẹ và béo vừa phải.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766481873/a5f233f9964166cb64f0932ba9564099_hzkhwl.jpg', 50000.00, '2025-12-23 00:52:16', NULL, 1),
+(6, 'Bánh kếp', 'Bánh kếp mềm xốp, vàng đều và dậy mùi bơ sữa tự nhiên. Kết cấu bánh nhẹ, dễ ăn.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766482019/8100397ef3e98e13842711556d79d4e7_bse8vy.jpg', 60000.00, '2025-12-23 00:52:16', NULL, 1),
+(7, 'Bánh mì Mochi đậu đỏ', 'Bánh mì Mochi đậu đỏ có lớp vỏ mềm dai, kết hợp cùng mochi dẻo mịn và nhân đậu đỏ ngọt bùi.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766482325/a5f5718bb59a464ea9508fc4a9da818b_h8qrbu.jpg', 30000.00, '2025-12-23 00:52:16', NULL, 1),
+(8, 'Bánh mì Socola', 'Bánh mì socola mềm thơm với phần nhân socola đậm vị được giấu bên trong ruột bánh.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766483277/d09ee351e6563688795f7676814f08a4_j9ebv9.jpg', 75000.00, '2025-12-23 00:52:16', NULL, 1),
+(9, 'Bánh soboro', 'Bánh mì soboro kiểu Hàn Quốc nổi bật với lớp vụn bơ giòn ngọt phủ trên bề mặt bánh.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766483770/9114c7a3a47d73375b2bd2ff390a9596_p8jryo.jpg', 20000.00, '2025-12-23 00:52:16', NULL, 1),
+(10, 'Bánh nhân kem trứng', 'Bánh mì nhân kem trứng có lớp vỏ mềm xốp, bên trong là phần kem trứng béo mịn.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766483907/2d90e2f7bc3e85adce3db78524a22a9e_d3blsg.jpg', 20000.00, '2025-12-23 00:52:16', NULL, 1),
+(11, 'Bánh mì cuộn nho', 'Bánh mì cuộn nho mềm mịn với nho khô ngọt tự nhiên được cuộn đều bên trong.', 'https://res.cloudinary.com/djaiglhzt/image/upload/v1766484974/613d62959830547eb5a432af8924cfe3_haomvb.jpg', 45000.00, '2025-12-23 00:52:16', NULL, 1),
+(12, 'Mille-feuille vị xoài', 'Bánh ngàn lớp nướng giòn với kem béo mịn và xoài chín vàng mọng nước.', 'https://i.pinimg.com/736x/1d/6a/7c/1d6a7cf0e193941665b00b4843b1c725.jpg', 65000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(13, 'Mille-feuille vị dâu', 'Sự kết hợp hài hòa giữa lớp bánh ngàn lớp giòn tan và kem custard dâu tây tươi.', 'https://i.pinimg.com/736x/6f/22/ac/6f22ac7350a2135edeb2b597fb426b92.jpg', 65000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(14, 'Mille-feuille vị việt quất', 'Sự giao thoa tinh tế giữa nghệ thuật Pháp và hương vị việt quất đặc trưng.', 'https://i.pinimg.com/1200x/ce/66/cb/ce66cbccae2bb90dcb4a933113bac793.jpg', 65000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(15, 'Danish vị Táo', 'Bánh Danish vị táo sở hữu lớp vỏ xếp tầng giòn nhẹ, nhân táo sên mềm thơm hương quế.', 'https://i.pinimg.com/1200x/b2/85/bc/b285bc21a8dacea333377477f8ec34f6.jpg', 45000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(16, 'Danish vị Dâu', 'Lớp bánh Danish vàng ươm với nhân dâu tây tươi kết hợp lớp gel trái cây óng ánh.', 'https://i.pinimg.com/1200x/f4/41/f2/f441f29cf44cb77caa9ea6ca523fa84c.jpg', 45000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(17, 'Danish vị Socola', 'Món bánh Danish với lớp vỏ giòn xốp và nhân socola nguyên chất tan chảy.', 'https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400233880002.jpg.webp', 45000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(18, 'Croissant nguyên bản', 'Croissant truyền thống với lớp vỏ ngoài giòn tan, ruột bánh rỗng xốp và nhẹ.', 'https://i.pinimg.com/736x/ea/0b/c6/ea0bc6f4213d99c0b35dfac08b5bd7c1.jpg', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(19, 'Croissant Socola', 'Croissant nướng vàng ruộm với hai thanh socola đen nguyên chất bên trong.', 'https://www.pinterest.com/pin/23151385579418817/', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(20, 'Croissant Matcha', 'Sự kết hợp giữa kỹ thuật Pháp và matcha Nhật Bản, vị trà xanh thanh mát.', 'https://odouceurs.com/img/client/shop/1727601201_croissant%20matrcha.jpg', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(21, 'Mille-feuille vị socola', 'Lớp bánh ngàn lớp giòn tan kết hợp cùng kem socola mịn màng và đậm vị.', 'https://i.pinimg.com/736x/ee/89/8f/ee898f6631acbce5be9c90304f611e68.jpg', 65000.00, '2025-12-23 00:52:16', NULL, 3),
+(22, 'Mille-feuille vị chanh', 'Vị chanh tươi mát cân bằng hoàn hảo độ béo của kem và lớp bánh giòn tan.', 'https://i.pinimg.com/1200x/bd/ff/cb/bdffcb7d5eda6eab2c5f957350803dfb.jpg', 65000.00, '2025-12-23 00:52:16', NULL, 3),
+(23, 'Macaron Pháp', 'Bánh ngọt cao cấp với lớp vỏ mỏng giòn nhẹ và phần ruột mềm ẩm tinh tế.', 'https://i.pinimg.com/1200x/15/94/f0/1594f0aad8c31b07cb63aa2fdcabae43.jpg', 60000.00, '2025-12-23 01:30:00', NULL, 2),
+(24, 'Bánh quy Thumbprint', 'Bánh quy bơ xốp thơm, phần lõm ở giữa được phủ mứt trái cây chua ngọt.', 'https://i.pinimg.com/736x/2f/1c/7d/2f1c7d15e8cd70574f856d0d9012dbbe.jpg', 45000.00, '2025-12-23 01:30:00', NULL, 2),
+(25, 'Bánh quy Levain kiểu Mỹ', 'Bánh quy kích thước lớn, vỏ hơi giòn nhưng lõi bên trong mềm ẩm đậm vị bơ.', 'https://i.pinimg.com/1200x/31/26/d8/3126d86acd7975b2a4628b214279d440.jpg', 55000.00, '2025-12-23 01:30:00', NULL, 2),
+(26, 'Bánh quy Smore', 'Lớp bánh mềm kết hợp marshmallow dẻo dai và socola tan chảy ngọt ngào.', 'https://i.pinimg.com/1200x/5f/a6/b3/5fa6b38fe7b73a3a130fd73455ccfd15.jpg', 50000.00, '2025-12-23 01:30:00', NULL, 2),
+(27, 'Bánh quy Melting Moments', 'Bánh quy bơ kết cấu mềm mịn, dễ tan ngay khi chạm vào đầu lưỡi.', 'https://i.pinimg.com/736x/73/b1/c2/73b1c25e0d163a1f1cfbe2bde92f7eb6.jpg', 40000.00, '2025-12-23 01:30:00', NULL, 2),
+(28, 'Bánh quy Red Velvet', 'Sắc đỏ đặc trưng cùng kết cấu mềm ẩm, hương cacao nhẹ và vị béo ngọt.', 'https://i.pinimg.com/736x/ad/7a/4b/ad7a4b0c0817a5fa76af3112c4d24207.jpg', 50000.00, '2025-12-23 01:30:00', NULL, 2),
+(29, 'Bánh quy Matcha Trắng', 'Sự kết hợp giữa bơ sữa béo nhẹ và bột trà xanh matcha cao cấp thanh mát.', 'https://i.pinimg.com/1200x/02/d3/b2/02d3b20a6197406e59eecc357063ea83.jpg', 50000.00, '2025-12-23 01:30:00', NULL, 2),
+(30, 'Bánh quy Socola Chip', 'Dòng bánh kinh điển với socola chip tan chảy xen kẽ trong lớp bánh mềm thơm.', 'https://i.pinimg.com/1200x/ae/19/d7/ae19d7bd2ac9624ee089e2f1de0a3835.jpg', 45000.00, '2025-12-23 01:30:00', NULL, 2),
+(31, 'Bánh quy Turtle', 'Sự kết hợp phong phú giữa socola, caramel và các loại hạt rang giòn.', 'https://i.pinimg.com/1200x/69/1d/bb/691dbb1d1d2b10397986fb8ee9f20bd0.jpg', 55000.00, '2025-12-23 01:30:00', NULL, 2),
+(32, 'Bánh quy nhân tan chảy', 'Vỏ mềm ẩm bên ngoài và phần nhân kem hoặc socola nóng chảy bên trong.', 'https://i.pinimg.com/1200x/13/18/42/1318422357d0fa63b1e914a596cbc62d.jpg', 60000.00, '2025-12-23 01:30:00', NULL, 2),
+(33, 'Bánh Brookies', 'Sự kết hợp giữa brownie dẻo ẩm và bánh quy cookie giòn nhẹ.', 'https://i.pinimg.com/1200x/33/4c/f0/334cf08c90b6ad9886907ca00784f2d9.jpg', 55000.00, '2025-12-23 01:30:00', NULL, 2),
+(34, 'Bánh quy Polvorones', 'Bánh quy truyền thống mềm mịn, tan ngay trong miệng, thơm vị bơ hạt.', 'https://i.pinimg.com/736x/04/84/63/04846371359b4cce3efa2760492ca888.jpg', 40000.00, '2025-12-23 01:30:00', NULL, 2);
 
 -- --------------------------------------------------------
 
@@ -659,27 +592,6 @@ CREATE TABLE `product_reviews` (
   `rating` int(11) DEFAULT NULL CHECK (`rating` >= 1 and `rating` <= 5),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `product_reviews`
---
-
-INSERT INTO `product_reviews` (`order_item_id`, `product_id`, `customer_id`, `rating`, `created_at`) VALUES
-(1, 1, 1, 5, '2025-12-18 08:22:43'),
-(2, 2, 2, 4, '2025-12-18 08:22:43'),
-(3, 3, 3, 5, '2025-12-18 08:22:43'),
-(4, 4, 4, 5, '2025-12-18 08:22:43'),
-(5, 5, 5, 4, '2025-12-18 08:22:43'),
-(6, 6, 6, 3, '2025-12-18 08:22:43'),
-(7, 7, 7, 5, '2025-12-18 08:22:43'),
-(8, 8, 8, 5, '2025-12-18 08:22:43'),
-(9, 9, 9, 4, '2025-12-18 08:22:43'),
-(10, 10, 10, 5, '2025-12-18 08:22:43'),
-(11, 11, 11, 5, '2025-12-18 08:22:43'),
-(12, 12, 12, 4, '2025-12-18 08:22:43'),
-(13, 13, 13, 5, '2025-12-18 08:22:43'),
-(14, 1, 14, 5, '2025-12-18 08:22:43'),
-(15, 2, 15, 4, '2025-12-18 08:22:43');
 
 -- --------------------------------------------------------
 
@@ -919,7 +831,7 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
 
 --
 -- AUTO_INCREMENT cho bảng `order_items`
@@ -931,7 +843,7 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT cho bảng `shippers`

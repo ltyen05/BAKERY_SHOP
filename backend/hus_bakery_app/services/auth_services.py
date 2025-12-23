@@ -11,6 +11,22 @@ import json
 # Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
 
+def get_current_customer_service(customer_id):
+    # Chỉ tìm kiếm trong bảng Customer
+    user = Customer.query.get(customer_id)
+
+    if not user:
+        return None
+
+    return {
+        "user_id": user.customer_id,
+        "full_name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "avatar": user.avatar,
+        "created_at": user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+        "role": "customer"
+    }
 
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)

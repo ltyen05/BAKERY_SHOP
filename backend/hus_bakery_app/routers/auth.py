@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, request, render_template, flash, redirect, url_for, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from .. import db
@@ -7,7 +9,7 @@ from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
 from ..services.auth_services import login_user, generate_token, check_email_exist
-from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role
+from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -16,6 +18,17 @@ auth_bp = Blueprint('auth', __name__)
 def index():
     return jsonify({"message": "Welcome to Hus Bakery API"})
 
+@auth_bp.route("/me", methods=["GET"])
+@jwt_required()
+def api_get_me():
+    identity_str = get_jwt_identity()
+    indetity = json.loads(identity_str)
+    current_user_id = indetity["id"]
+    customer_data = get_current_customer_service(current_user_id)
+    if not customer_data:
+        return jsonify({"error": "Customer not found"}), 404
+
+    return jsonify(customer_data), 200
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():

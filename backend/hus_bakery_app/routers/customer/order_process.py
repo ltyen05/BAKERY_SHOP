@@ -15,41 +15,47 @@ order_bp = Blueprint("order_bp", __name__)
 # ==========================
 # 1. GET CART
 # ==========================
-@order_bp.route("/cart/<int:customer_id>", methods=["GET"])
+@order_bp.route("/cart", methods=["GET"])
+@jwt_required()
 def api_get_cart(customer_id):
+    identity = get_jwt_identity()
+    customer_id = identity["id"]
     cart = get_cart(customer_id)
     return jsonify(cart), 200
 
-# ==========================
-# 2. ADD TO CART
-# ==========================
-@order_bp.route("/cart", methods=["POST"])
-def api_add_to_cart():
+@order_bp.route("/cart/manage", methods=["POST"])
+def api_manage_cart():
     data = request.json
     customer_id = data.get("customer_id")
     product_id = data.get("product_id")
-    quantity = data.get("quantity", 1)
 
-    item = add_to_cart(customer_id, product_id, quantity)
-    # Lưu ý: item có thể là object, cần lấy product_id để trả về json
-    return jsonify({"message": "Added to cart", "item": item.product_id}), 200
-
-# ==========================
-# 3. UPDATE SELECTED ITEM
-# ==========================
-@order_bp.route("/cart/select", methods=["PUT"])
-def api_update_selected():
-    data = request.json
-    customer_id = data.get("customer_id")
-    product_id = data.get("product_id")
+    # Lấy các trường tùy chọn (nếu không gửi thì để None)
+    quantity = data.get("quantity")
     selected = data.get("selected")
 
-    item = update_selected(customer_id, product_id, selected)
+    if not customer_id or not product_id:
+        return jsonify({"error": "Missing customer_id or product_id"}), 400
+
+    # Logic xử lý:
+    # 1. Nếu có quantity -> Thực hiện thêm mới hoặc cập nhật số lượng
+    # 2. Nếu có selected -> Thực hiện cập nhật trạng thái chọn
+
+    item = None
+    if quantity is not None:
+        item = add_to_cart(customer_id, product_id, quantity)
+
+    if selected is not None:
+        item = update_selected(customer_id, product_id, selected)
 
     if not item:
-        return jsonify({"error": "Item not found"}), 404
+        return jsonify({"error": "Failed to update cart. Item might not exist."}), 404
 
-    return jsonify({"message": "Selection updated"}), 200
+    return jsonify({
+        "message": "Cart updated successfully",
+        "product_id": item.product_id,
+        "current_quantity": item.quantity,
+        "is_selected": item.selected
+    }), 200
 
 # ==========================
 # 4. GET COUPONS OF CUSTOMER

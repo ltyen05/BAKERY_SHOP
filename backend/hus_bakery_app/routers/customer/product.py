@@ -57,9 +57,6 @@ def api_filter_products_by_type():
             result.append({
                 "product_id": p.product_id,
                 "name": p.name,
-                "price": float(p.price),
-                "category_name": cat_name,
-                "image": p.avatar
             })
 
         return jsonify(result), 200

@@ -47,6 +47,7 @@ def api_manage_cart():
             "item": {
                 "product_id": item.product_id,
                 "quantity": item.quantity,
+                "image": item.image_url,
                 "selected": item.selected
             }
         }), 200

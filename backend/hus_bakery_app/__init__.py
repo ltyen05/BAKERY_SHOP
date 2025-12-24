@@ -11,10 +11,6 @@ load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 
 def create_app():
     app = Flask(__name__)
@@ -29,19 +25,11 @@ def create_app():
             }
         }
     )
-<<<<<<< HEAD
-=======
-
->>>>>>> main
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-<<<<<<< HEAD
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-=======
-    app.config['JWT_SECRET_KEY']=os.getenv('JWT_SECRET_KEY')
->>>>>>> main
     app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == "True"
@@ -51,25 +39,33 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-<<<<<<< HEAD
     mail.init_app(app)
 
     from .routers.auth import auth_bp
-    from backend.hus_bakery_app.routers.customer.order_process import order_bp
-    from backend.hus_bakery_app.routers.customer.feedback import feedback_bp
-    from backend.hus_bakery_app.routers.customer.account import account_bp
-=======
-    mail.init_app(app)  
-    
-    from .routers.auth import auth_bp
-    from .routers.order_process import order_bp
-    from .routers.feedback import feedback_bp
-    from .routers.account import account_bp
->>>>>>> main
-    app.register_blueprint(account_bp, url_prefix="/api/account")
-    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
     app.register_blueprint(auth_bp, url_prefix='/api')
+    from backend.hus_bakery_app.routers.customer.order_process import order_bp
     app.register_blueprint(order_bp, url_prefix='/api')
+    from backend.hus_bakery_app.routers.customer.feedback import feedback_bp
+    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+    from backend.hus_bakery_app.routers.customer.account import account_bp
+    app.register_blueprint(account_bp, url_prefix="/api/account")
+    from backend.hus_bakery_app.routers.customer.product import product_bp
+    app.register_blueprint(product_bp, url_prefix="/api/product")
+
+    from backend.hus_bakery_app.routers.admin.dashboard import dashboard_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
+    from backend.hus_bakery_app.routers.admin.order_management import order_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/order_management')
+    from backend.hus_bakery_app.routers.admin.product_management import product_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/product_management')
+    from backend.hus_bakery_app.routers.admin.customer_management import customer_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/customer_management')
+    from backend.hus_bakery_app.routers.admin.employee_management import employee_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/employee_management')
+    from backend.hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/coupon_management')
+    from backend.hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/shipper_management')
 
     @app.route("/test_db")
     def test_db():
@@ -82,11 +78,7 @@ def create_app():
     with app.app_context():
         from .models.categories import Category
         from .models.products import Product
-<<<<<<< HEAD
         from .models.branches import Branch
-=======
-        from .models.branch import Branch
->>>>>>> main
         from .models.branch_product import BranchProduct
         from .models.cart_item import CartItem
         from .models.coupon import Coupon

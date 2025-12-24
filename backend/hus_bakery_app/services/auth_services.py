@@ -11,20 +11,32 @@ import json
 # Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
 
-<<<<<<< HEAD
 
-=======
->>>>>>> main
+
+def get_current_customer_service(customer_id):
+    # Chỉ tìm kiếm trong bảng Customer
+    user = Customer.query.get(customer_id)
+
+    if not user:
+        return None
+
+    return {
+        "user_id": user.customer_id,
+        "full_name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "avatar": user.avatar,
+        "created_at": user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+        "role": "customer"
+    }
+
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)
     if role == 'employee': return Employee.query.get(user_id)
     if role == 'shipper': return Shipper.query.get(user_id)
     return None
 
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 def find_user_instance(email):
     """Tìm user trong 3 bảng và trả về (user_object, role)"""
     user = Customer.query.filter_by(email=email).first()
@@ -58,7 +70,6 @@ def request_password_reset(email):
     try:
         msg = Message(
             subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
-<<<<<<< HEAD
             recipients=[email],  # Gửi đến email khách hàng nhập
             body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
         )
@@ -67,16 +78,6 @@ def request_password_reset(email):
 
         return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
 
-=======
-            recipients=[email], # Gửi đến email khách hàng nhập
-            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
-        )
-        
-        mail.send(msg) # <--- Lệnh gửi quan trọng nhất
-        
-        return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
-        
->>>>>>> main
     except Exception as e:
         print(f"Lỗi gửi mail: {str(e)}")
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
@@ -123,15 +124,9 @@ def reset_password_with_token(token, new_password):
 def generate_token(user, role):
     # Chuyển Dictionary thành chuỗi String để tránh lỗi "Subject must be a string"
     identity_data = json.dumps({"id": user.get_id(), "role": role})
-<<<<<<< HEAD
 
     return create_access_token(
         identity=identity_data,
-=======
-    
-    return create_access_token(
-        identity=identity_data, 
->>>>>>> main
         expires_delta=timedelta(days=1)
     )
 
@@ -147,10 +142,7 @@ def check_email_exist(email):
     if Shipper.query.filter_by(email=email).first():
         return True
     return False
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 
 def login_user(email, password):
     # Try Customer

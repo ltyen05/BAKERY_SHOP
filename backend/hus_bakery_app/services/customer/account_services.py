@@ -3,27 +3,29 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from backend.hus_bakery_app import db
 from backend.hus_bakery_app.models.customer import Customer
+from backend.hus_bakery_app.models.order import Order
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-def get_current_customer_service(customer_id):
-    # Chỉ tìm kiếm trong bảng Customer
-    user = Customer.query.get(customer_id)
+def total_amount_of_customer(customer_id):
+    order_of_customer = db.session.query(Order).filter_by(customer_id=customer_id).all()
+    total_amount = 0
+    for order in order_of_customer:
+        total_amount += order.amount
 
-    if not user:
-        return None
+    return total_amount
 
-    return {
-        "user_id": user.customer_id,
-        "full_name": user.name,
-        "email": user.email,
-        "phone": user.phone,
-        "avatar": user.avatar,
-        "created_at": user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
-        "role": "customer"
-    }
+def get_customer_rank_service(total_amount):
+    # Logic phân hạng dựa trên tổng chi tiêu
+    if total_amount >= 10000000:
+        return "diamond"
+    elif total_amount >= 5000000:
+        return "gold"
+    elif total_amount >= 1000000:
+        return "silver"
+    return "bronze"
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

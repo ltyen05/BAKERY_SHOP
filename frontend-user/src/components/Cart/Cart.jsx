@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Button } from "antd";
 import ProductInCart from "../Product/ProductInCart";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const ProductCart = ({ productList }) => {
+const ProductCart = ({ productList, onCloseDrawer }) => {
   const [products, setProducts] = useState(productList);
-
+  const navigate = useNavigate();
   const handleQuantityChange = (id, newQuantity) => {
     if (newQuantity < 1) {
       setProducts(products.filter((p) => p.id !== id));
@@ -32,36 +35,47 @@ const ProductCart = ({ productList }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="mb-6 bg-white rounded-2xl shadow-sm overflow-hidden">
-          {products.map((product) => (
-            <ProductInCart
-              key={product.id}
-              product={product}
-              onQuantityChange={handleQuantityChange}
-              onRemove={handleRemove}
-            />
-          ))}
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 shadow-sm mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-gray-600">Số lượng</span>
-            <span className="font-medium">{totalItems} sản phẩm</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Tổng thanh toán</span>
-            <span className="font-bold text-lg text-red-500">
-              {totalPrice.toLocaleString("vi-VN")} VNĐ
-            </span>
-          </div>
-        </div>
-
-        <button className="w-full bg-gradient-to-r from-amber-600 to-amber-700 text-white py-4 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all hover:from-amber-700 hover:to-amber-800">
-          Đặt ngay →
-        </button>
+    <div>
+      <div className="mb-6">
+        {products.map((product) => (
+          <ProductInCart
+            key={product.id}
+            product={product}
+            onQuantityChange={handleQuantityChange}
+            onRemove={handleRemove}
+          />
+        ))}
       </div>
+
+      <div className="mb-3" style={{ borderTop: "1px solid #3434348e" }}>
+        <div className="mt-3 mb-2" style={{ fontSize: "16px" }}>
+          <span>Tổng số lượng: </span>
+          <span style={{ fontWeight: "500" }}>{totalItems} sản phẩm</span>
+        </div>
+        <div style={{ fontSize: "16px" }}>
+          <span>Tổng thanh toán: </span>
+          <span style={{ fontWeight: "500" }}>
+            {totalPrice.toLocaleString("vi-VN")} VNĐ
+          </span>
+        </div>
+      </div>
+
+      <Button
+        className="btn btn-second mb-3 fl-center"
+        style={{ fontSize: "16px" }}
+        onClick={() => {
+          onCloseDrawer(); // đóng Drawer
+          navigate("/payment", {
+            state: {
+              products,
+              totalItems,
+              totalPrice,
+            },
+          });
+        }}
+      >
+        <span style={{ fontWeight: "500" }}>Đặt ngay →</span>
+      </Button>
     </div>
   );
 };

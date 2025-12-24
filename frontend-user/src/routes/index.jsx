@@ -1,10 +1,3 @@
-// Thay vì import tĩnh...
-// import HomePage from "../HomePage/HomePage";
-// import AboutUs from "../AboutUs/AboutUs";
-// import Menu from "../Menu/Menu";
-// ...
-
-// ...Hãy dùng 'lazy' của React
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -18,10 +11,9 @@ const LogIn = lazy(() => import("../LogIn/LogIn"));
 const SignUp = lazy(() => import("../SignUp/SignUp"));
 const Facilities = lazy(() => import("../Facilities/Facilities"));
 const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
-const Admin = lazy(() => import("../admin"));
 const Shipper = lazy(() => import("../OnlyShipperPage/ShipperPage"));
 const ForgotPassword = lazy(() => import("../ForgotPassword/ForgotPassword"));
-const ResetPassword = lazy(() => import("../ForgotPassword/ResetPassword"));
+const payment = lazy(() => import("../PaymentPage/PaymentPage"));
 // ----- PHẦN CÒN LẠI GIỮ NGUYÊN -----
 // Mảng 'routes' của bạn không cần thay đổi gì cả
 // vì 'HomePage' (lazy) vẫn là một component hợp lệ.
@@ -46,25 +38,22 @@ export const routes = [
       {
         path: "",
         // Dòng này không phải lazy-load nên giữ nguyên
-        page: () => <Navigate to="cake" replace />,
-      },
-      {
-        path: "cake",
-        name: "Cake",
-        page: ProductList,
-        props: { category: "cake" }, // Dùng 'Cake' (lazy)
+        page: () => <Navigate to="bread" replace />,
       },
       {
         path: "bread",
         name: "Bread",
         page: ProductList,
-        props: { category: "bread" },
       },
       {
-        path: "drink",
-        name: "Drink",
+        path: "cookie",
+        name: "Cookie",
         page: ProductList,
-        props: { category: "drink" },
+      },
+      {
+        path: "pastry",
+        name: "Pastry",
+        page: ProductList,
       },
     ],
   },
@@ -108,12 +97,6 @@ export const routes = [
     roles: ["guest"],
   },
   {
-    path: "/reset-password",
-    page: ResetPassword,
-    name: "Reset Password",
-    roles: ["guest"],
-  },
-  {
     path: "/viewProfile",
     page: viewProfile,
     name: "View Profile",
@@ -122,13 +105,14 @@ export const routes = [
     roles: ["customer", "admin"],
   },
   {
-    path: "/admin",
-    page: Admin,
-    name: "Admin Page",
+    path: "/payment",
+    page: payment,
+    name: "Payment",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["admin"],
+    roles: ["customer"],
   },
+
   {
     path: "/shipper",
     page: Shipper,

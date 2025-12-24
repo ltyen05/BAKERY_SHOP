@@ -9,6 +9,8 @@ import {
   Avatar,
   Form,
   Input,
+  message,
+  Skeleton,
 } from "antd";
 import {
   UserOutlined,
@@ -22,13 +24,15 @@ import {
 } from "@ant-design/icons";
 import Voucher from "../components/Voucher/Voucher";
 import OrderDetails from "../components/Order/OrderDetails";
-
+import { useAuth } from "../context/AuthContext";
+import { useAccount } from "../context/AccountContext";
 const { Title, Text } = Typography;
-
-/* ================= CONFIG ================= */
-const API_BASE = "http://localhost:5001";
-/* ========================================= */
-
+const rankColors = {
+  diamond: "#b9f2ff", // màu xanh sáng cho diamond
+  gold: "gold",
+  silver: "silver",
+  bronze: "#cd7f32", // màu đồng
+};
 const style = {
   container: {
     backgroundColor: "#FFFBF7",
@@ -58,50 +62,63 @@ const style = {
   },
   actionBtn: { color: "#fff", border: "none", borderRadius: 20 },
 };
+const API_BASE = "http://localhost:5000";
 
-const UserProfile = ({ user }) => {
-  const initialUserInfo = {
-    name: user?.name,
-    rank: "Rank Gold",
-    email: "husbakery@hus.edu.vn",
-    phone: "0123456789",
-    totalSpent: "10,000,000",
-    avatarUrl: "https://i.pravatar.cc/150?img=5",
-  };
+const UserProfile = () => {
+  const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
+  const { update_profile, get_rank } = useAccount();
 
   const [loading, setLoading] = useState(true);
+  const [rankData, setRankData] = useState(null);
   const [voucherList, setVoucherList] = useState([]);
   const [isShowingVoucher, setIsShowingVoucher] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [userInfo, setUserInfo] = useState(initialUserInfo);
   const [isEditing, setIsEditing] = useState(false);
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState(
-    initialUserInfo.avatarUrl
+    "https://i.pinimg.com/originals/24/bd/d9/24bdd9ec59a9f8966722063fe7791183.jpg"
   );
 
   const fileInputRef = useRef(null);
   const [form] = Form.useForm();
 
-  /* ================= FETCH VOUCHER ================= */
   useEffect(() => {
-    if (!user?.id) return;
+    const fetchRank = async () => {
+      try {
+        const data = await get_rank(); // gọi API
+        setRankData(data);
+      } catch (err) {
+        console.error("Rank fetch error:", err);
+      }
+    };
 
-    fetch(`${API_BASE}/api/coupon/${user.id}`)
+    fetchRank();
+  }, [get_rank]);
+  /* ========================== Đồng bộ userInfo vào Form ========================== */
+  useEffect(() => {
+    if (!user) return;
+
+    form.setFieldsValue({
+      email: user.email,
+      phone: user.phone,
+    });
+
+    setCurrentAvatarUrl(currentAvatarUrl);
+    setLoading(false);
+  }, [user, form]);
+
+  /* ========================== FETCH VOUCHER ========================== */
+  useEffect(() => {
+    if (!user?.user_id) return;
+    fetch(`${API_BASE}/api/coupon/${user.user_id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Fetch voucher failed");
         return res.json();
       })
-      .then((data) => {
-        setVoucherList(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Voucher error:", err);
-        setLoading(false);
-      });
-  }, [user?.id]);
+      .then((data) => setVoucherList(data))
+      .catch((err) => console.error("Voucher error:", err));
+  }, [user?.user_id]);
 
-  /* ================= AVATAR PREVIEW ================= */
+  /* ========================== AVATAR PREVIEW ========================== */
   const handleSelectAvatar = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -111,52 +128,36 @@ const UserProfile = ({ user }) => {
     reader.readAsDataURL(file);
   };
 
-  /* ================= SAVE PROFILE ================= */
-  // viewProfile.jsx
-
+  /* ========================== SAVE PROFILE ========================== */
   const handleSave = async (values) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
-      const profileRes = await fetch(`${API_BASE}/api/account/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: values.email,
-          phone: values.phone,
-        }),
-      });
-
-      // --- PHẦN CẦN BỔ SUNG ---
-      const data = await profileRes.json();
-      
-      if (profileRes.ok) {
-        setUserInfo((prev) => ({ ...prev, ...values })); // Cập nhật hiển thị
-        setIsEditing(false);
-        alert("Cập nhật thành công!");
-      } else {
-        const errorMsg = data.message || data.msg || "Cập nhật thất bại";
-        alert("Lỗi: " + errorMsg);
-      }
-      // ------------------------
+      const data = await update_profile(values.email, values.phone); // đã trả data
+      setUser((prev) => ({ ...prev, ...data }));
+      message.success("Cập nhật thành công!");
+      setIsEditing(false);
     } catch (err) {
-      alert("Lỗi kết nối: " + err.message);
+      message.error(err.message || "Cập nhật thất bại");
     }
   };
 
   const handleCancel = () => {
     form.resetFields();
-    setCurrentAvatarUrl(userInfo.avatarUrl);
+    setCurrentAvatarUrl(currentAvatarUrl);
     setIsEditing(false);
   };
 
-  /* ================= UI ================= */
+  if (loading) {
+    return (
+      <div style={{ padding: 50 }}>
+        <Skeleton avatar paragraph={{ rows: 4 }} active />
+      </div>
+    );
+  }
+
+  /* ========================== UI ========================== */
   return (
     <Row style={style.container}>
+      {/* LEFT CARD */}
       <Col xs={24} lg={10} xl={8}>
         <div style={style.card}>
           <div
@@ -183,8 +184,10 @@ const UserProfile = ({ user }) => {
                   onChange={handleSelectAvatar}
                 />
 
-                <Title level={4}>{userInfo.name}</Title>
-                <Tag color="gold">{userInfo.rank}</Tag>
+                <Title level={4}>{user?.full_name}</Title>
+                <Tag color={rankData ? rankColors[rankData.rank] : "default"}>
+                  {rankData?.rank?.toUpperCase() || "..."}
+                </Tag>
               </Col>
 
               <div style={{ position: "absolute", top: 30, right: 30 }}>
@@ -210,12 +213,10 @@ const UserProfile = ({ user }) => {
                 )}
               </div>
             </Row>
-
             <Form
               form={form}
               layout="vertical"
               disabled={!isEditing}
-              initialValues={userInfo}
               onFinish={handleSave}
             >
               <Form.Item name="email" label="Email">
@@ -226,13 +227,154 @@ const UserProfile = ({ user }) => {
                 <Input style={style.input} />
               </Form.Item>
             </Form>
-
-            <Text strong>Tổng tiền:</Text> <Text>{userInfo.totalSpent} VNĐ</Text>
+            <Text strong>Tổng tiền:</Text>{" "}
+            <Text>
+              {(rankData?.total_amount_spent ?? 0).toLocaleString("vi-VN")} đ
+            </Text>
           </div>
+        </div>
+
+        <Row justify="center" gutter={20} style={{ marginTop: 20 }}>
+          <Col>
+            <Button
+              className="btn btn-primary"
+              onClick={() => setIsShowingVoucher(true)}
+            >
+              Mã Giảm Giá
+            </Button>
+          </Col>
+          <Col>
+            <Button className="btn btn-primary">Lịch sử mua hàng</Button>
+          </Col>
+        </Row>
+      </Col>
+
+      {/* RIGHT CARD */}
+      <Col xs={24} md={24} lg={14} xl={16} className="fl-center mt-3 mb-3">
+        <div style={{ ...style.card, marginTop: "-30px", width: "100%" }}>
+          <Title level={3} style={{ marginBottom: 40, color: "#4A4A6A" }}>
+            Đơn hàng hiện tại của bạn
+          </Title>
+
+          <Steps
+            current={2}
+            labelPlacement="vertical"
+            items={[
+              {
+                title: "Shipper đang lấy hàng",
+                icon: <InboxOutlined style={style.stepIcon} />,
+              },
+              {
+                title: "Đã lấy hàng",
+                icon: <FileDoneOutlined style={style.stepIcon} />,
+              },
+              {
+                title: "Đang giao",
+                icon: (
+                  <CarOutlined style={{ ...style.stepIcon, fontSize: 35 }} />
+                ),
+              },
+              {
+                title: "Giao hàng thành công",
+                icon: <CheckCircleOutlined style={style.stepIcon} />,
+              },
+            ]}
+          />
+
+          <Row justify="end" style={{ marginTop: 20 }}>
+            <Button
+              className="btn btn-primary"
+              onClick={() => setShowOrderDetails(true)}
+            >
+              Xem chi tiết đơn hàng
+            </Button>
+          </Row>
         </div>
       </Col>
 
-      {/* Các phần còn lại giữ nguyên */}
+      {/* VOUCHER MODAL */}
+      {isShowingVoucher && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "420px",
+              backgroundColor: "#fdfbf5",
+              height: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <div
+              className="scrollbar"
+              style={{
+                width: "100%",
+                maxHeight: "100%",
+                overflowY: "auto",
+                padding: "20px",
+              }}
+            >
+              <p style={{ fontSize: 20, fontWeight: 500 }}>Mã Giảm Giá</p>
+              <button
+                onClick={() => setIsShowingVoucher(false)}
+                style={{
+                  position: "absolute",
+                  top: 15,
+                  right: 15,
+                  fontSize: 15,
+                }}
+                className="out-line"
+              >
+                <CloseOutlined />
+              </button>
+
+              {voucherList.map((voucher) => (
+                <div
+                  key={voucher.id}
+                  className="mt-3"
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid",
+                    overflow: "hidden",
+                    width: "100%",
+                  }}
+                >
+                  <Voucher voucher={voucher} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ORDER DETAILS MODAL */}
+      {showOrderDetails && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "550px",
+              backgroundColor: "#fdfbf5",
+              height: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <OrderDetails />
+            <button
+              onClick={() => setShowOrderDetails(false)}
+              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
+              className="out-line"
+            >
+              <CloseOutlined />
+            </button>
+          </div>
+        </div>
+      )}
     </Row>
   );
 };

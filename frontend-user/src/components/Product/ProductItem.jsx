@@ -12,7 +12,7 @@ const ProductItem = ({ product }) => (
       // backgroundColor: "white",
       borderRadius: "12px",
       width: "100%",
-      maxWidth: "350px",
+      maxWidth: "500px",
     }}
   >
     <Col span={8} className="fl-center" style={{ padding: "10px" }}>
@@ -35,12 +35,12 @@ const ProductItem = ({ product }) => (
       style={{
         flexDirection: "column",
         alignItems: "flex-start",
-        paddingLeft: "10px",
+        paddingLeft: "20px",
       }}
     >
-      <div className="product-name">{product.name}</div>
+      <h3 className="mb-1">{product.name}</h3>
 
-      <p>Số lượng: {product.quantity}</p>
+      <p className="mb-1">Số lượng: {product.quantity}</p>
       <p>Giá: {formatCurrency(product.price)}</p>
     </Col>
   </Row>

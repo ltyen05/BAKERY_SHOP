@@ -1,5 +1,4 @@
 import json
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 # Import từ cart_services
@@ -8,7 +7,8 @@ from ...services.customer.cart_services import (
     update_selected,
     get_cart,
     coupon_of_customer,
-    coupon_info
+    coupon_info,
+    update_cart_service
 )
 # Import từ order_services
 from ...services.customer.order_services import create_order
@@ -26,38 +26,34 @@ def api_get_cart(customer_id):
     cart = get_cart(customer_id)
     return jsonify(cart), 200
 
+
 @order_bp.route("/cart/manage", methods=["POST"])
 def api_manage_cart():
     data = request.json
     customer_id = data.get("customer_id")
     product_id = data.get("product_id")
-
-    # Lấy các trường tùy chọn (nếu không gửi thì để None)
-    quantity = data.get("quantity")
-    selected = data.get("selected")
+    quantity = data.get("quantity")  # Có thể là số dương, số âm hoặc None
+    selected = data.get("selected")  # Có thể là True, False hoặc None
 
     if not customer_id or not product_id:
-        return jsonify({"error": "Missing customer_id or product_id"}), 400
+        return jsonify({"error": "Missing ID"}), 400
 
-    # Logic xử lý:
-    # 1. Nếu có quantity -> Thực hiện thêm mới hoặc cập nhật số lượng
-    # 2. Nếu có selected -> Thực hiện cập nhật trạng thái chọn
+    try:
+        # Gọi 1 hàm duy nhất xử lý tất cả logic
+        item = update_cart_service(customer_id, product_id, quantity, selected)
 
-    item = None
-    if quantity is not None:
-        item = add_to_cart(customer_id, product_id, quantity)
-
-    if selected is not None:
-        item = update_selected(customer_id, product_id, selected)
-
-    if not item:
-        return jsonify({"error": "Failed to update cart. Item might not exist."}), 404
-
-    return jsonify({
-        "message": "Cart updated successfully",
-        "product_id": item.product_id,
-        "current_quantity": item.quantity
-    }), 200
+        return jsonify({
+            "message": "Cart updated",
+            "item": {
+                "product_id": item.product_id,
+                "quantity": item.quantity,
+                "selected": item.selected
+            }
+        }), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error"}), 500
 
 # ==========================
 # 4. GET COUPONS OF CUSTOMER

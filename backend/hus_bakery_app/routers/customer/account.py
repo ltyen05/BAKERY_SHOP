@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, total_amount_of_customer, get_customer_rank_service
-from backend.hus_bakery_app.models.customer import Customer
+from hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, total_amount_of_customer, get_customer_rank_service
+from hus_bakery_app.models.customer import Customer
 import json
 
 account_bp = Blueprint("account", __name__)

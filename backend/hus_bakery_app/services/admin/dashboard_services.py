@@ -1,5 +1,5 @@
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.order import Order
+from hus_bakery_app import db
+from hus_bakery_app.models.order import Order
 from sqlalchemy import extract, func
 
 

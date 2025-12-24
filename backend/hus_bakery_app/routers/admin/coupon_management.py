@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.hus_bakery_app.services.admin.coupon_management_services import (
+from hus_bakery_app.services.admin.coupon_management_services import (
     get_all_coupons_service, add_coupon_service,
     edit_coupon_service, delete_coupon_service
 )

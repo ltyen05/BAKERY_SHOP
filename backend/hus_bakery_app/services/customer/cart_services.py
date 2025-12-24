@@ -1,8 +1,8 @@
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.cart_item import CartItem
-from backend.hus_bakery_app.models.products import Product
-from backend.hus_bakery_app.models.coupon import Coupon
-from backend.hus_bakery_app.models.coupon_custom import CouponCustomer
+from hus_bakery_app import db
+from hus_bakery_app.models.cart_item import CartItem
+from hus_bakery_app.models.products import Product
+from hus_bakery_app.models.coupon import Coupon
+from hus_bakery_app.models.coupon_custom import CouponCustomer
 from datetime import datetime
 
 

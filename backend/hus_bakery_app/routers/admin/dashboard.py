@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.hus_bakery_app.services.admin.dashboard_services import  total_order_of_moth, total_amount_of_month
+from hus_bakery_app.services.admin.dashboard_services import  total_order_of_moth, total_amount_of_month
 
 dashboard_bp = Blueprint('dashboard', __name__)
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from backend.hus_bakery_app.models.customer import Customer
-from backend.hus_bakery_app.services.admin.customer_management_services import get_all_customers_with_stats_service, delete_customer_service
-from backend.hus_bakery_app.services.customer.account_services import total_amount_of_customer, get_customer_rank_service
+from hus_bakery_app.models.customer import Customer
+from hus_bakery_app.services.admin.customer_management_services import get_all_customers_with_stats_service, delete_customer_service
+from hus_bakery_app.services.customer.account_services import total_amount_of_customer, get_customer_rank_service
 
 customer_admin_bp = Blueprint('customer_admin_bp', __name__)
 

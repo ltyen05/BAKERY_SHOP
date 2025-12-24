@@ -3,6 +3,7 @@ import { Row, Col, Spin, message } from "antd";
 import { LoadingOutlined, CloseOutlined } from "@ant-design/icons";
 // Import component Product bạn vừa viết
 import Product from "../components/Product/Product";
+<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
 import ProductDetail from "../components/Product/ProductDetails";
 import FeedbackComponent from "../components/Feedback/Feedback";
@@ -27,6 +28,21 @@ export default function ProductList() {
       try {
         const response = await fetch(
           `http://localhost:5000/api/product/filter?category_id=${category_id}`
+=======
+import ProductDetail from "../components/Product/ProductDetails";
+import FeedbackComponent from "../components/Feedback/Feedback";
+export default function ProductList({ category }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        // Gọi API Flask
+        const response = await fetch(
+          `http://127.0.0.1:5000/api/products?category=${category}`
+>>>>>>> main
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();
@@ -38,24 +54,37 @@ export default function ProductList() {
         setLoading(false);
       }
     };
+<<<<<<< HEAD
 
     fetchProducts();
   }, [category_id]);
 
   return (
     <div style={{ border: "1px solid" }}>
+=======
+    fetchProducts();
+  }, [category]);
+
+  return (
+    <div className="container py-4" style={{ border: "1px solid" }}>
+>>>>>>> main
       {loading ? (
         <div className="fl-center" style={{ minHeight: "200px" }}>
           <Spin indicator={<LoadingOutlined spin />} />
         </div>
       ) : (
         // Dùng Row/Col của Antd để chia cột (Responsive)
+<<<<<<< HEAD
         <Row justify="center" align="top" style={{ border: "1px solid red" }}>
+=======
+        <Row gutter={[24, 24]}>
+>>>>>>> main
           {products.map((item) => (
             // xs={24}: Điện thoại 1 cột
             // sm={12}: Tablet nhỏ 2 cột
             // md={8}: Tablet to 3 cột
             // lg={6}: Máy tính 4 cột
+<<<<<<< HEAD
             <Col key={item?.product_id}>
               {/* Truyền dữ liệu từ API vào Component Product */}
               <Product
@@ -63,6 +92,14 @@ export default function ProductList() {
                 productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
                 price={item?.price} // DB trả về 'price'
                 image={item?.image} // DB trả về 'image_url' -> truyền vào prop 'image'
+=======
+            <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
+              {/* Truyền dữ liệu từ API vào Component Product */}
+              <Product
+                productName={item.name} // DB trả về 'name' -> truyền vào prop 'productName'
+                price={item.price} // DB trả về 'price'
+                image={item.image_url} // DB trả về 'image_url' -> truyền vào prop 'image'
+>>>>>>> main
               />
             </Col>
           ))}

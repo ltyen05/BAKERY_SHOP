@@ -13,5 +13,9 @@ requests
 cryptography
 pymongo
 flask-pymongo
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 email-validator
 Flask-Mail

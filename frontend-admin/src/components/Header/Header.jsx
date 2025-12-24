@@ -1,38 +1,38 @@
+import { useState } from "react";
 import "./Header.css";
 import {
   FaSearch,
   FaBell,
-  FaRegCommentDots,
   FaExpand,
   FaBars,
 } from "react-icons/fa";
 
-export default function Header({ onToggleSidebar }) {
+export default function Header({ onToggleSidebar, onToggleFullscreen }) {
   return (
     <header className="header-container">
-      {/* Hamburger */}
+       {/* Nút menu hamburger */}
       <button className="menu-toggle" onClick={onToggleSidebar}>
         <FaBars />
       </button>
 
-      {/* Search */}
       <div className="header-search">
-        <input type="text" placeholder="Search..." />
-        <FaSearch className="search-icon" />
+        {/* Icon kính lúp ở TRƯỚC */}
+        <FaSearch className="search-icon-left" />
+        <input type="text" placeholder="Search Here........" />
       </div>
 
-      {/* Right */}
       <div className="header-right">
+        {/* Icon thông báo */}
         <div className="icon-circle">
           <FaBell />
         </div>
-        <div className="icon-circle">
-          <FaRegCommentDots />
-        </div>
-        <div className="icon-circle fullscreen">
+        
+        {/* Icon fullscreen - Ẩn/hiện sidebar khi click */}
+        <div className="icon-circle" onClick={onToggleFullscreen}>
           <FaExpand />
         </div>
 
+        {/* Profile - chỉ hiển thị, không có dropdown */}
         <div className="profile">
           <img
             src="https://i.postimg.cc/4ykv8DXb/avatar1.png"

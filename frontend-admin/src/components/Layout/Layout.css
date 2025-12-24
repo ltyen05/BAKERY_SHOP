@@ -13,26 +13,33 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
- 
+  overflow-y: auto;      /* Thêm scroll cho toàn bộ layout-main */
+  overflow-x: hidden;
+  position: relative;    /* Thêm position relative */
 }
 
-/* Header: cố định trên cùng, KHÔNG cuộn */
-.header-container {
+/* Header: cố định trên cùng khi cuộn */
+.layout-main .header-container {
   height: 75px;
   flex-shrink: 0;
-  position: sticky;   /* cố định trên cùng */
+  position: sticky;      /* sticky để header luôn ở trên khi cuộn */
   top: 0;
   z-index: 300;
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Nội dung: CHỈ phần này được cuộn */
+/* Nội dung: KHÔNG cần scroll riêng nữa */
 .layout-content {
   flex: 1;
-  overflow-y: auto;   /* cho phép cuộn dọc */
-  overflow-x: hidden;
   padding: 16px 20px;
   box-sizing: border-box;
   width: 100%;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .layout-main .header-container {
+    height: 60px;
+  }
 }

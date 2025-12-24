@@ -6,21 +6,42 @@
 /* SIDEBAR */
 .sidebar {
   width: 260px;
-  min-height: 100vh;
-  background: #ffffff;          /* sidebar TRẮNG */
+  height: 100vh;
+  background: #ffffff;
   font-family: "Inter", sans-serif;
   border-right: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tùy chỉnh thanh cuộn cho sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* ================= LOGO ================= */
 .logo {
   padding: 28px 20px;
-  background: linear-gradient(135deg, #cda688, #826c6c); /* CHỈ LOGO CÓ MÀU */
+  background: linear-gradient(135deg, #FFBD71 0%, #FFDCA2 100%);
   text-align: center;
 }
 
 .logo h1 {
-  color: #ffffff;
+  color: rgb(105, 31, 31);
   font-size: 26px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -29,7 +50,7 @@
 .logo p {
   margin-top: 4px;
   font-size: 13px;
-  color: #e0e7ff;
+  color: rgb(105, 31, 31);
 }
 
 /* ================= SECTION ================= */
@@ -40,7 +61,7 @@
 .menu-title {
   font-size: 12px;
   font-weight: 700;
-  color: #9ca3af;     /* xám nhạt */
+  color: #9ca3af;
   letter-spacing: 1.4px;
   margin-bottom: 12px;
 }
@@ -58,7 +79,6 @@
   color: #374151;
   font-size: 15px;
   font-weight: 500;
-
   background: transparent;
   transition: 
     background 0.25s ease,
@@ -73,9 +93,9 @@
   transition: color 0.25s ease;
 }
 
-/* HOVER – MƯỢT */
+/* HOVER */
 .menu-item:hover {
-  background: rgba(99, 102, 241, 0.08); /* tím rất nhạt */
+  background: rgba(99, 102, 241, 0.08);
   transform: translateX(6px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
@@ -86,8 +106,8 @@
 
 /* ACTIVE */
 .menu-item.active {
-  background: linear-gradient(135deg, #b08e85, #fa836e); /* CHỈ LOGO CÓ MÀU */
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFBD71 0%, #FFDCA2 100%);
+  color: rgb(105, 31, 31);
   box-shadow: 0 12px 24px rgba(106, 90, 205, 0.35);
   transform: translateX(8px);
 }
@@ -124,8 +144,88 @@
   font-weight: 600;
 }
 
+/* ================= SETTINGS DROPDOWN ================= */
+.settings-wrapper {
+  position: relative;
+}
+
+.settings-dropdown {
+  margin-top: 6px;
+  margin-left: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 4px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item-sidebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  color: #374151;
+}
+
+.dropdown-item-sidebar:hover {
+  background: #ffffff;
+}
+
+.dropdown-item-sidebar svg {
+  font-size: 18px;
+}
+
+.dropdown-item-sidebar.logout {
+  color: #ef4444;
+}
+
+.dropdown-item-sidebar.logout svg {
+  color: #ef4444;
+}
+
+.dropdown-item-sidebar.logout:hover {
+  background: #fee2e2;
+}
+
+/* ================= OVERLAY CHO MOBILE ================= */
+.sidebar-overlay {
+  display: none;
+}
+
+/* ================= NÚT ĐÓNG SIDEBAR (MOBILE) ================= */
+.sidebar-close {
+  display: none;
+}
+
 /* ================= MOBILE ================= */
 @media (max-width: 768px) {
+  /* Overlay - màn đen mờ phía sau */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+  }
+
+  /* Sidebar trượt từ trái */
   .sidebar {
     position: fixed;
     top: 0;
@@ -133,6 +233,8 @@
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 999;
+    height: 100vh;
+    overflow-y: auto;
   }
 
   .sidebar.open {

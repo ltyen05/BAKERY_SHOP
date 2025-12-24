@@ -2,26 +2,24 @@
 /* HEADER CHÍNH                  */
 /* ============================= */
 .header-container {
-  width: 100%;              /* chiếm toàn bộ chiều ngang */
-  height: 75px;
+  width: 100%;
   background: white;
   padding: 0 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 300;
-  box-sizing: border-box;   /* tránh tràn khi có padding */
-  overflow-x: hidden;       /* ngăn tràn ngang */
+  box-sizing: border-box;
+  overflow: hidden;
+  min-width: 0;
+  gap: 20px;                /* Thêm gap để tách biệt các phần tử */
+  /* position, height, z-index được định nghĩa trong Layout.css */
 }
 
 /* ============================= */
 /* NÚT MENU 3 GẠCH (MOBILE)      */
 /* ============================= */
 .menu-toggle {
-  display: none;
+  display: none;   /* Mặc định ẩn */
   font-size: 24px;
   background: none;
   border: none;
@@ -31,10 +29,11 @@
 
 @media (max-width: 768px) {
   .menu-toggle {
-    display: block;
+    display: block;   /* Chỉ hiển thị trên màn hình nhỏ */
     margin-right: 10px;
   }
 }
+
 
 /* ============================= */
 /* Ô TÌM KIẾM                    */
@@ -42,32 +41,62 @@
 .header-search {
   display: flex;
   align-items: center;
-  background: #f3f4f6;
-  padding: 12px 18px;
-  border-radius: 10px;
-  width: 100%;              /* chiếm toàn bộ chiều ngang */
-  max-width: 450px;         /* giới hạn tối đa */
-  position: relative;
+  background: #f8f9fa;
+  padding: 6px 12px;
+  border-radius: 24px;
+  max-width: 380px;
+  flex: 1;
   box-sizing: border-box;
+  border: 1px solid #e8eaed;
+  gap: 8px;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.header-search:hover {
+  background: #ffffff;
+  border-color: #dadce0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-search:focus-within {
+  background: #ffffff;
+  border-color: #4285f4;
+  box-shadow: 0 1px 6px rgba(66, 133, 244, 0.15);
 }
 
 .header-search input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none;
+  all: unset;
+  flex: 1;
   font-size: 14px;
+  color: #202124;
+  min-width: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.2px;
 }
 
-/* Icon kính lúp */
-.search-icon {
-  position: absolute;
-  right: 20px;
-  font-size: 17px;
-  color: #000;
-  pointer-events: none;
+.header-search input::placeholder {
+  color: #5f6368;
+  font-size: 14px;
+  font-weight: 400;
 }
 
+/* Icon kính lúp BÊN TRÁI */
+.search-icon-left {
+  font-size: 18px;
+  color: #5f6368;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.header-search svg {
+  border: none !important;
+  outline: none !important;
+  background: none !important;
+}
 /* ============================= */
 /* NHÓM ICON BÊN PHẢI            */
 /* ============================= */
@@ -75,8 +104,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;           /* không cho thu nhỏ */
 }
-
 
 /* Icon trần */
 .header-icon {
@@ -85,6 +114,7 @@
   cursor: pointer;
   transition: 0.2s;
 }
+
 .icon-circle {
   width: 36px;
   height: 36px;
@@ -101,11 +131,6 @@
 
 .icon-circle:hover {
   background: #e5e7eb;
-}
-
-
-.header-icon:hover {
-  color: #444;
 }
 
 /* Badge thông báo */
@@ -133,6 +158,10 @@
 }
 
 /* Profile */
+.profile-wrapper {
+  position: relative;
+}
+
 .profile {
   display: flex;
   align-items: center;
@@ -170,17 +199,19 @@
   color: #6b7280;
 }
 
+
+
 /* ============================= */
 /* RESPONSIVE CHO MOBILE         */
 /* ============================= */
 @media (max-width: 768px) {
   .header-container {
-    padding: 0 15px;
-    height: 60px; /* giảm chiều cao header */
+    padding: 0 10px;        /* giảm padding để tiết kiệm không gian */
+    gap: 8px;               /* thêm gap giữa các phần tử */
   }
 
   .header-search {
-    max-width: 180px;       /* thu nhỏ search box */
+    max-width: 140px;       /* thu nhỏ search box hơn nữa */
     padding: 6px 10px;
     font-size: 12px;
   }
@@ -189,12 +220,27 @@
     font-size: 12px;
   }
 
-  .search-icon {
+  .search-icon-left {
     font-size: 14px;        /* icon search nhỏ hơn */
+  }
+
+  .header-right {
+    gap: 8px;               /* giảm khoảng cách giữa các icon */
+  }
+
+  .icon-circle {
+    width: 32px;            /* thu nhỏ icon circle */
+    height: 32px;
+    font-size: 16px;
   }
 
   .header-icon {
     font-size: 16px;        /* icon nhỏ hơn */
+  }
+
+  .profile {
+    padding: 2px 4px;       /* giảm padding */
+    gap: 6px;
   }
 
   .profile-img {
@@ -202,13 +248,32 @@
     height: 28px;           /* avatar nhỏ hơn */
   }
 
+  .profile-info {
+    display: none;          /* ẩn tên và role trên mobile để tiết kiệm không gian */
+  }
+
   .badge {
     font-size: 9px;
     min-width: 14px;
     height: 14px;           /* badge nhỏ hơn */
   }
+
+  .profile-dropdown {
+    right: -10px;           /* Điều chỉnh vị trí dropdown trên mobile */
+    min-width: 200px;
+  }
 }
-/* ... các style khác ... */
+/* Force remove all borders */
+.header-search,
+.header-search *,
+.header-search input,
+.header-search svg {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
 
-
-
+/* Chỉ header-search mới có viền */
+.header-search {
+  border: 1px solid #d1d5db !important;
+}

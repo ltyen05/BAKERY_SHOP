@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 # Import từ cart_services
@@ -61,8 +63,12 @@ def api_manage_cart():
 # ==========================
 # 4. GET COUPONS OF CUSTOMER
 # ==========================
-@order_bp.route("/coupon/<int:customer_id>", methods=["GET"])
-def api_coupon_of_customer(customer_id):
+@order_bp.route("/my-coupons", methods=["GET"])
+@jwt_required()
+def my_coupons():
+    identity_str = get_jwt_identity()
+    identity = json.loads(identity_str)
+    customer_id = identity["id"]
     coupons = coupon_of_customer(customer_id)
     return jsonify(coupons), 200
 

@@ -3,14 +3,23 @@ import { tokenStorage } from "./token";
 export async function fetchWithAuth(url, options = {}) {
   const token = tokenStorage.get();
 
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
-  });
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
 
-  return res;
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers,
+    });
+    return res;
+  } catch (error) {
+    console.error("Lỗi kết nối mạng hoặc Server sập:", error);
+    throw error; // Ném lỗi để fetchCoupons có thể catch được
+  }
 }

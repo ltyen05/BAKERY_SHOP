@@ -4,21 +4,42 @@ import { Link } from "react-router-dom";
 import SourDough from "../../assets/Sourdough.jpg";
 import Product from "./Product";
 import Review from "../reviewComments/review";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Pagination, Rate } from "antd";
+import { useProduct } from "../../context/ProductContext";
 export default function ProductDetail() {
+  const { productId } = useParams();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const { setCurrentProduct } = useProduct();
   const reviews = Array.from({ length: 18 }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
     content: `This is review number ${i + 1}.`,
     rating: 4,
   }));
-
+  const [product, setProduct] = useState(null);
   const pageSize = 5; // mỗi trang 5 cái
   const [page, setPage] = useState(1);
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
+
   const currentReviews = reviews.slice(start, end);
+  useEffect(() => {
+    if (!productId) return;
+
+    fetch(`http://localhost:5000/api/product/${productId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data);
+        setCurrentProduct(data);
+      })
+      .catch((err) => console.error(err));
+  }, [productId]);
+  if (!product) {
+    return <div style={{ textAlign: "center" }}>Đang tải sản phẩm...</div>;
+  }
   return (
     <div>
       {/* ------------------------------------------------ */}
@@ -30,11 +51,12 @@ export default function ProductDetail() {
         }}
         justify="space-between"
         align="middle"
+        className="mt-6"
       >
         <Col xs={24} lg={11}>
           <img
-            src={SourDough}
-            alt="Sourdough"
+            src={product?.image}
+            alt={product?.name}
             style={{
               borderRadius: "16px",
               width: "100%",
@@ -49,20 +71,24 @@ export default function ProductDetail() {
         <Col xs={24} lg={11} style={{ textAlign: "start" }}>
           <div>
             <h1 style={{ fontSize: "38px" }} className="mb-3">
-              SOURDOUGH
+              {(product?.name).toUpperCase()}
             </h1>
             <p style={{ fontSize: "22px", fontWeight: "500" }}>
-              580.000<span style={{ fontSize: "16px" }}>đ</span> <br />
+              {(product?.price).toLocaleString("vi-VN")}
+              <span style={{ fontSize: "16px" }}>đ</span> <br />
               <p style={{ fontSize: "14px", opacity: 0.6, fontWeight: "300" }}>
                 (Giá chưa bao gồm thuế VAT)
               </p>
             </p>
             <p
-              style={{ fontSize: "16px", color: "#61432b" }}
+              style={{
+                fontSize: "16px",
+                color: "#61432b",
+                textAlign: "justify",
+              }}
               className="mt-6 mb-6"
             >
-              Bánh mì Sourdough được làm thủ công từ men tự nhiên, nướng trong
-              lò gạch để giữ vỏ giòn – ruột mềm, hương vị chua nhẹ đặc trưng.
+              {product?.description}
             </p>
             <div
               style={{
@@ -84,7 +110,7 @@ export default function ProductDetail() {
                 }}
               >
                 <button
-                  onClick={() => setQuantity((quantity) => quantity - 1)}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   style={{
                     width: "30px",
                     height: "30px",
@@ -166,6 +192,16 @@ export default function ProductDetail() {
                   cursor: "pointer",
                 }}
                 className="btn-primary "
+                onClick={() => {
+                  const products = [{ ...product, quantity }];
+                  const totalPrice = product?.price * quantity;
+                  navigate("/payment", {
+                    state: {
+                      products,
+                      totalPrice,
+                    },
+                  });
+                }}
               >
                 MUA NGAY
               </button>

@@ -30,8 +30,6 @@
   position: relative;
   border-radius: 25px;
   overflow: hidden;
-  box-shadow: 0 30px 60px rgba(62, 39, 35, 0.2),
-    0 10px 20px rgba(62, 39, 35, 0.1);
 }
 
 .about-image {

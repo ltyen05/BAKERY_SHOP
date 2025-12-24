@@ -34,6 +34,8 @@ function HomePage() {
     fetchData();
   }, []);
   useEffect(() => {
+    if (!topProducts.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -43,19 +45,14 @@ function HomePage() {
           }
         });
       },
-      {
-        threshold: 0.1,
-      }
+      { threshold: 0.1 }
     );
 
-    const elementsToAnimate = document.querySelectorAll(".animate-on-scroll");
+    const elements = document.querySelectorAll(".animate-on-scroll");
+    elements.forEach((el) => observer.observe(el));
 
-    elementsToAnimate.forEach((el) => observer.observe(el));
-
-    return () => {
-      elementsToAnimate.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
+    return () => observer.disconnect();
+  }, [topProducts]);
   return (
     <div className="mb-6">
       {/* <h1>Welcome to the Home Page</h1>
@@ -69,30 +66,12 @@ function HomePage() {
       <div className="cham mb-24"></div>
       <div className="mb-6">
         <Row>
-          <Col span={24} className="fl-center">
+          <Col span={24} className="fl-center mb-3">
             <h1>Sản phẩm bán chạy</h1>
           </Col>
         </Row>
         <div>
           <Row align="top" justify="center">
-            {/* <Col
-              className="animate-on-scroll fade-up "
-              style={{ transitionDelay: "0.05s" }}
-            >
-              <Product productName={"Bánh kem chesse"} price={"120000"} />
-            </Col>
-            <Col
-              className="animate-on-scroll fade-up "
-              style={{ transitionDelay: "0s" }}
-            >
-              <Product productName={"Sourdough"} price={"120000"} />
-            </Col>
-            <Col
-              className="animate-on-scroll fade-up "
-              style={{ transitionDelay: "0.05s" }}
-            >
-              <Product productName={"Sourdough"} price={"120000"} />
-            </Col> */}
             {topProducts.map((item) => (
               <Col
                 className="animate-on-scroll fade-up "
@@ -103,7 +82,11 @@ function HomePage() {
                   product_id={item?.product_id} // DB trả về 'id' -> truyền vào prop 'productId'
                   productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
                   price={item?.price} // DB trả về 'price'
-                  image={item?.image} // DB trả về 'image_url' -> truyền vào prop 'image'
+                  image={item?.image}
+                  onAddToCart={(id) => {
+                    console.log("Add to cart:", id);
+                    // dispatch(addToCart(id))
+                  }} // DB trả về 'image_url' -> truyền vào prop 'image'
                 />
               </Col>
             ))}
@@ -127,9 +110,9 @@ function HomePage() {
       {/* -------------------------------------------------------------------------------------- */}
       <div
         className="center-box mt-18 "
-        style={{ width: "90%", maxWidth: "1350px" }}
+        style={{ width: "93%", maxWidth: "1430px" }}
       >
-        <Row gutter={40}>
+        <Row gutter={80}>
           <Col xs={24} xl={14}>
             <Row gutter={10}>
               <Col span={16}>
@@ -224,10 +207,9 @@ function HomePage() {
                 Tại HUS BAKERY, chúng tôi tin rằng một chiếc bánh ngon có thể
                 làm ngày của bạn trở nên tuyệt vời hơn. Vì vậy, mỗi chiếc bánh
                 đều được chúng tôi chuẩn bị từ những nguyên liệu chọn lọc và
-                được làm mới mỗi ngày. Với bàn tay khéo léo của đội ngũ thợ
-                bánh, HUS BAKERY mang đến những hương vị quen thuộc nhưng đầy
-                mới mẻ—ngọt ngào, mềm mại và luôn ấm áp như chính tình yêu mà
-                chúng tôi đặt vào từng mẻ bánh.
+                được làm mới mỗi ngày. HUS BAKERY mang đến những hương vị quen
+                thuộc nhưng đầy mới mẻ—ngọt ngào, mềm mại và luôn ấm áp như
+                chính tình yêu mà chúng tôi đặt vào từng mẻ bánh.
               </p>
             </div>
           </Col>

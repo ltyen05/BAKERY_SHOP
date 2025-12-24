@@ -26,7 +26,7 @@ import ProductItem from "../components/Product/ProductItem";
 import Voucher from "../components/Voucher/Voucher";
 import cod from "../assets/cod.svg";
 import qrCodeImg from "../assets/QR.svg";
-
+import { useOrder } from "../context/OrderContext";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -49,9 +49,9 @@ export default function ShippingAddressForm() {
   const [searchingHints, setSearchingHints] = useState(false);
   const [selectedStore, setSelectedStore] = useState(null);
   const [distance, setDistance] = useState(null);
-
+  const { selectedVoucher, setSelectedVoucher } = useOrder();
   // ===== Voucher =====
-  const [selectedVoucher, setSelectedVoucher] = useState(null);
+
   const voucherList = [
     { id: 1, discount: 50000, minOrder: 300000, expiryDate: "31/12/2025" },
     { id: 2, discount: 100000, minOrder: 600000, expiryDate: "31/01/2026" },
@@ -86,9 +86,9 @@ export default function ShippingAddressForm() {
   }, [totalPrice]);
   const getShippingFee = (distance) => {
     if (distance < 2) return 10000;
-    if (distance < 4) return 18000;
-    if (distance < 8) return 30000;
-    return 50000; // ≥ 8km (tuỳ chỉnh)
+    if (distance < 4) return 16000;
+    if (distance < 8) return 25000;
+    return 35000; // ≥ 8km (tuỳ chỉnh)
   };
   const finalPrice = selectedVoucher
     ? Math.max(
@@ -527,6 +527,7 @@ export default function ShippingAddressForm() {
 
       <div className="mb-6 pt-6" style={{ borderTop: "1px solid #2929293e" }}>
         <h1 style={{ marginBottom: "16px" }}>Sản phẩm</h1>
+
         {products.map((productItem) => (
           <ProductItem key={productItem.id} product={productItem} />
         ))}

@@ -39,7 +39,7 @@ const ProductCart = ({ productList, onCloseDrawer }) => {
       <div className="mb-6">
         {products.map((product) => (
           <ProductInCart
-            key={product.id}
+            key={product.product}
             product={product}
             onQuantityChange={handleQuantityChange}
             onRemove={handleRemove}

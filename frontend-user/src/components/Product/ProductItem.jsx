@@ -17,7 +17,7 @@ const ProductItem = ({ product }) => (
   >
     <Col span={8} className="fl-center" style={{ padding: "10px" }}>
       <img
-        src={garlicBread}
+        src={product.image || garlicBread}
         alt={product.name}
         className="product-image"
         style={{
@@ -36,9 +36,10 @@ const ProductItem = ({ product }) => (
         flexDirection: "column",
         alignItems: "flex-start",
         paddingLeft: "20px",
+        textAlign: "left",
       }}
     >
-      <h3 className="mb-1">{product.name}</h3>
+      <h3 className="mb-1">{product.name.toUpperCase()}</h3>
 
       <p className="mb-1">Số lượng: {product.quantity}</p>
       <p>Giá: {formatCurrency(product.price)}</p>

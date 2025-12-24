@@ -56,8 +56,7 @@ def api_manage_cart():
     return jsonify({
         "message": "Cart updated successfully",
         "product_id": item.product_id,
-        "current_quantity": item.quantity,
-        "is_selected": item.selected
+        "current_quantity": item.quantity
     }), 200
 
 # ==========================

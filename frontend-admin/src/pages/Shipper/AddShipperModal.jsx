@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import '../../components/Common/Modal.css';
-const ROLE_OPTIONS = ['CSKH', 'Tiếp tân', 'Đầu bếp', 'Quản lý'];
+
+const VEHICLE_TYPES = ['Xe máy', 'Ô tô'];
 const STATUS_OPTIONS = ['Active', 'Inactive'];
 
-export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
+export default function AddShipperModal({ isOpen, onClose, onAdd }) {
   const [form, setForm] = useState({
     name: '',
-    employeeId: '',
+    shipperId: '',
     email: '',
     phone: '',
-    role: '',
+    vehicle: '',
+    vehicleType: '',
     status: 'Active',
     note: '',
   });
@@ -24,7 +26,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!form.name.trim() || !form.employeeId.trim() || !form.phone.trim() || !form.role) {
+    if (!form.name.trim() || !form.shipperId.trim() || !form.phone.trim() || !form.vehicle.trim() || !form.vehicleType) {
       setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
       return;
     }
@@ -32,10 +34,11 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
     onAdd(form);
     setForm({
       name: '',
-      employeeId: '',
+      shipperId: '',
       email: '',
       phone: '',
-      role: '',
+      vehicle: '',
+      vehicleType: '',
       status: 'Active',
       note: '',
     });
@@ -47,13 +50,13 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
         {/* Header */}
         <div className="modern-modal-header">
           <div className="header-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
             </svg>
           </div>
           <div className="header-text">
-            <h2>Thêm nhân viên mới</h2>
-            <p>Điền thông tin để thêm nhân viên vào hệ thống</p>
+            <h2>Thêm shipper mới</h2>
+            <p>Điền thông tin để thêm shipper vào hệ thống</p>
           </div>
           <button className="modern-close-btn" onClick={onClose}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +67,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="modern-form">
+        <div className="modern-form">
           <div className="form-grid">
             {/* Họ và tên */}
             <div className="modern-form-group">
@@ -86,10 +89,10 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
               </div>
             </div>
 
-            {/* Mã nhân viên */}
+            {/* Mã shipper */}
             <div className="modern-form-group">
               <label>
-                Mã nhân viên <span className="required-star">*</span>
+                Mã shipper <span className="required-star">*</span>
               </label>
               <div className="input-wrapper">
                 <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -97,28 +100,11 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                 </svg>
                 <input
                   type="text"
-                  name="employeeId"
-                  value={form.employeeId}
+                  name="shipperId"
+                  value={form.shipperId}
                   onChange={handleChange}
-                  placeholder="NV001"
+                  placeholder="SH001"
                   required
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="modern-form-group">
-              <label>Email</label>
-              <div className="input-wrapper">
-                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
-                </svg>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="example@bakery.com"
                 />
               </div>
             </div>
@@ -137,25 +123,62 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  placeholder="0123456789"
+                  placeholder="0901234567"
                   required
                 />
               </div>
             </div>
 
-            {/* Vai trò */}
+            {/* Email */}
+            <div className="modern-form-group">
+              <label>Email</label>
+              <div className="input-wrapper">
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
+                </svg>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="shipper@bakery.com"
+                />
+              </div>
+            </div>
+
+            {/* Biển số xe */}
             <div className="modern-form-group">
               <label>
-                Vai trò <span className="required-star">*</span>
+                Biển số xe <span className="required-star">*</span>
+              </label>
+              <div className="input-wrapper">
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+                </svg>
+                <input
+                  type="text"
+                  name="vehicle"
+                  value={form.vehicle}
+                  onChange={handleChange}
+                  placeholder="29A-12345"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Loại xe */}
+            <div className="modern-form-group">
+              <label>
+                Loại xe <span className="required-star">*</span>
               </label>
               <div className="input-wrapper">
                 <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="currentColor"/>
                 </svg>
-                <select name="role" value={form.role} onChange={handleChange} required>
-                  <option value="">Chọn vai trò</option>
-                  {ROLE_OPTIONS.map(role => (
-                    <option key={role} value={role}>{role}</option>
+                <select name="vehicleType" value={form.vehicleType} onChange={handleChange} required>
+                  <option value="">Chọn loại xe</option>
+                  {VEHICLE_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
               </div>
@@ -172,7 +195,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                 <select name="status" value={form.status} onChange={handleChange}>
                   {STATUS_OPTIONS.map(status => (
                     <option key={status} value={status}>
-                      {status === 'Active' ? 'Hoạt động' : 'Không hoạt động'}
+                      {status === 'Active' ? 'Sẵn sàng' : 'Nghỉ việc'}
                     </option>
                   ))}
                 </select>
@@ -191,7 +214,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
                 name="note"
                 value={form.note}
                 onChange={handleChange}
-                placeholder="Thêm ghi chú về nhân viên..."
+                placeholder="Thêm ghi chú về shipper..."
                 rows={3}
               />
             </div>
@@ -204,14 +227,14 @@ export default function AddEmployeeModal({ isOpen, onClose, onAdd }) {
             <button type="button" className="modern-btn modern-btn-cancel" onClick={onClose}>
               Hủy bỏ
             </button>
-            <button type="submit" className="modern-btn modern-btn-submit">
+            <button onClick={handleSubmit} className="modern-btn modern-btn-submit">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/>
               </svg>
-              Thêm nhân viên
+              Thêm shipper
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

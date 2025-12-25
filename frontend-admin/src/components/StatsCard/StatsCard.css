@@ -1,0 +1,217 @@
+/* ============================= */
+/* STATS CARD COMPONENT          */
+/* ============================= */
+
+.stats-card {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Top Border - Gradient Line */
+.stats-card-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+/* Color Variants */
+.stats-card-purple .stats-card-border {
+  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+.stats-card-purple .stats-card-icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+.stats-card-pink .stats-card-border {
+  background: linear-gradient(90deg, #ec4899 0%, #f43f5e 100%);
+}
+
+.stats-card-pink .stats-card-icon {
+  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+}
+
+.stats-card-blue .stats-card-border {
+  background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+}
+
+.stats-card-blue .stats-card-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+}
+
+.stats-card-green .stats-card-border {
+  background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
+}
+
+.stats-card-green .stats-card-icon {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+}
+
+.stats-card-orange .stats-card-border {
+  background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
+}
+
+.stats-card-orange .stats-card-icon {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+.stats-card-yellow .stats-card-border {
+  background: linear-gradient(90deg, #eab308 0%, #facc15 100%);
+}
+
+.stats-card-yellow .stats-card-icon {
+  background: linear-gradient(135deg, #eab308 0%, #facc15 100%);
+}
+
+/* Icon Section */
+.stats-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s;
+}
+
+.stats-card:hover .stats-card-icon {
+  transform: scale(1.05);
+}
+
+.stats-card-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+/* Content Section */
+.stats-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.stats-card-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-card-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+/* Change Section */
+.stats-card-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.change-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.stats-card-change.positive {
+  color: #10b981;
+}
+
+.stats-card-change.negative {
+  color: #ef4444;
+}
+
+.change-value {
+  font-weight: 700;
+}
+
+.change-period {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* ============================= */
+/* RESPONSIVE                    */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .stats-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stats-card-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .stats-card-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .stats-card-value {
+    font-size: 24px;
+  }
+
+  .stats-card-title {
+    font-size: 10px;
+  }
+
+  .stats-card-change {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stats-card-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .stats-card-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .stats-card-value {
+    font-size: 20px;
+  }
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AddEmployeeModal.css'; // Kế thừa CSS từ AddEmployeeModal
-
+import '../../components/Common/Modal.css';
 const ROLE_OPTIONS = ['CSKH', 'Tiếp tân', 'Đầu bếp', 'Quản lý'];
 const STATUS_OPTIONS = ['Active', 'Inactive'];
 

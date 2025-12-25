@@ -15,11 +15,7 @@ export default function Header({ onToggleSidebar, onToggleFullscreen }) {
         <FaBars />
       </button>
 
-      <div className="header-search">
-        {/* Icon kính lúp ở TRƯỚC */}
-        <FaSearch className="search-icon-left" />
-        <input type="text" placeholder="Search Here........" />
-      </div>
+  
 
       <div className="header-right">
         {/* Icon thông báo */}

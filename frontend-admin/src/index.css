@@ -12,6 +12,36 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ================= THÊM PHẦN NÀY ================= */
+  /* Employee Component Variables */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --green-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --blue-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  
+  --border-light: #e5e7eb;
+  --border-lighter: #f3f4f6;
+  
+  --bg-page: #f5f7fb;
+  --bg-card: #ffffff;
+  --bg-hover: #fafafa;
+  --bg-light: #f9fafb;
+  
+  --success-bg: #dcfce7;
+  --success-color: #16a34a;
+  --success-border: #86efac;
+  
+  --error-bg: #fee2e2;
+  --error-color: #dc2626;
+  --error-border: #fca5a5;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* Reset margin/padding + full screen */
@@ -24,7 +54,7 @@ html, body, #root {
 
 body {
   display: flex;
-  flex-direction: column; /* header trên, nội dung dưới */
+  flex-direction: column;
   align-items: stretch;
 }
 
@@ -88,10 +118,10 @@ h1 {
 #root {
   display: flex;
   flex-direction: column;
-  flex: 1; /* stretch toàn bộ body */
+  flex: 1;
 }
 
 .main-content {
-  flex: 1;           /* chiếm phần còn lại bên dưới header */
-  overflow: auto;    /* scroll nếu nội dung nhiều */
+  flex: 1;
+  overflow: auto;
 }

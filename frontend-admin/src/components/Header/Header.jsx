@@ -1,13 +1,13 @@
+import { useState } from "react";
 import "./Header.css";
 import {
   FaSearch,
   FaBell,
-  FaRegCommentDots,
   FaExpand,
   FaBars,
 } from "react-icons/fa";
 
-export default function Header({ onToggleSidebar }) {
+export default function Header({ onToggleSidebar, onToggleFullscreen }) {
   return (
     <header className="header-container">
        {/* Nút menu hamburger */}
@@ -16,24 +16,23 @@ export default function Header({ onToggleSidebar }) {
       </button>
 
       <div className="header-search">
+        {/* Icon kính lúp ở TRƯỚC */}
+        <FaSearch className="search-icon-left" />
         <input type="text" placeholder="Search Here........" />
-        <FaSearch className="search-icon" />
       </div>
 
       <div className="header-right">
-       
-
-        {/* Icon trong hình tròn xám */}
+        {/* Icon thông báo */}
         <div className="icon-circle">
           <FaBell />
         </div>
-        <div className="icon-circle">
-          <FaRegCommentDots />
-        </div>
-        <div className="icon-circle">
+        
+        {/* Icon fullscreen - Ẩn/hiện sidebar khi click */}
+        <div className="icon-circle" onClick={onToggleFullscreen}>
           <FaExpand />
         </div>
 
+        {/* Profile - chỉ hiển thị, không có dropdown */}
         <div className="profile">
           <img
             src="https://i.postimg.cc/4ykv8DXb/avatar1.png"
@@ -44,7 +43,6 @@ export default function Header({ onToggleSidebar }) {
             <span className="name">Helen Walter</span>
             <span className="role">Admin</span>
           </div>
-          
         </div>
       </div>
     </header>

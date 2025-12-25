@@ -1,115 +1,143 @@
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import "./Sidebar.css";
+import "./sidebar.css";
 
 import {
-  FaChartBar,
-  FaBirthdayCake,
-  FaUsers,
-  FaCalendarAlt,
-  FaConciergeBell,
-  FaUserTie,
-  FaCommentDots,
-  FaGift
-} from "react-icons/fa";
-
-import { GiChefToque } from "react-icons/gi";
+  TbLayoutDashboard,
+  TbCake,
+  TbShoppingBag,
+  TbCalendarEvent,
+  TbUser,
+  TbStar,
+  TbTicket,
+  TbUsers,
+  TbTruckDelivery,
+  TbX,
+  TbSettings,
+  TbLogout,
+} from "react-icons/tb";
 
 export default function Sidebar({ isOpen, onCloseSidebar }) {
   const location = useLocation();
-
-  /* trạng thái mở / đóng submenu Feedback */
   const [openMenu, setOpenMenu] = useState(null);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
-  const toggleMenu = (menuKey) => {
-    setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
+  const isActive = (path) => location.pathname === path;
+
+  // Hàm đóng sidebar khi click vào menu item (chỉ trên mobile)
+  const handleMenuClick = () => {
+    if (window.innerWidth <= 768) {
+      onCloseSidebar();
+    }
   };
 
-  const menuItems = [
-    { key: "dashboard", label: "Dashboard", icon: <FaChartBar className="icon" /> },
-    { key: "products", label: "Products", icon: <FaBirthdayCake className="icon" /> },
-    { key: "customers", label: "Customer", icon: <FaUsers className="icon" /> },
-    { key: "orders", label: "Order", icon: <FaCalendarAlt className="icon" /> },
-    { key: "service", label: "Service", icon: <FaConciergeBell className="icon" /> },
-    { key: "employee", label: "Employee", icon: <FaUserTie className="icon" /> },
-
-    {
-      key: "feedback",
-      label: "Feedback",
-      icon: <FaCommentDots className="icon" />,
-      sub: [
-        { key: "feedback-overview", label: "Overview" },
-        { key: "feedback-list", label: "Review List" }
-      ]
-    },
-
-    { key: "promotions", label: "Promotions", icon: <FaGift className="icon" /> },
-  ];
+  // Xử lý đăng xuất
+  const handleLogout = () => {
+    console.log("Đăng xuất");
+    // Thêm logic đăng xuất ở đây
+    // Ví dụ: window.location.href = "/login";
+  };
 
   return (
-    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+    <>
+      {/* Overlay để đóng sidebar khi click bên ngoài (chỉ hiện trên mobile) */}
+      {isOpen && (
+        <div className="sidebar-overlay" onClick={onCloseSidebar}></div>
+      )}
 
-      {/* Logo */}
-      <div className="logo-section">
-        <div className="logo-icon-box">
-          <GiChefToque className="logo-icon" />
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+        {/* Nút đóng sidebar (chỉ hiện trên mobile) */}
+        <button className="sidebar-close" onClick={onCloseSidebar}>
+          <TbX />
+        </button>
+
+        {/* LOGO */}
+        <div className="logo">
+          <h1>BAKERY PRO</h1>
+          <p>Admin Dashboard</p>
         </div>
-        <span className="logo-text">HUS BAKERY</span>
-      </div>
 
-      {/* Menu */}
-      <nav className="menu">
-        {menuItems.map((item) => (
-          <div key={item.key}>
+        {/* MENU CHÍNH */}
+        <div className="menu-section">
+          <div className="menu-title">MENU CHÍNH</div>
 
-            {/* ITEM CÓ SUBMENU */}
-            {item.sub ? (
-              <>
-                <div
-                  className={`menu-item parent ${
-                    openMenu === item.key ? "open" : ""
-                  }`}
-                  onClick={() => toggleMenu(item.key)}
-                >
-                  {item.icon}
-                  {item.label}
+          <Link to="/dashboard" className={`menu-item ${isActive("/dashboard") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbLayoutDashboard /></span>
+            <span>Dashboard</span>
+          </Link>
+
+          <Link to="/products" className={`menu-item ${isActive("/products") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbCake /></span>
+            <span>Sản phẩm</span>
+          </Link>
+
+          <Link to="/orders" className={`menu-item ${isActive("/orders") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbShoppingBag /></span>
+            <span>Đơn hàng</span>
+          </Link>
+
+          <Link to="/schedule" className={`menu-item ${isActive("/schedule") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbCalendarEvent /></span>
+            <span>Lịch làm việc</span>
+          </Link>
+        </div>
+
+        {/* KHÁCH HÀNG */}
+        <div className="menu-section">
+          <div className="menu-title">KHÁCH HÀNG</div>
+
+          <Link to="/customers" className={`menu-item ${isActive("/customers") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbUser /></span>
+            <span>Khách hàng</span>
+          </Link>
+
+          <Link to="/feedback" className={`menu-item ${isActive("/feedback") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbStar /></span>
+            <span>Feedback</span>
+          </Link>
+
+          <Link to="/voucher" className={`menu-item ${isActive("/voucher") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbTicket /></span>
+            <span>Voucher</span>
+          </Link>
+        </div>
+
+        {/* QUẢN LÝ */}
+        <div className="menu-section">
+          <div className="menu-title">QUẢN LÝ</div>
+
+          <Link to="/employee" className={`menu-item ${isActive("/employee") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbUsers /></span>
+            <span>Nhân viên</span>
+          </Link>
+
+          <Link to="/shipper" className={`menu-item ${isActive("/shipper") ? "active" : ""}`} onClick={handleMenuClick}>
+            <span className="icon"><TbTruckDelivery /></span>
+            <span>Shipper</span>
+          </Link>
+
+          {/* Cài đặt với dropdown */}
+          <div className="settings-wrapper">
+            <div 
+              className={`menu-item ${isActive("/settings") ? "active" : ""}`}
+              onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+            >
+              <span className="icon"><TbSettings /></span>
+              <span>Cài đặt</span>
+            </div>
+
+            {/* Dropdown logout */}
+            {showSettingsMenu && (
+              <div className="settings-dropdown">
+                <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
+                  <TbLogout />
+                  <span>Đăng xuất</span>
                 </div>
-
-                {/* Hiện submenu nếu đang mở */}
-                {openMenu === item.key && (
-                  <div className="submenu">
-                    {item.sub.map((sub) => (
-                      <Link
-                        key={sub.key}
-                        to={`/${sub.key}`}
-                        className={`submenu-item ${
-                          location.pathname === `/${sub.key}` ? "active" : ""
-                        }`}
-                        onClick={onCloseSidebar}
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              /* ITEM BÌNH THƯỜNG */
-              <Link
-                to={`/${item.key}`}
-                className={`menu-item ${
-                  location.pathname === `/${item.key}` ? "active" : ""
-                }`}
-                onClick={onCloseSidebar}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
+              </div>
             )}
-
           </div>
-        ))}
-      </nav>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }

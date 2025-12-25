@@ -7,8 +7,7 @@ import DashboardView from "./pages/Dashboard/DashboardView";
 import OrdersView from "./pages/Orders/OrdersView";
 import Employee from "./pages/Employee/Employee";
 
-import FeedbackOverview from "./pages/Feedback/FeedbackOverview";
-import FeedbackList from "./pages/Feedback/FeedbackList";
+import Feedback from "./pages/Feedback/Feedback";
 
 function App() {
   return (
@@ -23,8 +22,7 @@ function App() {
           <Route path="customers" element={<CustomersView />} />
           <Route path="orders" element={<OrdersView />} />
           <Route path="employee" element={<Employee />} />
-          <Route path="feedback-overview" element={<FeedbackOverview />} />
-          <Route path="feedback-list" element={<FeedbackList />} />
+          <Route path="feedback" element={<Feedback />} />
 
           <Route path="service" element={<div style={{ padding: 20 }}>Service Page</div>} />
           <Route path="promotions" element={<div style={{ padding: 20 }}>Promotions Page</div>} />

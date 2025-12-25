@@ -78,6 +78,13 @@ export const routes = [
     roles: ["customer", "admin", "guest"],
   },
   {
+    path: "/productDetails",
+    page: () => <Navigate to="/menu/bread" replace />, // Dùng 'ProductDetails' (lazy)
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["customer", "admin", "guest"],
+  },
+  {
     path: "/facilities",
     page: Facilities, // Dùng 'Facilities' (lazy)
     name: "Các cơ sở",

@@ -34,7 +34,7 @@ export default function Voucher({
             </p>
           </Row>
           <Row align="bottom" className="mt-3">
-            <Col span={12}>HSD: {voucher?.expiryDate}</Col>
+            <Col span={12}>HSD: {voucher?.end_date}</Col>
             <Col span={12} style={{ textAlign: "end" }}>
               <Button
                 style={{

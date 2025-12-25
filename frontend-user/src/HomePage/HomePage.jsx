@@ -11,9 +11,10 @@ import {
 import chef from "../assets/chef.svg";
 import award from "../assets/award.svg";
 import homePage from "../assets/HomePage.png";
+import { useOrder } from "../context/OrderContext";
 function HomePage() {
   const [topProducts, setTopProducts] = useState([]);
-
+  const { setProductInCart } = useOrder();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -83,10 +84,23 @@ function HomePage() {
                   productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
                   price={item?.price} // DB trả về 'price'
                   image={item?.image}
-                  onAddToCart={(id) => {
-                    console.log("Add to cart:", id);
-                    // dispatch(addToCart(id))
-                  }} // DB trả về 'image_url' -> truyền vào prop 'image'
+                  onAddToCart={(product) =>
+                    setProductInCart((prev) => {
+                      console.log("ADD TO CART:", product);
+                      const existingProduct = prev.find(
+                        (p) => p.product_id === product.product_id
+                      );
+                      if (existingProduct) {
+                        return prev.map((p) =>
+                          p.product_id === product.product_id
+                            ? { ...p, quantity: p.quantity + 1 }
+                            : p
+                        );
+                      } else {
+                        return [...prev, { ...product, quantity: 1 }];
+                      }
+                    })
+                  } // DB trả về 'image_url' -> truyền vào prop 'image'
                 />
               </Col>
             ))}
@@ -112,7 +126,7 @@ function HomePage() {
         className="center-box mt-18 "
         style={{ width: "93%", maxWidth: "1430px" }}
       >
-        <Row gutter={80}>
+        <Row gutter={40}>
           <Col xs={24} xl={14}>
             <Row gutter={10}>
               <Col span={16}>

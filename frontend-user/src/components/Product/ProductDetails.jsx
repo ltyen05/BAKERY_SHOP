@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Row, Col, Button } from "antd";
 import { Link } from "react-router-dom";
-import SourDough from "../../assets/Sourdough.jpg";
 import Product from "./Product";
 import Review from "../reviewComments/review";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Pagination, Rate } from "antd";
 import { useProduct } from "../../context/ProductContext";
+import { useOrder } from "../../context/OrderContext";
 export default function ProductDetail() {
   const { productId } = useParams();
   const navigate = useNavigate();

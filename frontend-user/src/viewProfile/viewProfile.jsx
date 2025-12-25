@@ -68,7 +68,7 @@ const API_BASE = "http://localhost:5000";
 const UserProfile = () => {
   const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
   const { update_profile, get_rank } = useAccount();
-  const { coupons, refetchCoupons } = useOrder();
+  const { coupons, refetchCoupons, setSelectedVoucher } = useOrder();
   const [loading, setLoading] = useState(true);
   const [rankData, setRankData] = useState(null);
   const [voucherList, setVoucherList] = useState([]);
@@ -330,7 +330,10 @@ const UserProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <Voucher voucher={voucher} />
+                  <Voucher
+                    voucher={voucher}
+                    setSelectedVoucher={setSelectedVoucher}
+                  />
                 </div>
               ))}
             </div>

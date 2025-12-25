@@ -10,7 +10,6 @@ import {
   List,
   Select,
   Row,
-  Col,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -32,12 +31,8 @@ const { Option } = Select;
 
 export default function ShippingAddressForm() {
   const location = useLocation();
-  const {
-    products = [],
-    totalPrice = 0,
-    selectedVoucher: initialVoucher = null,
-  } = location.state || {};
-
+  const { products = [], totalPrice = 0 } = location.state || {};
+  const { coupons } = useOrder();
   const [receiverName, setReceiverName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -52,36 +47,31 @@ export default function ShippingAddressForm() {
   const { selectedVoucher, setSelectedVoucher } = useOrder();
   // ===== Voucher =====
 
-  const voucherList = [
-    { id: 1, discount: 50000, minOrder: 300000, expiryDate: "31/12/2025" },
-    { id: 2, discount: 100000, minOrder: 600000, expiryDate: "31/01/2026" },
-  ];
-
   // Kiểm tra voucher khi vào page
   useEffect(() => {
     // Kiểm tra voucher có trong danh sách không
-    const voucher = selectedVoucher;
-    console.log(voucher);
-    if (!voucher) {
+
+    console.log(selectedVoucher);
+    if (!selectedVoucher) {
       message.warning("Voucher không tồn tại!");
       console.log("Voucher không tồn tại!");
       return;
     }
 
     // Kiểm tra điều kiện đơn hàng tối thiểu
-    if (totalPrice < voucher.minOrder) {
+    if (totalPrice < selectedVoucher.min_purchase) {
       setSelectedVoucher(null);
       message.warning(
-        `Voucher yêu cầu đơn hàng tối thiểu ${voucher.minOrder.toLocaleString()}đ. Voucher đã bị hủy.`
+        `Voucher yêu cầu đơn hàng tối thiểu ${selectedVoucher.min_purchase.toLocaleString()}đ. Voucher đã bị hủy.`
       );
       console.log(
-        `Voucher yêu cầu đơn hàng tối thiểu ${voucher.minOrder.toLocaleString()}đ. Voucher đã bị hủy.`
+        `Voucher yêu cầu đơn hàng tối thiểu ${selectedVoucher.min_purchase.toLocaleString()}đ. Voucher đã bị hủy.`
       );
       return;
     }
 
     // Voucher hợp lệ
-    setSelectedVoucher(voucher);
+    setSelectedVoucher(selectedVoucher);
     message.success("Đã áp dụng voucher!");
   }, [totalPrice]);
   const getShippingFee = (distance) => {
@@ -90,13 +80,15 @@ export default function ShippingAddressForm() {
     if (distance < 8) return 25000;
     return 35000; // ≥ 8km (tuỳ chỉnh)
   };
-  const finalPrice = selectedVoucher
-    ? Math.max(
-        totalPrice - selectedVoucher.discount + getShippingFee(distance),
-        0
-      )
-    : totalPrice + getShippingFee(distance);
+  const shippingFee = getShippingFee(distance);
 
+  const discount = selectedVoucher
+    ? selectedVoucher.discount_type === "percent"
+      ? totalPrice * (selectedVoucher.discount_percent / 100)
+      : Number(selectedVoucher.discount_value)
+    : 0;
+
+  const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
   // Danh sách cửa hàng mẫu
   const stores = [
     {
@@ -330,10 +322,10 @@ export default function ShippingAddressForm() {
       return;
     }
 
-    const voucher = voucherList.find((v) => v.id === voucherId);
-    if (totalPrice < voucher.minOrder) {
+    const voucher = coupons.find((v) => v.coupon_id === voucherId);
+    if (totalPrice < voucher.min_purchase) {
       message.warning(
-        `Đơn hàng tối thiểu ${voucher.minOrder.toLocaleString()}đ`
+        `Đơn hàng tối thiểu ${voucher.min_purchase.toLocaleString()}đ`
       );
       return;
     }
@@ -548,12 +540,12 @@ export default function ShippingAddressForm() {
           placeholder="Chọn hoặc nhập mã voucher"
           allowClear
           style={{ width: "100%", maxWidth: "400px", height: "45px" }}
-          value={selectedVoucher?.id}
+          value={selectedVoucher?.coupon_id}
           onClear={() => setSelectedVoucher(null)}
           onChange={handleVoucherChange}
           onSearch={(value) => {
-            const voucher = voucherList.find(
-              (v) => v.code?.toLowerCase() === value.toLowerCase()
+            const voucher = coupons.find(
+              (v) => v.description.toLowerCase() === value.toLowerCase()
             );
             if (voucher) {
               setSelectedVoucher(voucher);
@@ -564,27 +556,26 @@ export default function ShippingAddressForm() {
           }
           optionLabelProp="label"
         >
-          {voucherList.map((voucher) => (
+          {coupons.map((voucher) => (
             <Select.Option
-              key={voucher.id}
-              value={voucher.id}
-              disabled={totalPrice < voucher.minOrder}
+              key={voucher.coupon_id}
+              value={voucher.coupon_id}
+              disabled={totalPrice < voucher.min_purchase}
               label={
-                voucher.discount <= 1
-                  ? `Giảm ${
-                      voucher.discount
-                    }% cho đơn từ ${voucher.minOrder.toLocaleString()}đ`
-                  : `Giảm ${voucher.discount.toLocaleString()}đ cho đơn từ ${voucher.minOrder.toLocaleString()}đ`
+                voucher.description +
+                (totalPrice < voucher.min_purchase
+                  ? " (Không đủ điều kiện)"
+                  : "")
               }
             >
               <div className="mt-3">
                 <Voucher
                   voucher={voucher}
                   onSelect={setSelectedVoucher}
-                  disabled={totalPrice < voucher.minOrder}
+                  disabled={totalPrice < voucher.min_purchase}
                 />
               </div>
-              {totalPrice < voucher.minOrder && " (Không đủ điều kiện)"}
+              {totalPrice < voucher.min_purchase && " (Không đủ điều kiện)"}
             </Select.Option>
           ))}
         </Select>
@@ -604,9 +595,7 @@ export default function ShippingAddressForm() {
         {selectedVoucher && (
           <div className="info-row">
             <span className="info-label">Giảm giá: </span>
-            <span className="info-value">
-              - {selectedVoucher.discount.toLocaleString()}đ
-            </span>
+            <span className="info-value">- {discount.toLocaleString()}đ</span>
           </div>
         )}
 

@@ -45,8 +45,8 @@ export function OrderProvider({ children }) {
       if (!res.ok) {
         throw new Error(data.message || "Lấy coupon thất bại");
       }
-      setProductInCart(Array.isArray(data) ? data : []);
-      return data;
+      setProductInCart(Array.isArray(data.items) ? data.items : []);
+      return data.items;
     } catch (err) {
       console.log(err.message);
       throw err;
@@ -61,7 +61,7 @@ export function OrderProvider({ children }) {
       fetchCoupons();
       fetchCart();
     }
-  }, [user]);
+  }, []);
 
   return (
     <OrderContext.Provider

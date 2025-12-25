@@ -12,7 +12,12 @@ function Product({ product_id, productName, price, image, onAddToCart }) {
 
   const handleAddToCart = (e) => {
     e.stopPropagation(); // 🚨 CHỐT: không trigger click card
-    onAddToCart?.(product_id);
+    onAddToCart?.({
+      product_id,
+      name: productName,
+      price,
+      image,
+    });
   };
 
   return (

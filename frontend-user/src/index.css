@@ -285,7 +285,13 @@ body,
 .ant-input-affix-wrapper-focused .ant-input-suffix {
   color: #b96d2a !important;
 }
-
+.ant-tabs-tab-active .ant-tabs-tab-btn,
+.ant-tabs-tab:hover {
+  color: #7b3d00 !important;
+}
+.ant-tabs-ink-bar {
+  background-color: #7b3d00 !important; /* màu bạn muốn */
+}
 /* ================= Hover ================= */
 
 .ant-input:hover:not(.ant-input-focused) {

@@ -5,7 +5,7 @@ import Product from "../components/Product/Product";
 import { useLocation } from "react-router-dom";
 import ProductDetail from "../components/Product/ProductDetails";
 import FeedbackComponent from "../components/Feedback/Feedback";
-
+import { useOrder } from "../context/OrderContext";
 const categoryMap = {
   bread: 1,
   cookie: 2,
@@ -31,6 +31,7 @@ const ProductSkeleton = () => (
 );
 
 export default function ProductList() {
+  const { productInCart, setProductInCart } = useOrder();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -54,7 +55,7 @@ export default function ProductList() {
 
         // Tính thời gian đã trôi qua
         const elapsedTime = Date.now() - startTime;
-        const minimumLoadTime = 1500; // 1.5 giây tối thiểu
+        const minimumLoadTime = 1000; // 1.5 giây tối thiểu
         const remainingTime = Math.max(0, minimumLoadTime - elapsedTime);
 
         // Đợi thêm nếu load quá nhanh
@@ -92,9 +93,23 @@ export default function ProductList() {
                   productName={item?.name}
                   price={item?.price}
                   image={item?.image}
-                  onAddToCart={(id) => {
-                    console.log("Add to cart:", id);
-                  }}
+                  onAddToCart={(product) =>
+                    setProductInCart((prev) => {
+                      const existingProduct = prev.find(
+                        (p) => p.product_id === product.product_id
+                      );
+
+                      if (existingProduct) {
+                        return prev.map((p) =>
+                          p.product_id === product.product_id
+                            ? { ...p, quantity: p.quantity + 1 }
+                            : p
+                        );
+                      }
+
+                      return [...prev, { ...product, quantity: 1 }];
+                    })
+                  }
                 />
               </Col>
             ))}

@@ -1,30 +1,33 @@
 import { useState } from "react";
 import { Button } from "antd";
 import ProductInCart from "../Product/ProductInCart";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
-const ProductCart = ({ productList, onCloseDrawer }) => {
-  const [products, setProducts] = useState(productList);
+import { useOrder } from "../../context/OrderContext";
+const ProductCart = ({ onCloseDrawer }) => {
+  const { productInCart, setProductInCart } = useOrder();
   const navigate = useNavigate();
   const handleQuantityChange = (id, newQuantity) => {
     if (newQuantity < 1) {
-      setProducts(products.filter((p) => p.id !== id));
+      setProductInCart(productInCart.filter((p) => p.product_id !== id));
       return;
     }
-    setProducts(
-      products.map((p) => (p.id === id ? { ...p, quantity: newQuantity } : p))
+    setProductInCart(
+      productInCart.map((p) =>
+        p.product_id === id ? { ...p, quantity: newQuantity } : p
+      )
     );
   };
 
   const handleRemove = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
+    setProductInCart(productInCart.filter((p) => p.product_id !== id));
   };
 
-  const totalItems = products.reduce((sum, p) => sum + p.quantity, 0);
-  const totalPrice = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-
-  if (products.length === 0) {
+  const totalItems = productInCart.reduce((sum, p) => sum + p.quantity, 0);
+  const totalPrice = productInCart.reduce(
+    (sum, p) => sum + p.price * p.quantity,
+    0
+  );
+  if (productInCart.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
         <div className="w-full max-w-md text-center">
@@ -37,9 +40,9 @@ const ProductCart = ({ productList, onCloseDrawer }) => {
   return (
     <div>
       <div className="mb-6">
-        {products.map((product) => (
+        {productInCart.map((product) => (
           <ProductInCart
-            key={product.product}
+            key={product.product_id}
             product={product}
             onQuantityChange={handleQuantityChange}
             onRemove={handleRemove}
@@ -67,7 +70,7 @@ const ProductCart = ({ productList, onCloseDrawer }) => {
           onCloseDrawer(); // đóng Drawer
           navigate("/payment", {
             state: {
-              products,
+              products: productInCart,
               totalItems,
               totalPrice,
             },

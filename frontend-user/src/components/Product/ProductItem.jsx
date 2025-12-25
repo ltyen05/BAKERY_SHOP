@@ -1,6 +1,5 @@
 import React from "react";
 import { Row, Col } from "antd";
-import garlicBread from "../../assets/garlicBread.png";
 const formatCurrency = (amount) => {
   return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 };

@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 from .. import db
-=======
 from hus_bakery_app import db
 from hus_bakery_app.models.cart_item import CartItem
 from hus_bakery_app.models.products import Product

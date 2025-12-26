@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { orderApi } from "../api/order_processApi";
 import { tokenStorage } from "../utils/token";
 import { useAuth } from "./AuthContext";
-import Product from "../components/Product/Product";
+
 const OrderContext = createContext(null);
 
 export function OrderProvider({ children }) {
@@ -13,6 +13,8 @@ export function OrderProvider({ children }) {
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [loadingCoupons, setLoadingCoupons] = useState(false);
   const [couponError, setCouponError] = useState(null);
+  const [addingToCart, setAddingToCart] = useState(false); // ⭐ THÊM DÒNG NÀY
+
   const fetchCoupons = async () => {
     try {
       setLoadingCoupons(true);
@@ -37,31 +39,115 @@ export function OrderProvider({ children }) {
       setLoadingCoupons(false);
     }
   };
+
   const fetchCart = async () => {
     try {
       const res = await orderApi.get_cart();
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Lấy coupon thất bại");
+        throw new Error(data.message || "Lấy giỏ hàng thất bại");
       }
-      setProductInCart(Array.isArray(data.items) ? data.items : []);
+
+      setProductInCart((prevCart) => {
+        const newCart = Array.isArray(data.items) ? data.items : [];
+
+        // So sánh để tránh re-render không cần thiết
+        if (JSON.stringify(prevCart) === JSON.stringify(newCart)) {
+          return prevCart;
+        }
+        console.log("Cart updated:", newCart);
+        return newCart;
+      });
+
       return data.items;
     } catch (err) {
       console.log(err.message);
       throw err;
-    } finally {
-      // setLoadingCoupons(false);
     }
   };
 
-  // 🔥 Fetch 1 lần khi app load
+  const addToCart = async (product, quantity = 1) => {
+    if (!user) {
+      throw new Error("Vui lòng đăng nhập");
+    }
+
+    const previousCart = [...productInCart];
+    setAddingToCart(true);
+
+    // Optimistic update
+    setProductInCart((prev) => {
+      const existing = prev.find(
+        (item) => item.product_id === product.product_id
+      );
+      if (existing) {
+        return prev.map((item) =>
+          item.product_id === product.product_id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity }];
+    });
+
+    try {
+      const res = await orderApi.add_to_cart({
+        customer_id: user.user_id,
+        product_id: product.product_id,
+        quantity,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Thêm vào giỏ hàng thất bại");
+      }
+
+      // Fetch lại cart để sync với server
+      await fetchCart();
+
+      return data;
+    } catch (err) {
+      setProductInCart(previousCart);
+      console.error("Add to cart error:", err);
+      throw err;
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+  const removeFromCart = async (product_id) => {
+    const previousCart = [...productInCart];
+
+    // Optimistic update
+    setProductInCart((prev) =>
+      prev.filter((item) => item.product_id !== product_id)
+    );
+
+    try {
+      const res = await orderApi.remove_from_cart(product_id);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Remove failed");
+      }
+      await fetchCart();
+      return data;
+    } catch (err) {
+      setProductInCart(previousCart); // rollback
+      throw err;
+    }
+  };
+  // Fetch khi user đăng nhập
   useEffect(() => {
-    if (user) {
+    if (user.role === "customer") {
       fetchCoupons();
       fetchCart();
+    } else {
+      setProductInCart([]);
+      setCoupons([]);
+      setSelectedVoucher(null);
     }
-  }, []);
+  }, [user]); // ⭐ THÊM dependency [user]
 
   return (
     <OrderContext.Provider
@@ -76,6 +162,9 @@ export function OrderProvider({ children }) {
         productInCart,
         setProductInCart,
         refetchCart: fetchCart,
+        addToCart, // ⭐ THÊM vào value
+        addingToCart, // ⭐ THÊM vào value
+        removeFromCart,
       }}
     >
       {children}

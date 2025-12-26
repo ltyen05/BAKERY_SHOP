@@ -1,6 +1,7 @@
 import { Form, Input, Button, message } from "antd";
 import { useSearchParams, useNavigate } from "react-router-dom";
-
+import bakesLogo from "../../../assets/logo/bakes.png";
+import { message } from "antd";
 const ResetPassword = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();

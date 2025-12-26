@@ -2,8 +2,8 @@ import { Form, Button, Input, Checkbox } from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import bakesLogo from "../assets/bakes.svg";
+import { useAuth } from "../../../context/AuthContext";
+import bakesLogo from "../../../assets/bakes.svg";
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();

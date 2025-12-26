@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button, Checkbox, Form, Input, message } from "antd"; // Thêm message
 import { Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
-import { useAuth } from "../context/AuthContext";
-import bakesLogo from "../assets/bakes.svg";
+import { useAuth } from "../../../context/AuthContext";
+import bakesLogo from "../../../assets/bakes.svg";
 
 const SignUp = () => {
   const [form] = Form.useForm();

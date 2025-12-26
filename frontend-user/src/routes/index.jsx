@@ -3,17 +3,21 @@ import { Navigate } from "react-router-dom";
 
 // Tải "lười" các component trang
 // Trình duyệt sẽ chỉ tải file JS cho HomePage khi người dùng vào route "/"
-const HomePage = lazy(() => import("../HomePage/HomePage"));
-const AboutUs = lazy(() => import("../AboutUs/AboutUs"));
-const Menu = lazy(() => import("../Menu/Menu"));
-const ProductList = lazy(() => import("../Menu/ProductList"));
-const LogIn = lazy(() => import("../LogIn/LogIn"));
-const SignUp = lazy(() => import("../SignUp/SignUp"));
-const Facilities = lazy(() => import("../Facilities/Facilities"));
-const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
-const Shipper = lazy(() => import("../OnlyShipperPage/ShipperPage"));
-const ForgotPassword = lazy(() => import("../ForgotPassword/ForgotPassword"));
-const payment = lazy(() => import("../PaymentPage/PaymentPage"));
+const HomePage = lazy(() => import("../pages/user/HomePage/HomePage"));
+const AboutUs = lazy(() => import("../pages/user/AboutUs/AboutUs"));
+const Menu = lazy(() => import("../pages/user/Menu/Menu"));
+const ProductList = lazy(() => import("../pages/user/Menu/ProductList"));
+const LogIn = lazy(() => import("../pages/auth/LogIn/LogIn"));
+const SignUp = lazy(() => import("../pages/auth/SignUp/SignUp"));
+const Facilities = lazy(() => import("../pages/user/Facilities/Facilities"));
+const viewProfile = lazy(() => import("../pages/user/viewProfile/viewProfile"));
+const Shipper = lazy(() =>
+  import("../pages/shipper/OnlyShipperPage/ShipperPage")
+);
+const ForgotPassword = lazy(() =>
+  import("../pages/auth/ForgotPassword/ForgotPassword")
+);
+const payment = lazy(() => import("../pages/user/PaymentPage/PaymentPage"));
 const ProductDetails = lazy(() =>
   import("../components/Product/ProductDetails")
 );

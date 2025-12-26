@@ -29,6 +29,20 @@ def get_current_customer_service(customer_id):
         "role": "customer"
     }
 
+def get_current_shipper_service(shipper_id):
+    user = Shipper.query.get(shipper_id)
+
+    if not user:
+        return None
+
+    return {
+        "user_id": user.customer_id,
+        "full_name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "role": "shipper"
+    }
+
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)
     if role == 'employee': return Employee.query.get(user_id)

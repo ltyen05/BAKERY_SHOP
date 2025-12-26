@@ -56,6 +56,7 @@ def api_filter_products_by_type():
         for p, cat_name in products:
             result.append({
                 "product_id": p.product_id,
+                "price": p.unit_price,
                 "name": p.name,
             })
 

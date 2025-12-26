@@ -3,8 +3,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 # Import từ cart_services
 from ...services.customer.cart_services import (
-    add_to_cart,
-    update_selected,
+    # add_to_cart,
+    # update_selected,
     get_cart,
     coupon_of_customer,
     coupon_info,

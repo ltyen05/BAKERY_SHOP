@@ -2,8 +2,10 @@ import { Fragment, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { routes } from "./routes";
 import "./App.css";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { AccountProvider } from "./context/AccountContext";
+import { ProductProvider } from "./context/ProductContext";
+import { OrderProvider } from "./context/OrderContext";
 import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
@@ -66,12 +68,16 @@ function AppContent() {
 function App() {
   return (
     <>
-      <AuthProvider>
-        <AccountProvider>
-          <ScrollToTop />
-          <AppContent />
-        </AccountProvider>
-      </AuthProvider>
+      <ProductProvider>
+        <AuthProvider>
+          <AccountProvider>
+            <OrderProvider>
+              <ScrollToTop />
+              <AppContent />
+            </OrderProvider>
+          </AccountProvider>
+        </AuthProvider>
+      </ProductProvider>
     </>
   );
 }

@@ -26,6 +26,7 @@ import Voucher from "../components/Voucher/Voucher";
 import OrderDetails from "../components/Order/OrderDetails";
 import { useAuth } from "../context/AuthContext";
 import { useAccount } from "../context/AccountContext";
+import { useOrder } from "../context/OrderContext";
 const { Title, Text } = Typography;
 const rankColors = {
   diamond: "#b9f2ff", // màu xanh sáng cho diamond
@@ -67,7 +68,7 @@ const API_BASE = "http://localhost:5000";
 const UserProfile = () => {
   const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
   const { update_profile, get_rank } = useAccount();
-
+  const { coupons, refetchCoupons, setSelectedVoucher } = useOrder();
   const [loading, setLoading] = useState(true);
   const [rankData, setRankData] = useState(null);
   const [voucherList, setVoucherList] = useState([]);
@@ -105,18 +106,6 @@ const UserProfile = () => {
     setCurrentAvatarUrl(currentAvatarUrl);
     setLoading(false);
   }, [user, form]);
-
-  /* ========================== FETCH VOUCHER ========================== */
-  useEffect(() => {
-    if (!user?.user_id) return;
-    fetch(`${API_BASE}/api/coupon/${user.user_id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Fetch voucher failed");
-        return res.json();
-      })
-      .then((data) => setVoucherList(data))
-      .catch((err) => console.error("Voucher error:", err));
-  }, [user?.user_id]);
 
   /* ========================== AVATAR PREVIEW ========================== */
   const handleSelectAvatar = (e) => {
@@ -330,9 +319,9 @@ const UserProfile = () => {
                 <CloseOutlined />
               </button>
 
-              {voucherList.map((voucher) => (
+              {coupons.map((voucher) => (
                 <div
-                  key={voucher.id}
+                  key={voucher?.coupon_id}
                   className="mt-3"
                   style={{
                     borderRadius: 12,
@@ -341,7 +330,10 @@ const UserProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <Voucher voucher={voucher} />
+                  <Voucher
+                    voucher={voucher}
+                    setSelectedVoucher={setSelectedVoucher}
+                  />
                 </div>
               ))}
             </div>

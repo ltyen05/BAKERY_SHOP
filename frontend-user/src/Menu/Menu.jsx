@@ -3,19 +3,13 @@ import { Tabs } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { routes } from "../routes";
 import { useMemo } from "react";
-<<<<<<< HEAD
-import Bread from "../assets/Bread.svg";
+import Bread from "../assets/toast.svg";
+import Cookie from "../assets/cookie.svg";
+import Croissant from "../assets/croissant.svg";
 const iconMap = {
   Bread: Bread,
-=======
-import Cake from "../assets/cake.svg";
-import Bread from "../assets/Bread.svg";
-import Coffee from "../assets/Coffee.svg";
-const iconMap = {
-  Cake: Cake,
-  Bread: Bread,
-  Drink: Coffee,
->>>>>>> main
+  Cookie: Cookie,
+  Pastry: Croissant,
 };
 export default function Menu() {
   const navigate = useNavigate();
@@ -28,13 +22,17 @@ export default function Menu() {
       .filter((child) => child.name) // bỏ redirect (vì nó ko có name)
       .map((child) => ({
         key: child.path,
-        label: child.name,
-        icon: (
-          <img
-            src={iconMap[child.name]}
-            alt=""
-            style={{ width: 20, height: 20, color: "#7b3d00ff" }}
-          />
+        label: (
+          <div className="fl-center" style={{ fontSize: 16, gap: "8px" }}>
+            <div>
+              <img
+                src={iconMap[child.name]}
+                alt=""
+                style={{ width: 25, height: 25, color: "#7b3d00ff" }}
+              />
+            </div>
+            <span>{child.name}</span>
+          </div>
         ),
       }));
   }, [menuRoute]);
@@ -42,18 +40,14 @@ export default function Menu() {
   const activeKey = location.pathname.split("/")[2] || "cake";
 
   return (
-<<<<<<< HEAD
     <div style={{ width: "100%", maxWidth: 1400, margin: "0 auto" }}>
-=======
-    <div style={{ padding: 20 }}>
->>>>>>> main
       <h2>Menu</h2>
       <Tabs
         centered
         activeKey={activeKey}
         onChange={(key) => navigate(`/menu/${key}`)}
         items={items}
-        tabBarGutter="100px"
+        tabBarGutter="70px"
       />
       <div style={{ marginTop: 20 }}>
         <Outlet />

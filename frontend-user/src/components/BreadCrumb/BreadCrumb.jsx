@@ -1,21 +1,21 @@
 import { Breadcrumb } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { routes } from "../../routes";
+import { useProduct } from "../../context/ProductContext";
 
-// Hàm đệ quy tìm tên route từ path
+/**
+ * Tìm tên route theo path (đệ quy)
+ */
 function getRouteNameByPath(path, routes) {
   for (const route of routes) {
-    // match tuyệt đối
     if (route.path === path) return route.name;
 
-    // match path con (ví dụ: /menu/cake)
     if (route.children) {
-      const childName = getRouteNameByPath(
-        path
-          .replace(/^\//, "")
-          .replace(route.path.replace(/^\//, "") + "/", ""),
-        route.children
-      );
+      const childPath = path
+        .replace(/^\//, "")
+        .replace(route.path.replace(/^\//, "") + "/", "");
+
+      const childName = getRouteNameByPath(childPath, route.children);
       if (childName) return childName;
     }
   }
@@ -24,21 +24,49 @@ function getRouteNameByPath(path, routes) {
 
 function Breadcrumbs() {
   const location = useLocation();
-  const pathSnippets = location.pathname.split("/").filter(Boolean);
+  const { currentProduct } = useProduct();
 
+  const pathSnippets = location.pathname.split("/").filter(Boolean);
   let url = "";
-  const breadcrumbItems = pathSnippets.map((segment) => {
+
+  const breadcrumbItems = pathSnippets.map((segment, index) => {
     url += `/${segment}`;
-    const name = getRouteNameByPath(url, routes) || segment;
-    return { key: url, title: <Link to={url}>{name}</Link> };
+
+    let name = getRouteNameByPath(url, routes) || segment;
+    const isProductId = url.startsWith("/productDetails") && !isNaN(segment);
+
+    // 👉 Nếu là trang chi tiết sản phẩm
+    if (isProductId) {
+      name = currentProduct?.name || "";
+    }
+
+    const isLast = index === pathSnippets.length - 1;
+
+    return {
+      key: url,
+      title:
+        isLast || isProductId ? (
+          <span>{name}</span> // ❌ không clickable
+        ) : (
+          <Link to={url}>{name}</Link>
+        ),
+    };
   });
 
-  breadcrumbItems.unshift({ key: "/", title: <Link to="/">Home</Link> });
+  // Home luôn đứng đầu
+  breadcrumbItems.unshift({
+    key: "/",
+    title: <Link to="/">Home</Link>,
+  });
 
   return (
     <Breadcrumb
       items={breadcrumbItems}
-      style={{ padding: "25px 0 10px", width: "90%", margin: "auto" }}
+      style={{
+        padding: "25px 0 10px",
+        width: "90%",
+        margin: "auto",
+      }}
     />
   );
 }

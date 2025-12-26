@@ -31,7 +31,12 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
           <img
             src={product.image}
             alt={product.name}
-            style={{ borderRadius: "50%", width: "100%" }}
+            style={{
+              borderRadius: "50%",
+              width: "100%",
+              aspectRatio: "1/1",
+              objectFit: "cover",
+            }}
           />
         </Col>
 

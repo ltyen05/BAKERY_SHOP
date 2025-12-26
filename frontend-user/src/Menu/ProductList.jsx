@@ -1,112 +1,122 @@
 import { useEffect, useState } from "react";
-import { Row, Col, Spin, message } from "antd";
-import { LoadingOutlined, CloseOutlined } from "@ant-design/icons";
-// Import component Product bạn vừa viết
+import { Row, Col, Skeleton, message } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import Product from "../components/Product/Product";
-<<<<<<< HEAD
 import { useLocation } from "react-router-dom";
 import ProductDetail from "../components/Product/ProductDetails";
 import FeedbackComponent from "../components/Feedback/Feedback";
-
+import { useOrder } from "../context/OrderContext";
 const categoryMap = {
   bread: 1,
   cookie: 2,
   pastry: 3,
 };
+
+// Component Skeleton giống Product thật
+const ProductSkeleton = () => (
+  <div
+    style={{
+      width: "300px",
+      margin: "30px",
+      border: "1px solid #f0f0f0",
+      borderRadius: "12px",
+    }}
+  >
+    <Skeleton.Image
+      active
+      style={{ width: "300px", height: "250px", marginBottom: "12px" }}
+    />
+    <Skeleton active paragraph={{ rows: 2 }} />
+  </div>
+);
+
 export default function ProductList() {
+  const { productInCart, setProductInCart } = useOrder();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const location = useLocation();
   const category = location.pathname.split("/").pop();
   const category_id = categoryMap[category];
+
   useEffect(() => {
-    if (!category_id) return; // ✅ CHỐT LỖI
+    if (!category_id) return;
 
     const fetchProducts = async () => {
       setLoading(true);
+      const startTime = Date.now(); // Lưu thời điểm bắt đầu
+
       try {
         const response = await fetch(
           `http://localhost:5000/api/product/filter?category_id=${category_id}`
-=======
-import ProductDetail from "../components/Product/ProductDetails";
-import FeedbackComponent from "../components/Feedback/Feedback";
-export default function ProductList({ category }) {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        // Gọi API Flask
-        const response = await fetch(
-          `http://127.0.0.1:5000/api/products?category=${category}`
->>>>>>> main
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();
-        setProducts(data);
+
+        // Tính thời gian đã trôi qua
+        const elapsedTime = Date.now() - startTime;
+        const minimumLoadTime = 1000; // 1.5 giây tối thiểu
+        const remainingTime = Math.max(0, minimumLoadTime - elapsedTime);
+
+        // Đợi thêm nếu load quá nhanh
+        setTimeout(() => {
+          setProducts(data);
+          setLoading(false);
+        }, remainingTime);
       } catch (error) {
         console.error(error);
         message.error("Không thể tải danh sách sản phẩm!");
-      } finally {
         setLoading(false);
       }
     };
-<<<<<<< HEAD
 
     fetchProducts();
   }, [category_id]);
 
   return (
     <div style={{ border: "1px solid" }}>
-=======
-    fetchProducts();
-  }, [category]);
+      <Row justify="center" align="top" style={{ border: "1px solid red" }}>
+        {loading
+          ? // Hiện 8 skeleton giả khi đang load
+            Array(8)
+              .fill(0)
+              .map((_, index) => (
+                <Col key={`skeleton-${index}`}>
+                  <ProductSkeleton />
+                </Col>
+              ))
+          : // Hiện sản phẩm thật khi load xong
+            products.map((item) => (
+              <Col key={item?.product_id}>
+                <Product
+                  product_id={item?.product_id}
+                  productName={item?.name}
+                  price={item?.price}
+                  image={item?.image}
+                  onAddToCart={(product) =>
+                    setProductInCart((prev) => {
+                      const existingProduct = prev.find(
+                        (p) => p.product_id === product.product_id
+                      );
 
-  return (
-    <div className="container py-4" style={{ border: "1px solid" }}>
->>>>>>> main
-      {loading ? (
-        <div className="fl-center" style={{ minHeight: "200px" }}>
-          <Spin indicator={<LoadingOutlined spin />} />
-        </div>
-      ) : (
-        // Dùng Row/Col của Antd để chia cột (Responsive)
-<<<<<<< HEAD
-        <Row justify="center" align="top" style={{ border: "1px solid red" }}>
-=======
-        <Row gutter={[24, 24]}>
->>>>>>> main
-          {products.map((item) => (
-            // xs={24}: Điện thoại 1 cột
-            // sm={12}: Tablet nhỏ 2 cột
-            // md={8}: Tablet to 3 cột
-            // lg={6}: Máy tính 4 cột
-<<<<<<< HEAD
-            <Col key={item?.product_id}>
-              {/* Truyền dữ liệu từ API vào Component Product */}
-              <Product
-                product_id={item?.product_id} // DB trả về 'id' -> truyền vào prop 'productId'
-                productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
-                price={item?.price} // DB trả về 'price'
-                image={item?.image} // DB trả về 'image_url' -> truyền vào prop 'image'
-=======
-            <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
-              {/* Truyền dữ liệu từ API vào Component Product */}
-              <Product
-                productName={item.name} // DB trả về 'name' -> truyền vào prop 'productName'
-                price={item.price} // DB trả về 'price'
-                image={item.image_url} // DB trả về 'image_url' -> truyền vào prop 'image'
->>>>>>> main
-              />
-            </Col>
-          ))}
-        </Row>
-      )}
-      <ProductDetail />
+                      if (existingProduct) {
+                        return prev.map((p) =>
+                          p.product_id === product.product_id
+                            ? { ...p, quantity: p.quantity + 1 }
+                            : p
+                        );
+                      }
+
+                      return [...prev, { ...product, quantity: 1 }];
+                    })
+                  }
+                />
+              </Col>
+            ))}
+      </Row>
+
       <button onClick={() => setShowFeedback(true)}>Đánh giá ngay</button>
+
       {showFeedback && (
         <div className="fl-center showUp">
           <div
@@ -137,7 +147,6 @@ export default function ProductList({ category }) {
                   position: "absolute",
                   top: "15px",
                   right: "15px",
-
                   fontSize: "15px",
                 }}
                 className="out-line"

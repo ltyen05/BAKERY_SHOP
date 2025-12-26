@@ -14,6 +14,9 @@ const viewProfile = lazy(() => import("../viewProfile/viewProfile"));
 const Shipper = lazy(() => import("../OnlyShipperPage/ShipperPage"));
 const ForgotPassword = lazy(() => import("../ForgotPassword/ForgotPassword"));
 const payment = lazy(() => import("../PaymentPage/PaymentPage"));
+const ProductDetails = lazy(() =>
+  import("../components/Product/ProductDetails")
+);
 // ----- PHẦN CÒN LẠI GIỮ NGUYÊN -----
 // Mảng 'routes' của bạn không cần thay đổi gì cả
 // vì 'HomePage' (lazy) vẫn là một component hợp lệ.
@@ -62,6 +65,21 @@ export const routes = [
     page: AboutUs, // Dùng 'AboutUs' (lazy)
     name: "Về chúng tôi",
     position: "middle",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["customer", "admin", "guest"],
+  },
+  {
+    path: "/productDetails/:productId",
+    page: ProductDetails, // Dùng 'ProductDetails' (lazy)
+    name: "Chi tiết sản phẩm",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["customer", "admin", "guest"],
+  },
+  {
+    path: "/productDetails",
+    page: () => <Navigate to="/menu/bread" replace />, // Dùng 'ProductDetails' (lazy)
     isShowHeader: true,
     isShowBreadCrumbs: true,
     roles: ["customer", "admin", "guest"],

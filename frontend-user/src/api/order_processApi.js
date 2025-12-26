@@ -9,4 +9,24 @@ export const orderApi = {
   get_cart() {
     return fetchWithAuth(`${API}/cart`);
   },
+  add_to_cart(cartData) {
+    return fetch(`${API}/addToCart`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cartData),
+    });
+  },
+  remove_from_cart(product_id) {
+    return fetchWithAuth(`${API}/cart/remove`, {
+      method: "DELETE",
+      body: JSON.stringify({ product_id: product_id }),
+    });
+  },
+  changeQuantity(cartData) {
+    return fetchWithAuth(`${API}/changeQuantity`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cartData),
+    });
+  },
 };

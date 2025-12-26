@@ -13,6 +13,8 @@ from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
+from hus_bakery_app.models.branch_product import BranchProduct
+
 
 # --- SECTION A: UTILS & HELPERS ---
 def geocode_address(address):
@@ -37,103 +39,146 @@ def haversine(lat1, lon1, lat2, lon2):
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+def find_best_branch(customer_lat, customer_lng, required_product_ids):
+    """
+    Tìm chi nhánh:
+    1. Có đủ tất cả product_id yêu cầu.
+    2. Gần khách hàng nhất.
+    """
+    # Lấy tất cả chi nhánh có tọa độ
+    all_branches = Branch.query.filter(Branch.lat.isnot(None), Branch.lng.isnot(None)).all()
+
+    valid_branches = []
+
+    for branch in all_branches:
+        # Kiểm tra xem chi nhánh này có bán TẤT CẢ sản phẩm trong giỏ không
+        # Query bảng BranchProduct xem branch_id này có bao nhiêu sản phẩm khớp với list yêu cầu
+        count_products = BranchProduct.query.filter(
+            BranchProduct.branch_id == branch.branch_id,
+            BranchProduct.product_id.in_(required_product_ids)
+        ).count()
+
+        # Nếu số lượng sản phẩm tìm thấy trong kho bằng số lượng sản phẩm yêu cầu -> Đủ hàng
+        if count_products == len(required_product_ids):
+            # Tính khoảng cách
+            dist = haversine(customer_lat, customer_lng, branch.lat, branch.lng)
+            valid_branches.append({
+                "branch": branch,
+                "distance": dist
+            })
+
+    # Nếu không có chi nhánh nào đủ hàng
+    if not valid_branches:
+        return None, None
+
+    # Sắp xếp theo khoảng cách (Gần nhất lên đầu)
+    valid_branches.sort(key=lambda x: x["distance"])
+
+    # Trả về chi nhánh tốt nhất (index 0) và khoảng cách
+    best_option = valid_branches[0]
+    return best_option["branch"], best_option["distance"]
+
 # --- SECTION B: CLIENT ORDER CREATION ---
 def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, coupon_id=None):
-    # 1. Xử lý tọa độ
+    # --- 1. Xử lý tọa độ ---
     if not customer_lat or not customer_lng:
+        # Giả sử bạn đã có hàm geocode
         customer_lat, customer_lng = geocode_address(shipping_address)
         if not customer_lat:
-            return None, "Không thể tìm tọa độ từ địa chỉ"
+            return None, "Không thể xác định tọa độ từ địa chỉ giao hàng"
 
-    # 2. Lấy item trong giỏ
+    # --- 2. Lấy item trong giỏ hàng ---
     selected_items = CartItem.query.filter_by(customer_id=customer_id, selected=True).all()
     if not selected_items:
-        return None, "Giỏ hàng rỗng hoặc chưa chọn sản phẩm"
+        return None, "Giỏ hàng rỗng hoặc chưa chọn sản phẩm để thanh toán"
 
-    # 3. Tính tiền
+    # Tạo list các ID sản phẩm cần mua để check kho
+    # Lưu ý: Set dùng để loại bỏ ID trùng lặp nếu khách mua 2 dòng cùng 1 loại bánh
+    required_product_ids = {item.product_id for item in selected_items}
+
+    # --- 3. TÌM CHI NHÁNH TỐI ƯU (Logic mới) ---
+    nearest_branch, distance_km = find_best_branch(customer_lat, customer_lng, required_product_ids)
+
+    if not nearest_branch:
+        return None, "Rất tiếc, không có chi nhánh nào gần bạn có đủ các loại bánh bạn chọn."
+
+    # --- 4. Tính tiền hàng (Subtotal) ---
     subtotal = 0
     for item in selected_items:
         product = Product.query.get(item.product_id)
         if product:
-            subtotal += float(product.price) * item.quantity
+            # Lưu ý: Cần đảm bảo kiểu dữ liệu (float/Decimal) khớp nhau
+            subtotal += float(product.unit_price if hasattr(product, 'unit_price') else product.price) * item.quantity
 
-    # 4. Tính mã giảm giá
+    # --- 5. Tính Mã giảm giá ---
     discount = 0
     if coupon_id:
         cc = CouponCustomer.query.filter_by(customer_id=customer_id, coupon_id=coupon_id, status="unused").first()
         if cc:
             coupon = Coupon.query.get(coupon_id)
+            # Logic check điều kiện coupon...
             if subtotal >= coupon.min_purchase:
                 if coupon.discount_type == "percent":
-                    discount = subtotal * (coupon.discount_percent / 100)
-                    if coupon.max_discount: discount = min(discount, coupon.max_discount)
+                    discount = subtotal * (float(coupon.discount_percent) / 100)
+                    if coupon.max_discount:
+                        discount = min(discount, float(coupon.max_discount))
                 else:
-                    discount = coupon.discount_value
+                    discount = float(coupon.discount_value)
 
-                # Update Coupon status
+                # Đánh dấu coupon đã dùng
                 cc.status = "used"
                 cc.used_at = datetime.now()
             else:
-                return None, f"Đơn hàng chưa đạt tối thiểu {coupon.min_purchase}"
+                return None, f"Đơn hàng chưa đạt giá trị tối thiểu để dùng mã giảm giá"
         else:
-            return None, "Mã giảm giá không hợp lệ"
+            return None, "Mã giảm giá không hợp lệ hoặc đã qua sử dụng"
 
-    # 5. Tính phí ship (Tìm branch gần nhất)
-    branches = Branch.query.all()
-    nearest_branch = None
-    min_dist = 10 ** 9
-
-    for b in branches:
-        if b.lat and b.lng:
-            dist = haversine(customer_lat, customer_lng, b.lat, b.lng)
-            if dist < min_dist:
-                min_dist = dist
-                nearest_branch = b
-
-    if not nearest_branch:
-        return None, "Không tìm thấy cửa hàng nào gần bạn"
-
-    shipping_fee = min_dist * 5000
+    # --- 6. Tính phí ship dựa trên khoảng cách thực tế ---
+    # Ví dụ: 5000 VNĐ / 1 km
+    shipping_fee = distance_km * 5000
     total_amount = subtotal - discount + shipping_fee
 
-    # 6. Tìm Shipper (Optional)
+    # --- 7. Tìm Shipper tại chi nhánh đó (Optional) ---
     shipper = Shipper.query.filter_by(branch_id=nearest_branch.branch_id, status="active").first()
+    # Nếu có shipper thì set bận, không có thì để order đó pending shipper sau
     if shipper:
         shipper.status = "busy"
 
-    # 7. Lưu Order
+    # --- 8. Lưu Order vào DB ---
     try:
         new_order = Order(
             customer_id=customer_id,
-            branch_id=nearest_branch.branch_id,
+            branch_id=nearest_branch.branch_id,  # Gán đơn cho chi nhánh tìm được
             shipper_id=shipper.shipper_id if shipper else None,
             shipping_address=shipping_address,
             recipient_name=recipient_name,
-            total_money=total_amount,  # Lưu ý: check lại tên cột trong DB là total_money hay total_amount
+            total_amount=total_amount,  # Check lại tên cột trong model (total_amount hay total_money)
             created_at=datetime.now(),
+            payment_method="COD",  # Hoặc lấy từ tham số truyền vào
             status="pending"
         )
         db.session.add(new_order)
-        db.session.flush()  # Để lấy order_id ngay
+        db.session.flush()  # Để sinh order_id
 
-        # 8. Lưu Order Items và Xóa Cart
+        # --- 9. Lưu Order Items và Xóa Giỏ hàng ---
         for item in selected_items:
             product = Product.query.get(item.product_id)
             order_item = OrderItem(
                 order_id=new_order.order_id,
                 product_id=item.product_id,
                 quantity=item.quantity,
-                price=product.price
+                price=product.unit_price  # Lưu giá tại thời điểm mua
             )
             db.session.add(order_item)
-            db.session.delete(item)
+            db.session.delete(item)  # Xóa khỏi giỏ
 
         db.session.commit()
-        return new_order, "Đặt hàng thành công"
+        return new_order, "Đặt hàng thành công! Đơn hàng đã được chuyển đến cửa hàng gần nhất."
+
     except Exception as e:
         db.session.rollback()
-        print(e)
-        return None, "Lỗi hệ thống khi tạo đơn"
+        print(f"Error creating order: {e}")
+        return None, "Lỗi hệ thống khi tạo đơn hàng."
 
 
 # --- SECTION C: ADMIN ORDER MANAGEMENT (Đã di chuyển từ cart_services sang đây) ---

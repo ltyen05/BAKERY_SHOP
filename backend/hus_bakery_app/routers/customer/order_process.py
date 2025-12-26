@@ -1,6 +1,8 @@
 import json
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+
+from ...models.order import Order
 # Import từ cart_services
 from ...services.customer.cart_services import (
     # add_to_cart,
@@ -11,7 +13,7 @@ from ...services.customer.cart_services import (
     update_cart_service
 )
 # Import từ order_services
-from ...services.customer.order_services import create_order
+from ...services.customer.order_services import create_order, get_order_detail_service
 
 order_bp = Blueprint("order_bp", __name__)
 
@@ -87,9 +89,12 @@ def api_create_order():
     data = request.json
 
     customer_id = data.get("customer_id")
+    product = data.get("product_id")
+    quantity = data.get("quantity")
     shipping_address = data.get("shipping_address")
     recipient_name = data.get("recipient_name")
     coupon_id = data.get("coupon_id")
+    payment_method = data.get("payment_method")
     customer_lat = data.get("lat")
     customer_lng = data.get("lng")
 
@@ -109,3 +114,14 @@ def api_create_order():
         "message": msg,
         "order_id": order.order_id
     }), 200
+
+@order_bp.route("/order_details", methods=["POST"])
+def api_create_order():
+    data = request.json
+    order_id = data.get("order_id")
+    order_detail, msg = get_order_detail_service(order_id)
+    if not order_detail:
+        return jsonify({"error": msg}), 400
+    return jsonify({order_detail : msg}), 200
+
+

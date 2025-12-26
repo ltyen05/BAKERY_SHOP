@@ -5,6 +5,24 @@ from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
 from datetime import datetime
 
+# ==========================
+# 1. ADD TO CART
+# ==========================
+def add_to_cart(customer_id, product_id, quantity=1):
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+    if item:
+        item.quantity += quantity
+    else:
+        item = CartItem(
+            customer_id=customer_id,
+            product_id=product_id,
+            quantity=quantity,
+            selected=True
+        )
+        db.session.add(item)
+
+    db.session.commit()
+    return item
 
 def get_cart(customer_id):
     # Join bảng CartItem và Product để lấy thông tin chi tiết

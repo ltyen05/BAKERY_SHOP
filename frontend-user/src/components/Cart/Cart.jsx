@@ -3,8 +3,11 @@ import { Button } from "antd";
 import ProductInCart from "../Product/ProductInCart";
 import { useNavigate } from "react-router-dom";
 import { useOrder } from "../../context/OrderContext";
+import { useAuth } from "../../context/AuthContext";
+
 const ProductCart = ({ onCloseDrawer }) => {
-  const { productInCart, setProductInCart } = useOrder();
+  const { user } = useAuth();
+  const { productInCart, setProductInCart, removeFromCart } = useOrder();
   const navigate = useNavigate();
   const handleQuantityChange = (id, newQuantity) => {
     if (newQuantity < 1) {
@@ -18,8 +21,24 @@ const ProductCart = ({ onCloseDrawer }) => {
     );
   };
 
-  const handleRemove = (id) => {
-    setProductInCart(productInCart.filter((p) => p.product_id !== id));
+  const handleRemove = async (product_id) => {
+    // Kiểm tra user
+    if (!user) {
+      alert.error("Bạn cần đăng nhập.");
+      return;
+    }
+
+    if (user.role !== "customer") {
+      alert.error("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
+
+    try {
+      await removeFromCart(product_id);
+      console.log(`Đã xóa "${product_id}" khỏi giỏ hàng!`);
+    } catch (err) {
+      console.log(err.message || "Không thể xóa khỏi giỏ hàng");
+    }
   };
 
   const totalItems = productInCart.reduce((sum, p) => sum + p.quantity, 0);

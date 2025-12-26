@@ -14,7 +14,7 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
       <Row align="middle" gutter={10}>
         {isHovered && (
           <button
-            onClick={() => onRemove(product.id)}
+            onClick={() => onRemove(product.product_id)}
             style={{
               width: "25px",
               height: "25px",
@@ -42,7 +42,7 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
 
         <Col span={14} style={{ overflowWrap: "break-word" }}>
           <div className="mt-1">
-            <h3 className="mb-1">{product.name}</h3>
+            <h3 className="mb-1">{product.product_name}</h3>
             <p className="mb-1">{product.price.toLocaleString("vi-VN")} VNĐ</p>
           </div>
           <div
@@ -62,7 +62,7 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
             >
               <button
                 onClick={() =>
-                  onQuantityChange(product.id, product.quantity - 1)
+                  onQuantityChange(product.product_id, product.quantity - 1)
                 }
                 style={{
                   width: "30px",
@@ -92,7 +92,7 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
 
               <button
                 onClick={() =>
-                  onQuantityChange(product.id, product.quantity + 1)
+                  onQuantityChange(product.product_id, product.quantity + 1)
                 }
                 style={{
                   width: "30px",

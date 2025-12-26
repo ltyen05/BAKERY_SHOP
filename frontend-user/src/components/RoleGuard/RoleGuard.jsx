@@ -35,6 +35,7 @@ const RoleGuard = ({ roles, children }) => {
   }
 
   // Nếu là khách (guest) cố truy cập trang cần đăng nhập/quyền
+  console.warn("Guest user tried to access restricted route.");
   return <Navigate to="/logIn" replace />;
 };
 

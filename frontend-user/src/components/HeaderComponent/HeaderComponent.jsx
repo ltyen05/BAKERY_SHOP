@@ -69,6 +69,7 @@ function NavBar({
   refetchCart,
   setProductInCart,
 }) {
+  const isCustomer = user?.role === "customer";
   const view = {
     items: [
       {
@@ -273,52 +274,59 @@ function NavBar({
                     alignItems: "center",
                   }}
                 >
-                  <Dropdown
-                    dropdownRender={() => dropdownContent}
-                    trigger={["click"]}
-                    placement="bottomRight"
-                  >
-                    <div
-                      className="fl-center hover-grey"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                      }}
-                    >
-                      <Badge count={unreadCount} showZero color="#ab5506ff">
-                        <div className="fl-center">
-                          <img
-                            src={bell}
-                            alt="bell-image"
-                            width="25px"
-                            color=""
-                          />
+                  {isCustomer && (
+                    <>
+                      <Dropdown
+                        dropdownRender={() => dropdownContent}
+                        trigger={["click"]}
+                        placement="bottomRight"
+                      >
+                        <div
+                          className="fl-center hover-grey"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <Badge count={unreadCount} showZero color="#ab5506ff">
+                            <div className="fl-center">
+                              <img
+                                src={bell}
+                                alt="bell-image"
+                                width="25px"
+                                color=""
+                              />
+                            </div>
+                          </Badge>
                         </div>
-                      </Badge>
-                    </div>
-                  </Dropdown>
-                  <button className="no-border" onClick={showDrawer}>
-                    <div
-                      className="fl-center hover-grey"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50px",
-                      }}
-                    >
-                      <img src={cart} alt="cart-image" width="30px" />
-                    </div>
-                  </button>
-                  <Drawer
-                    title="Giỏ hàng"
-                    closable={{ "aria-label": "Close Button" }}
-                    onClose={onClose}
-                    open={open}
-                    width={400}
-                  >
-                    <Cart productList={productInCart} onCloseDrawer={onClose} />
-                  </Drawer>
+                      </Dropdown>
+                      <button className="no-border" onClick={showDrawer}>
+                        <div
+                          className="fl-center hover-grey"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50px",
+                          }}
+                        >
+                          <img src={cart} alt="cart-image" width="30px" />
+                        </div>
+                      </button>
+                      <Drawer
+                        title="Giỏ hàng"
+                        closable={{ "aria-label": "Close Button" }}
+                        onClose={onClose}
+                        open={open}
+                        width={400}
+                      >
+                        <Cart
+                          productList={productInCart}
+                          onCloseDrawer={onClose}
+                        />
+                      </Drawer>
+                    </>
+                  )}
                   <Dropdown
                     placement="bottom"
                     menu={{

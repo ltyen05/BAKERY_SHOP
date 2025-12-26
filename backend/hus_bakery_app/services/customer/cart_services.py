@@ -6,22 +6,42 @@ from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
 from datetime import datetime
 
-class Branch(db.Model):
-    __tablename__ = 'branches'
+# ==========================
+# 1. ADD TO CART
+# ==========================
+def add_to_cart(customer_id, product_id, quantity=1):
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+    if item:
+        item.quantity += quantity
+    else:
+        item = CartItem(
+            customer_id=customer_id,
+            product_id=product_id,
+            quantity=quantity,
+            selected=True  # Mặc định thêm vào là chọn luôn
+        )
+        db.session.add(item)
+
+    db.session.commit()
+    return item
 
 
-    branch_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False)
-    address = db.Column(db.String(255))
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(150))
-    mapSrc = db.Column(db.Text, nullable=True)
-    lat = db.Column(db.Numeric(10, 8), nullable=True)
-    lng = db.Column(db.Numeric(11, 8), nullable=True)
-    manager_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id', ondelete='SET NULL'), unique=True)
+# ==========================
+# 2. UPDATE SELECTED (Chọn/Bỏ chọn món)
+# ==========================
+def update_selected(customer_id, product_id, selected: bool):
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+    if not item:
+        return None
 
-    employees = db.relationship("Employee", backref="branch", foreign_keys='Employee.branch_id')
-    shippers = db.relationship("Shipper", backref="branch", foreign_keys='Shipper.branch_id')
+    item.selected = selected
+    db.session.commit()
+    return item
+
+
+# ==========================
+# 3. GET CART (Lấy danh sách giỏ hàng)
+# ==========================
 def get_cart(customer_id):
     # Join bảng CartItem và Product để lấy thông tin chi tiết
     results = db.session.query(CartItem, Product) \
@@ -41,7 +61,7 @@ def get_cart(customer_id):
             "product_name": product.name,
             "image": product.image,
             "price": float(product.price),
-            "quantity": cart_item.quantity,
+            "quantity": cart_item.quantity
         })
 
     return {

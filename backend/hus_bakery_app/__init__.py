@@ -42,32 +42,34 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
-    from .routers.auth import auth_bp
+    from hus_bakery_app.routers.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
-    from backend.hus_bakery_app.routers.customer.order_process import order_bp
+    from hus_bakery_app.routers.customer.order_process import order_bp
     app.register_blueprint(order_bp, url_prefix='/api')
-    from backend.hus_bakery_app.routers.customer.feedback import feedback_bp
+    from hus_bakery_app.routers.customer.feedback import feedback_bp
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
-    from backend.hus_bakery_app.routers.customer.account import account_bp
+    from hus_bakery_app.routers.customer.account import account_bp
     app.register_blueprint(account_bp, url_prefix="/api/account")
-    from backend.hus_bakery_app.routers.customer.product import product_bp
+    from hus_bakery_app.routers.customer.product import product_bp
     app.register_blueprint(product_bp, url_prefix="/api/product")
 
-    from backend.hus_bakery_app.routers.admin.dashboard import dashboard_bp
+    from hus_bakery_app.routers.admin.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
-    from backend.hus_bakery_app.routers.admin.order_management import order_admin_bp
+    from hus_bakery_app.routers.admin.order_management import order_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/order_management')
-    from backend.hus_bakery_app.routers.admin.product_management import product_admin_bp
+    from hus_bakery_app.routers.admin.product_management import product_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/product_management')
-    from backend.hus_bakery_app.routers.admin.customer_management import customer_admin_bp
+    from hus_bakery_app.routers.admin.customer_management import customer_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/customer_management')
-    from backend.hus_bakery_app.routers.admin.employee_management import employee_admin_bp
+    from hus_bakery_app.routers.admin.employee_management import employee_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/employee_management')
-    from backend.hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
+    from hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/coupon_management')
-    from backend.hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
+    from hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/shipper_management')
 
+    from hus_bakery_app.routers.shipper.notifications import shipper_notifications_bp
+    app.register_blueprint(shipper_notifications_bp, url_prefix='/api/shipper')
     @app.route("/test_db")
     def test_db():
         try:

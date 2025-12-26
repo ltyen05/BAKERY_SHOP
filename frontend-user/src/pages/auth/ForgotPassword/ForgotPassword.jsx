@@ -1,6 +1,6 @@
 import { Form, Button, Input } from "antd";
 import { Link } from "react-router-dom";
-import bakesLogo from "../assets/bakes.svg";
+import bakesLogo from "../../../assets/logo/bakes.png";
 import React, { useState } from "react";
 import { message } from "antd";
 

@@ -9,7 +9,7 @@ from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
 from ..services.auth_services import login_user, generate_token, check_email_exist
-from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
+from ..services.auth_services import request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -23,12 +23,22 @@ def index():
 def api_get_me():
     identity_str = get_jwt_identity()
     indetity = json.loads(identity_str)
-    current_user_id = indetity["id"]
-    customer_data = get_current_customer_service(current_user_id)
-    if not customer_data:
-        return jsonify({"error": "Customer not found"}), 404
+    current_role = indetity["role"]
+    current_user_data = ""
+    if current_role == 'customer':
+        current_user_id = indetity["id"]
+        customer_data = get_current_customer_service(current_user_id)
+        if not customer_data:
+            return jsonify({"error": "Customer not found"}), 404
+        current_user_data = json.dumps(customer_data)
+    elif current_role == 'shipper':
+        current_user_id = indetity["id"]
+        shipper_data = get_current_shipper_service(current_user_id)
+        if not shipper_data:
+            return jsonify({"error": "Customer not found"}), 404
+        current_user_data = json.dumps(shipper_data)
 
-    return jsonify(customer_data), 200
+    return jsonify(current_user_data,), 200
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():

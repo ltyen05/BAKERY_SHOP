@@ -1,6 +1,6 @@
 from sqlalchemy import desc
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.products import Product
+from hus_bakery_app import db
+from hus_bakery_app.models.products import Product
 
 def get_all_products_admin_service():
     # Sắp xếp giảm dần theo ngày tạo để hiện sản phẩm mới nhất lên đầu

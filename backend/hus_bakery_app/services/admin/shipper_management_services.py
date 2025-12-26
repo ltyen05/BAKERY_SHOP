@@ -1,10 +1,10 @@
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.shipper import Shipper
-from backend.hus_bakery_app.models.order import Order
-from backend.hus_bakery_app.models.order_status import OrderStatus
-from backend.hus_bakery_app.models.shipper_review import ShipperReview
+from hus_bakery_app import db
+from hus_bakery_app.models.shipper import Shipper
+from hus_bakery_app.models.order import Order
+from hus_bakery_app.models.order_status import OrderStatus
+from hus_bakery_app.models.shipper_review import ShipperReview
 
 def get_all_shippers_service():
     return Shipper.query.all()

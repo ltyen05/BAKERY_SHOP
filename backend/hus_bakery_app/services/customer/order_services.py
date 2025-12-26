@@ -2,17 +2,17 @@ import requests
 import math
 from datetime import datetime
 from sqlalchemy import desc
-from backend.hus_bakery_app import db
+from hus_bakery_app import db
 
 # Models
-from backend.hus_bakery_app.models.order import Order
-from backend.hus_bakery_app.models.order_item import OrderItem
-from backend.hus_bakery_app.models.cart_item import CartItem
-from backend.hus_bakery_app.models.products import Product
-from backend.hus_bakery_app.models.branches import Branch
-from backend.hus_bakery_app.models.shipper import Shipper
-from backend.hus_bakery_app.models.coupon import Coupon
-from backend.hus_bakery_app.models.coupon_custom import CouponCustomer
+from hus_bakery_app.models.order import Order
+from hus_bakery_app.models.order_item import OrderItem
+from hus_bakery_app.models.cart_item import CartItem
+from hus_bakery_app.models.products import Product
+from hus_bakery_app.models.branches import Branch
+from hus_bakery_app.models.shipper import Shipper
+from hus_bakery_app.models.coupon import Coupon
+from hus_bakery_app.models.coupon_custom import CouponCustomer
 
 # --- SECTION A: UTILS & HELPERS ---
 def geocode_address(address):

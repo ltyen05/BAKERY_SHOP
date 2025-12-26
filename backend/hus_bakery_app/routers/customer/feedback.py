@@ -2,8 +2,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ...forms.feedback import FeedbackForm
 from ...services.customer.feedback_services import create_feedback
-from backend.hus_bakery_app.forms.feedback import FeedbackForm
-from backend.hus_bakery_app.services.customer.feedback_services import create_feedback
+from hus_bakery_app.forms.feedback import FeedbackForm
+from hus_bakery_app.services.customer.feedback_services import create_feedback
 
 feedback_bp = Blueprint('feedback', __name__)
 

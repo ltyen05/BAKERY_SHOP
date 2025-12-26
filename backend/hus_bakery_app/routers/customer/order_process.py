@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 # Import từ cart_services
-from ..services.cart_services import (
+from ...services.customer.cart_services import (
     add_to_cart,
     update_selected,
     get_cart,
@@ -8,7 +9,7 @@ from ..services.cart_services import (
     coupon_info
 )
 # Import từ order_services
-from ..services.order_services import create_order
+from ...services.customer.order_services import create_order
 
 order_bp = Blueprint("order_bp", __name__)
 

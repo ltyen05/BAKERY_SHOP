@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.hus_bakery_app.services.admin.shipper_management_services import (
+from hus_bakery_app.services.admin.shipper_management_services import (
     get_all_shippers_service, add_shipper_service,
     edit_shipper_service, delete_shipper_service,
     total_successful_order_of_shipper, star_of_shipper_service

@@ -8,17 +8,9 @@ class Branch(db.Model):
     address = db.Column(db.String(255))
     phone = db.Column(db.String(20))
     email = db.Column(db.String(150))
-<<<<<<< HEAD:backend/hus_bakery_app/models/branches.py
     mapSrc = db.Column(db.Text, nullable=True)
     lat = db.Column(db.Numeric(10, 8), nullable=True)
     lng = db.Column(db.Numeric(11, 8), nullable=True)
-=======
-    # >> [ĐÃ SỬA] Bổ sung 2 cột tọa độ
-    lat = db.Column(db.Numeric(10, 8)) 
-    lng = db.Column(db.Numeric(11, 8))
-    # <<
-    
->>>>>>> main:backend/hus_bakery_app/models/branch.py
     manager_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id', ondelete='SET NULL'), unique=True)
 
     employees = db.relationship("Employee", backref="branch", foreign_keys='Employee.branch_id')

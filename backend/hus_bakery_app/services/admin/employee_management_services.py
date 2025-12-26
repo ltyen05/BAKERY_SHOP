@@ -1,5 +1,5 @@
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.employee import Employee
+from hus_bakery_app import db
+from hus_bakery_app.models.employee import Employee
 from werkzeug.security import generate_password_hash
 
 

@@ -19,6 +19,7 @@ def get_top_3_products_service():
         top_3.append({
             "product_id": product.product_id,
             "name": product.name,
+            "price": product.price,
             "total_sold": int(total),
         })
 

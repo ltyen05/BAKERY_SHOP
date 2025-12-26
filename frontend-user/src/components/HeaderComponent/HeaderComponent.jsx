@@ -62,41 +62,13 @@ function getRoutesByPosition(routesByPosition) {
   });
 }
 
-function NavBar({ user, onLogout }) {
-  const productList = [
-    {
-      id: 1,
-      name: "Croissant",
-      price: 560000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop",
-    },
-    {
-      id: 2,
-      name: "Croissant",
-      price: 560000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop",
-    },
-    {
-      id: 3,
-      name: "Croissant",
-      price: 560000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop",
-    },
-    {
-      id: 4,
-      name: "Croissant",
-      price: 560000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop",
-    },
-  ];
+function NavBar({
+  user,
+  onLogout,
+  productInCart,
+  refetchCart,
+  setProductInCart,
+}) {
   const view = {
     items: [
       {
@@ -345,7 +317,7 @@ function NavBar({ user, onLogout }) {
                     open={open}
                     width={400}
                   >
-                    <Cart productList={productList} onCloseDrawer={onClose} />
+                    <Cart productList={productInCart} onCloseDrawer={onClose} />
                   </Drawer>
                   <Dropdown
                     placement="bottom"

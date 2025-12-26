@@ -15,8 +15,8 @@ function Footer() {
             <img src={logo} alt="logo" style={{ width: "65px" }} />
           </div>
           <p className="foot-para-text">
-            Need to help for your dream Career? Trust us. With Lesson, study
-            becomes a lot easier with us.
+            Tại Hus Bakery, từng chiếc bánh được chăm chút để biến mỗi ngày của
+            bạn trở nên ngọt ngào và trọn vẹn hơn.
           </p>
           <div className="social-list">
             <ul>
@@ -100,7 +100,7 @@ function Footer() {
           </div>
         </Col>
 
-        <Col xs={11} md={7} xl={5} className="mb-3">
+        <Col xs={11} md={7} xl={5} className="mb-12">
           <h4 className="h4-level">Address</h4>
           <div className="part">
             <ul>
@@ -128,8 +128,9 @@ function Footer() {
           </div>
         </Col>
 
-        <p className="copyright">
-          Copyright ©2022 webdesign.gdn All rights reserved
+        <p className="copyright pt-3">
+          Copyright © Nguyễn Tiến Lưỡng - Nguyễn Bảo Thạch - Lê Nguyễn Tố Uyên -
+          Lê Thị Yến
         </p>
       </Row>
 

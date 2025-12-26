@@ -4,6 +4,8 @@ from ...forms.feedback import FeedbackForm
 from ...services.customer.feedback_services import create_feedback
 from hus_bakery_app.forms.feedback import FeedbackForm
 from hus_bakery_app.services.customer.feedback_services import create_feedback
+from hus_bakery_app.forms.feedback import FeedbackForm
+from hus_bakery_app.services.customer.feedback_services import create_feedback
 
 feedback_bp = Blueprint('feedback', __name__)
 

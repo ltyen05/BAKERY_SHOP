@@ -1,5 +1,5 @@
 __pycache__/
-hus_bakery_env/
+../hus_bakery_env/
 .DS_store
 .idea
 *.pyc

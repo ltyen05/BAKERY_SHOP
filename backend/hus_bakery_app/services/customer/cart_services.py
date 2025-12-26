@@ -1,10 +1,10 @@
+from .. import db
 from hus_bakery_app import db
 from hus_bakery_app.models.cart_item import CartItem
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
 from datetime import datetime
-
 
 # ==========================
 # 1. ADD TO CART
@@ -61,9 +61,7 @@ def get_cart(customer_id):
             "product_name": product.name,
             "image": product.image,
             "price": float(product.price),
-            "quantity": cart_item.quantity,
-            "selected": cart_item.selected,
-            "total": item_total
+            "quantity": cart_item.quantity
         })
 
     return {
@@ -129,3 +127,26 @@ def remove_from_cart(customer_id, product_id):
         db.session.commit()
         return True
     return False
+
+def update_cart_service(customer_id, product_id, quantity=None, selected=None):
+    # 1. Tìm item trong giỏ hàng
+    item = CartItem.query.filter_by(customer_id=customer_id, product_id=product_id).first()
+
+    if not item:
+        if quantity is not None:
+            # Nếu chưa có thì tạo mới
+            item = CartItem(customer_id=customer_id, product_id=product_id, quantity=quantity)
+            if selected is not None:
+                item.selected = selected
+            db.session.add(item)
+        else:
+            raise ValueError("Item not found and no quantity provided to create")
+    else:
+        # 2. Nếu đã có thì cập nhật những gì được gửi lên
+        if quantity is not None:
+            item.quantity += quantity # Hoặc gán thẳng tùy logic của bạn
+        if selected is not None:
+            item.selected = selected
+
+    db.session.commit()
+    return item

@@ -30,15 +30,11 @@ export default function Voucher({
                 wordBreak: "break-word",
               }}
             >
-              {voucher?.discount <= 1
-                ? `Giảm ${
-                    voucher?.discount
-                  }% cho đơn từ ${voucher?.minOrder.toLocaleString()}đ`
-                : `Giảm ${voucher?.discount.toLocaleString()}đ cho đơn từ ${voucher?.minOrder.toLocaleString()}đ`}
+              {voucher?.description}
             </p>
           </Row>
           <Row align="bottom" className="mt-3">
-            <Col span={12}>HSD: {voucher?.expiryDate}</Col>
+            <Col span={12}>HSD: {voucher?.end_date}</Col>
             <Col span={12} style={{ textAlign: "end" }}>
               <Button
                 style={{

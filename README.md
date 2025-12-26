@@ -7,36 +7,72 @@ Tài liệu này trình bày chi tiết về cấu trúc hệ thống, thiết k
 ## 1. Kiến Trúc Mã Nguồn (Internal Structure)
 Hệ thống sử dụng ngôn ngữ **Python (Flask)** với kiến trúc **Service-Layer** nhằm tách biệt minh bạch các tầng xử lý dữ liệu và logic nghiệp vụ
 
-## 📁 Cấu Trúc Mã Nguồn (Project Structure)
+## 📁 Cấu Trúc Mã Nguồn Backend (Detailed Project Structure)
 
-Dưới đây là sơ đồ tổ chức thư mục của dịch vụ Backend:
+Sơ đồ tổ chức các tệp tin và thư mục trong dự án Backend:
 
 ```text
-.
-├── Dockerfile                  # Cấu hình đóng gói Image Backend
-├── README.md                   # Tài liệu hướng dẫn hệ thống
-├── docker-compose.yml          # Điều phối dịch vụ Backend và Database
-├── main.py                     # Điểm chạy ứng dụng (Entry point)
-├── requirements.txt            # Danh sách thư viện Python cần thiết
+## 📁 Cấu Trúc Mã Nguồn Backend (Project Structure)
+
+Hệ thống được tổ chức theo mô hình Layered Architecture, tách biệt minh bạch giữa giao diện API, logic nghiệp vụ và dữ liệu:
+
+```text
+backend/
 ├── hus_bakery_app/             # Thư mục mã nguồn chính (Application Logic)
-│   ├── forms/                  # Xử lý Validation dữ liệu đầu vào
+│   ├── forms/                  # Tầng kiểm tra dữ liệu đầu vào (Validation)
 │   │   ├── feedback.py
 │   │   ├── login.py
 │   │   └── signup.py
-│   ├── models/                 # Định nghĩa thực thể CSDL (SQLAlchemy Models)
+│   ├── models/                 # Định nghĩa thực thể CSDL & Quan hệ (Nhiệm vụ 1)
+│   │   ├── __init__.py
+│   │   ├── branch_product.py
+│   │   ├── branches.py
+│   │   ├── cart_item.py
+│   │   ├── categories.py
+│   │   ├── coupon.py
+│   │   ├── coupon_custom.py
 │   │   ├── customer.py
-│   │   ├── products.py
+│   │   ├── employee.py
+│   │   ├── feedback.py
 │   │   ├── order.py
-│   │   └── ... (các thực thể khác theo ERD)
-│   ├── routers/                # Tầng điều hướng API (API Endpoints)
-│   │   ├── admin/              # API dành cho quản trị viên
+│   │   ├── order_item.py
+│   │   ├── order_status.py
+│   │   ├── product_review.py
+│   │   ├── products.py
+│   │   ├── shipper.py
+│   │   └── shipper_review.py
+│   ├── routers/                # Tầng điều hướng API (Endpoints - Nhiệm vụ 3)
+│   │   ├── admin/              # API quản trị hệ thống
+│   │   │   ├── coupon_management.py
+│   │   │   ├── customer_management.py
+│   │   │   ├── dashboard.py
+│   │   │   ├── employee_management.py
+│   │   │   ├── order_management.py
+│   │   │   ├── product_management.py
+│   │   │   └── shipper_management.py
 │   │   ├── customer/           # API dành cho khách hàng
-│   │   └── auth.py             # API xác thực người dùng
-│   └── services/               # Tầng xử lý nghiệp vụ (Business Logic)
-│       ├── admin/              # Logic xử lý các chức năng quản trị
-│       ├── customer/           # Logic xử lý các chức năng khách hàng
-│       └── auth_services.py    # Logic xử lý xác thực
-└── hus_bakery_env/             # Môi trường ảo Python (Local Virtual Environment)
+│   │   │   ├── account.py
+│   │   │   ├── feedback.py
+│   │   │   ├── order_process.py
+│   │   │   └── product.py
+│   │   └── auth.py             # Xác thực (Login/Register)
+│   ├── services/               # Tầng xử lý nghiệp vụ trung tâm (Business Logic)
+│   │   ├── admin/              # Logic chức năng Admin
+│   │   ├── customer/           # Logic chức năng Khách hàng
+│   │   └── auth_services.py    # Logic xác thực hệ thống
+│   └── __init__.py
+├── docs/                       # TÀI LIỆU HỆ THỐNG (Nhiệm vụ bắt buộc)
+│   ├── DATABASE.md             # Tài liệu CSDL & Quy trình Backup/Restore
+│   └── API_DOCUMENTATION.md    # Hướng dẫn API & Link Postman
+├── scripts/                    # Scripts hỗ trợ vận hành (Nhiệm vụ 2)
+│   ├── backup.sh               # Tự động hóa sao lưu dữ liệu
+│   └── restore.sh              # Tự động hóa khôi phục dữ liệu
+├── Dockerfile                  # Đóng gói hệ thống Backend (Nhiệm vụ 3)
+├── docker-compose.yml          # Điều phối dịch vụ (Backend & Database)
+├── main.py                     # Điểm chạy ứng dụng chính (Entry point)
+├── requirements.txt            # Danh sách thư viện Python
+├── .env                        # Biến môi trường bảo mật
+└── .gitignore                  # Khai báo các tệp loại bỏ khỏi Git
 ```
 
 * **`models/`**: Định nghĩa cấu trúc các bảng MySQL, mối quan hệ và các ràng buộc dữ liệu dựa trên mô hình ERD cung cấp.

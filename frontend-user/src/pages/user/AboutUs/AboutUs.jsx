@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from "react";
 import { Row, Col, Carousel } from "antd";
-import aboutUs1 from "../assets/aboutUs1.jpg";
-import aboutUs2 from "../assets/aboutUs2.jpg";
+import aboutUs1 from "../../../assets/aboutUs1.jpg";
+import aboutUs2 from "../../../assets/aboutUs2.jpg";
 import "./aboutUs.css";
 const carousel = [
   {

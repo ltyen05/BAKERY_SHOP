@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.hus_bakery_app.services.customer.product_services import (
+from hus_bakery_app.services.customer.product_services import (
     get_top_3_products_service,
     get_products_by_category_service,
     get_product_details_service

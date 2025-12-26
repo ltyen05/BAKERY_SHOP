@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.hus_bakery_app.services.admin.product_management_services import add_product_service, edit_product_service, delete_product_service, get_all_products_admin_service
+from hus_bakery_app.services.admin.product_management_services import add_product_service, edit_product_service, delete_product_service, get_all_products_admin_service
 
 product_admin_bp = Blueprint('product_admin', __name__)
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.hus_bakery_app.services.admin.employee_management_services import (
+from hus_bakery_app.services.admin.employee_management_services import (
     get_all_employees_service, add_employee_service,
     edit_employee_service, delete_employee_service
 )

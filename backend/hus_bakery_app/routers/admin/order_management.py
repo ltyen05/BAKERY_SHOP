@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.hus_bakery_app.services.admin.order_management_services import order_detail, delete_order, get_all_orders_service
+from hus_bakery_app.services.admin.order_management_services import order_detail, delete_order, get_all_orders_service
 
 order_admin_bp = Blueprint('order_management', __name__)
 @order_admin_bp.route("/order_mangement", methods=['GET'])

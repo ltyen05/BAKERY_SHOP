@@ -1,8 +1,8 @@
 from sqlalchemy import func, desc
-from backend.hus_bakery_app import db
-from backend.hus_bakery_app.models.categories import Category
-from backend.hus_bakery_app.models.order_item import OrderItem
-from backend.hus_bakery_app.models.products import Product
+from hus_bakery_app import db
+from hus_bakery_app.models.categories import Category
+from hus_bakery_app.models.order_item import OrderItem
+from hus_bakery_app.models.products import Product
 
 
 def get_top_3_products_service():
@@ -19,6 +19,7 @@ def get_top_3_products_service():
         top_3.append({
             "product_id": product.product_id,
             "name": product.name,
+            "price": product.price,
             "total_sold": int(total),
         })
 

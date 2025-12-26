@@ -22,11 +22,11 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import Voucher from "../components/Voucher/Voucher";
-import OrderDetails from "../components/Order/OrderDetails";
-import { useAuth } from "../context/AuthContext";
-import { useAccount } from "../context/AccountContext";
-import { useOrder } from "../context/OrderContext";
+import Voucher from "../../../components/Voucher/Voucher";
+import OrderDetails from "../../../components/Order/OrderDetails";
+import { useAuth } from "../../../context/AuthContext";
+import { useAccount } from "../../../context/AccountContext";
+import { useOrder } from "../../../context/OrderContext";
 const { Title, Text } = Typography;
 const rankColors = {
   diamond: "#b9f2ff", // màu xanh sáng cho diamond
@@ -63,7 +63,6 @@ const style = {
   },
   actionBtn: { color: "#fff", border: "none", borderRadius: 20 },
 };
-const API_BASE = "http://localhost:5000";
 
 const UserProfile = () => {
   const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update

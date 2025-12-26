@@ -19,13 +19,13 @@ import {
   UserOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import logo from "../assets/logo-noText.svg";
+import logo from "../../../assets/logo-noText.svg";
 import { useLocation } from "react-router-dom";
-import ProductItem from "../components/Product/ProductItem";
-import Voucher from "../components/Voucher/Voucher";
-import cod from "../assets/cod.svg";
-import qrCodeImg from "../assets/QR.svg";
-import { useOrder } from "../context/OrderContext";
+import ProductItem from "../../../components/Product/ProductItem";
+import Voucher from "../../../components/Voucher/Voucher";
+import cod from "../../../assets/cod.svg";
+import qrCodeImg from "../../../assets/QR.svg";
+import { useOrder } from "../../../context/OrderContext";
 const { TextArea } = Input;
 const { Option } = Select;
 

@@ -1,11 +1,11 @@
 import React from "react";
 import { Tabs } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { routes } from "../routes";
+import { routes } from "../../../routes";
 import { useMemo } from "react";
-import Bread from "../assets/toast.svg";
-import Cookie from "../assets/cookie.svg";
-import Croissant from "../assets/croissant.svg";
+import Bread from "../../../assets/toast.svg";
+import Cookie from "../../../assets/cookie.svg";
+import Croissant from "../../../assets/croissant.svg";
 const iconMap = {
   Bread: Bread,
   Cookie: Cookie,

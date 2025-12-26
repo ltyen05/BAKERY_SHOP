@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Row, Col, Skeleton, message } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
-import Product from "../components/Product/Product";
+import Product from "../../../components/Product/Product";
 import { useLocation } from "react-router-dom";
-import ProductDetail from "../components/Product/ProductDetails";
-import FeedbackComponent from "../components/Feedback/Feedback";
-import { useOrder } from "../context/OrderContext";
+import ProductDetail from "../../../components/Product/ProductDetails";
+import FeedbackComponent from "../../../components/Feedback/Feedback";
+import { useOrder } from "../../../context/OrderContext";
+import { useAuth } from "../../../context/AuthContext";
 const categoryMap = {
   bread: 1,
   cookie: 2,
@@ -31,13 +32,33 @@ const ProductSkeleton = () => (
 );
 
 export default function ProductList() {
-  const { productInCart, setProductInCart } = useOrder();
+  const { user } = useAuth();
+  const { addToCart, addingToCart } = useOrder();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const location = useLocation();
   const category = location.pathname.split("/").pop();
   const category_id = categoryMap[category];
+  const handleAddToCart = async (product) => {
+    // Kiểm tra user
+    if (!user) {
+      alert("Bạn cần đăng nhập.");
+      return;
+    }
+
+    if (user.role !== "customer") {
+      alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
+
+    try {
+      await addToCart(product, 1);
+      console.log(`Đã thêm "${product.product_name}" vào giỏ hàng!`);
+    } catch (err) {
+      console.log(err.message || "Không thể thêm vào giỏ hàng");
+    }
+  };
 
   useEffect(() => {
     if (!category_id) return;
@@ -90,26 +111,11 @@ export default function ProductList() {
               <Col key={item?.product_id}>
                 <Product
                   product_id={item?.product_id}
-                  productName={item?.name}
+                  product_name={item?.name}
                   price={item?.price}
                   image={item?.image}
-                  onAddToCart={(product) =>
-                    setProductInCart((prev) => {
-                      const existingProduct = prev.find(
-                        (p) => p.product_id === product.product_id
-                      );
-
-                      if (existingProduct) {
-                        return prev.map((p) =>
-                          p.product_id === product.product_id
-                            ? { ...p, quantity: p.quantity + 1 }
-                            : p
-                        );
-                      }
-
-                      return [...prev, { ...product, quantity: 1 }];
-                    })
-                  }
+                  onAddToCart={handleAddToCart}
+                  isAddingToCart={addingToCart}
                 />
               </Col>
             ))}

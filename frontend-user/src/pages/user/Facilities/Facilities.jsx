@@ -1,8 +1,8 @@
-import OrderHistory from "../components/HistoryOrder/HistoryOrder";
+import OrderHistory from "../../../components/HistoryOrder/HistoryOrder";
 import { HomeFilled, PhoneFilled } from "@ant-design/icons";
-import starIcon from "../assets/Star.svg";
+import starIcon from "../../../assets/Star.svg";
 import { Row, Col } from "antd";
-import phone from "../assets/phone.svg";
+import phone from "../../../assets/phone.svg";
 export default function Facilities() {
   const branches = [
     {

@@ -1,7 +1,7 @@
 services:
   hus_bakery_web:
     build:
-      context: ..
+      context: .
       dockerfile: backend/Dockerfile
     volumes:
       - ./backend:/app/backend

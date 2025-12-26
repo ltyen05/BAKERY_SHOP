@@ -5,7 +5,39 @@ Tài liệu này trình bày chi tiết về cấu trúc hệ thống, thiết k
 ---
 
 ## 1. Kiến Trúc Mã Nguồn (Internal Structure)
-Hệ thống sử dụng ngôn ngữ **Python (Flask)** với kiến trúc **Service-Layer** nhằm tách biệt minh bạch các tầng xử lý dữ liệu và logic nghiệp vụ:
+Hệ thống sử dụng ngôn ngữ **Python (Flask)** với kiến trúc **Service-Layer** nhằm tách biệt minh bạch các tầng xử lý dữ liệu và logic nghiệp vụ
+
+## 📁 Cấu Trúc Mã Nguồn (Project Structure)
+
+Dưới đây là sơ đồ tổ chức thư mục của dịch vụ Backend:
+
+```text
+.
+├── Dockerfile                  # Cấu hình đóng gói Image Backend
+├── README.md                   # Tài liệu hướng dẫn hệ thống
+├── docker-compose.yml          # Điều phối dịch vụ Backend và Database
+├── main.py                     # Điểm chạy ứng dụng (Entry point)
+├── requirements.txt            # Danh sách thư viện Python cần thiết
+├── hus_bakery_app/             # Thư mục mã nguồn chính (Application Logic)
+│   ├── forms/                  # Xử lý Validation dữ liệu đầu vào
+│   │   ├── feedback.py
+│   │   ├── login.py
+│   │   └── signup.py
+│   ├── models/                 # Định nghĩa thực thể CSDL (SQLAlchemy Models)
+│   │   ├── customer.py
+│   │   ├── products.py
+│   │   ├── order.py
+│   │   └── ... (các thực thể khác theo ERD)
+│   ├── routers/                # Tầng điều hướng API (API Endpoints)
+│   │   ├── admin/              # API dành cho quản trị viên
+│   │   ├── customer/           # API dành cho khách hàng
+│   │   └── auth.py             # API xác thực người dùng
+│   └── services/               # Tầng xử lý nghiệp vụ (Business Logic)
+│       ├── admin/              # Logic xử lý các chức năng quản trị
+│       ├── customer/           # Logic xử lý các chức năng khách hàng
+│       └── auth_services.py    # Logic xử lý xác thực
+└── hus_bakery_env/             # Môi trường ảo Python (Local Virtual Environment)
+```
 
 * **`models/`**: Định nghĩa cấu trúc các bảng MySQL, mối quan hệ và các ràng buộc dữ liệu dựa trên mô hình ERD cung cấp.
 * **`services/`**: Lớp xử lý logic hệ thống tập trung, đảm bảo API hoạt động đúng với thiết kế và quy tắc nghiệp vụ.

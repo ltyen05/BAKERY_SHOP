@@ -1,13 +1,16 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Image, Tag, Space, Button, Modal, message } from 'antd';
 import { 
-  FiEdit2, FiTrash2, FiDownload, FiChevronUp, FiChevronDown,
-  FiSearch, FiPlus
+  FiEdit2, FiTrash2, FiDownload, FiSearch, FiPlus, FiPackage, FiTag, FiFileText, FiImage
 } from 'react-icons/fi';
+import { PiMoney } from 'react-icons/pi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { productApi } from '../../api/productApi';
-import AddProductModal from './AddProductModal';
-import EditProductModal from './EditProductModal';
+import DataTable from '../../components/Table/Table';
+import FormModal from '../../components/FormModal/FormModal';
 import './ProductsView.css';
 
+const { confirm } = Modal;
 
 const CATEGORIES = {
   1: 'Bread',
@@ -22,46 +25,68 @@ const CATEGORY_TABS = [
   { id: 'pastry', label: 'Pastry', categoryId: 3 }
 ];
 
-// Component highlight text
-const HighlightText = ({ text, highlight }) => {
-  if (!highlight || !highlight.trim()) {
-    return <span>{text}</span>;
+const productFields = [
+  {
+    name: 'name',
+    label: 'Tên sản phẩm',
+    type: 'text',
+    icon: FiPackage,
+    placeholder: 'Nhập tên sản phẩm',
+    required: true,
+    fullWidth: true
+  },
+  {
+    name: 'category_id',
+    label: 'Danh mục',
+    type: 'select',
+    icon: FiTag,
+    required: true,
+    defaultValue: 1,
+    options: [
+      { value: 1, label: 'Bread' },
+      { value: 2, label: 'Cookie' },
+      { value: 3, label: 'Pastry' }
+    ]
+  },
+  {
+    name: 'unit_price',
+    label: 'Giá sản phẩm (VNĐ)',
+    inputType: 'number',
+    icon: PiMoney,
+    placeholder: '0',
+    required: true,
+    transform: (value) => parseFloat(value)
+  },
+  {
+    name: 'image_url',
+    label: 'URL hình ảnh',
+    type: 'url',
+    icon: FiImage,
+    placeholder: 'https://example.com/image.jpg',
+    fullWidth: true
+  },
+  {
+    name: 'description',
+    label: 'Mô tả sản phẩm',
+    type: 'textarea',
+    icon: FiFileText,
+    placeholder: 'Nhập mô tả chi tiết về sản phẩm...',
+    fullWidth: true,
+    rows: 4
   }
-  
-  const textStr = String(text);
-  const highlightStr = String(highlight).trim();
-  
-  const escapedHighlight = highlightStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(`(${escapedHighlight})`, 'gi');
-  
-  const parts = textStr.split(regex);
-  
-  return (
-    <span>
-      {parts.map((part, index) => {
-        if (part.toLowerCase() === highlightStr.toLowerCase()) {
-          return <mark key={index} className="highlight-match">{part}</mark>;
-        }
-        return <span key={index}>{part}</span>;
-      })}
-    </span>
-  );
-};
+];
 
 export default function Product() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   
-  // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   const rowsPerPage = 10;
 
   useEffect(() => {
@@ -71,78 +96,95 @@ export default function Product() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      setError(null);
-      
       const data = await productApi.getAllProducts();
-      console.log(' Data from API:', data);
       
       const mappedProducts = data.map(p => ({
+        key: p.product_id,
         id: p.product_id,
         name: p.name || 'Unnamed',
         category: CATEGORIES[p.category_id] || 'Khác',
         categoryId: p.category_id,
         price: p.unit_price || 0,
         image: p.image_url || 'https://via.placeholder.com/100',
-        description: p.description || ''
+        description: p.description || '',
+        category_id: p.category_id,
+        unit_price: p.unit_price,
+        image_url: p.image_url
       }));
       
-      console.log(' Mapped products:', mappedProducts);
       setProducts(mappedProducts);
-      
     } catch (err) {
-      console.error(' Error fetching products:', err);
-      setError(`Không thể tải dữ liệu: ${err.message}`);
+      console.error('Error fetching products:', err);
+      message.error('Không thể tải dữ liệu sản phẩm');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handler thêm sản phẩm
   const handleAddProduct = async (data) => {
     try {
-      const result = await productApi.addProduct(data);
-      console.log(' Product added:', result);
-      
-      // Refresh danh sách sản phẩm
+      await productApi.addProduct(data);
       await fetchProducts();
-      
-      // Đóng modal
       setIsAddModalOpen(false);
-      
-      alert('Thêm sản phẩm thành công!');
+      message.success('Thêm sản phẩm thành công!');
     } catch (err) {
-      console.error(' Error adding product:', err);
-      alert('Không thể thêm sản phẩm. Vui lòng thử lại.');
+      message.error('Không thể thêm sản phẩm');
+      throw err;
     }
   };
 
-  // Handler mở modal edit
-  const handleEditClick = (product) => {
-    setSelectedProduct(product);
-    setIsEditModalOpen(true);
-  };
-
-  // Handler cập nhật sản phẩm
   const handleUpdateProduct = async (productId, data) => {
     try {
-      const result = await productApi.updateProduct(productId, data);
-      console.log(' Product updated:', result);
-      
-      // Refresh danh sách sản phẩm
+      await productApi.updateProduct(productId, data);
       await fetchProducts();
-      
-      // Đóng modal
       setIsEditModalOpen(false);
       setSelectedProduct(null);
-      
-      alert('Cập nhật sản phẩm thành công!');
+      message.success('Cập nhật sản phẩm thành công!');
     } catch (err) {
-      console.error(' Error updating product:', err);
-      alert('Không thể cập nhật sản phẩm. Vui lòng thử lại.');
+      message.error('Không thể cập nhật sản phẩm');
+      throw err;
     }
   };
 
-  const filteredProducts = useMemo(() => {
+  const handleDelete = (product) => {
+    confirm({
+      title: 'Xác nhận xóa sản phẩm',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc muốn xóa sản phẩm "${product.name}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        try {
+          await productApi.deleteProduct(product.id);
+          await fetchProducts();
+          message.success('Xóa sản phẩm thành công!');
+        } catch (err) {
+          message.error('Không thể xóa sản phẩm');
+        }
+      }
+    });
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Tên sản phẩm', 'Danh mục', 'Giá', 'Mô tả'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredData.map(product => 
+        [product.id, product.name, product.category, product.price, product.description].join(',')
+      )
+    ].join('\n');
+    
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `products_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    message.success('Xuất file CSV thành công!');
+  };
+
+  const filteredData = useMemo(() => {
     return products.filter(product => {
       const currentTab = CATEGORY_TABS.find(t => t.id === activeCategory);
       const matchCategory = !currentTab?.categoryId || product.categoryId === currentTab.categoryId;
@@ -158,70 +200,10 @@ export default function Product() {
     });
   }, [products, activeCategory, searchQuery]);
 
-  const sortedProducts = useMemo(() => {
-    if (!sortConfig.key) return filteredProducts;
-    
-    return [...filteredProducts].sort((a, b) => {
-      const aVal = a[sortConfig.key];
-      const bVal = b[sortConfig.key];
-      
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredProducts, sortConfig]);
-
-  const totalPages = Math.ceil(sortedProducts.length / rowsPerPage);
-  const paginatedProducts = sortedProducts.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
   const categoryCount = (categoryId) => {
     const tab = CATEGORY_TABS.find(t => t.id === categoryId);
     if (!tab?.categoryId) return products.length;
     return products.filter(p => p.categoryId === tab.categoryId).length;
-  };
-
-  const handlePageChange = (page) => {
-    if(page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
-
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const handleDelete = async (id) => {
-    if(!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-    
-    try {
-      await productApi.deleteProduct(id);
-      setProducts(prev => prev.filter(p => p.id !== id));
-      alert('Xóa sản phẩm thành công!');
-    } catch (err) {
-      console.error('Error deleting product:', err);
-      alert('Không thể xóa sản phẩm. Vui lòng thử lại.');
-    }
-  };
-
-  const handleExportCSV = () => {
-    const headers = ['ID', 'Tên sản phẩm', 'Danh mục', 'Giá', 'Mô tả'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredProducts.map(product => 
-        [product.id, product.name, product.category, product.price, product.description].join(',')
-      )
-    ].join('\n');
-    
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'products.csv';
-    link.click();
   };
 
   const formatCurrency = (amount) => {
@@ -231,49 +213,156 @@ export default function Product() {
     }).format(amount);
   };
 
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? <FiChevronUp /> : <FiChevronDown />;
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
+      align: 'center',
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'image',
+      key: 'image',
+      width: 100,
+      align: 'center',
+      render: (image, record) => (
+        <Image
+          src={image}
+          alt={record.name}
+          width={60}
+          height={60}
+          style={{ 
+            borderRadius: '10px', 
+            objectFit: 'cover',
+            border: '1px solid #e5e7eb'
+          }}
+          fallback="https://via.placeholder.com/100"
+          preview={{
+            mask: 'Xem'
+          }}
+        />
+      ),
+    },
+    {
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
+      key: 'name',
+      width: 220,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text) => (
+        <span style={{ fontWeight: 600, color: '#1e293b' }}>{text}</span>
+      ),
+    },
+    {
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (text) => (
+        <span style={{ color: '#94a3b8', fontSize: '13px' }}>
+          {text || 'Không có mô tả'}
+        </span>
+      ),
+    },
+    {
+      title: 'Danh mục',
+      dataIndex: 'category',
+      key: 'category',
+      width: 130,
+      align: 'center',
+      render: (category) => (
+        <Tag 
+          color={
+            category === 'Bread' ? 'gold' : 
+            category === 'Cookie' ? 'orange' : 
+            'volcano'
+          }
+          style={{ fontWeight: 600, fontSize: '12px' }}
+        >
+          {category}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Giá',
+      dataIndex: 'price',
+      key: 'price',
+      width: 150,
+      align: 'center',
+      sorter: (a, b) => a.price - b.price,
+      render: (price) => (
+        <span style={{ fontWeight: 600, color: '#10b981', fontSize: '14px' }}>
+          {formatCurrency(price)}
+        </span>
+      ),
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      width: 120,
+      align: 'center',
+      fixed: 'right',
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            type="text"
+            icon={<FiEdit2 style={{ color: '#3b82f6' }} />}
+            onClick={() => {
+              setSelectedProduct(record);
+              setIsEditModalOpen(true);
+            }}
+            title="Chỉnh sửa"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          />
+          <Button
+            type="text"
+            icon={<FiTrash2 style={{ color: '#ef4444' }} />}
+            onClick={() => handleDelete(record)}
+            title="Xóa"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          />
+        </Space>
+      ),
+    },
+  ];
+
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: rowsPerPage,
+    total: filteredData.length,
+    onChange: (page) => setCurrentPage(page),
+    showSizeChanger: false,
   };
-
-  if (loading) {
-    return (
-      <div className="product-container">
-        <div className="loading-state">Đang tải dữ liệu...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="product-container">
-        <div className="error-state">
-          <p className="error-message">{error}</p>
-          <button onClick={fetchProducts} className="retry-btn">
-            Thử lại
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="product-container">
-      {/* Header */}
       <div className="product-header">
         <h2 className="product-title">Product Management</h2>
-        <p className="product-subtitle">
-          Quản lý sản phẩm bánh của cửa hàng • Tổng: {products.length} sản phẩm
-        </p>
+        <p className="product-subtitle">Quản lý sản phẩm bánh của cửa hàng</p>
       </div>
 
-      {/* Tabs + Actions */}
       <div className="tabs-action-bar">
         <div className="category-tabs">
           {CATEGORY_TABS.map(tab => (
             <div
               key={tab.id}
-              onClick={() => { setActiveCategory(tab.id); setCurrentPage(1); }}
+              onClick={() => { 
+                setActiveCategory(tab.id); 
+                setCurrentPage(1); 
+              }}
               className={`category-tab ${activeCategory === tab.id ? 'active' : ''}`}
             >
               {tab.label} <span className="tab-count">({categoryCount(tab.id)})</span>
@@ -288,172 +377,60 @@ export default function Product() {
               type="text"
               placeholder="Tìm theo tên, ID, mô tả..."
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => { 
+                setSearchQuery(e.target.value); 
+                setCurrentPage(1); 
+              }}
               className="search-input"
             />
           </div>
 
           <button onClick={handleExportCSV} className="export-btn">
-            <FiDownload />
-            Export
+            <FiDownload /> Export
           </button>
 
           <button onClick={() => setIsAddModalOpen(true)} className="add-product-btn">
-            <FiPlus />
-            Thêm sản phẩm
+            <FiPlus /> Thêm sản phẩm
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="table-container">
-        <table className="product-table">
-          <thead>
-            <tr>
-              <th className="col-id sortable" onClick={() => handleSort('id')}>
-                <div className="th-content">
-                  ID {getSortIcon('id')}
-                </div>
-              </th>
-              <th className="col-image">Hình ảnh</th>
-              <th className="col-name sortable" onClick={() => handleSort('name')}>
-                <div className="th-content">
-                  Tên sản phẩm {getSortIcon('name')}
-                </div>
-              </th>
-              <th className="col-desc">Mô tả</th>
-              <th className="col-category sortable" onClick={() => handleSort('category')}>
-                <div className="th-content">
-                  Danh mục {getSortIcon('category')}
-                </div>
-              </th>
-              <th className="col-price sortable" onClick={() => handleSort('price')}>
-                <div className="th-content">
-                  Giá {getSortIcon('price')}
-                </div>
-              </th>
-              <th className="col-actions">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedProducts.map(product => (
-              <tr key={product.id}>
-                <td className="col-id">
-                  <HighlightText text={product.id} highlight={searchQuery} />
-                </td>
-                <td className="col-image">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="product-image"
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/100'}
-                  />
-                </td>
-                <td className="col-name">
-                  <div className="product-name">
-                    <HighlightText text={product.name} highlight={searchQuery} />
-                  </div>
-                </td>
-                <td className="col-desc">
-                  <div className="product-desc">
-                    <HighlightText text={product.description} highlight={searchQuery} />
-                  </div>
-                </td>
-                <td className="col-category">
-                  <span className="category-badge">
-                    <HighlightText text={product.category} highlight={searchQuery} />
-                  </span>
-                </td>
-                <td className="col-price price-cell">
-                  {formatCurrency(product.price)}
-                </td>
-                <td className="col-actions">
-                  <div className="action-buttons">
-                    <button 
-                      onClick={() => handleEditClick(product)}
-                      className="icon-btn edit" 
-                      title="Chỉnh sửa"
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(product.id)} 
-                      className="icon-btn delete"
-                      title="Xóa"
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        dataSource={filteredData}
+        loading={loading}
+        pagination={paginationConfig}
+        rowKey="id"
+        scroll={{ x: 1200 }}
+        emptyText="Không tìm thấy sản phẩm nào"
+      />
 
-      {paginatedProducts.length === 0 && (
-        <div className="empty-state">
-          <p>Không tìm thấy sản phẩm nào</p>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Prev
-          </button>
-          
-          {Array.from({length: totalPages}, (_, i) => i + 1).map(page => {
-            if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                >
-                  {page}
-                </button>
-              );
-            } else if (page === currentPage - 2 || page === currentPage + 2) {
-              return <span key={page} className="pagination-ellipsis">...</span>;
-            }
-            return null;
-          })}
-          
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
-          
-          <span className="pagination-info">
-            Trang {currentPage} / {totalPages} • {sortedProducts.length} kết quả
-          </span>
-        </div>
-      )}
-
-      {/* Modals */}
-      <AddProductModal 
+      <FormModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddProduct}
+        title={{ 
+          add: 'Thêm sản phẩm mới',
+          addDesc: 'Điền thông tin sản phẩm mới'
+        }}
+        icon={FiPackage}
+        fields={productFields}
       />
 
-      <EditProductModal 
+      <FormModal 
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);
           setSelectedProduct(null);
         }}
         onSubmit={handleUpdateProduct}
-        product={selectedProduct}
+        data={selectedProduct}
+        title={{ 
+          edit: 'Chỉnh sửa sản phẩm',
+          editDesc: 'Cập nhật thông tin sản phẩm'
+        }}
+        icon={FiPackage}
+        fields={productFields}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 from unittest import result
 from flask import Blueprint, json, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -132,7 +131,8 @@ def api_create_order():
     customer_lat = data.get("lat")
     customer_lng = data.get("lng")
 
-    order, msg = create_order(
+    # order ở đây bây giờ là một dictionary chứa (order_id, status, customer_phone,...)
+    order_data, msg = create_order(
         customer_id,
         recipient_name,
         shipping_address,
@@ -141,12 +141,14 @@ def api_create_order():
         coupon_id
     )
 
-    if not order:
-        return jsonify({"error": msg}), 400
+    if not order_data:
+        return jsonify({"success": False, "error": msg}), 400
 
+    # Trả về toàn bộ order_data cho FE
     return jsonify({
+        "success": True,
         "message": msg,
-        "order_id": order.order_id
+        "data": order_data # Bao gồm order_id, status, customer_phone, updated_at...
     }), 200
 
 

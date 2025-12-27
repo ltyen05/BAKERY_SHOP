@@ -66,51 +66,55 @@ def find_user_instance(email):
 
 
 def request_password_reset(email):
-    # 1. Tìm user (Giữ nguyên code cũ của bạn)
     user, role = find_user_instance(email)
     if not user:
-        return False, "Email này chưa được đăng ký trong hệ thống."
+        return False, "Email này chưa được đăng ký."
 
-    # 2. Tạo Token (Giữ nguyên code cũ)
+    # Tạo Token reset
     reset_token = create_access_token(
         identity={"id": user.get_id(), "role": role, "type": "reset"},
         expires_delta=timedelta(minutes=15)
     )
 
-    # 3. Tạo Link (Sửa localhost:3000 thành domain thật nếu có)
-    link = f"http://localhost:3000/reset-password?token={reset_token}"
+    # Link này FE sẽ hứng token từ URL param và hiển thị form nhập pass mới
+    # Ví dụ: http://localhost:3000/auth/reset-password?token=...
+    frontend_url = "http://localhost:3000/reset-password"
+    link = f"{frontend_url}?token={reset_token}"
 
-    # 4. GỬI EMAIL THẬT (Sửa đoạn này)
     try:
         msg = Message(
-            subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
-            recipients=[email],  # Gửi đến email khách hàng nhập
-            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
+            subject="[Hus Bakery] Đặt lại mật khẩu của bạn",
+            recipients=[email],
+            # Bạn có thể dùng html thay vì body để nút bấm đẹp hơn
+            html=f"""
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+                    <h3>Yêu cầu đặt lại mật khẩu</h3>
+                    <p>Chào bạn, chúng tôi nhận được yêu cầu đổi mật khẩu cho tài khoản <b>{email}</b>.</p>
+                    <p>Vui lòng nhấn vào nút bên dưới để tiến hành thay đổi mật khẩu (Hiệu lực trong 15 phút):</p>
+                    <a href="{link}" style="background-color: #ff4d4f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Đặt lại mật khẩu</a>
+                    <p>Nếu không phải là bạn, hãy bỏ qua email này.</p>
+                </div>
+            """
         )
-
-        mail.send(msg)  # <--- Lệnh gửi quan trọng nhất
-
-        return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
-
+        mail.send(msg)
+        return True, "Email hướng dẫn đã được gửi."
     except Exception as e:
-        print(f"Lỗi gửi mail: {str(e)}")
-        return False, "Gửi email thất bại. Vui lòng thử lại sau."
+        return False, f"Lỗi gửi mail: {str(e)}"
 
 
 def reset_password_with_token(token, new_password):
     try:
         # 1. Giải mã token
         decoded = decode_token(token)
-        identity = decoded['sub']  # Lấy phần identity đã lưu lúc tạo token
+        identity = decoded['sub']
 
-        # Check an toàn: đảm bảo đây là token reset chứ không phải token đăng nhập
         if identity.get('type') != 'reset':
             return False, "Token không hợp lệ cho việc đổi mật khẩu."
 
         user_id = identity['id']
         role = identity['role']
 
-        # 2. Tìm lại User trong DB để sửa pass
+        # 2. Tìm lại User
         if role == 'customer':
             user = Customer.query.get(user_id)
         elif role == 'employee':
@@ -123,22 +127,19 @@ def reset_password_with_token(token, new_password):
         if not user:
             return False, "Người dùng không tồn tại."
 
-        # 3. Cập nhật mật khẩu mới (Mã hóa)
-        # Giả sử trong model bạn đặt tên cột là password_hash
-        # Nếu model bạn dùng hàm set_password() thì gọi user.set_password(new_password)
-        user.password_hash = generate_password_hash(new_password)
+        # 3. Cập nhật mật khẩu mới sử dụng hàm set_password đã có trong Model
+        if hasattr(user, 'set_password'):
+            user.set_password(new_password)
+        else:
+            # Nếu các bảng khác (Employee, Shipper) chưa có hàm set_password
+            from werkzeug.security import generate_password_hash
+            user.password = generate_password_hash(new_password)
 
         db.session.commit()
-        return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
+        return True, "Đặt lại mật khẩu thành công!"
 
     except Exception as e:
-        # THÊM DÒNG NÀY ĐỂ SOI LỖI:
-        print("========== LỖI RESET PASSWORD ==========")
-        print(e)
-        import traceback
-        traceback.print_exc()  # In chi tiết dòng nào bị lỗi
-        print("========================================")
-
+        print(f"Lỗi: {e}")
         return False, "Link đã hết hạn hoặc không hợp lệ."
 
 

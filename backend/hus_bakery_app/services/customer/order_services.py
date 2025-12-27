@@ -51,7 +51,7 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
     if not selected_items:
         return None, "Giỏ hàng rỗng hoặc chưa chọn sản phẩm"
 
-    # 3. Tính tiền
+    # 3. Tính tiền sản phẩm
     subtotal = 0
     for item in selected_items:
         product = Product.query.get(item.product_id)
@@ -67,11 +67,12 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             if subtotal >= coupon.min_purchase:
                 if coupon.discount_type == "percent":
                     discount = subtotal * (coupon.discount_percent / 100)
-                    if coupon.max_discount: discount = min(discount, coupon.max_discount)
+                    if coupon.max_discount:
+                        discount = min(discount, coupon.max_discount)
                 else:
                     discount = coupon.discount_value
 
-                # Update Coupon status
+                # Cập nhật trạng thái Coupon
                 cc.status = "used"
                 cc.used_at = datetime.now()
             else:
@@ -97,44 +98,67 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
     shipping_fee = min_dist * 5000
     total_amount = subtotal - discount + shipping_fee
 
-    # 6. Tìm Shipper (Optional)
+    # 6. Tìm Shipper (Nếu có thì gán, không có vẫn cho tạo đơn)
     shipper = Shipper.query.filter_by(branch_id=nearest_branch.branch_id, status="active").first()
     if shipper:
         shipper.status = "busy"
 
-    # 7. Lưu Order
+    # 7. Lưu vào Database
     try:
+        # Tạo Order mới
         new_order = Order(
             customer_id=customer_id,
             branch_id=nearest_branch.branch_id,
             shipper_id=shipper.shipper_id if shipper else None,
             shipping_address=shipping_address,
             recipient_name=recipient_name,
-            total_money=total_amount,  # Lưu ý: check lại tên cột trong DB là total_money hay total_amount
-            created_at=datetime.now(),
-            status="pending"
+            total_amount=total_amount, # Khớp với cột total_amount trong model
+            created_at=datetime.now()
         )
         db.session.add(new_order)
-        db.session.flush()  # Để lấy order_id ngay
+        db.session.flush() # Đẩy xuống DB tạm thời để lấy new_order.order_id
+
+        # 7.5 Tạo trạng thái đơn hàng ban đầu
+        new_status = OrderStatus(
+            order_id=new_order.order_id,
+            status="pending",
+            note="Đơn hàng đã được tạo và đang chờ xác nhận",
+            updated_at=datetime.now()
+        )
+        db.session.add(new_status)
 
         # 8. Lưu Order Items và Xóa Cart
         for item in selected_items:
             product = Product.query.get(item.product_id)
-            order_item = OrderItem(
-                order_id=new_order.order_id,
-                product_id=item.product_id,
-                quantity=item.quantity,
-                price=product.price
-            )
-            db.session.add(order_item)
-            db.session.delete(item)
+            if product:
+                order_item = OrderItem(
+                    order_id=new_order.order_id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=product.price
+                )
+                db.session.add(order_item)
+                db.session.delete(item) # Xóa khỏi giỏ hàng
 
         db.session.commit()
-        return new_order, "Đặt hàng thành công"
+
+        # 9. Chuẩn bị dữ liệu trả về cho Frontend
+        result = {
+            "order_id": new_order.order_id,
+            "total_amount": float(new_order.total_amount),
+            "recipient_name": new_order.recipient_name,
+            "customer_phone": new_order.customer.phone if new_order.customer else None, # Lấy SĐT từ bảng Customer qua relationship
+            "status": new_status.status,
+            "updated_at": new_status.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "note": new_status.note
+        }
+
+        return result, "Đặt hàng thành công"
+
     except Exception as e:
         db.session.rollback()
-        print(e)
-        return None, "Lỗi hệ thống khi tạo đơn"
+        print(f"Lỗi Create Order: {e}")
+        return None, f"Lỗi hệ thống: {str(e)}"
 
 
 # --- SECTION C: ADMIN ORDER MANAGEMENT (Đã di chuyển từ cart_services sang đây) ---

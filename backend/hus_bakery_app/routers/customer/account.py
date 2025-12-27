@@ -63,7 +63,6 @@ def profile_api():
             "name": user.name,
             "email": user.email,
             "phone": user.phone,
-            "address": user.address,
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
@@ -98,6 +97,7 @@ def update_avatar_api():
 @jwt_required()
 def change_password_api():
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     current_user_id = identity["id"]
 
     data = request.json

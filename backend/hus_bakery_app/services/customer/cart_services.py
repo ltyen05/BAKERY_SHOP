@@ -5,6 +5,7 @@ from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
 from datetime import datetime
 
+
 # ==========================
 # 1. ADD TO CART
 # ==========================
@@ -17,6 +18,7 @@ def add_to_cart(customer_id, product_id, quantity=1):
             customer_id=customer_id,
             product_id=product_id,
             quantity=quantity,
+            # Mặc định thêm vào là chọn luôn
         )
         db.session.add(item)
 

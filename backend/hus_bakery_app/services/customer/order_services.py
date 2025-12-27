@@ -9,7 +9,7 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.cart_item import CartItem
 from hus_bakery_app.models.products import Product
-from hus_bakery_app.models.branch import Branch
+from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer

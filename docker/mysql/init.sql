@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 23, 2025 lúc 06:14 PM
+-- Thời gian đã tạo: Th12 27, 2025 lúc 05:53 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -407,9 +407,9 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `branch_id`, `shipper_id`, `cou
 (13, 13, 3, 13, 12, 340000.00, 'Đào Minh Tuấn', '110 Tây Sơn, Đống Đa', 'Online', '2025-11-06 14:02:06'),
 (14, 14, 4, 14, 13, 275000.00, 'Bùi Quỳnh Chi', '72 Quang Trung, Hà Đông', 'COD', '2025-11-06 14:02:06'),
 (15, 15, 5, 15, 14, 900000.00, 'Trần Thị Vân', '89 Nguyễn Văn Cừ, Long Biên', 'Online', '2025-11-06 14:02:06'),
-(101, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
-(102, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
-(103, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
+(101, 16, 5, 8, NULL, 120000.00, 'abc', '120, Trường Chinh, Thanh Xuân, Hà Nội ', NULL, '2025-12-23 17:08:17'),
+(102, 16, 5, 21, NULL, 300000.00, 'abc', '120, Trường Chinh, Thanh Xuân, Hà Nội ', NULL, '2025-12-23 17:08:17'),
+(103, 16, 5, 21, NULL, 400000.00, 'abc', '120, Trường Chinh, Thanh Xuân, Hà Nội ', NULL, '2025-12-23 17:08:17'),
 (104, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
 (105, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
 (106, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, '2025-12-23 17:08:17'),
@@ -506,21 +506,24 @@ CREATE TABLE `order_status` (
 --
 
 INSERT INTO `order_status` (`order_id`, `status`, `updated_at`, `note`) VALUES
-(1, 'Đã giao', '2025-11-06 14:02:06', 'Giao hàng thành công'),
-(2, 'Đã giao', '2025-11-06 14:02:06', 'Khách nhận đầy đủ'),
-(3, 'Đã giao', '2025-11-06 14:02:06', 'Khách hài lòng'),
-(4, 'Đang giao', '2025-11-06 14:02:06', 'Shipper đang trên đường'),
-(5, 'Đã giao', '2025-11-06 14:02:06', 'Đơn hoàn tất'),
-(6, 'Đang xử lý', '2025-11-06 14:02:06', 'Đang chuẩn bị bánh'),
-(7, 'Đã giao', '2025-11-06 14:02:06', 'Khách thanh toán online'),
-(8, 'Đã giao', '2025-11-06 14:02:06', 'Giao đúng giờ'),
-(9, 'Đã giao', '2025-11-06 14:02:06', 'Giao đủ món'),
-(10, 'Đang giao', '2025-11-06 14:02:06', 'Shipper vừa lấy hàng'),
-(11, 'Đã giao', '2025-11-06 14:02:06', 'Khách VIP đã nhận'),
-(12, 'Đang xử lý', '2025-11-06 14:02:06', 'Đang đóng gói'),
-(13, 'Đã giao', '2025-11-06 14:02:06', 'Giao nhanh, khách khen'),
-(14, 'Đã giao', '2025-11-06 14:02:06', 'Đơn hoàn tất'),
-(15, 'Đã giao', '2025-11-06 14:02:06', 'Khách rất hài lòng');
+(1, 'Đã giao', '2025-12-26 17:59:22', 'Hoàn thành'),
+(2, 'Đã giao', '2025-12-26 18:00:34', 'Không thành công\r\n'),
+(3, 'Đã giao', '2025-12-26 17:59:53', 'Đã hủy'),
+(4, 'Đang giao', '2025-12-26 18:01:09', 'Không thành công'),
+(5, 'Đã giao', '2025-12-26 18:01:17', 'Không thành công'),
+(6, 'Đang xử lý', '2025-12-26 18:01:30', 'Hoàn thành'),
+(7, 'Đã giao', '2025-12-26 18:01:44', 'Hoàn thành'),
+(8, 'Đã giao', '2025-12-26 18:02:08', 'Hoàn thành\r\n'),
+(9, 'Đã giao', '2025-12-26 18:00:01', 'Đã hủy'),
+(10, 'Đang giao', '2025-12-26 18:02:23', 'Hoàn thành'),
+(11, 'Đã giao', '2025-12-26 18:02:44', 'Hoàn thành'),
+(12, 'Đang xử lý', '2025-12-26 18:03:26', 'Hoàn thành'),
+(13, 'Đã giao', '2025-12-26 18:03:20', 'Hoàn thành'),
+(14, 'Đã giao', '2025-12-26 18:03:15', 'Hoàn thành'),
+(15, 'Đã giao', '2025-12-26 18:00:13', 'Đã hủy\r\n'),
+(101, '\"Hoàn Thành\"', '2025-12-27 04:52:47', ''),
+(102, '\"Hoàn Thành\"', '2025-12-27 04:53:23', ''),
+(103, '\"Hoàn Thành\"', '2025-12-27 04:53:30', '');
 
 -- --------------------------------------------------------
 

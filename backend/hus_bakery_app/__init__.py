@@ -37,6 +37,7 @@ def create_app():
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+    app.config['WTF_CSRF_ENABLED'] = False
 
     db.init_app(app)
     jwt.init_app(app)
@@ -56,17 +57,17 @@ def create_app():
     from hus_bakery_app.routers.admin.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
     from hus_bakery_app.routers.admin.order_management import order_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/order_management')
+    app.register_blueprint(order_admin_bp, url_prefix='/admin/order_management')
     from hus_bakery_app.routers.admin.product_management import product_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/product_management')
+    app.register_blueprint(product_admin_bp, url_prefix='/admin/product_management')
     from hus_bakery_app.routers.admin.customer_management import customer_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/customer_management')
+    app.register_blueprint(customer_admin_bp, url_prefix='/admin/customer_management')
     from hus_bakery_app.routers.admin.employee_management import employee_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/employee_management')
+    app.register_blueprint(employee_admin_bp, url_prefix='/admin/employee_management')
     from hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/coupon_management')
+    app.register_blueprint(coupon_admin_bp, url_prefix='/admin/coupon_management')
     from hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/shipper_management')
+    app.register_blueprint(shipper_admin_bp, url_prefix='/admin/shipper_management')
 
     from hus_bakery_app.routers.shipper.notifications import shipper_notifications_bp
     app.register_blueprint(shipper_notifications_bp, url_prefix='/api/shipper')

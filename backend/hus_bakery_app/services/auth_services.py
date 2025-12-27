@@ -131,6 +131,13 @@ def reset_password_with_token(token, new_password):
         return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
 
     except Exception as e:
+        # THÊM DÒNG NÀY ĐỂ SOI LỖI:
+        print("========== LỖI RESET PASSWORD ==========")
+        print(e) 
+        import traceback
+        traceback.print_exc() # In chi tiết dòng nào bị lỗi
+        print("========================================")
+        
         return False, "Link đã hết hạn hoặc không hợp lệ."
 
 

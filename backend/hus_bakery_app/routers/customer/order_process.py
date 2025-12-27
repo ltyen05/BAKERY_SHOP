@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-import json
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from ...services.customer.cart_services import (
-    # add_to_cart,
-    # update_selected,
-=======
+
 from unittest import result
 from flask import Blueprint, json, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -13,20 +6,16 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.services.customer.cart_services import (
     add_to_cart,
     update_selected,
->>>>>>> backend
     get_cart,
     coupon_of_customer,
     coupon_info,
     remove_from_cart,
     update_cart_quantity
 )
-<<<<<<< HEAD
 from ...services.customer.order_services import create_order
 from ...services.customer.order_services import create_order
 
-=======
-from hus_bakery_app.services.customer.order_services import create_order
->>>>>>> backend
+
 
 order_bp = Blueprint("order_bp", __name__)
 

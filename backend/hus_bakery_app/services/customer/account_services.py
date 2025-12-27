@@ -56,7 +56,11 @@ def update_profile(customer_id, profile):
     # Cập nhật Số điện thoại
     if "phone" in profile:
         user.phone = profile["phone"].strip()
-
+    
+    if "name" in profile:
+        name = profile["name"].strip()
+        user.name = name
+        
     db.session.commit()
     return True, "Cập nhật thành công"
 

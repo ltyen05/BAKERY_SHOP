@@ -14,6 +14,8 @@ from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
 
+from hus_bakery_app.models.order_status import OrderStatus
+
 
 # --- SECTION A: UTILS & HELPERS ---
 def geocode_address(address):
@@ -39,7 +41,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 # --- SECTION B: CLIENT ORDER CREATION ---
-def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, coupon_id=None):
+def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, phone, coupon_id=None):
     # 1. Xử lý tọa độ
     if not customer_lat or not customer_lng:
         customer_lat, customer_lng = geocode_address(shipping_address)
@@ -56,7 +58,12 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
     for item in selected_items:
         product = Product.query.get(item.product_id)
         if product:
-            subtotal += float(product.price) * item.quantity
+            try:
+                # Sử dụng thuộc tính 'price' đã đồng bộ với CSDL
+                price = getattr(product, 'price', 0)
+                subtotal += float(price) * item.quantity
+            except (TypeError, ValueError):
+                print(f"Lỗi giá sản phẩm ID {product.product_id}")
 
     # 4. Tính mã giảm giá
     discount = 0
@@ -71,8 +78,6 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
                         discount = min(discount, coupon.max_discount)
                 else:
                     discount = coupon.discount_value
-
-                # Cập nhật trạng thái Coupon
                 cc.status = "used"
                 cc.used_at = datetime.now()
             else:
@@ -80,11 +85,10 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
         else:
             return None, "Mã giảm giá không hợp lệ"
 
-    # 5. Tính phí ship (Tìm branch gần nhất)
+    # 5. Tính phí ship
     branches = Branch.query.all()
     nearest_branch = None
     min_dist = 10 ** 9
-
     for b in branches:
         if b.lat and b.lng:
             dist = haversine(customer_lat, customer_lng, b.lat, b.lng)
@@ -98,27 +102,28 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
     shipping_fee = min_dist * 5000
     total_amount = subtotal - discount + shipping_fee
 
-    # 6. Tìm Shipper (Nếu có thì gán, không có vẫn cho tạo đơn)
+    # 6. Tìm Shipper
     shipper = Shipper.query.filter_by(branch_id=nearest_branch.branch_id, status="active").first()
     if shipper:
         shipper.status = "busy"
 
     # 7. Lưu vào Database
     try:
-        # Tạo Order mới
+        # Tạo Order mới với cột 'phone'
         new_order = Order(
             customer_id=customer_id,
             branch_id=nearest_branch.branch_id,
             shipper_id=shipper.shipper_id if shipper else None,
             shipping_address=shipping_address,
             recipient_name=recipient_name,
-            total_amount=total_amount, # Khớp với cột total_amount trong model
+            phone=phone, # Gán trực tiếp SĐT vào cột phone của bảng orders
+            total_amount=total_amount,
             created_at=datetime.now()
         )
         db.session.add(new_order)
-        db.session.flush() # Đẩy xuống DB tạm thời để lấy new_order.order_id
+        db.session.flush()
 
-        # 7.5 Tạo trạng thái đơn hàng ban đầu
+        # 7.5 Tạo trạng thái đơn hàng
         new_status = OrderStatus(
             order_id=new_order.order_id,
             status="pending",
@@ -135,10 +140,10 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
                     order_id=new_order.order_id,
                     product_id=item.product_id,
                     quantity=item.quantity,
-                    price=product.price
+                    price=getattr(product, 'price', 0)
                 )
                 db.session.add(order_item)
-                db.session.delete(item) # Xóa khỏi giỏ hàng
+                db.session.delete(item)
 
         db.session.commit()
 
@@ -147,7 +152,7 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             "order_id": new_order.order_id,
             "total_amount": float(new_order.total_amount),
             "recipient_name": new_order.recipient_name,
-            "customer_phone": new_order.customer.phone if new_order.customer else None, # Lấy SĐT từ bảng Customer qua relationship
+            "phone": new_order.phone, # Trả về phone từ bảng orders
             "status": new_status.status,
             "updated_at": new_status.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             "note": new_status.note
@@ -159,8 +164,6 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
         db.session.rollback()
         print(f"Lỗi Create Order: {e}")
         return None, f"Lỗi hệ thống: {str(e)}"
-
-
 # --- SECTION C: ADMIN ORDER MANAGEMENT (Đã di chuyển từ cart_services sang đây) ---
 
 def get_all_orders_service(status=None, page=1, per_page=10):

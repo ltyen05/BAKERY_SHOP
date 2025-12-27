@@ -70,51 +70,42 @@ def request_password_reset(email):
     if not user:
         return False, "Email này chưa được đăng ký."
 
-    # Tạo Token reset
+    # BẮT BUỘC: Dùng json.dumps để đồng bộ với hàm generate_token của bạn
+    reset_data = json.dumps({"id": user.get_id(), "role": role, "type": "reset"})
+
     reset_token = create_access_token(
-        identity={"id": user.get_id(), "role": role, "type": "reset"},
+        identity=reset_data,
         expires_delta=timedelta(minutes=15)
     )
 
-    # Link này FE sẽ hứng token từ URL param và hiển thị form nhập pass mới
-    # Ví dụ: http://localhost:3000/auth/reset-password?token=...
-    frontend_url = "http://localhost:3000/reset-password"
-    link = f"{frontend_url}?token={reset_token}"
+    link = f"http://localhost:3000/reset-password?token={reset_token}"
 
     try:
         msg = Message(
-            subject="[Hus Bakery] Đặt lại mật khẩu của bạn",
+            subject="[Hus Bakery] Đặt lại mật khẩu",
             recipients=[email],
-            # Bạn có thể dùng html thay vì body để nút bấm đẹp hơn
-            html=f"""
-                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
-                    <h3>Yêu cầu đặt lại mật khẩu</h3>
-                    <p>Chào bạn, chúng tôi nhận được yêu cầu đổi mật khẩu cho tài khoản <b>{email}</b>.</p>
-                    <p>Vui lòng nhấn vào nút bên dưới để tiến hành thay đổi mật khẩu (Hiệu lực trong 15 phút):</p>
-                    <a href="{link}" style="background-color: #ff4d4f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Đặt lại mật khẩu</a>
-                    <p>Nếu không phải là bạn, hãy bỏ qua email này.</p>
-                </div>
-            """
+            html=f"<p>Nhấn vào <a href='{link}'>đây</a> để đổi mật khẩu.</p>"
         )
         mail.send(msg)
-        return True, "Email hướng dẫn đã được gửi."
+        return True, "Email đã được gửi."
     except Exception as e:
-        return False, f"Lỗi gửi mail: {str(e)}"
-
+        print(f"SMTP ERROR: {e}")  # Xem lỗi này ở Terminal Docker
+        return False, "Gửi email thất bại. Vui lòng thử lại sau."
 
 def reset_password_with_token(token, new_password):
     try:
         # 1. Giải mã token
         decoded = decode_token(token)
-        identity = decoded['sub']
+        identity = decoded['sub']  # Lấy phần identity đã lưu lúc tạo token
 
+        # Check an toàn: đảm bảo đây là token reset chứ không phải token đăng nhập
         if identity.get('type') != 'reset':
             return False, "Token không hợp lệ cho việc đổi mật khẩu."
 
         user_id = identity['id']
         role = identity['role']
 
-        # 2. Tìm lại User
+        # 2. Tìm lại User trong DB để sửa pass
         if role == 'customer':
             user = Customer.query.get(user_id)
         elif role == 'employee':
@@ -127,19 +118,22 @@ def reset_password_with_token(token, new_password):
         if not user:
             return False, "Người dùng không tồn tại."
 
-        # 3. Cập nhật mật khẩu mới sử dụng hàm set_password đã có trong Model
-        if hasattr(user, 'set_password'):
-            user.set_password(new_password)
-        else:
-            # Nếu các bảng khác (Employee, Shipper) chưa có hàm set_password
-            from werkzeug.security import generate_password_hash
-            user.password = generate_password_hash(new_password)
+        # 3. Cập nhật mật khẩu mới (Mã hóa)
+        # Giả sử trong model bạn đặt tên cột là password_hash
+        # Nếu model bạn dùng hàm set_password() thì gọi user.set_password(new_password)
+        user.password_hash = generate_password_hash(new_password)
 
         db.session.commit()
-        return True, "Đặt lại mật khẩu thành công!"
+        return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
 
     except Exception as e:
-        print(f"Lỗi: {e}")
+        # THÊM DÒNG NÀY ĐỂ SOI LỖI:
+        print("========== LỖI RESET PASSWORD ==========")
+        print(e)
+        import traceback
+        traceback.print_exc()  # In chi tiết dòng nào bị lỗi
+        print("========================================")
+
         return False, "Link đã hết hạn hoặc không hợp lệ."
 
 

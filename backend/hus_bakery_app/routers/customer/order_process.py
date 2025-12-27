@@ -48,7 +48,6 @@ def api_add_to_cart():
 @order_bp.route("/changeQuantity", methods=["POST"])
 @jwt_required()
 def api_change_quantity():
-    # ✅ LẤY customer_id TỪ JWT
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
     data = request.json
@@ -121,17 +120,19 @@ def api_coupon_info(coupon_id):
 # 6. CREATE ORDER
 # ==========================
 @order_bp.route("/order", methods=["POST"])
+@jwt_required()  # Thêm decorator bảo mật
 def api_create_order():
-    data = request.json
+    # Lấy customer_id an toàn từ Token
+    identity = json.loads(get_jwt_identity())
+    customer_id = identity["id"]
 
-    customer_id = data.get("customer_id")
+    data = request.json
     shipping_address = data.get("shipping_address")
     recipient_name = data.get("recipient_name")
     coupon_id = data.get("coupon_id")
     customer_lat = data.get("lat")
     customer_lng = data.get("lng")
 
-    # order ở đây bây giờ là một dictionary chứa (order_id, status, customer_phone,...)
     order_data, msg = create_order(
         customer_id,
         recipient_name,
@@ -140,10 +141,6 @@ def api_create_order():
         customer_lng,
         coupon_id
     )
-
-    if not order_data:
-        return jsonify({"success": False, "error": msg}), 400
-
     # Trả về toàn bộ order_data cho FE
     return jsonify({
         "success": True,

@@ -15,20 +15,4 @@ class Order(db.Model):
     payment_method = db.Column(db.String(50))
     created_at = db.Column(db.DateTime)
     status_entry = db.relationship('OrderStatus', backref='order', uselist=False)
-    customer = db.relationship('Customer', backref='orders')
-
-    def to_dict(self):
-        return {
-            "order_id": self.order_id,
-            "total_amount": float(self.total_amount) if self.total_amount else 0,
-            "recipient_name": self.recipient_name,
-            "shipping_address": self.shipping_address,
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
-
-            # Lấy SĐT từ bảng Customer
-            "customer_phone": self.customer.phone if self.customer else None,
-
-            # Lấy Status và Note từ bảng OrderStatus
-            "status": self.status_entry.status if self.status_entry else "N/A",
-            "status_note": self.status_entry.note if self.status_entry else ""
-        }
+    phone = db.Column(db.String(20))

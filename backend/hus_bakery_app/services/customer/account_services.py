@@ -183,7 +183,7 @@ def get_virtual_notifications(customer_id):
 
 def get_latest_active_order_id(customer_id):
     # Trạng thái được coi là "đã hoàn thành/kết thúc" cần loại bỏ
-    finished_statuses = ["Đang giao", "Đang xử lí"]
+    finished_statuses = ["Đã giao", "Đang xử lí"]
 
     # Truy vấn đơn hàng mới nhất của khách hàng
     # Join với OrderStatus để kiểm tra trạng thái hiện tại

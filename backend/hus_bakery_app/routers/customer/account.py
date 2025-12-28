@@ -7,10 +7,12 @@ from hus_bakery_app.services.customer.account_services import (
     total_amount_of_customer,
     get_customer_rank_service,
     get_order_history_service,
-    get_virtual_notifications
+    get_virtual_notifications,
+    get_latest_active_order_id
 )
 from hus_bakery_app.models.customer import Customer
 import json
+from hus_bakery_app.services.customer.order_services import get_order_detail_service
 
 account_bp = Blueprint("account", __name__)
 
@@ -147,3 +149,24 @@ def api_notifications():
         "count": len(data),
         "data": data
     }), 200
+
+
+@account_bp.route("/current-active-order", methods=["GET"])
+@jwt_required()
+def api_get_current_order():
+    identity = json.loads(get_jwt_identity())
+    customer_id = identity["id"]
+
+    # Bước 1: Tìm ID đơn hàng active mới nhất
+    order_id = get_latest_active_order_id(customer_id)
+
+    if not order_id:
+        return jsonify({"message": "Bạn không có đơn hàng nào đang xử lý"}), 404
+
+    # Bước 2: Lấy chi tiết qua service
+    order_detail, error = get_order_detail_service(order_id)
+
+    if error:
+        return jsonify({"message": error}), 400
+
+    return jsonify(order_detail), 200

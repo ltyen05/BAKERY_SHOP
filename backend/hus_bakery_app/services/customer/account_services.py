@@ -9,6 +9,7 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
+from hus_bakery_app.models.feedback import Feedback
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
@@ -179,3 +180,18 @@ def get_virtual_notifications(customer_id):
             })
 
     return notifications
+
+def get_latest_active_order_id(customer_id):
+    # Trạng thái được coi là "đã hoàn thành/kết thúc" cần loại bỏ
+    finished_statuses = ["Đang giao", "Đang xử lí"]
+
+    # Truy vấn đơn hàng mới nhất của khách hàng
+    # Join với OrderStatus để kiểm tra trạng thái hiện tại
+    latest_order = db.session.query(Order) \
+        .join(OrderStatus, Order.order_id == OrderStatus.order_id) \
+        .filter(Order.customer_id == customer_id) \
+        .filter(~OrderStatus.status.in_(finished_statuses)) \
+        .order_by(Order.created_at.desc()) \
+        .first()
+
+    return latest_order.order_id if latest_order else None

@@ -13,8 +13,8 @@ from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
-
 from hus_bakery_app.models.order_status import OrderStatus
+from hus_bakery_app.models.shipper_notificationss import ShipperNotification
 
 
 # --- SECTION A: UTILS & HELPERS ---
@@ -99,6 +99,15 @@ def create_order(customer_id, recipient_name, shipping_address, phone, branch_id
         )
         db.session.add(new_order)
         db.session.flush()
+
+        if shipper:
+            shipper.status = "busy"
+            # Khởi tạo bản ghi với tên lớp mới
+            new_noti = ShipperNotification(
+                shipper_id=shipper.shipper_id,
+                order_id=new_order.order_id
+            )
+            db.session.add(new_noti)
 
         # 7.5 Tạo trạng thái đơn hàng
         new_status = OrderStatus(

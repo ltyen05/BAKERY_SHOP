@@ -13,6 +13,8 @@ from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
+from hus_bakery_app.models.order_status import OrderStatus
+from hus_bakery_app.models.shipper_notificationss import ShipperNotification
 
 from hus_bakery_app.models.order_status import OrderStatus
 
@@ -41,18 +43,18 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 # --- SECTION B: CLIENT ORDER CREATION ---
-def create_order(customer_id, recipient_name, shipping_address, customer_lat, customer_lng, coupon_id=None):
+def create_order(customer_id, recipient_name, shipping_address, phone, branch_id, total_amount, payment_method,coupon_id=None):
     # 1. Xử lý tọa độ
-    if not customer_lat or not customer_lng:
-        customer_lat, customer_lng = geocode_address(shipping_address)
-        if not customer_lat:
-            return None, "Không thể tìm tọa độ từ địa chỉ"
+    customer_lat, customer_lng = geocode_address(shipping_address)
+    branch_address = Branch.query.filter_by(brach_id=branch_id).first()
+    branch_lat, branch_lon= geocode_address(shipping_address)
 
     # 2. Lấy item trong giỏ
-    selected_items = CartItem.query.filter_by(customer_id=customer_id, selected=True).all()
+    selected_items = CartItem.query.filter_by(customer_id=customer_id).all()
     if not selected_items:
         return None, "Giỏ hàng rỗng hoặc chưa chọn sản phẩm"
 
+<<<<<<< HEAD
     # 3. Tính tiền sản phẩm
     subtotal = 0
     for item in selected_items:
@@ -67,32 +69,43 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
                 print(f"Lỗi giá sản phẩm ID {product.product_id}")
 
     # 4. Tính mã giảm giá
+=======
+    # 3. Tính mã giảm giá
+>>>>>>> backend
     discount = 0
     if coupon_id:
         cc = CouponCustomer.query.filter_by(customer_id=customer_id, coupon_id=coupon_id, status="unused").first()
         if cc:
             coupon = Coupon.query.get(coupon_id)
-            if subtotal >= coupon.min_purchase:
+            if total_amount >= coupon.min_purchase:
                 if coupon.discount_type == "percent":
+<<<<<<< HEAD
                     discount = subtotal * (coupon.discount_percent / 100)
+=======
+                    discount = total_amount * (coupon.discount_percent / 100)
+>>>>>>> backend
                     if coupon.max_discount:
                         discount = min(discount, coupon.max_discount)
                 else:
                     discount = coupon.discount_value
+<<<<<<< HEAD
 
                 # Cập nhật trạng thái Coupon
+=======
+>>>>>>> backend
                 cc.status = "used"
                 cc.used_at = datetime.now()
             else:
                 return None, f"Đơn hàng chưa đạt tối thiểu {coupon.min_purchase}"
         else:
             return None, "Mã giảm giá không hợp lệ"
+    #4. Khoảng cách
+    dist = haversine(customer_lat, customer_lng, branch_lat, branch_lon)
 
-    # 5. Tính phí ship (Tìm branch gần nhất)
-    branches = Branch.query.all()
-    nearest_branch = None
-    min_dist = 10 ** 9
+    shipping_fee = dist * 5000
+    total_amount = total_amount - discount + shipping_fee
 
+<<<<<<< HEAD
     for b in branches:
         if b.lat and b.lng:
             dist = haversine(customer_lat, customer_lng, b.lat, b.lng)
@@ -112,14 +125,24 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
         shipper.status = "busy"
 
     # 7. Lưu vào Database
+=======
+    # 5. Tìm Shipper
+    shipper = Shipper.query.filter_by(branch_id=branch_id, status="active").first()
+    if shipper:
+        shipper.status = "busy"
+
+    # 6. Lưu vào Database
+>>>>>>> backend
     try:
         # Tạo Order mới
         new_order = Order(
             customer_id=customer_id,
-            branch_id=nearest_branch.branch_id,
+            branch_id=branch_id,
             shipper_id=shipper.shipper_id if shipper else None,
-            shipping_address=shipping_address,
+            coupon=coupon_id,
+            total_amount=total_amount,
             recipient_name=recipient_name,
+<<<<<<< HEAD
             total_amount=total_amount, # Khớp với cột total_amount trong model
             created_at=datetime.now()
         )
@@ -131,6 +154,30 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             order_id=new_order.order_id,
             status="pending",
             note="Đơn hàng đã được tạo và đang chờ xác nhận",
+=======
+            phone=phone,
+            shipping_address=shipping_address,
+            payment_method=payment_method,
+            created_at=datetime.now(),
+            note="Đơn hàng đã được tạo và đang chờ xác nhận",
+        )
+        db.session.add(new_order)
+        db.session.flush()
+
+        if shipper:
+            shipper.status = "busy"
+            # Khởi tạo bản ghi với tên lớp mới
+            new_noti = ShipperNotification(
+                shipper_id=shipper.shipper_id,
+                order_id=new_order.order_id
+            )
+            db.session.add(new_noti)
+
+        # 7.5 Tạo trạng thái đơn hàng
+        new_status = OrderStatus(
+            order_id=new_order.order_id,
+            status="Đang xử lí",
+>>>>>>> backend
             updated_at=datetime.now()
         )
         db.session.add(new_status)
@@ -143,7 +190,10 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
                     order_id=new_order.order_id,
                     product_id=item.product_id,
                     quantity=item.quantity,
+<<<<<<< HEAD
                     # SỬA LỖI: Đồng nhất tên thuộc tính ở đây
+=======
+>>>>>>> backend
                     price=getattr(product, 'price', 0)
                 )
                 db.session.add(order_item)
@@ -156,9 +206,15 @@ def create_order(customer_id, recipient_name, shipping_address, customer_lat, cu
             "order_id": new_order.order_id,
             "total_amount": float(new_order.total_amount),
             "recipient_name": new_order.recipient_name,
+<<<<<<< HEAD
             "customer_phone": new_order.customer.phone if new_order.customer else None, # Lấy SĐT từ bảng Customer qua relationship
             "status": new_status.status,
             "updated_at": new_status.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+=======
+            "phone": new_order.phone,
+            "status": new_status.status,
+            "updated_at": new_status.updated_at,
+>>>>>>> backend
             "note": new_status.note
         }
 

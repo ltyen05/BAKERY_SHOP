@@ -31,11 +31,13 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == "True"
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = ('Hus Bakery', os.environ.get('MAIL_USERNAME'))
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
     app.config['WTF_CSRF_ENABLED'] = False
 
@@ -70,7 +72,10 @@ def create_app():
     app.register_blueprint(shipper_admin_bp, url_prefix='/admin/shipper_management')
 
     from hus_bakery_app.routers.shipper.notifications import shipper_notifications_bp
-    app.register_blueprint(shipper_notifications_bp, url_prefix='/api/shipper')
+    app.register_blueprint(shipper_notifications_bp, url_prefix='/shipper/notifications')
+    from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
+    app.register_blueprint(shipper_stats_bp, url_prefix='/shipper/statistics')
+
     @app.route("/test_db")
     def test_db():
         try:

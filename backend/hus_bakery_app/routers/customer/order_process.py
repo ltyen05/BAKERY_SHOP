@@ -129,16 +129,25 @@ def api_create_order():
     data = request.json
     shipping_address = data.get("shipping_address")
     recipient_name = data.get("recipient_name")
+    phone = data.get("phone")
+    branch_id = data.get("branch_id")
     coupon_id = data.get("coupon_id")
+<<<<<<< HEAD
     customer_lat = data.get("lat")
     customer_lng = data.get("lng")
 
+=======
+    total_amount = data.get("total_amount")
+    payment_method = data.get("payment_method")
+>>>>>>> backend
     order_data, msg = create_order(
         customer_id,
         recipient_name,
+        phone,
+        total_amount,
+        branch_id,
         shipping_address,
-        customer_lat,
-        customer_lng,
+        payment_method,
         coupon_id
     )
     # Trả về toàn bộ order_data cho FE

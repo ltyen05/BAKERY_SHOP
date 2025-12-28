@@ -128,7 +128,7 @@ docker compose up --build -d
 Hệ thống API được thiết kế theo chuẩn **RESTful**, đảm bảo kết nối chính xác và ổn định giữa Backend và các ứng dụng FrontEnd:
 
 * **Tài liệu API (Postman)**: Danh sách endpoints và hướng dẫn gọi API chi tiết đã được công khai tại:
-    * **Public Link**: [Dán link Public của bạn tại đây]
+    * **Public Link**: https://spaceflight-participant-74027985-8059245.postman.co/workspace/THACH-NGUYEN-BAO's-Workspace~305f06ff-7319-418d-8c4a-31782c4990aa/request/51061135-1b951c33-43f1-4d46-8482-be6cb5646023?action=share&creator=51061135&ctx=documentation&active-environment=51061135-1aeea58a-799d-464e-891c-5d6e7bb05268
 * **Kiểm thử hệ thống**:
     * **Chức năng**: Đảm bảo truy xuất và xử lý dữ liệu chính xác từ CSDL thông qua lớp Service và API.
     * **Phân quyền & Bảo mật**: Thực hiện kiểm tra nghiêm ngặt quyền truy cập dựa trên vai trò (**Admin/Customer**). Các endpoint quản trị (`/admin/*`) chỉ dành riêng cho nhân viên có quyền hạn.

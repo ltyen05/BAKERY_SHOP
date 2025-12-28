@@ -1,16 +1,17 @@
 from .. import db
 from sqlalchemy import func
 
+
 class Product(db.Model):
     __tablename__ = 'products'
-    
+
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.String(500), nullable=True)
     unit_price = db.Column(db.Numeric(10, 2), nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id', ondelete='SET NULL'), nullable=True)
- 
+
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.Date, nullable=True)
 

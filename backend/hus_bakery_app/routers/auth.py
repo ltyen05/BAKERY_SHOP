@@ -171,4 +171,3 @@ def reset_password():
     else:
         return jsonify({"status": "fail", "message": message}), 400
 
-

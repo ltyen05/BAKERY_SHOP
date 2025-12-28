@@ -34,7 +34,7 @@ def get_product_details(product_id):
 @product_bp.route("/top-selling", methods=["GET"])
 def api_get_top_products():
     # Dòng này PHẢI xuất hiện trong log Docker khi bạn bấm Send ở Postman
-    print(">>> Kiem tra Router: Co chay vao day!") 
+    print(">>> Kiem tra Router: Co chay vao day!")
     try:
         top_products = get_top_3_products_service()
         if not top_products:

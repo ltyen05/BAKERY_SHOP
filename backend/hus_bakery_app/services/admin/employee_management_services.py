@@ -17,7 +17,6 @@ def add_employee_service(data):
         salary=data.get('salary'),
         branch_id=data.get('branch_id')
     )
-    # Gán status riêng vì không có trong __init__
     new_emp.status = data.get('status', 'active')
 
     db.session.add(new_emp)

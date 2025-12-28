@@ -18,7 +18,6 @@ def get_coupons():
 
         coupon_list.append({
             'coupon_id': c.coupon_id,
-            'coupon_code': c.coupon_code,
             'discount_value': float(c.discount_value) if c.discount_value else 0,
             'start_date': c.start_date.strftime('%Y-%m-%d') if c.start_date else None,
             'end_date': c.end_date.strftime('%Y-%m-%d') if c.end_date else None,

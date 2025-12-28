@@ -13,7 +13,7 @@ def get_all_products_admin_service():
         "price": float(p.unit_price),
         "description": p.description,
         "rating": getattr(p, 'rating', 5.0),  # Giả sử mặc định 5.0
-        "image": p.avatar
+        "image": p.image_url
     } for p in products]
 
 def add_product_service(data):
@@ -36,7 +36,7 @@ def edit_product_service(product_id, data):
     product.name = data.get('name', product.name)
     product.price = data.get('price', product.unit_price)
     product.description = data.get('description', product.description)
-    product.avatar = data.get('image', product.image_url)
+    product.image_url = data.get('image', product.image_url)
 
     db.session.commit()
     return product

@@ -1,3 +1,6 @@
+// ===============================================
+// Location:src/pages/Products/ProductsView.jsx 
+// ===============================================
 import React, { useState, useEffect, useMemo } from 'react';
 import { Image, Tag, Space, Button, Modal, message } from 'antd';
 import { 
@@ -220,6 +223,7 @@ export default function Product() {
       key: 'id',
       width: 80,
       align: 'center',
+      fixed: 'left',
       sorter: (a, b) => a.id - b.id,
     },
     {
@@ -306,7 +310,6 @@ export default function Product() {
       key: 'actions',
       width: 120,
       align: 'center',
-      fixed: 'right',
       render: (_, record) => (
         <Space size="small">
           <Button

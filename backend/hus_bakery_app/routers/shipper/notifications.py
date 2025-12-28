@@ -1,9 +1,10 @@
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 from hus_bakery_app.services.shipper.order_notifications import check_new_order_for_shipper
 from hus_bakery_app.models.shipper_notificationss import ShipperNotification
+from hus_bakery_app.services.update_status_order import update_status_order
 from hus_bakery_app import db
 
 # Tạo Blueprint với tên trùng với folder để dễ quản lý
@@ -41,3 +42,21 @@ def mark_read(noti_id):
         noti.is_read = True
         db.session.commit()
     return jsonify({"success": True}), 200
+
+
+@shipper_notifications_bp.route("/update_order_status", methods=["POST"])
+@jwt_required()
+def update_order_status():
+    data = request.get_json()
+    order_id = data.get("order_id")
+    status = data.get("status")
+
+    if not order_id or not status:
+        return jsonify({"success": False, "message": "Thiếu thông tin order_id hoặc status"}), 400
+
+    success, message = update_status_order(order_id, status)
+
+    if success:
+        return jsonify({"success": True, "message": message}), 200
+    else:
+        return jsonify({"success": False, "message": message}), 500

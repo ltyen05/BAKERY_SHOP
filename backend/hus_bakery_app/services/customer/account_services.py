@@ -195,6 +195,5 @@ def get_latest_active_order_id(customer_id):
         .filter(Order.customer_id == customer_id) \
         .filter(~has_finished_status) \
         .order_by(Order.created_at.desc()) \
-        .first()
 
     return latest_order.order_id if latest_order else None

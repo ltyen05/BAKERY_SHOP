@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 28, 2025 lúc 04:42 PM
+-- Thời gian đã tạo: Th12 28, 2025 lúc 04:58 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -824,6 +824,44 @@ INSERT INTO `shippers` (`shipper_id`, `name`, `phone`, `email`, `status`, `salar
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `shipper_notification`
+--
+
+CREATE TABLE `shipper_notification` (
+  `id` int(11) NOT NULL,
+  `shipper_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `shipper_notification`
+--
+
+INSERT INTO `shipper_notification` (`id`, `shipper_id`, `order_id`, `is_read`, `created_at`) VALUES
+(1, 1, 1, 1, '2025-11-06 21:02:06'),
+(2, 3, 2, 1, '2025-11-06 21:02:06'),
+(3, 5, 3, 1, '2025-11-06 21:02:06'),
+(4, 7, 4, 1, '2025-11-06 21:02:06'),
+(5, 9, 5, 1, '2025-11-06 21:02:06'),
+(6, 2, 6, 1, '2025-11-06 21:02:06'),
+(7, 4, 7, 1, '2025-11-06 21:02:06'),
+(8, 6, 8, 1, '2025-11-06 21:02:06'),
+(9, 8, 9, 1, '2025-11-06 21:02:06'),
+(10, 10, 10, 1, '2025-11-06 21:02:06'),
+(11, 11, 11, 1, '2025-11-06 21:02:06'),
+(12, 12, 12, 1, '2025-11-06 21:02:06'),
+(13, 13, 13, 1, '2025-11-06 21:02:06'),
+(14, 14, 14, 1, '2025-11-06 21:02:06'),
+(15, 15, 15, 1, '2025-11-06 21:02:06'),
+(16, 8, 101, 1, '2025-12-24 00:08:17'),
+(17, 21, 102, 1, '2025-12-24 00:08:17'),
+(18, 21, 103, 1, '2025-12-24 00:08:17');
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `shipper_reviews`
 --
 
@@ -967,6 +1005,14 @@ ALTER TABLE `shippers`
   ADD KEY `branch_id` (`branch_id`);
 
 --
+-- Chỉ mục cho bảng `shipper_notification`
+--
+ALTER TABLE `shipper_notification`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_shipper` (`shipper_id`),
+  ADD KEY `fk_order` (`order_id`);
+
+--
 -- Chỉ mục cho bảng `shipper_reviews`
 --
 ALTER TABLE `shipper_reviews`
@@ -1030,6 +1076,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `shippers`
   MODIFY `shipper_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT cho bảng `shipper_notification`
+--
+ALTER TABLE `shipper_notification`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -1115,6 +1167,13 @@ ALTER TABLE `product_reviews`
 --
 ALTER TABLE `shippers`
   ADD CONSTRAINT `shippers_ibfk_1` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `shipper_notification`
+--
+ALTER TABLE `shipper_notification`
+  ADD CONSTRAINT `fk_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_shipper` FOREIGN KEY (`shipper_id`) REFERENCES `shippers` (`shipper_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `shipper_reviews`

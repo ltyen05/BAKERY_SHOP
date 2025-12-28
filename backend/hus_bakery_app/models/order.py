@@ -16,3 +16,4 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime)
     status_entry = db.relationship('OrderStatus', backref='order', uselist=False)
     phone = db.Column(db.String(20))
+    note = db.Column(db.Text)

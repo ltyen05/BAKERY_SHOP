@@ -10,7 +10,7 @@ def get_all_products_admin_service():
         "product_id": p.product_id,
         "name": p.name,
         "category": p.category_id,  # Hoặc join bảng Category để lấy tên
-        "price": float(p.price),
+        "price": float(p.unit_price),
         "description": p.description,
         "rating": getattr(p, 'rating', 5.0),  # Giả sử mặc định 5.0
         "image": p.avatar
@@ -19,7 +19,7 @@ def get_all_products_admin_service():
 def add_product_service(data):
     new_product = Product(
         name=data.get('name'),
-        unit_price=data.get('price'),
+        unit_price=data.get('unit_price'),
         description=data.get('description'),
         category_id=data.get('category_id'),
     )
@@ -34,9 +34,9 @@ def edit_product_service(product_id, data):
         return None
 
     product.name = data.get('name', product.name)
-    product.price = data.get('price', product.price)
+    product.price = data.get('price', product.unit_price)
     product.description = data.get('description', product.description)
-    product.avatar = data.get('image', product.avatar)
+    product.avatar = data.get('image', product.image_url)
 
     db.session.commit()
     return product

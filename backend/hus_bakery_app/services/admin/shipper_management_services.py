@@ -12,11 +12,10 @@ def get_all_shippers_service():
 def add_shipper_service(data):
     new_shipper = Shipper(
         shipper_id=data.get('shipper_id'),
-        shipper_name=data.get('shipper_name'),
+        shipper_name=data.get('name'),
         phone=data.get('phone'),
         email=data.get('email'),
-        password=generate_password_hash(data.get('password')),  # Hash mật khẩu
-        vehicle_type=data.get('vehicle_type'),
+        password=generate_password_hash(data.get('password')),
         branch_id=data.get('branch_id')
     )
     new_shipper.status = data.get('status', 'active')
@@ -29,10 +28,9 @@ def edit_shipper_service(shipper_id, data):
     shipper = Shipper.query.get(shipper_id)
     if shipper:
         # Cập nhật các trường dựa trên tên biến trong Model shipper.py
-        shipper.shipper_name = data.get('shipper_name', shipper.shipper_name)
+        shipper.shipper_name = data.get('name', shipper.name)
         shipper.phone = data.get('phone', shipper.phone)
         shipper.email = data.get('email', shipper.email)
-        shipper.vehicle_type = data.get('vehicle_type', shipper.vehicle_type)
         shipper.status = data.get('status', shipper.status)
         shipper.branch_id = data.get('branch_id', shipper.branch_id)
 

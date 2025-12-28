@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import desc
+from sqlalchemy import desc, exists
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from hus_bakery_app import db
@@ -182,15 +182,18 @@ def get_virtual_notifications(customer_id):
     return notifications
 
 def get_latest_active_order_id(customer_id):
-    # Trạng thái được coi là "đã hoàn thành/kết thúc" cần loại bỏ
     finished_statuses = ["Đã giao"]
 
-    # Truy vấn đơn hàng mới nhất của khách hàng
-    # Join với OrderStatus để kiểm tra trạng thái hiện tại
+    # Tạo một subquery để kiểm tra sự tồn tại của trạng thái "Đã giao"
+    has_finished_status = exists().where(
+        (OrderStatus.order_id == Order.order_id) &
+        (OrderStatus.status.in_(finished_statuses))
+    )
+
+    # Truy vấn chính: Lọc đơn hàng của khách và KHÔNG tồn tại trạng thái kết thúc
     latest_order = db.session.query(Order) \
-        .join(OrderStatus, Order.order_id == OrderStatus.order_id) \
         .filter(Order.customer_id == customer_id) \
-        .filter(~OrderStatus.status.in_(finished_statuses)) \
+        .filter(~has_finished_status) \
         .order_by(Order.created_at.desc()) \
         .first()
 

@@ -14,7 +14,6 @@ const OrderHistory = () => {
   const { orderDetails } = useOrder();
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -49,8 +48,7 @@ const OrderHistory = () => {
   };
   // Sample data with 20 different orders
 
-  const handleChange = (pagination, filters, sorter) => {
-    setFilteredInfo(filters);
+  const handleChange = (pagination, sorter) => {
     setSortedInfo(sorter);
   };
 
@@ -65,22 +63,7 @@ const OrderHistory = () => {
       sorter: (a, b) => a.order_id - b.order_id,
       sortOrder: sortedInfo.columnKey === "order_id" ? sortedInfo.order : null,
     },
-    {
-      title: "Sản phẩm",
-      dataIndex: "products",
-      key: "products",
-      align: "center",
-      width: 180,
-      render: (products) => (
-        <Space direction="vertical" size={4}>
-          {products.map((product, idx) => (
-            <div key={idx} className="text-gray-700">
-              {product}
-            </div>
-          ))}
-        </Space>
-      ),
-    },
+
     {
       title: "Số lượng",
       dataIndex: "quantities",
@@ -98,52 +81,6 @@ const OrderHistory = () => {
       ),
     },
     {
-      title: "Cơ sở",
-      dataIndex: "branch_id",
-      key: "branch_id",
-      align: "center",
-      width: 80,
-      render: (branch_id) => <span className="font-medium">{branch_id}</span>,
-    },
-    {
-      title: "Giá",
-      dataIndex: "prices",
-      key: "prices",
-      align: "center",
-      width: 130,
-      render: (prices) => (
-        <Space direction="vertical" size={4}>
-          {prices.map((price, idx) => (
-            <div key={idx} className="text-orange-600 font-medium">
-              {price} đ
-            </div>
-          ))}
-        </Space>
-      ),
-    },
-    {
-      title: "Ngày đặt",
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center",
-      width: 110,
-      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      sortOrder:
-        sortedInfo.columnKey === "created_date" ? sortedInfo.order : null,
-      render: (date) => date,
-    },
-    {
-      title: "Ngày nhận",
-      dataIndex: "received_at",
-      key: "received_at",
-      align: "center",
-      width: 110,
-      sorter: (a, b) => new Date(a.receiveDate) - new Date(b.receiveDate),
-      sortOrder:
-        sortedInfo.columnKey === "received_at" ? sortedInfo.order : null,
-      render: (date) => date,
-    },
-    {
       title: "Tổng tiền",
       dataIndex: "total_amount",
       key: "total_amount",
@@ -158,6 +95,15 @@ const OrderHistory = () => {
         </span>
       ),
     },
+    {
+      title: "Địa chỉ giao hàng",
+      dataIndex: "branch_id",
+      key: "branch_id",
+      align: "center",
+      width: 80,
+      render: (branch_id) => <span className="font-medium">{branch_id}</span>,
+    },
+
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -191,6 +137,15 @@ const OrderHistory = () => {
           />
         </Space>
       ),
+    },
+    {
+      title: "Đánh giá",
+      dataIndex: "rating",
+      key: "rating",
+      align: "center",
+      width: 60,
+
+      render: (date) => date,
     },
   ];
 
@@ -303,17 +258,17 @@ const OrderHistory = () => {
               color:#fdfbf5!important;  /* màu nâu nhạt hoặc bạn muốn */
           }
 
-/* Sort tăng */
-.custom-table .ant-table-column-sorter-up.active svg , 
-.custom-table .ant-table-filter-trigger.active {
-  color: #f97316 !important;  /* cam */
+        /* Sort tăng */
+        .custom-table .ant-table-column-sorter-up.active svg , 
+        .custom-table .ant-table-filter-trigger.active {
+          color: #f97316 !important;  /* cam */
 
-}
+        }
 
-/* Sort giảm */
-.custom-table .ant-table-column-sorter-down.active svg {
-  color: #f97316 !important;  /* cam */
-}
+        /* Sort giảm */
+        .custom-table .ant-table-column-sorter-down.active svg {
+          color: #f97316 !important;  /* cam */
+        }
 
           
 
@@ -345,10 +300,10 @@ const OrderHistory = () => {
           background: #f97316;
         }
           .ant-table,
-.ant-table-container,
-.ant-table-cell {
-  border-color: #7a4f2b !important; /* màu bạn muốn */
-}
+        .ant-table-container,
+        .ant-table-cell {
+          border-color: #7a4f2b !important; /* màu bạn muốn */
+        }
 
 
       `}</style>

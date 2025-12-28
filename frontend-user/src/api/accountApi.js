@@ -14,4 +14,9 @@ export const accountApi = {
       method: "GET",
     });
   },
+  history_orders() {
+    return fetchWithAuth(`${API}/order_history`, {
+      method: "GET",
+    });
+  },
 };

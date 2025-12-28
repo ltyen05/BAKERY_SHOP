@@ -1,5 +1,4 @@
-import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
 import { accountApi } from "../api/accountApi";
 
 const AccountContext = createContext(null);
@@ -29,9 +28,19 @@ export function AccountProvider({ children }) {
 
     return data;
   };
+  const history_orders = async () => {
+    const res = await accountApi.history_orders();
+    const data = await res.json();
 
+    if (!res.ok) {
+      throw new Error(data.message || "Lấy lịch sử đơn hàng thất bại");
+    }
+    return data.data;
+  };
   return (
-    <AccountContext.Provider value={{ update_profile, get_rank }}>
+    <AccountContext.Provider
+      value={{ update_profile, get_rank, history_orders }}
+    >
       {children}
     </AccountContext.Provider>
   );

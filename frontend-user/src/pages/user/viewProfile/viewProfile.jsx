@@ -67,7 +67,10 @@ const style = {
 const UserProfile = () => {
   const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
   const { update_profile, get_rank } = useAccount();
-  const { coupons, refetchCoupons, setSelectedVoucher } = useOrder();
+  const [loadingOrder, setLoadingOrder] = useState(false);
+  const { coupons, refetchCoupons, setSelectedVoucher, orderDetails } =
+    useOrder();
+  const [currentOrder, setCurrentOrder] = useState({});
   const [loading, setLoading] = useState(true);
   const [rankData, setRankData] = useState(null);
   const [voucherList, setVoucherList] = useState([]);
@@ -80,6 +83,8 @@ const UserProfile = () => {
 
   const fileInputRef = useRef(null);
   const [form] = Form.useForm();
+
+  // ----------------Fetch rank ----------------------------
 
   useEffect(() => {
     const fetchRank = async () => {
@@ -141,7 +146,19 @@ const UserProfile = () => {
       </div>
     );
   }
-
+  // ----------------------Order details  --------------------------
+  const handleShowOrderDetails = async (order_id) => {
+    try {
+      setLoadingOrder(true);
+      const order = await OrderDetails(order_id);
+      setCurrentOrder(order);
+      setShowOrderDetails(true);
+    } catch (err) {
+      message.error(err.message || "Không thể lấy chi tiết đơn hàng");
+    } finally {
+      setLoadingOrder(false);
+    }
+  };
   /* ========================== UI ========================== */
   return (
     <Row style={style.container}>
@@ -355,7 +372,7 @@ const UserProfile = () => {
             }}
             className="fl-center"
           >
-            <OrderDetails />
+            <OrderDetails order={currentOrder} />
             <button
               onClick={() => setShowOrderDetails(false)}
               style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}

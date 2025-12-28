@@ -41,11 +41,9 @@ const mockOrderData = {
 const formatCurrency = (amount) => {
   return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 };
-const OrderDetails = () => {
-  const { shippingInfo, orderDetails, products } = mockOrderData;
-
-  const totalItems = products.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = products.reduce(
+const OrderDetails = ({ order }) => {
+  const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = order.items.reduce(
     (sum, item) => sum + item.quantity * item.price,
     0
   );
@@ -78,31 +76,31 @@ const OrderDetails = () => {
           <div className="info-box">
             <div className="info-row">
               <span className="info-label">Người nhận </span>
-              <span className="info-value">{shippingInfo.recipient}</span>
+              <span className="info-value">{order.recipient_name}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Số điện thoại: </span>
-              <span className="info-value">{shippingInfo.phone}</span>
+              <span className="info-value">{order.recipient_name}</span>
             </div>
             <div className="info-row">
-              <span className="info-label">Người nhận </span>
-              <span className="info-value">{shippingInfo.address}</span>
+              <span className="info-label">Địa chỉ nhận </span>
+              <span className="info-value">{order.address}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Mã đơn hàng </span>
-              <span className="info-value">{orderDetails.orderId}</span>
+              <span className="info-value">{order.order_id}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Phương thức thanh toán </span>
-              <span className="info-value">{orderDetails.paymentMethod}</span>
+              <span className="info-value">{order.payment_method}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Thời gian đặt hàng </span>
-              <span className="info-value">{orderDetails.orderTime}</span>
+              <span className="info-value">{order.created_at}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Cơ sở </span>
-              <span className="info-value">{orderDetails.store}</span>
+              <span className="info-value">{order.branch_name}</span>
             </div>
           </div>
 
@@ -116,7 +114,7 @@ const OrderDetails = () => {
             >
               Sản phẩm
             </div>
-            {products.map((product) => (
+            {order.items.map((product) => (
               <div className=" mb-3">
                 <ProductItem key={product.id} product={product} />
               </div>

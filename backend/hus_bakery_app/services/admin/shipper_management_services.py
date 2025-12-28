@@ -57,7 +57,7 @@ def total_successful_order_of_shipper(shipper_id):
     total = (db.session.query(func.count(Order.order_id))
              .join(OrderStatus, Order.order_id == OrderStatus.order_id)
              .filter(Order.shipper_id == shipper_id)
-             .filter(OrderStatus.status_name == 'Đã giao')
+             .filter(OrderStatus.status == 'Đã giao')
              .scalar())
 
     return total if total else 0

@@ -66,7 +66,20 @@ export function OrderProvider({ children }) {
       throw err;
     }
   };
-
+  const orderDetails = async (order_id) => {
+    try {
+      const res = await orderApi.order_details(order_id);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Lấy chi tiết đơn hàng thất bại");
+      }
+      console.log("Response data:", data.data);
+      return data.data;
+    } catch (err) {
+      console.log(err.message);
+      throw err;
+    }
+  };
   const addToCart = async (product, quantity = 1) => {
     if (!user) {
       throw new Error("Vui lòng đăng nhập");
@@ -139,7 +152,7 @@ export function OrderProvider({ children }) {
   };
   // Fetch khi user đăng nhập
   useEffect(() => {
-    if (user.role === "customer") {
+    if (user && user.role === "customer") {
       fetchCoupons();
       fetchCart();
     } else {
@@ -158,6 +171,7 @@ export function OrderProvider({ children }) {
         selectedVoucher,
         setSelectedVoucher,
         loadingCoupons,
+        orderDetails,
         couponError,
         productInCart,
         setProductInCart,

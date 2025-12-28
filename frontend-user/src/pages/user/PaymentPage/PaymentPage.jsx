@@ -26,6 +26,7 @@ import Voucher from "../../../components/Voucher/Voucher";
 import cod from "../../../assets/cod.svg";
 import qrCodeImg from "../../../assets/QR.svg";
 import { useOrder } from "../../../context/OrderContext";
+import { message } from "antd";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -251,6 +252,7 @@ export default function ShippingAddressForm() {
           message: "Không tìm thấy địa chỉ này. Vui lòng kiểm tra lại!",
         });
         message.warning("Không tìm thấy địa chỉ này!");
+        alert("Không tìm thấy địa chỉ này. Vui lòng kiểm tra lại!");
       }
     } catch (error) {
       console.error("Lỗi khi xác thực địa chỉ:", error);

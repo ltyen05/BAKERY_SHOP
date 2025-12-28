@@ -29,4 +29,11 @@ export const orderApi = {
       body: JSON.stringify(cartData),
     });
   },
+  order_details(order_id) {
+    return fetch(`${API}/order_details`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_id: order_id }),
+    });
+  },
 };

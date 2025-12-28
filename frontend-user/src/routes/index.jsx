@@ -11,12 +11,14 @@ const LogIn = lazy(() => import("../pages/auth/LogIn/LogIn"));
 const SignUp = lazy(() => import("../pages/auth/SignUp/SignUp"));
 const Facilities = lazy(() => import("../pages/user/Facilities/Facilities"));
 const viewProfile = lazy(() => import("../pages/user/viewProfile/viewProfile"));
-const Shipper = lazy(() =>
-  import("../pages/shipper/OnlyShipperPage/ShipperPage")
-);
 const ForgotPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ForgotPassword")
 );
+const DeliveryHistory = lazy(() => import("../pages/shipper/DeliveryHistory"));
+const ShipperDashboard = lazy(() =>
+  import("../pages/shipper/ShipperDashboard")
+);
+const ShipperDelivery = lazy(() => import("../pages/shipper/ShipperPage"));
 const payment = lazy(() => import("../pages/user/PaymentPage/PaymentPage"));
 const ProductDetails = lazy(() =>
   import("../components/Product/ProductDetails")
@@ -31,7 +33,7 @@ export const routes = [
     name: "Trang chủ",
     position: "middle",
     isShowHeader: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/menu",
@@ -40,7 +42,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
     children: [
       {
         path: "",
@@ -71,7 +73,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/productDetails/:productId",
@@ -79,14 +81,14 @@ export const routes = [
     name: "Chi tiết sản phẩm",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/productDetails",
     page: () => <Navigate to="/menu/bread" replace />, // Dùng 'ProductDetails' (lazy)
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/facilities",
@@ -95,7 +97,7 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest"],
+    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/signUp",
@@ -124,7 +126,7 @@ export const routes = [
     name: "View Profile",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin"],
+    roles: ["customer"],
   },
   {
     path: "/payment",
@@ -136,11 +138,24 @@ export const routes = [
   },
 
   {
-    path: "/shipper",
-    page: Shipper,
-    name: "Shipper Page",
-    isShowHeader: true,
-    isShowBreadCrumbs: true,
+    path: "/shipperDashBoard",
+    page: ShipperDashboard,
+    name: "Thống kê",
+    onlyShipper: true,
+    roles: ["shipper"],
+  },
+  {
+    path: "/shipperDelivery",
+    page: ShipperDelivery,
+    name: "Đơn hàng hiện tại",
+    onlyShipper: true,
+    roles: ["shipper"],
+  },
+  {
+    path: "/historyDelivery",
+    page: DeliveryHistory,
+    name: "Lịch sử vận chuyển",
+    onlyShipper: true,
     roles: ["shipper"],
   },
 ];

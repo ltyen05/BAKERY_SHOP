@@ -8,13 +8,18 @@ import { ProductProvider } from "./context/ProductContext";
 import { OrderProvider } from "./context/OrderContext";
 import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
+import DefaultShipperHeader from "./components/DefaultComponent/DefaultShipperHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
 import ScrollToTop from "./components/ScrollToTop";
 import RoleGuard from "./components/RoleGuard/RoleGuard";
 function renderRoutes(routes) {
   return routes.map((route) => {
     const Page = route.page;
-    const HeaderLayout = route.isShowHeader ? DefaultHeader : Fragment;
+    const HeaderLayout = route.onlyShipper
+      ? DefaultShipperHeader
+      : route.isShowHeader
+      ? DefaultHeader
+      : Fragment;
     const BreadCrumbsLayout = route.isShowBreadCrumbs
       ? DefaultBreadCrumbs
       : Fragment;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 29, 2025 lúc 10:11 AM
+-- Thời gian đã tạo: Th12 29, 2025 lúc 05:36 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -739,7 +739,7 @@ INSERT INTO `order_status` (`order_id`, `status`, `updated_at`) VALUES
 (13, 'Đã giao', '2025-12-26 18:03:20'),
 (14, 'Đã giao', '2025-12-26 18:03:15'),
 (15, 'Đã giao', '2025-12-26 18:00:13'),
-(101, 'Đã giao', '2025-12-28 16:06:59'),
+(101, 'Đang xử lý', '2025-12-29 16:36:06'),
 (102, 'Đã giao', '2025-12-28 16:06:45'),
 (103, 'Đã giao', '2025-12-28 16:07:25');
 

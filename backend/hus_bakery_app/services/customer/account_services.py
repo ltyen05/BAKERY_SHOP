@@ -105,7 +105,6 @@ def get_order_history_service(customer_id):
         status_obj = OrderStatus.query.get(order.order_id)
         status_text = status_obj.status if status_obj else "Đang xử lý"
         received_date = status_obj.updated_at.strftime("%d/%m/%Y") if status_obj and status_obj.updated_at else ""
-
         items_query = db.session.query(OrderItem, Product).outerjoin(
             Product, OrderItem.product_id == Product.product_id
         ).filter(OrderItem.order_id == order.order_id).all()
@@ -123,16 +122,15 @@ def get_order_history_service(customer_id):
 
         history_list.append({
             "order_id": order.order_id,
-
             "products": product_names,
             "quantities": quantities,
-            "prices": prices,
+            "prices": prices,  # Cột Giá
 
             "branch_id": order.branch_id if order.branch_id else "Kho tổng",
             "created_at": order.created_at.strftime("%d/%m/%Y"),
-            "received_at": received_date,  # Cột Ngày nhận hàng
+            "received_at": received_date,
             "total_amount": float(order.total_amount) if order.total_amount else 0,  # Cột Tổng tiền
-            "status": status_text
+            "status": status_text 
         })
 
     return history_list
@@ -170,6 +168,7 @@ def get_latest_active_order_id(customer_id):
             .join(latest_status, Order.order_id == latest_status.c.order_id)
             .filter(Order.customer_id == customer_id)
             .filter(latest_status.c.status != "Đã giao")
+            .filter(latest_status.c.status !="Không thành công")
             .order_by(Order.created_at.desc())
             .all()
         )

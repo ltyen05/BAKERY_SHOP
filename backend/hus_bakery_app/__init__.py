@@ -75,7 +75,7 @@ def create_app():
 
     from hus_bakery_app.routers.shipper.shipper_notifications import shipper_notifications_bp
     app.register_blueprint(shipper_notifications_bp, url_prefix='/shipper/notifications')
-    from hus_bakery_app.routers.shipper.shipper_statistics import shipper_stats_bp
+    from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
     app.register_blueprint(shipper_stats_bp, url_prefix='/shipper/statistics')
 
     @app.route("/test_db")

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.customer_notifications_service import check_pending_reviews_for_customer, mark_customer_notification_read
+from hus_bakery_app.services.customer.notification_services import check_pending_reviews_for_customer, mark_customer_notification_read
 
 customer_noti_bp = Blueprint("customer_noti", __name__)
 

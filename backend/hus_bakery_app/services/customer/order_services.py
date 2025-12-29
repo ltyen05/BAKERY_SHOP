@@ -9,35 +9,11 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.cart_item import CartItem
 from hus_bakery_app.models.products import Product
-from hus_bakery_app.models.branch import Branch
+from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
-
-
-# --- SECTION A: UTILS & HELPERS ---
-def geocode_address(address):
-    try:
-        url = "https://nominatim.openstreetmap.org/search"
-        params = {"q": address, "format": "json", "limit": 1}
-        res = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
-        data = res.json()
-        if not data: return None, None
-        return float(data[0]["lat"]), float(data[0]["lon"])
-    except:
-        return None, None
-
-
-def haversine(lat1, lon1, lat2, lon2):
-    R = 6371  # km
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = (math.sin(dlat / 2) ** 2 +
-         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
-         math.sin(dlon / 2) ** 2)
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
 
 # --- SECTION B: CLIENT ORDER CREATION ---
 def create_order(customer_id, recipient_name, payment_method, total_amount, phone, branch_id, shipping_address,
@@ -52,14 +28,11 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             cc.status = "used"
             cc.used_at = datetime.now()
 
-    # 5. Tính phí ship (Tìm branch gần nhất)
-
-    # 6. Tìm Shipper (Optional)
+    # Tìm Shipper (Optional)
     shipper = Shipper.query.filter_by(branch_id=branch_id, status="Đang hoạt động").first()
     if shipper:
         shipper.status = "busy"
 
-    # 7. Lưu Order
     try:
         new_order = Order(
             customer_id=customer_id,

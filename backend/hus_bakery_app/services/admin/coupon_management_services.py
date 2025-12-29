@@ -12,7 +12,7 @@ def add_coupon_service(data):
     new_coupon = Coupon(
         coupon_id=data.get('coupon_id'),
         discount_value=data.get('discount_value'),
-        begin_date=data.get('begin_date'),
+        start_date=data.get('begin_date'),
         end_date=data.get('end_date'),
     )
     # Trạng thái mặc định là 'active' nếu không truyền vào
@@ -28,7 +28,7 @@ def edit_coupon_service(coupon_id, data):
     if coupon:
         # Cập nhật các trường dựa trên tên biến trong Model coupon.py
         coupon.discount_value = data.get('discount_value', coupon.discount_value)
-        coupon.begin_date = data.get('begin_date', coupon.begin_date)
+        coupon.start_date = data.get('begin_date', coupon.begin_date)
         coupon.end_date = data.get('end_date', coupon.end_date)
         coupon.status = data.get('status', coupon.status)
 

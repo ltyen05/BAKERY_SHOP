@@ -19,9 +19,10 @@ def get_coupons():
         coupon_list.append({
             'coupon_id': c.coupon_id,
             'discount_value': float(c.discount_value) if c.discount_value else 0,
-            'begin_date': c.begin_date.strftime('%Y-%m-%d') if c.begin_date else None,
+            'start_date': c.start_date.strftime('%Y-%m-%d') if c.start_date else None,
             'end_date': c.end_date.strftime('%Y-%m-%d') if c.end_date else None,
             'status': c.status,
+            'branch_id': c.branch_id
         })
 
     return jsonify(coupon_list), 200

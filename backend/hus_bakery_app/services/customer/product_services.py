@@ -6,25 +6,40 @@ from hus_bakery_app.models.products import Product
 
 
 def get_top_3_products_service():
-    results = db.session.query(
-        Product,
-        func.sum(OrderItem.quantity).label('total_sold')
-    ).join(OrderItem, Product.product_id == OrderItem.product_id) \
-        .group_by(Product.product_id) \
-        .order_by(desc('total_sold')) \
-        .limit(3).all()
+    from sqlalchemy import func, desc
+    try:
+        # Dòng này sẽ in ra tên Database mà Flask đang kết nối trong Terminal
+        print(f"DEBUG: Đang kết nối tới Database: {db.engine.url.database}")
 
-    top_3 = []
-    for product, total in results:
-        top_3.append({
-            "product_id": product.product_id,
-            "name": product.name,
-            "price": float(product.unit_price),
-            "total_sold": int(total),
-            "image": product.image_url,
-        })
+        # Kiểm tra xem bảng products có bao nhiêu dòng
+        p_count = db.session.query(Product).count()
+        print(f"DEBUG: Số lượng sản phẩm trong DB: {p_count}")
 
-    return top_3
+        results = db.session.query(
+            Product,
+            func.sum(OrderItem.quantity).label('total_sold')
+        ).join(OrderItem, Product.product_id == OrderItem.product_id) \
+            .group_by(Product.product_id) \
+            .order_by(desc('total_sold')) \
+            .limit(3).all()
+
+        if not results:
+            return []
+
+        top_3 = []
+        for product, total in results:
+            top_3.append({
+                "product_id": product.product_id,
+                "name": product.name,
+                "price": float(product.unit_price) if product.unit_price else 0,
+                "total_sold": int(total),
+                "image_url": product.image_url
+            })
+        return top_3
+    except Exception as e:
+        # In lỗi chi tiết ra Terminal để biết cột nào bị sai (ví dụ: No such column...)
+        print(f"LỖI SQLALCHEMY: {str(e)}")
+        return None
 
 
 def get_products_by_category_service(cat_id):
@@ -34,7 +49,9 @@ def get_products_by_category_service(cat_id):
 
     return results
 
+
 def get_product_details_service(p_id):
+    # Thực hiện join bảng products và categories dựa trên category_id
     result = db.session.query(Product, Category.name).join(
         Category, Product.category_id == Category.category_id
     ).filter(Product.product_id == p_id).first()

@@ -1,9 +1,8 @@
-from sqlalchemy import func, desc
+from sqlalchemy import func
 from hus_bakery_app import db
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.shipper_review import ShipperReview
-from hus_bakery_app.models.order_item import OrderItem
 
 
 # 1. Hàm đếm tổng số đơn hàng
@@ -44,14 +43,21 @@ def calculate_avg_rating(shipper_id):
     # Làm tròn 1 chữ số thập phân (VD: 4.8)
     return round(float(avg), 1) if avg else 0.0
 
-def get_shipper_all_order_history(shipper_id):
-    # 1. Query lấy toàn bộ đơn hàng "Đã giao" của Shipper này
-    orders = db.session.query(Order).join(
+def get_shipper_order_history(shipper_id, page, per_page):
+    """
+    Lấy danh sách đơn hàng đã giao thành công (Có phân trang)
+    """
+    # 1. Query đơn hàng Hoàn thành, sắp xếp mới nhất
+    query = db.session.query(Order).join(
         OrderStatus, Order.order_id == OrderStatus.order_id
     ).filter(
         Order.shipper_id == shipper_id,
-        OrderStatus.status == "Đã giao"
-    ).order_by(desc(Order.created_at)).all()
+        OrderStatus.status == "Hoàn thành"
+    ).order_by(desc(Order.created_at))
+
+    # 2. Phân trang
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    orders = pagination.items
 
     history_list = []
 
@@ -60,22 +66,33 @@ def get_shipper_all_order_history(shipper_id):
         item_count = db.session.query(func.count(OrderItem.order_item_id))\
             .filter(OrderItem.order_id == order.order_id).scalar() or 0
 
-        # b. Lấy Rating từ bảng ShipperReview theo order_id
-        # Vì order_id hiện là Primary Key duy nhất của ShipperReview
-        review = ShipperReview.query.get(order.order_id)
-        rating_val = review.rating if review else 0
+        # b. Lấy Rating (nếu có)
+        rating_val = 0
+        if order.customer_id:
+            review = ShipperReview.query.filter_by(
+                shipper_id=shipper_id,
+                customer_id=order.customer_id
+            ).first()
+            if review:
+                rating_val = review.rating
 
-        # c. Format kết quả trả về
+        # c. Format kết quả
         history_list.append({
             "order_id": order.order_id,
             "quantity_text": f"{item_count} sản phẩm",
             "total_amount": float(order.total_amount),
             "shipping_address": order.shipping_address,
-            "status": "Đã giao",
-            "rating": rating_val,
+            "status": "Đã hoàn thành",
+            "rating": rating_val, # Số sao (1-5)
+            "created_at": order.created_at.strftime("%d/%m/%Y")
         })
 
     return {
         "data": history_list,
-        "total_records": len(history_list)
+        "pagination": {
+            "total_records": pagination.total,
+            "total_pages": pagination.pages,
+            "current_page": page,
+            "per_page": per_page
+        }
     }

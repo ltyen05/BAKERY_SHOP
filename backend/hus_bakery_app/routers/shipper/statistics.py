@@ -75,5 +75,4 @@ def api_shipper_history():
     return jsonify({
         "status": "success",
         "data": result["data"],
-        "pagination": result["pagination"]
     }), 200

@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.shipper.order_notifications import check_new_order_for_shipper, get_current_order
+from hus_bakery_app.services.shipper.order_notifications_services import check_new_order_for_shipper, get_current_order
 from hus_bakery_app.models.shipper_notificationss import ShipperNotification
 from hus_bakery_app.services.update_status_order import update_status_order
 from hus_bakery_app import db

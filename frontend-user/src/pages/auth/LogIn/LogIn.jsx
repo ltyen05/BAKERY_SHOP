@@ -20,8 +20,11 @@ export default function Login() {
       // điều hướng theo role
       if (user.role === "admin") {
         navigate("/admin");
+      } else if (user.role == "shipper") {
+        alert("It's here");
+        navigate("/shipperDashBoard");
       } else {
-        alert(`Đăng nhập thành công! ${user.role}`);
+        alert("Đăng nhập thành công");
         navigate("/");
       }
     } catch (err) {
@@ -45,7 +48,7 @@ export default function Login() {
   return (
     <div className="bound">
       <div className="fl-center bg-color pb-6 pt-3">
-        <Link to={"/"}>
+        <Link to="/">
           <img
             src={bakesLogo}
             alt="Stylized bakery logo"

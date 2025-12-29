@@ -12,10 +12,20 @@ const RoleGuard = ({ roles, children }) => {
   const { user } = useAuth();
   // 1. Xác định vai trò hiện tại
   const currentRole = user?.role || "guest"; // Nếu user là null, vai trò là "guest"
-
-  // 2. Nếu route không định nghĩa roles, cho phép truy cập
   if (!roles || roles.length === 0) {
     return children;
+  }
+  const isGuestOnly = roles.length === 1 && roles[0] === "guest";
+
+  // 2. Nếu route không định nghĩa roles, cho phép truy cập
+  if (user && isGuestOnly) {
+    console.warn(
+      `User role "${currentRole}" tried to access restricted route.`
+    );
+    if (currentRole === "shipper") {
+      return <Navigate to="/shipperDashBoard" replace />;
+    }
+    return <Navigate to="/" replace />;
   }
 
   // 3. Kiểm tra quyền truy cập

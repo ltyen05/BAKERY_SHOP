@@ -1,43 +1,7 @@
 import React from "react";
 import { Row, Col } from "antd";
 import ProductItem from "../Product/ProductItem";
-const mockOrderData = {
-  shippingInfo: {
-    recipient: "Phan Diệu Lê",
-    phone: "0123456789",
-    address: "334 Nguyễn Trãi, Thanh Xuân",
-  },
-  orderDetails: {
-    orderId: "ABCDEFGH",
-    paymentMethod: "Thanh toán khi nhận hàng",
-    orderTime: "10-10-2025 15:42",
-    store: "Hus Bakery 2",
-  },
-  products: [
-    {
-      id: 1,
-      name: "Bánh mossue dưa lưới",
-      quantity: 3,
-      price: 299000,
-      // Dùng placeholder image
-      image: "https://via.placeholder.com/100x100/f8a32d/ffffff?text=Croissant",
-    },
-    {
-      id: 2,
-      name: "Bánh mossue dưa lưới",
-      quantity: 3,
-      price: 299000,
-      image: "https://via.placeholder.com/100x100/f8a32d/ffffff?text=Croissant",
-    },
-    {
-      id: 3,
-      name: "Bánh mossue dưa lưới",
-      quantity: 3,
-      price: 299000,
-      image: "https://via.placeholder.com/100x100/f8a32d/ffffff?text=Croissant",
-    },
-  ],
-};
+
 const formatCurrency = (amount) => {
   return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 };
@@ -80,7 +44,7 @@ const OrderDetails = ({ order }) => {
             </div>
             <div className="info-row">
               <span className="info-label">Số điện thoại: </span>
-              <span className="info-value">{order.recipient_name}</span>
+              <span className="info-value">{order.phone}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Địa chỉ nhận </span>

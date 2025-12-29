@@ -14,7 +14,7 @@ export function OrderProvider({ children }) {
   const [loadingCoupons, setLoadingCoupons] = useState(false);
   const [couponError, setCouponError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false); // ⭐ THÊM DÒNG NÀY
-
+  const [loadingCreateOrder, setLoadingCreateOrder] = useState(false);
   const fetchCoupons = async () => {
     try {
       setLoadingCoupons(true);
@@ -128,6 +128,54 @@ export function OrderProvider({ children }) {
       setAddingToCart(false);
     }
   };
+  const create_order = async (data) => {
+    // Thay vì 7 tham số, chỉ nhận 1 object 'data'
+    setLoadingCreateOrder(true);
+    if (!user) {
+      throw new Error("Vui lòng đăng nhập");
+    }
+
+    try {
+      // Bóc tách dữ liệu từ object data truyền vào
+      const {
+        recipient_name,
+        phone,
+        total_amount,
+        branch_id,
+        shipping_address,
+        payment_method,
+        coupon_id,
+      } = data;
+
+      const payload = {
+        recipient_name,
+        phone,
+        total_amount,
+        branch_id,
+        shipping_address,
+        payment_method,
+        coupon_id,
+      };
+
+      const res = await orderApi.create_order(payload);
+      const resultData = await res.json(); // Đổi tên biến để tránh trùng với tham số 'data'
+
+      if (!res.ok) {
+        throw new Error(resultData.error || "Tạo đơn hàng thất bại");
+      }
+
+      setProductInCart([]);
+      setSelectedVoucher(null);
+      fetchCart();
+
+      return resultData;
+    } catch (err) {
+      console.error("Create order error:", err.message);
+      throw err;
+    } finally {
+      setLoadingCreateOrder(false);
+    }
+  };
   const removeFromCart = async (product_id) => {
     const previousCart = [...productInCart];
 
@@ -179,6 +227,8 @@ export function OrderProvider({ children }) {
         addToCart, // ⭐ THÊM vào value
         addingToCart, // ⭐ THÊM vào value
         removeFromCart,
+        create_order,
+        loadingCreateOrder,
       }}
     >
       {children}

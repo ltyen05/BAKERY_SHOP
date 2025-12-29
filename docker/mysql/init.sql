@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 29, 2025 lúc 09:37 AM
+-- Thời gian đã tạo: Th12 29, 2025 lúc 10:11 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -446,6 +446,44 @@ INSERT INTO `customers` (`customer_id`, `name`, `email`, `phone`, `avatar`, `pas
 (14, 'Bùi Quỳnh Chi', 'chi.bui@gmail.com', '0978450123', 'avatar14.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
 (15, 'Trần Thị Vân', 'van.tran@gmail.com', '0978560123', 'avatar15.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
 (16, 'thach', '23001559@hus.edu.vn', '0778322905', 'default.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-25 02:31:14');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `customer_notifications`
+--
+
+CREATE TABLE `customer_notifications` (
+  `id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `customer_notifications`
+--
+
+INSERT INTO `customer_notifications` (`id`, `customer_id`, `order_id`, `is_read`, `created_at`) VALUES
+(63, 1, 1, 0, '2025-11-06 14:02:06'),
+(64, 2, 2, 0, '2025-11-06 14:02:06'),
+(65, 3, 3, 0, '2025-11-06 14:02:06'),
+(66, 4, 4, 0, '2025-11-06 14:02:06'),
+(67, 5, 5, 0, '2025-11-06 14:02:06'),
+(68, 6, 6, 0, '2025-11-06 14:02:06'),
+(69, 7, 7, 0, '2025-11-06 14:02:06'),
+(70, 8, 8, 0, '2025-11-06 14:02:06'),
+(71, 9, 9, 0, '2025-11-06 14:02:06'),
+(72, 10, 10, 0, '2025-11-06 14:02:06'),
+(73, 11, 11, 0, '2025-11-06 14:02:06'),
+(74, 12, 12, 0, '2025-11-06 14:02:06'),
+(75, 13, 13, 0, '2025-11-06 14:02:06'),
+(76, 14, 14, 0, '2025-11-06 14:02:06'),
+(77, 15, 15, 0, '2025-11-06 14:02:06'),
+(78, 16, 101, 0, '2025-12-23 17:08:17'),
+(79, 16, 102, 0, '2025-12-23 17:08:17'),
+(80, 16, 103, 0, '2025-12-23 17:08:17');
 
 -- --------------------------------------------------------
 
@@ -988,6 +1026,14 @@ ALTER TABLE `customers`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Chỉ mục cho bảng `customer_notifications`
+--
+ALTER TABLE `customer_notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_cust_noti_customer` (`customer_id`),
+  ADD KEY `fk_cust_noti_order` (`order_id`);
+
+--
 -- Chỉ mục cho bảng `employees`
 --
 ALTER TABLE `employees`
@@ -1092,6 +1138,12 @@ ALTER TABLE `customers`
   MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
+-- AUTO_INCREMENT cho bảng `customer_notifications`
+--
+ALTER TABLE `customer_notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+
+--
 -- AUTO_INCREMENT cho bảng `employees`
 --
 ALTER TABLE `employees`
@@ -1157,6 +1209,13 @@ ALTER TABLE `cart_items`
 ALTER TABLE `coupons_customer`
   ADD CONSTRAINT `coupons_customer_ibfk_1` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`coupon_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `coupons_customer_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE;
+
+--
+-- Các ràng buộc cho bảng `customer_notifications`
+--
+ALTER TABLE `customer_notifications`
+  ADD CONSTRAINT `fk_cust_noti_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_cust_noti_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `employees`

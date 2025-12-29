@@ -28,6 +28,16 @@ export function AccountProvider({ children }) {
 
     return data;
   };
+  const get_active_order = async () => {
+    const res = await accountApi.active_orders(); // Giả sử accountApi.get_rank() gọi /rank
+    const data = await res.json();
+    console.log(data);
+    if (!res.ok) {
+      throw new Error(data.message || "Lấy thông tin rank thất bại");
+    }
+
+    return data;
+  };
   const history_orders = async () => {
     const res = await accountApi.history_orders();
     const data = await res.json();
@@ -39,7 +49,7 @@ export function AccountProvider({ children }) {
   };
   return (
     <AccountContext.Provider
-      value={{ update_profile, get_rank, history_orders }}
+      value={{ update_profile, get_rank, history_orders, get_active_order }}
     >
       {children}
     </AccountContext.Provider>

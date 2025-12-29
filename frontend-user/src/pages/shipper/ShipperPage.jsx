@@ -1,5 +1,5 @@
-import React from "react";
-import { Card, Avatar, Button, Steps } from "antd";
+import React, { useState } from "react";
+import { Card, Avatar, Button, Steps, message, Empty } from "antd";
 import {
   PhoneOutlined,
   MessageOutlined,
@@ -9,333 +9,216 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 
+/* =========================
+   STEP <-> STATUS MAP
+========================= */
+const STEP_STATUS_MAP = {
+  0: "pending",
+  1: "picked_up",
+  2: "delivering",
+  3: "completed",
+};
+
+const STATUS_STEP_MAP = {
+  pending: 0,
+  picked_up: 1,
+  delivering: 2,
+  completed: 3,
+};
+
 const OrderDetailPage = () => {
-  const orderData = {
+  /* =========================
+     MOCK DATA (GIẢ LẬP BACKEND)
+  ========================= */
+  const initialOrder = {
     orderId: "231",
     branch: "Hoa Bakery Cơ sở 1",
+    status: "delivering",
     customer: {
       name: "Phan Diệu Liễu",
-      phone: "+23432432432",
+      phone: "+84 912 345 678",
       address: "234 Nguyễn Trãi, Thanh Xuân, Hà Nội",
       avatar: "https://i.pravatar.cc/150?img=5",
     },
     distance: "3 km",
     totalAmount: "424.000 đ",
-    deliveryTime: "2.3 km",
+    deliveryTime: "25 phút",
   };
 
-  const deliverySteps = [
-    {
-      title: "Shipper đang lấy hàng",
-      icon: "🏪",
-      status: "finish",
-    },
-    {
-      title: "Đã lấy hàng",
-      icon: "📦",
-      status: "finish",
-    },
-    {
-      title: "Đang giao",
-      icon: "🏍️",
-      status: "process",
-    },
-    {
-      title: "Giao hàng thành công",
-      icon: "✅",
-      status: "wait",
-    },
+  /* =========================
+     STATE
+  ========================= */
+  const [order, setOrder] = useState(initialOrder);
+  const [orderStatus, setOrderStatus] = useState(initialOrder.status);
+  const [currentStep, setCurrentStep] = useState(
+    STATUS_STEP_MAP[initialOrder.status]
+  );
+
+  /* =========================
+     STEPS
+  ========================= */
+  const steps = [
+    { title: "Shipper đang lấy hàng" },
+    { title: "Đã lấy hàng" },
+    { title: "Đang giao" },
+    { title: "Giao hàng thành công" },
   ];
 
+  /* =========================
+     UPDATE STATUS
+  ========================= */
+  const handleUpdateStatus = () => {
+    if (currentStep >= steps.length - 1) return;
+
+    const nextStep = currentStep + 1;
+    const nextStatus = STEP_STATUS_MAP[nextStep];
+
+    setCurrentStep(nextStep);
+    setOrderStatus(nextStatus);
+
+    message.success("Cập nhật trạng thái thành công");
+
+    // Giả lập backend: completed => không còn đơn active
+    if (nextStatus === "completed") {
+      setTimeout(() => {
+        setOrder(null); // ❗ mấu chốt: xoá đơn
+      }, 500);
+    }
+  };
+
+  /* =========================
+     NO DATA
+  ========================= */
+  if (!order) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Empty description="Không có đơn hàng đang xử lý" />
+      </div>
+    );
+  }
+
+  /* =========================
+     UI
+  ========================= */
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "40px 20px",
-      }}
-    >
-      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-        {/* Header */}
+    <div style={{ minHeight: "100vh", padding: "40px 20px" }}>
+      <div style={{ maxWidth: 600, margin: "0 auto" }}>
         <h1
           style={{
             textAlign: "center",
             color: "#8b4513",
-            fontSize: "28px",
-            fontWeight: "700",
-            marginBottom: "32px",
+            fontSize: 28,
+            fontWeight: 700,
+            marginBottom: 32,
           }}
         >
-          Đơn hàng hiện tại của bạn
+          Đơn hàng hiện tại
         </h1>
 
-        {/* Order Card */}
-        <Card
-          style={{
-            borderRadius: "16px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            marginBottom: "32px",
-          }}
-        >
-          {/* Branch and Order ID */}
+        {/* ORDER INFO */}
+        <Card style={{ borderRadius: 16, marginBottom: 32 }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "20px",
+              marginBottom: 20,
             }}
           >
-            <span
-              style={{ color: "#ff6b35", fontSize: "14px", fontWeight: "600" }}
-            >
-              {orderData.branch}
+            <span style={{ color: "#ff6b35", fontWeight: 600 }}>
+              {order.branch}
             </span>
-            <span
-              style={{ fontSize: "14px", fontWeight: "600", color: "#262626" }}
-            >
-              Mã Đơn hàng: {orderData.orderId}
-            </span>
+            <span>Mã đơn: #{order.orderId}</span>
           </div>
 
-          {/* Customer Info */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              marginBottom: "24px",
-            }}
-          >
-            <Avatar
-              size={64}
-              src={orderData.customer.avatar}
-              style={{ marginRight: "16px" }}
-            />
-            <div style={{ flex: 1 }}>
-              <h3
-                style={{
-                  margin: "0 0 4px 0",
-                  fontSize: "18px",
-                  fontWeight: "600",
-                }}
-              >
-                {orderData.customer.name}
-              </h3>
-              <div
-                style={{
-                  color: "#8c8c8c",
-                  fontSize: "14px",
-                  marginBottom: "4px",
-                }}
-              >
-                <PhoneOutlined style={{ marginRight: "8px" }} />
-                {orderData.customer.phone}
+          {/* CUSTOMER */}
+          <div style={{ display: "flex", marginBottom: 24 }}>
+            <Avatar size={64} src={order.customer.avatar} />
+            <div style={{ marginLeft: 16 }}>
+              <h3 style={{ marginBottom: 4 }}>{order.customer.name}</h3>
+              <div>
+                <PhoneOutlined /> {order.customer.phone}
               </div>
-              <div style={{ color: "#8c8c8c", fontSize: "14px" }}>
-                <EnvironmentOutlined style={{ marginRight: "8px" }} />
-                {orderData.customer.address}
+              <div>
+                <EnvironmentOutlined /> {order.customer.address}
               </div>
             </div>
           </div>
 
-          {/* Order Details */}
+          {/* DETAIL */}
           <div
             style={{
               background: "#fafafa",
-              padding: "16px",
-              borderRadius: "8px",
-              marginBottom: "20px",
+              padding: 16,
+              borderRadius: 8,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "12px",
-              }}
-            >
-              <span style={{ color: "#8c8c8c", fontSize: "14px" }}>
-                <EnvironmentOutlined
-                  style={{ marginRight: "8px", color: "#ff6b35" }}
-                />
-                Khoảng cách
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>
+                <EnvironmentOutlined /> Khoảng cách
               </span>
-              <span style={{ fontWeight: "600", fontSize: "14px" }}>
-                {orderData.distance}
-              </span>
+              <b>{order.distance}</b>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "12px",
-              }}
-            >
-              <span style={{ color: "#8c8c8c", fontSize: "14px" }}>
-                <DollarOutlined
-                  style={{ marginRight: "8px", color: "#ff6b35" }}
-                />
-                Tổng tiền (Đã bao gồm phí)
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>
+                <DollarOutlined /> Tổng tiền
               </span>
-              <span
-                style={{
-                  fontWeight: "600",
-                  fontSize: "16px",
-                  color: "#ff6b35",
-                }}
-              >
-                {orderData.totalAmount}
-              </span>
+              <b style={{ color: "#ff6b35" }}>{order.totalAmount}</b>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ color: "#8c8c8c", fontSize: "14px" }}>
-                <ClockCircleOutlined
-                  style={{ marginRight: "8px", color: "#ff6b35" }}
-                />
-                Khoảng cách
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>
+                <ClockCircleOutlined /> Thời gian dự kiến
               </span>
-              <span style={{ fontWeight: "600", fontSize: "14px" }}>
-                {orderData.deliveryTime}
-              </span>
+              <b>{order.deliveryTime}</b>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: "flex", gap: "12px" }}>
-            <Button
-              icon={<EyeOutlined />}
-              size="large"
-              style={{
-                flex: 1,
-                borderRadius: "8px",
-                border: "1px solid #ff6b35",
-                color: "#ff6b35",
-                fontWeight: "600",
-              }}
-            >
+          <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+            <Button icon={<EyeOutlined />} block>
               Chi tiết
             </Button>
-            <Button
-              icon={<MessageOutlined />}
-              size="large"
-              style={{
-                flex: 1,
-                borderRadius: "8px",
-                border: "1px solid #ff6b35",
-                color: "#ff6b35",
-                fontWeight: "600",
-              }}
-            >
-              Nhắn tin cho
+            <Button icon={<MessageOutlined />} block>
+              Nhắn tin
             </Button>
           </div>
         </Card>
 
-        {/* Delivery Status */}
-        <Card
-          style={{
-            borderRadius: "16px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          }}
-        >
+        {/* STATUS */}
+        <Card style={{ borderRadius: 16 }}>
           <h2
             style={{
               textAlign: "center",
-              fontSize: "18px",
-              fontWeight: "600",
-              marginBottom: "32px",
-              color: "#262626",
+              fontSize: 18,
+              fontWeight: 600,
+              marginBottom: 24,
             }}
           >
-            Cập nhật trạng thái đơn hàng
+            Trạng thái đơn hàng
           </h2>
 
-          {/* Custom Steps */}
-          <div style={{ position: "relative", padding: "0 20px" }}>
-            {/* Progress Line */}
-            <div
-              style={{
-                position: "absolute",
-                top: "24px",
-                left: "20px",
-                right: "20px",
-                height: "3px",
-                background: "#f0f0f0",
-                zIndex: 0,
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: "50%",
-                  background: "#ff6b35",
-                  transition: "width 0.3s ease",
-                }}
-              />
-            </div>
+          <Steps current={currentStep}>
+            {steps.map((s, i) => (
+              <Steps.Step key={i} title={s.title} />
+            ))}
+          </Steps>
 
-            {/* Steps */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {deliverySteps.map((step, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    flex: 1,
-                  }}
-                >
-                  {/* Icon Circle */}
-                  <div
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      background: step.status === "wait" ? "#fff" : "#ff6b35",
-                      border: `3px solid ${
-                        step.status === "wait" ? "#f0f0f0" : "#ff6b35"
-                      }`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      marginBottom: "12px",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    {step.icon}
-                  </div>
-
-                  {/* Step Title */}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      textAlign: "center",
-                      color: step.status === "wait" ? "#8c8c8c" : "#262626",
-                      fontWeight: step.status === "process" ? "600" : "400",
-                      maxWidth: "100px",
-                    }}
-                  >
-                    {step.title}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Button
+            type="primary"
+            block
+            size="large"
+            style={{ marginTop: 24 }}
+            onClick={handleUpdateStatus}
+          >
+            Cập nhật trạng thái
+          </Button>
         </Card>
       </div>
     </div>

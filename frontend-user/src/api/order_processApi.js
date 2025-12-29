@@ -36,4 +36,11 @@ export const orderApi = {
       body: JSON.stringify({ order_id: order_id }),
     });
   },
+  create_order(data) {
+    return fetchWithAuth(`${API}/order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  },
 };

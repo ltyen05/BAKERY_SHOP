@@ -19,4 +19,9 @@ export const accountApi = {
       method: "GET",
     });
   },
+  active_orders() {
+    return fetchWithAuth(`${API}/current-active-order`, {
+      method: "GET",
+    });
+  },
 };

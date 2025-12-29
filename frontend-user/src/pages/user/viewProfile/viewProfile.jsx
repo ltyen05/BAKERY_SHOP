@@ -36,7 +36,7 @@ const rankColors = {
 };
 const style = {
   container: {
-    backgroundColor: "#FFFBF7",
+    backgroundColor: "#fdfbf5",
     padding: "30px 0 100px",
     width: "82%",
     margin: "auto",
@@ -47,29 +47,57 @@ const style = {
     padding: "20px",
   },
   input: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fdfbf5",
     borderRadius: 8,
-    border: "1px solid #d9d9d9",
+    border: "1px solid #fdfbf5",
     padding: "4px 12px",
     color: "#555",
   },
   stepIcon: {
     color: "#D93F3C",
     fontSize: 24,
-    backgroundColor: "#fff",
+    backgroundColor: "#fdfbf5",
     padding: 8,
     borderRadius: "50%",
-    border: "1px solid #f0f0f0",
+    border: "1px solid #fdfbf5",
   },
   actionBtn: { color: "#fff", border: "none", borderRadius: 20 },
 };
 
+const STEP_ITEMS = [
+  {
+    title: "Đang xử lý",
+    icon: <InboxOutlined style={style.stepIcon} />,
+  },
+  {
+    title: "Đang giao",
+    icon: <CarOutlined style={{ ...style.stepIcon, fontSize: 28 }} />,
+  },
+  {
+    title: "Đã giao",
+    icon: <CheckCircleOutlined style={style.stepIcon} />,
+  },
+];
+
+// ---------------------
+// STEP MAP
+// -------------------
+const STATUS_STEP_MAP = {
+  "Đang xử lý": 0,
+
+  "Đang giao": 1,
+
+  "Đã giao": 2,
+};
 const UserProfile = () => {
   const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
-  const { update_profile, get_rank } = useAccount();
+  const { update_profile, get_rank, get_active_order } = useAccount();
   const [loadingOrder, setLoadingOrder] = useState(false);
   const { coupons, refetchCoupons, setSelectedVoucher, orderDetails } =
     useOrder();
+  const [activeOrders, setActiveOrders] = useState([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentOrder, setCurrentOrder] = useState({});
   const [loading, setLoading] = useState(true);
   const [rankData, setRankData] = useState(null);
@@ -83,6 +111,38 @@ const UserProfile = () => {
 
   const fileInputRef = useRef(null);
   const [form] = Form.useForm();
+  //------------------------------------
+  // Fetch active-orders
+  // ------------------------------------
+  const fetchActiveOrders = async ({ silent = false } = {}) => {
+    try {
+      if (!silent && isInitialLoading) {
+        setIsInitialLoading(true);
+      } else {
+        setIsRefreshing(true); // optional
+      }
+
+      const data = await get_active_order();
+      setActiveOrders(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      if (isInitialLoading) {
+        setIsInitialLoading(false);
+      }
+      setIsRefreshing(false);
+    }
+  };
+  useEffect(() => {
+    // load lần đầu
+    fetchActiveOrders();
+
+    const intervalId = setInterval(() => {
+      fetchActiveOrders({ silent: true }); // ⬅️ quan trọng
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // ----------------Fetch rank ----------------------------
 
@@ -150,7 +210,7 @@ const UserProfile = () => {
   const handleShowOrderDetails = async (order_id) => {
     try {
       setLoadingOrder(true);
-      const order = await OrderDetails(order_id);
+      const order = await orderDetails(order_id);
       setCurrentOrder(order);
       setShowOrderDetails(true);
     } catch (err) {
@@ -255,45 +315,68 @@ const UserProfile = () => {
       </Col>
 
       {/* RIGHT CARD */}
-      <Col xs={24} md={24} lg={14} xl={16} className="fl-center mt-3 mb-3">
+      <Col xs={24} md={24} lg={14} xl={16} className="fl-center mb-3 mt-3">
         <div style={{ ...style.card, marginTop: "-30px", width: "100%" }}>
-          <Title level={3} style={{ marginBottom: 40, color: "#4A4A6A" }}>
-            Đơn hàng hiện tại của bạn
+          <Title level={3} style={{ marginBottom: 20, color: "#4A4A6A" }}>
+            Đơn hàng đang xử lý
           </Title>
 
-          <Steps
-            current={2}
-            labelPlacement="vertical"
-            items={[
-              {
-                title: "Shipper đang lấy hàng",
-                icon: <InboxOutlined style={style.stepIcon} />,
-              },
-              {
-                title: "Đã lấy hàng",
-                icon: <FileDoneOutlined style={style.stepIcon} />,
-              },
-              {
-                title: "Đang giao",
-                icon: (
-                  <CarOutlined style={{ ...style.stepIcon, fontSize: 35 }} />
-                ),
-              },
-              {
-                title: "Giao hàng thành công",
-                icon: <CheckCircleOutlined style={style.stepIcon} />,
-              },
-            ]}
-          />
+          {isInitialLoading ? (
+            <Skeleton active paragraph={{ rows: 3 }} />
+          ) : activeOrders.length === 0 ? (
+            <Text type="secondary">Bạn không có đơn hàng nào đang xử lý</Text>
+          ) : (
+            activeOrders.map((order) => {
+              const currentStep = STATUS_STEP_MAP[order.status] ?? 0;
 
-          <Row justify="end" style={{ marginTop: 20 }}>
-            <Button
-              className="btn btn-primary"
-              onClick={() => setShowOrderDetails(true)}
-            >
-              Xem chi tiết đơn hàng
-            </Button>
-          </Row>
+              return (
+                <div
+                  key={order.order_id}
+                  style={{
+                    background: "#fff",
+                    padding: 16,
+                    borderRadius: 12,
+                    marginBottom: 20,
+                    border: "1px solid #f0f0f0",
+                  }}
+                >
+                  <Text strong>Đơn hàng #{order.order_id}</Text>
+
+                  <Steps
+                    current={currentStep}
+                    labelPlacement="vertical"
+                    items={STEP_ITEMS.map((item, index) => ({
+                      ...item,
+                      icon: React.cloneElement(item.icon, {
+                        style: {
+                          ...style.stepIcon,
+                          fontSize: 24, // giữ icon step 2 lớn hơn
+                          border:
+                            index === currentStep
+                              ? "2px solid #fdfbf5"
+                              : "2px solid #D93F3C",
+                          padding: 8,
+                          color: index === currentStep ? "#fdfbf5" : "#D93F3C",
+                          backgroundColor:
+                            index === currentStep ? "#D93F3C" : "#fdfbf5",
+                        },
+                      }),
+                    }))}
+                    style={{ marginTop: 16 }}
+                  />
+
+                  <Row justify="end" style={{ marginTop: 12 }}>
+                    <Button
+                      className="btn btn-primary"
+                      onClick={() => handleShowOrderDetails(order.order_id)}
+                    >
+                      Xem chi tiết
+                    </Button>
+                  </Row>
+                </div>
+              );
+            })
+          )}
         </div>
       </Col>
 

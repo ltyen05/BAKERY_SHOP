@@ -1,57 +1,102 @@
-import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Tag, Space, Typography, Card } from "antd";
-import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons";
-import { useAccount } from "../../context/AccountContext";
-import { useOrder } from "../../context/OrderContext";
-import OrderDetails from "../Order/OrderDetails";
+import React, { useState } from "react";
+import {
+  Table,
+  Input,
+  Button,
+  Tag,
+  Space,
+  Typography,
+  Card,
+  Modal,
+} from "antd";
+import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+
 const { Title } = Typography;
 
+/* =========================
+   MOCK ORDER HISTORY DATA
+========================= */
+const MOCK_ORDERS = [
+  {
+    order_id: 231,
+    quantities: [1, 2],
+    products: ["Bánh mì", "Bánh kem"],
+    total_amount: 424000,
+    branch_id: "234 Nguyễn Trãi, Thanh Xuân",
+    status: "completed",
+    rating: 5,
+  },
+  {
+    order_id: 232,
+    quantities: [3],
+    products: ["Bánh croissant"],
+    total_amount: 180000,
+    branch_id: "12 Láng Hạ, Đống Đa",
+    status: "completed",
+    rating: 4,
+  },
+  {
+    order_id: 233,
+    quantities: [1, 1, 2],
+    products: ["Bánh tiramisu", "Bánh su", "Bánh quy"],
+    total_amount: 520000,
+    branch_id: "88 Cầu Giấy",
+    status: "failed",
+    rating: null,
+  },
+  {
+    order_id: 234,
+    quantities: [2],
+    products: ["Bánh sinh nhật"],
+    total_amount: 350000,
+    branch_id: "45 Hoàng Quốc Việt",
+    status: "completed",
+    rating: 5,
+  },
+];
+
+/* =========================
+   STATUS COLOR
+========================= */
+const STATUS_COLOR = {
+  completed: "green",
+  failed: "red",
+  delivering: "orange",
+};
+
 const OrderHistory = () => {
-  const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const { history_orders } = useAccount();
-  const [currentOrder, setCurrentOrder] = useState({});
-  const [loadingOrder, setLoadingOrder] = useState(false);
-  const { orderDetails } = useOrder();
-  const [data, setData] = useState([]);
+  const [data] = useState(MOCK_ORDERS);
   const [searchText, setSearchText] = useState("");
   const [sortedInfo, setSortedInfo] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [showDetail, setShowDetail] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setLoading(true);
-        const orders = await history_orders();
-        console.log(orders); // gọi API từ context
-        setData(orders);
-      } catch (err) {
-        console.error("Lấy lịch sử đơn hàng thất bại:", err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHistory();
-  }, [history_orders]);
-
-  const handleShowOrderDetails = async (order_id) => {
-    try {
-      setLoadingOrder(true);
-      const order = await orderDetails(order_id);
-      setCurrentOrder(order);
-      setShowOrderDetails(true);
-    } catch (err) {
-      message.error(err.message || "Không thể lấy chi tiết đơn hàng");
-    } finally {
-      setLoadingOrder(false);
-    }
-  };
-  // Sample data with 20 different orders
-
-  const handleChange = (pagination, sorter) => {
+  /* =========================
+     HANDLERS
+  ========================= */
+  const handleChange = (_, sorter) => {
     setSortedInfo(sorter);
   };
 
+  const handleShowOrderDetails = (order) => {
+    setCurrentOrder(order);
+    setShowDetail(true);
+  };
+
+  /* =========================
+     FILTER
+  ========================= */
+  const filteredData = data.filter(
+    (item) =>
+      item.order_id.toString().includes(searchText) ||
+      item.products.some((p) =>
+        p.toLowerCase().includes(searchText.toLowerCase())
+      )
+  );
+
+  /* =========================
+     TABLE COLUMNS
+  ========================= */
   const columns = [
     {
       title: "Order ID",
@@ -63,7 +108,6 @@ const OrderHistory = () => {
       sorter: (a, b) => a.order_id - b.order_id,
       sortOrder: sortedInfo.columnKey === "order_id" ? sortedInfo.order : null,
     },
-
     {
       title: "Số lượng",
       dataIndex: "quantities",
@@ -72,10 +116,8 @@ const OrderHistory = () => {
       width: 100,
       render: (quantities) => (
         <Space direction="vertical" size={4}>
-          {quantities.map((quantity, idx) => (
-            <div key={idx} className="font-medium">
-              {quantity}
-            </div>
+          {quantities.map((q, idx) => (
+            <div key={idx}>{q}</div>
           ))}
         </Space>
       ),
@@ -86,7 +128,7 @@ const OrderHistory = () => {
       key: "total_amount",
       align: "center",
       width: 140,
-      sorter: (a, b) => a.total - b.total,
+      sorter: (a, b) => a.total_amount - b.total_amount,
       sortOrder:
         sortedInfo.columnKey === "total_amount" ? sortedInfo.order : null,
       render: (total) => (
@@ -100,42 +142,30 @@ const OrderHistory = () => {
       dataIndex: "branch_id",
       key: "branch_id",
       align: "center",
-      width: 80,
-      render: (branch_id) => <span className="font-medium">{branch_id}</span>,
+      width: 200,
     },
-
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       align: "center",
-      width: 140,
-      // filters: [
-      //   { text: "Hoàn thành", value: "completed" },
-      //   { text: "Không thành công", value: "failed" },
-      // ],
-      // filteredValue: filteredInfo.status || null,
-      // onFilter: (value, record) => record.status === value,
+      width: 120,
       render: (status) => (
-        <Tag className="px-3 py-1 text-xs font-medium">{status}</Tag>
+        <Tag color={STATUS_COLOR[status] || "default"}>{status}</Tag>
       ),
     },
     {
       title: "Xem chi tiết",
       key: "action",
-      width: 60,
+      width: 80,
       fixed: "right",
       align: "center",
       render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="text"
-            icon={<EyeOutlined />}
-            className="text-blue-500 hover:text-blue-700"
-            onClick={() => handleShowOrderDetails(record.order_id)}
-            size="small"
-          />
-        </Space>
+        <Button
+          type="text"
+          icon={<EyeOutlined />}
+          onClick={() => handleShowOrderDetails(record)}
+        />
       ),
     },
     {
@@ -143,170 +173,75 @@ const OrderHistory = () => {
       dataIndex: "rating",
       key: "rating",
       align: "center",
-      width: 60,
-
-      render: (date) => date,
+      width: 80,
+      render: (rating) => (rating ? `⭐ ${rating}` : "--"),
     },
   ];
 
-  const filteredData = data.filter(
-    (item) =>
-      item.order_id.toString().includes(searchText) ||
-      item.products.some((p) =>
-        p.toLowerCase().includes(searchText.toLowerCase())
-      )
-  );
-
   return (
     <div style={{ width: "90%", margin: "0 auto" }}>
-      <div>
-        <Card
-          className="shadow-xl rounded-2xl overflow-hidden border-0"
-          style={{ backgroundColor: "#fdfbf5", border: "none" }}
-        >
-          <div
-            style={{ textAlign: "start" }}
-            className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6"
-          >
-            <Title level={2}>Lịch sử mua hàng</Title>
-          </div>
-
-          <div className="mb-6 mt-3">
-            <Input
-              placeholder="Nhập orderID hoặc tên bánh ..."
-              prefix={<SearchOutlined className="text-gray-400" />}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="w-80 rounded-lg"
-              size="large"
-              allowClear
-            />
-          </div>
-
-          <div className="p-6">
-            <Table
-              columns={columns}
-              dataSource={filteredData}
-              onChange={handleChange}
-              pagination={{
-                pageSize: 6,
-                className: "custom-pagination",
-              }}
-              scroll={{ x: "max-content" }}
-              className="custom-table"
-              bordered
-              rowClassName={(record, index) =>
-                index % 2 === 0 ? "bg-white" : "bg-orange-50/30"
-              }
-            />
-          </div>
-        </Card>
-      </div>
-      {showOrderDetails && (
-        <div className="fl-center showUp">
-          <div
-            style={{
-              width: "95%",
-              maxWidth: "550px",
-              backgroundColor: "#fdfbf5",
-              height: "90%",
-              borderRadius: "8px",
-              flexDirection: "column",
-              position: "relative",
-            }}
-            className="fl-center"
-          >
-            <OrderDetails order={currentOrder} />
-            <button
-              onClick={() => setShowOrderDetails(false)}
-              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
-              className="out-line"
-            >
-              <CloseOutlined />
-            </button>
-          </div>
+      <Card
+        className="shadow-xl rounded-2xl overflow-hidden border-0"
+        style={{ backgroundColor: "#fdfbf5" }}
+      >
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6">
+          <Title level={2} style={{ color: "#fff", margin: 0 }}>
+            Lịch sử mua hàng
+          </Title>
         </div>
-      )}
-      <style>{`
-        .custom-table .ant-table-thead > tr > th {
-          background:  #2e2100;
-          color:   #fdfbf5;
-          font-weight: 600;
-        }
-        
-        .custom-table .ant-table-tbody > tr:hover > td {
-          background: #fff8efff !important;
-        }
-        .custom-table .ant-table-tbody > tr > td {
-          background: #fdfbf5 !important;
-        }
-    
-        
-        }
-        .custom-table .ant-table-column-has-sorters.ant-table-column-sort, .custom-table .ant-table-column-has-sorters:hover {
-            background: #fdfbf5 !important;
-            color: #2e2100;
-        }
-        .custom-table .ant-table-filter-trigger:focus,
-        .custom-table .ant-table-column-sorter:focus {
-              outline: none !important;
-              background:red !important;
-              box-shadow: none !important;
-        }
 
-        .custom-table .ant-table-column-sorter svg
-         ,.custom-table .ant-table-filter-trigger {
-              color:#fdfbf5!important;  /* màu nâu nhạt hoặc bạn muốn */
-          }
+        <div className="p-6">
+          <Input
+            placeholder="Nhập orderID hoặc tên bánh ..."
+            prefix={<SearchOutlined />}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-80 mb-6"
+            size="large"
+            allowClear
+          />
 
-        /* Sort tăng */
-        .custom-table .ant-table-column-sorter-up.active svg , 
-        .custom-table .ant-table-filter-trigger.active {
-          color: #f97316 !important;  /* cam */
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            rowKey="order_id"
+            onChange={handleChange}
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+            bordered
+          />
+        </div>
+      </Card>
 
-        }
-
-        /* Sort giảm */
-        .custom-table .ant-table-column-sorter-down.active svg {
-          color: #f97316 !important;  /* cam */
-        }
-
-          
-
-        .ant-table-wrapper {
-          overflow: hidden;
-        }
-
-        .ant-table-body {
-          overflow-x: auto !important;
-          overflow-y: auto !important;
-        }
-
-        .ant-table-body::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        .ant-table-body::-webkit-scrollbar-track {
-          background: #ffffffff;
-          border-radius: 4px;
-        }
-
-        .ant-table-body::-webkit-scrollbar-thumb {
-          background: #fb923c;
-          border-radius: 4px;
-        }
-
-        .ant-table-body::-webkit-scrollbar-thumb:hover {
-          background: #f97316;
-        }
-          .ant-table,
-        .ant-table-container,
-        .ant-table-cell {
-          border-color: #7a4f2b !important; /* màu bạn muốn */
-        }
-
-
-      `}</style>
+      {/* =========================
+          ORDER DETAIL MODAL
+      ========================= */}
+      <Modal
+        open={showDetail}
+        onCancel={() => setShowDetail(false)}
+        footer={null}
+        title={`Chi tiết đơn #${currentOrder?.order_id}`}
+      >
+        {currentOrder && (
+          <div>
+            <p>
+              <b>Sản phẩm:</b> {currentOrder.products.join(", ")}
+            </p>
+            <p>
+              <b>Số lượng:</b> {currentOrder.quantities.join(", ")}
+            </p>
+            <p>
+              <b>Tổng tiền:</b>{" "}
+              {currentOrder.total_amount.toLocaleString("vi-VN")} VND
+            </p>
+            <p>
+              <b>Địa chỉ:</b> {currentOrder.branch_id}
+            </p>
+            <p>
+              <b>Trạng thái:</b> {currentOrder.status}
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

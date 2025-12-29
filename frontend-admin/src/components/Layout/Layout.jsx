@@ -1,50 +1,47 @@
-import { useState, useEffect } from "react";
+// ===============================================
+// src/components/Layout/Layout.jsx
+// ===============================================
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
 import Header from "../Header/Header";
 import "./Layout.css";
 
 export default function Layout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
-  // Theo dõi kích thước màn hình để tự động đóng sidebar khi ở mobile
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setIsSidebarOpen(false);
-      } else {
-        setIsSidebarOpen(true);
-      }
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
-  // Toggle fullscreen mode (ẩn/hiện sidebar)
-  const handleToggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
+  //  Function để ẩn/hiện sidebar khi click icon fullscreen
+  const toggleFullscreen = () => {
+    setIsSidebarVisible(!isSidebarVisible);
   };
 
   return (
     <div className="layout">
-      {/* Chỉ hiển thị sidebar khi KHÔNG ở chế độ fullscreen */}
-      {!isFullscreen && (
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onCloseSidebar={() => setIsSidebarOpen(false)}
-        />
+      {/* Sidebar - Ẩn/hiện dựa vào isSidebarVisible */}
+      {isSidebarVisible && (
+        <Sidebar isOpen={isSidebarOpen} onCloseSidebar={closeSidebar} />
       )}
 
+      {/* Main content area */}
       <div className="layout-main">
-        {/* Header cố định trên cùng */}
-        <Header 
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          onToggleFullscreen={handleToggleFullscreen}
-        />
+        {/* Header - Truyền toggleFullscreen vào */}
+        <div className="header-container">
+          <Header 
+            onToggleSidebar={toggleSidebar} 
+            onToggleFullscreen={toggleFullscreen}
+          />
+        </div>
 
-        {/* Nội dung cuộn */}
+        {/* Content */}
         <div className="layout-content">
           <Outlet />
         </div>

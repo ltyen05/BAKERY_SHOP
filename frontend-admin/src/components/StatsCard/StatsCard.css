@@ -1,147 +1,104 @@
 /* ============================= */
-/* STATS CARD COMPONENT          */
+/* Location: src/components/StatsCard/StatsCard.css - REDESIGNED */
 /* ============================= */
 
+/* Base Card */
 .stats-card {
   position: relative;
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid #e5e7eb !important;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: white !important;
 }
 
 .stats-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Top Border - Gradient Line */
-.stats-card-border {
+/* Animated Gradient Top Border */
+.stats-card-gradient-border {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   border-radius: 16px 16px 0 0;
+  background-size: 200% 100%;
+  animation: gradient-shift 3s ease infinite;
 }
 
-/* Color Variants */
-.stats-card-purple .stats-card-border {
-  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
-.stats-card-purple .stats-card-icon {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+/* Card Body */
+.stats-card .ant-card-body {
+  padding: 24px !important;
 }
 
-.stats-card-pink .stats-card-border {
-  background: linear-gradient(90deg, #ec4899 0%, #f43f5e 100%);
+/* Wrapper */
+.stats-card-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.stats-card-pink .stats-card-icon {
-  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-}
-
-.stats-card-blue .stats-card-border {
-  background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
-}
-
-.stats-card-blue .stats-card-icon {
-  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-}
-
-.stats-card-green .stats-card-border {
-  background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
-}
-
-.stats-card-green .stats-card-icon {
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-}
-
-.stats-card-orange .stats-card-border {
-  background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
-}
-
-.stats-card-orange .stats-card-icon {
-  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-}
-
-.stats-card-yellow .stats-card-border {
-  background: linear-gradient(90deg, #eab308 0%, #facc15 100%);
-}
-
-.stats-card-yellow .stats-card-icon {
-  background: linear-gradient(135deg, #eab308 0%, #facc15 100%);
-}
-
-/* Icon Section */
+/* Icon Section - Flat Design */
 .stats-card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s;
+  transition: all 0.3s;
 }
 
 .stats-card:hover .stats-card-icon {
-  transform: scale(1.05);
-}
-
-.stats-card-icon svg {
-  width: 28px;
-  height: 28px;
-  color: white;
+  transform: scale(1.08);
 }
 
 /* Content Section */
 .stats-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   flex: 1;
 }
 
-.stats-card-title {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  color: #9ca3af;
+/* Override Ant Design Statistic */
+.stats-card .ant-statistic-title {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #9ca3af !important;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px !important;
 }
 
-.stats-card-value {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 800;
-  color: #1f2937;
-  line-height: 1;
-  letter-spacing: -0.5px;
+.stats-card .ant-statistic-content {
+  line-height: 1 !important;
 }
 
-/* Change Section */
+.stats-card .ant-statistic-content-value {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+}
+
+/* Change Badge */
 .stats-card-change {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 600;
-  margin-top: 2px;
-}
-
-.change-icon {
-  font-size: 14px;
-  line-height: 1;
+  margin-top: 8px;
 }
 
 .stats-card-change.positive {
@@ -159,7 +116,7 @@
 .change-period {
   color: #6b7280;
   font-weight: 500;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* ============================= */
@@ -167,8 +124,34 @@
 /* ============================= */
 
 @media (max-width: 768px) {
-  .stats-card {
-    padding: 16px;
+  .stats-card .ant-card-body {
+    padding: 20px !important;
+  }
+
+  .stats-card-wrapper {
+    gap: 16px;
+  }
+
+  .stats-card-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .stats-card .ant-statistic-content-value {
+    font-size: 28px !important;
+  }
+
+  .stats-card .ant-statistic-title {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-card .ant-card-body {
+    padding: 16px !important;
+  }
+
+  .stats-card-wrapper {
     gap: 12px;
   }
 
@@ -177,41 +160,15 @@
     height: 48px;
   }
 
-  .stats-card-icon svg {
-    width: 24px;
-    height: 24px;
+  .stats-card .ant-statistic-content-value {
+    font-size: 24px !important;
   }
 
-  .stats-card-value {
-    font-size: 24px;
-  }
-
-  .stats-card-title {
-    font-size: 10px;
+  .stats-card .ant-statistic-title {
+    font-size: 10px !important;
   }
 
   .stats-card-change {
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-card {
-    padding: 14px;
-    gap: 10px;
-  }
-
-  .stats-card-icon {
-    width: 44px;
-    height: 44px;
-  }
-
-  .stats-card-icon svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .stats-card-value {
-    font-size: 20px;
+    font-size: 12px;
   }
 }

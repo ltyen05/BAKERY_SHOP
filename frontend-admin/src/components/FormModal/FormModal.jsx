@@ -1,3 +1,6 @@
+/* =============================================== */
+/*  Location: src/components/FormModal/FormModal.jsx - FIXED */
+/* =============================================== */
 import React, { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import './FormModal.css';
@@ -54,6 +57,14 @@ const FormModal = ({
 
     // Validation
     for (const field of fields) {
+      // Skip validation cho field disabled
+      if (field.disabled) continue;
+      
+      // Password không bắt buộc khi edit
+      if (field.name === 'password' && isEdit && !formData[field.name]) {
+        continue;
+      }
+      
       if (field.required && !formData[field.name]?.toString().trim()) {
         setError(`${field.label} không được để trống`);
         return;
@@ -61,6 +72,15 @@ const FormModal = ({
       if (field.inputType === 'number' && parseFloat(formData[field.name]) <= 0) {
         setError(`${field.label} phải lớn hơn 0`);
         return;
+      }
+      
+      // Validate email
+      if (field.inputType === 'email' && formData[field.name]) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData[field.name])) {
+          setError('Email không hợp lệ');
+          return;
+        }
       }
     }
 
@@ -71,13 +91,13 @@ const FormModal = ({
         submitData[field.name] = field.transform(formData[field.name]);
       }
     });
-
-    if (isEdit && data?.id) {
-      onSubmit(data.id, submitData);
-    } else {
-      onSubmit(submitData);
-    }
     
+    // Không gửi password nếu là edit và password rỗng
+    if (isEdit && !submitData.password) {
+      delete submitData.password;
+    }
+
+    onSubmit(submitData);
     setError('');
   };
 
@@ -120,6 +140,7 @@ const FormModal = ({
           <div className="form-grid">
             {fields.map((field) => {
               const FieldIcon = field.icon;
+              const isDisabled = field.disabled || false;
               
               return (
                 <div 
@@ -128,7 +149,8 @@ const FormModal = ({
                 >
                   <label>
                     {field.label}
-                    {field.required && <span className="required-star">*</span>}
+                    {field.required && field.name !== 'password' && <span className="required-star">*</span>}
+                    {field.required && field.name === 'password' && !isEdit && <span className="required-star">*</span>}
                   </label>
                   
                   <div className="input-wrapper">
@@ -143,7 +165,8 @@ const FormModal = ({
                         name={field.name}
                         value={formData[field.name] || ''}
                         onChange={handleChange}
-                        required={field.required}
+                        required={field.required && !isEdit}
+                        disabled={isDisabled}
                       >
                         {field.options?.map(opt => (
                           <option key={opt.value} value={opt.value}>
@@ -158,6 +181,17 @@ const FormModal = ({
                         onChange={handleChange}
                         placeholder={field.placeholder}
                         rows={field.rows || 4}
+                        disabled={isDisabled}
+                      />
+                    ) : field.type === 'password' ? (
+                      <input
+                        type="password"
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleChange}
+                        placeholder={field.placeholder}
+                        required={field.required && !isEdit}
+                        disabled={isDisabled}
                       />
                     ) : (
                       <input
@@ -168,10 +202,15 @@ const FormModal = ({
                         value={formData[field.name] || ''}
                         onChange={handleChange}
                         placeholder={field.placeholder}
-                        required={field.required}
+                        required={field.required && !isEdit}
+                        disabled={isDisabled}
                       />
                     )}
                   </div>
+                  
+                  <span className="field-helper">
+                    {field.helperText || '\u00A0'}
+                  </span>
                 </div>
               );
             })}

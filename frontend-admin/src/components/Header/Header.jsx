@@ -1,39 +1,40 @@
-import { useState } from "react";
+import React from "react";
+import { Avatar } from "antd";
+import { FaExpand, FaBars } from "react-icons/fa";
+import { MdLocationOn } from "react-icons/md";
+import { useAuth } from "../../context/AuthContext";
 import "./Header.css";
-import {
-  FaSearch,
-  FaBell,
-  FaExpand,
-  FaBars,
-} from "react-icons/fa";
 
 export default function Header({ onToggleSidebar, onToggleFullscreen }) {
+  const { getCurrentBranch } = useAuth();
+  const currentBranch = getCurrentBranch();
+
   return (
     <header className="header-container">
-       {/* Nút menu hamburger */}
+      {/* Nút menu hamburger - Mobile */}
       <button className="menu-toggle" onClick={onToggleSidebar}>
         <FaBars />
       </button>
 
-  
-
-      <div className="header-right">
-        {/* Icon thông báo */}
-        <div className="icon-circle">
-          <FaBell />
+      {/* Thông tin chi nhánh */}
+      {currentBranch && (
+        <div className="branch-info-header">
+          <MdLocationOn className="location-icon" />
+          <span className="branch-name-header">{currentBranch.name}</span>
         </div>
-        
+      )}
+
+      {/* Icons bên phải */}
+      <div className="header-right">
         {/* Icon fullscreen - Ẩn/hiện sidebar khi click */}
         <div className="icon-circle" onClick={onToggleFullscreen}>
           <FaExpand />
         </div>
 
-        {/* Profile - chỉ hiển thị, không có dropdown */}
         <div className="profile">
-          <img
+          <Avatar
+            size={40}
             src="https://i.postimg.cc/4ykv8DXb/avatar1.png"
-            alt="avatar"
-            className="profile-img"
           />
           <div className="profile-info">
             <span className="name">Helen Walter</span>

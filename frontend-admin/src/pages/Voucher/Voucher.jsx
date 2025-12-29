@@ -1,4 +1,8 @@
-import { useState } from 'react';
+/* =============================================== */
+/* Location: src/pages/Voucher/Voucher.jsx 
+/* =============================================== */
+
+import { useState, useEffect } from 'react';
 import './Voucher.css';
 import { 
   FaPlus, 
@@ -16,69 +20,7 @@ import {
   FaStar,
   FaGem
 } from 'react-icons/fa';
-
-const INITIAL_VOUCHERS = [
-  {
-    id: 1,
-    code: 'SUMMER2024',
-    name: 'Giảm giá mùa hè',
-    discount: 20,
-    type: 'percent',
-    minOrder: 100000,
-    maxDiscount: 50000,
-    quantity: 100,
-    used: 45,
-    startDate: '2024-06-01',
-    endDate: '2024-08-31',
-    status: 'Active',
-    level: 'Normal'
-  },
-  {
-    id: 2,
-    code: 'VIP50K',
-    name: 'Ưu đãi VIP',
-    discount: 50000,
-    type: 'fixed',
-    minOrder: 200000,
-    maxDiscount: null,
-    quantity: 50,
-    used: 30,
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    status: 'Active',
-    level: 'VIP'
-  },
-  {
-    id: 3,
-    code: 'SILVER30',
-    name: 'Silver member',
-    discount: 30,
-    type: 'percent',
-    minOrder: 150000,
-    maxDiscount: 80000,
-    quantity: 100,
-    used: 67,
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    status: 'Active',
-    level: 'Silver'
-  },
-  {
-    id: 4,
-    code: 'FLASH50',
-    name: 'Flash sale',
-    discount: 50,
-    type: 'percent',
-    minOrder: 0,
-    maxDiscount: 100000,
-    quantity: 200,
-    used: 200,
-    startDate: '2024-01-15',
-    endDate: '2024-01-20',
-    status: 'Expired',
-    level: 'Normal'
-  }
-];
+import { couponApi } from '../../api/voucherApi';
 
 // Component: Stat Card
 const StatCard = ({ icon: Icon, label, value, gradient }) => (
@@ -94,7 +36,7 @@ const StatCard = ({ icon: Icon, label, value, gradient }) => (
 );
 
 // Component: Voucher Card
-const VoucherCard = ({ voucher, onDelete }) => {
+const VoucherCard = ({ voucher, onDelete, onEdit }) => {
   const getLevelIcon = () => {
     switch(voucher.level) {
       case 'VIP': return <FaCrown style={{color: '#f59e0b'}} />;
@@ -121,11 +63,11 @@ const VoucherCard = ({ voucher, onDelete }) => {
           )}
         </div>
         <div className="voucher-actions">
-          <button className="btn-icon" title="Sửa">
-            <FaEdit />
+          <button className="btn-icon" onClick={() => onEdit(voucher)} title="Sửa">
+            <FaEdit data-icon="edit" />
           </button>
           <button className="btn-icon" onClick={() => onDelete(voucher.id)} title="Xóa">
-            <FaTrash />
+            <FaTrash data-icon="trash" />
           </button>
         </div>
       </div>
@@ -140,7 +82,7 @@ const VoucherCard = ({ voucher, onDelete }) => {
       <div className="voucher-discount">
         {voucher.type === 'percent' 
           ? `Giảm ${voucher.discount}%`
-          : `Giảm ${voucher.discount.toLocaleString()}đ`
+          : `Giảm ${parseFloat(voucher.discount).toLocaleString()}đ`
         }
       </div>
 
@@ -180,12 +122,32 @@ const VoucherCard = ({ voucher, onDelete }) => {
 
 // Main Component
 export default function Voucher() {
-  const [vouchers, setVouchers] = useState(INITIAL_VOUCHERS);
+  const [vouchers, setVouchers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterLevel, setFilterLevel] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+
+  // Load vouchers từ API khi component mount
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
+
+  const fetchVouchers = async () => {
+    try {
+      setLoading(true);
+      const data = await couponApi.getAllCoupons();
+      setVouchers(data);
+      console.log('✅ Loaded vouchers:', data);
+    } catch (error) {
+      console.error('❌ Error loading vouchers:', error);
+      alert('Không thể tải danh sách voucher. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredVouchers = vouchers.filter(v => {
     const matchSearch = v.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -202,11 +164,35 @@ export default function Voucher() {
     used: vouchers.reduce((sum, v) => sum + v.used, 0)
   };
 
-  const handleDeleteVoucher = (id) => {
+  const handleDeleteVoucher = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa voucher này?')) {
-      setVouchers(vouchers.filter(v => v.id !== id));
+      try {
+        await couponApi.deleteCoupon(id);
+        setVouchers(vouchers.filter(v => v.id !== id));
+        alert('✅ Xóa voucher thành công!');
+      } catch (error) {
+        console.error('❌ Error deleting voucher:', error);
+        alert('❌ Không thể xóa voucher. Vui lòng thử lại!');
+      }
     }
   };
+
+  const handleEditVoucher = (voucher) => {
+    console.log('Edit voucher:', voucher);
+    // TODO: Mở modal edit với dữ liệu voucher
+    alert('Chức năng sửa voucher đang phát triển');
+  };
+
+  if (loading) {
+    return (
+      <div className="voucher-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="voucher-page">
@@ -284,6 +270,20 @@ export default function Voucher() {
       {/* Filters */}
       <div className="voucher-filters">
         <div className="filter-group">
+          <label>Trạng thái:</label>
+          <div className="filter-tabs">
+            {['All', 'Active', 'Expired'].map(status => (
+              <button
+                key={status}
+                className={`filter-tab ${filterStatus === status ? 'active' : ''}`}
+                onClick={() => setFilterStatus(status)}
+              >
+                {status === 'All' ? 'Tất cả' : status === 'Active' ? 'Hoạt động' : 'Hết hạn'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="filter-group">
           <label>Phân loại:</label>
           <div className="filter-tabs">
             {['All', 'VIP', 'Silver', 'Gold', 'Normal'].map(level => (
@@ -307,6 +307,7 @@ export default function Voucher() {
               key={voucher.id} 
               voucher={voucher} 
               onDelete={handleDeleteVoucher}
+              onEdit={handleEditVoucher}
             />
           ))}
         </div>
@@ -343,7 +344,7 @@ export default function Voucher() {
                     <span className="table-discount">
                       {voucher.type === 'percent' 
                         ? `${voucher.discount}%`
-                        : `${voucher.discount.toLocaleString()}đ`
+                        : `${parseFloat(voucher.discount).toLocaleString()}đ`
                       }
                     </span>
                   </td>
@@ -375,9 +376,11 @@ export default function Voucher() {
                   </td>
                   <td>
                     <div className="table-actions">
-                      <button className="btn-icon"><FaEdit /></button>
+                      <button className="btn-icon" onClick={() => handleEditVoucher(voucher)}>
+                        <FaEdit data-icon="edit" />
+                      </button>
                       <button className="btn-icon" onClick={() => handleDeleteVoucher(voucher.id)}>
-                        <FaTrash />
+                        <FaTrash data-icon="trash" />
                       </button>
                     </div>
                   </td>

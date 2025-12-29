@@ -1,37 +1,95 @@
+// ===============================================
+// src/context/AuthContext.jsx
+// ===============================================
 import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+//  Mock users để test - SAU NÀY SẼ THAY BẰNG DATA TỪ LOGIN
+const mockUsers = {
+  superAdmin: {
+    id: 'SA001',
+    name: 'Helen Walter',
+    email: 'helen@husbakery.vn',
+    role: 'super_admin',
+    branch_id: null,
+    branch_name: null,
+    viewing_branch: null
+  },
+  branchAdmin: {
+    id: 'BA001',
+    name: 'Nguyễn Bảo Thạch',
+    email: 'thach@husbakery.vn',
+    role: 'admin',
+    branch_id: 'CN001',
+    branch_name: 'HUS Bakery - Hoàn Kiếm',
+    viewing_branch: null
+  }
+};
 
-export function AuthProvider({ children }) {
-  // Mock user - Sau này lấy từ API login
-  const [user, setUser] = useState(() => {
-    return {
-      employee_id: 1, // ← Đổi id thành employee_id
-      employee_name: 'Nguyễn Bảo Thạch', // ← Đổi name thành employee_name
-      email: 'thach.nguyen@husbakery.vn',
-      role: 'super_admin', // Hoặc 'admin'
-      role_name: 'Quản lý', // ← Field từ DB
-      branch_id: 1, // ← Admin thường có branch_id cố định
-      avatar: 'https://i.postimg.cc/4ykv8DXb/avatar1.png'
-    };
-  });
+export const AuthProvider = ({ children }) => {
+  //  Mặc định là Super Admin (hoặc đổi thành branchAdmin để test)
+  const [user, setUser] = useState(mockUsers.superAdmin);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  //  Hàm để super admin xem chi nhánh cụ thể
+  const viewBranch = (branch) => {
+    setUser(prev => ({
+      ...prev,
+      viewing_branch: branch
+    }));
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('access_token');
+  //  Hàm để về lại chế độ xem tổng quan
+  const viewAllBranches = () => {
+    setUser(prev => ({
+      ...prev,
+      viewing_branch: null
+    }));
+  };
+
+  //  Helper functions
+  const isSuperAdmin = user?.role === 'super_admin';
+  const isBranchAdmin = user?.role === 'admin';
+  
+  // Super admin đang xem 1 chi nhánh cụ thể
+  const isViewingBranch = isSuperAdmin && user?.viewing_branch !== null;
+  
+  // Lấy branch hiện tại đang xem
+  const getCurrentBranch = () => {
+    if (isBranchAdmin) {
+      return {
+        id: user.branch_id,
+        name: user.branch_name
+      };
+    }
+    if (isViewingBranch) {
+      return user.viewing_branch;
+    }
+    return null;
+  };
+
+  const value = {
+    user,
+    setUser,
+    isSuperAdmin,
+    isBranchAdmin,
+    isViewingBranch,
+    viewBranch,
+    viewAllBranches,
+    getCurrentBranch
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth phải được sử dụng trong AuthProvider');
+  }
+  return context;
+};

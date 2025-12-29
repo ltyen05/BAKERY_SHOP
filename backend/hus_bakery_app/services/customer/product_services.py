@@ -10,24 +10,6 @@ def get_top_3_products_service():
     try:
         # Dòng này sẽ in ra tên Database mà Flask đang kết nối trong Terminal
         print(f"DEBUG: Đang kết nối tới Database: {db.engine.url.database}")
-<<<<<<< HEAD
-        
-        # Kiểm tra xem bảng products có bao nhiêu dòng
-        p_count = db.session.query(Product).count()
-        print(f"DEBUG: Số lượng sản phẩm trong DB: {p_count}")
-
-        results = db.session.query(
-            Product,
-            func.sum(OrderItem.quantity).label('total_sold')
-        ).join(OrderItem, Product.product_id == OrderItem.product_id) \
-         .group_by(Product.product_id) \
-         .order_by(desc('total_sold')) \
-         .limit(3).all()
-         
-        if not results:
-            return []
-
-=======
 
         # Kiểm tra xem bảng products có bao nhiêu dòng
         p_count = db.session.query(Product).count()
@@ -44,7 +26,6 @@ def get_top_3_products_service():
         if not results:
             return []
 
->>>>>>> backend
         top_3 = []
         for product, total in results:
             top_3.append({

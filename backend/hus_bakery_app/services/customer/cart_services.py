@@ -18,11 +18,6 @@ def add_to_cart(customer_id, product_id, quantity=1):
             customer_id=customer_id,
             product_id=product_id,
             quantity=quantity,
-<<<<<<< HEAD
-           # Mặc định thêm vào là chọn luôn
-=======
-            # Mặc định thêm vào là chọn luôn
->>>>>>> backend
         )
         db.session.add(item)
     

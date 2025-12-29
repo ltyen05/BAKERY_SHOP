@@ -1,35 +1,43 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Suspense } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
+import { adminRoutes } from "./routes";
 
-import ProductsView from "./pages/Products/ProductsView";
-import CustomersView from "./pages/Customers/CustomersView";
-import DashboardView from "./pages/Dashboard/DashboardView";
-import OrdersView from "./pages/Orders/OrdersView";
-import Employee from "./pages/Employee/Employee";
-
-import Feedback from "./pages/Feedback/Feedback";
+// Loading component
+function LoadingFallback() {
+  return (
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center", 
+      height: "100vh",
+      fontSize: "18px",
+      color: "#666"
+    }}>
+      Đang tải trang...
+    </div>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-
-          <Route path="dashboard" element={<DashboardView />} />
-          <Route path="products" element={<ProductsView />} />
-          <Route path="customers" element={<CustomersView />} />
-          <Route path="orders" element={<OrdersView />} />
-          <Route path="employee" element={<Employee />} />
-          <Route path="feedback" element={<Feedback />} />
-
-          <Route path="service" element={<div style={{ padding: 20 }}>Service Page</div>} />
-          <Route path="promotions" element={<div style={{ padding: 20 }}>Promotions Page</div>} />
-
-        </Route>
-
-      </Routes>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            {adminRoutes.map((route) => {
+              const Component = route.element;
+              return (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={<Component />}
+                />
+              );
+            })}
+          </Route>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

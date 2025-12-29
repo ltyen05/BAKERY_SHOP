@@ -1,3 +1,5 @@
+/* FormModal.css */
+
 /* Modal Overlay */
 .modern-modal-overlay {
   position: fixed;
@@ -57,8 +59,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7c2d12;
   flex-shrink: 0;
+}
+
+.header-icon svg {
+  color: #7c2d12;
+  stroke: #7c2d12;
+  width: 24px;
+  height: 24px;
 }
 
 .header-text {
@@ -80,32 +88,32 @@
 }
 
 .modern-close-btn {
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  border-radius: 8px;
-  color: #000000;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
 .modern-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
   transform: rotate(90deg);
-  color: #000000;
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
-.modern-close-btn svg {
-  color: inherit;
-}
-
-.modern-close-btn svg path {
-  stroke: currentColor;
+.modern-close-btn span svg {
+  color: #ef4444;
+  stroke: #ef4444;
+  width: 22px;
+  height: 22px;
 }
 
 /* Form */
@@ -156,9 +164,18 @@
 .input-icon {
   position: absolute;
   left: 14px;
-  color: #6b7280;
   pointer-events: none;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-icon svg {
+  color: #9ca3af;
+  stroke: #9ca3af;
+  width: 18px;
+  height: 18px;
 }
 
 .textarea-icon {
@@ -178,6 +195,17 @@
   font-family: inherit;
   background: #f9fafb;
   color: #1f2937;
+}
+
+/* Ẩn spinner của input number */
+.input-wrapper input[type="number"]::-webkit-inner-spin-button,
+.input-wrapper input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-wrapper input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .input-wrapper textarea {
@@ -266,16 +294,21 @@
 .modern-btn-submit {
   background: linear-gradient(135deg, #FFBD71 0%, #FFDCA2 100%);
   color: rgb(105, 31, 31);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 189, 113, 0.3);
 }
 
 .modern-btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 189, 113, 0.4);
 }
 
 .modern-btn-submit:active {
   transform: translateY(0);
+}
+
+.modern-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Responsive */

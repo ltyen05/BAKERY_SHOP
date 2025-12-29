@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiChevronUp, FiChevronDown, FiFilter } from 'react-icons/fi';
+import { 
+  FiEdit2, FiTrash2, FiPlus, FiDownload, FiChevronUp, FiChevronDown, 
+  FiSearch, FiUsers, FiCheckCircle, FiXCircle 
+} from 'react-icons/fi';
 import AddEmployeeModal from './AddEmployeeModal';
 import EditEmployeeModal from './EditEmployeeModal';
+import StatsCard from '../../components/StatsCard/StatsCard';
 import './Employee.css';
 
 // Generate more sample data
@@ -49,6 +53,7 @@ export default function Employee() {
   const [employees, setEmployees] = useState(generateEmployees());
   const [activeRole, setActiveRole] = useState('Tất cả');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const rowsPerPage = 10;
@@ -71,9 +76,14 @@ export default function Employee() {
     return employees.filter(emp => {
       const matchRole = activeRole === 'Tất cả' || emp.role === activeRole;
       const matchStatus = statusFilter === 'all' || emp.status === statusFilter;
-      return matchRole && matchStatus;
+      const matchSearch = searchQuery === '' ||
+        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.phone.includes(searchQuery);
+      
+      return matchRole && matchStatus && matchSearch;
     });
-  }, [employees, activeRole, statusFilter]);
+  }, [employees, activeRole, statusFilter, searchQuery]);
 
   // Sort
   const sortedEmployees = useMemo(() => {
@@ -176,49 +186,34 @@ export default function Employee() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - UPDATED TO USE STATSCARD COMPONENT */}
       <div className="stats-grid">
-        <div className="stat-card stat-card-blue">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-          </div>
-          <div>
-            <p className="stat-label">Tổng nhân viên</p>
-            <h3 className="stat-value">{stats.total}</h3>
-          </div>
-        </div>
+        <StatsCard 
+          title="TỔNG NHÂN VIÊN"
+          value={stats.total.toString()}
+          change={0}
+          period=""
+          color="purple"
+          icon={<FiUsers />}
+        />
         
-        <div className="stat-card stat-card-green">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </div>
-          <div>
-            <p className="stat-label">Hoạt động</p>
-            <h3 className="stat-value">{stats.active}</h3>
-          </div>
-        </div>
+        <StatsCard 
+          title="HOẠT ĐỘNG"
+          value={stats.active.toString()}
+          change={0}
+          period=""
+          color="green"
+          icon={<FiCheckCircle />}
+        />
         
-        <div className="stat-card stat-card-red">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="15" y1="9" x2="9" y2="15"></line>
-              <line x1="9" y1="9" x2="15" y2="15"></line>
-            </svg>
-          </div>
-          <div>
-            <p className="stat-label">Inactive</p>
-            <h3 className="stat-value">{stats.inactive}</h3>
-          </div>
-        </div>
+        <StatsCard 
+          title="INACTIVE"
+          value={stats.inactive.toString()}
+          change={0}
+          period=""
+          color="blue"
+          icon={<FiXCircle />}
+        />
       </div>
 
       {/* Tabs + Actions Bar */}
@@ -236,19 +231,31 @@ export default function Employee() {
         </div>
         
         <div className="right-actions">
+          {/* SEARCH BOX - ADDED */}
+          <div className="search-box">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Tìm nhân viên..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="search-input"
+            />
+          </div>
+
           <select
             value={statusFilter}
             onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             className="status-select"
           >
-            <option value="all">All</option>
+            <option value="all">Tất cả</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
 
           <button className="export-btn" onClick={handleExportCSV}>
             <FiDownload />
-            Export CSV
+            Export
           </button>
 
           <button className="add-btn" onClick={() => setIsAddModalOpen(true)}>
@@ -336,7 +343,6 @@ export default function Employee() {
           </button>
           
           {Array.from({length: totalPages}, (_, i) => i + 1).map(page => {
-            // Show first, last, current and adjacent pages
             if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
               return (
                 <button

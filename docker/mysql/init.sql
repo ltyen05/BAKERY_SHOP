@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 29, 2025 lúc 05:36 PM
+-- Thời gian đã tạo: Th12 29, 2025 lúc 06:19 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -714,6 +714,7 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `product_id`, `quantity`
 --
 
 CREATE TABLE `order_status` (
+  `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `status` varchar(50) NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -723,25 +724,25 @@ CREATE TABLE `order_status` (
 -- Đang đổ dữ liệu cho bảng `order_status`
 --
 
-INSERT INTO `order_status` (`order_id`, `status`, `updated_at`) VALUES
-(1, 'Đã giao', '2025-12-26 17:59:22'),
-(2, 'Đã giao', '2025-12-26 18:00:34'),
-(3, 'Đã giao', '2025-12-26 17:59:53'),
-(4, 'Đang giao', '2025-12-26 18:01:09'),
-(5, 'Đã giao', '2025-12-26 18:01:17'),
-(6, 'Đang xử lý', '2025-12-26 18:01:30'),
-(7, 'Đã giao', '2025-12-26 18:01:44'),
-(8, 'Đã giao', '2025-12-26 18:02:08'),
-(9, 'Đã giao', '2025-12-26 18:00:01'),
-(10, 'Đang giao', '2025-12-26 18:02:23'),
-(11, 'Đã giao', '2025-12-26 18:02:44'),
-(12, 'Đang xử lý', '2025-12-26 18:03:26'),
-(13, 'Đã giao', '2025-12-26 18:03:20'),
-(14, 'Đã giao', '2025-12-26 18:03:15'),
-(15, 'Đã giao', '2025-12-26 18:00:13'),
-(101, 'Đang xử lý', '2025-12-29 16:36:06'),
-(102, 'Đã giao', '2025-12-28 16:06:45'),
-(103, 'Đã giao', '2025-12-28 16:07:25');
+INSERT INTO `order_status` (`id`, `order_id`, `status`, `updated_at`) VALUES
+(1, 1, 'Đã giao', '2025-12-26 17:59:22'),
+(2, 2, 'Đã giao', '2025-12-26 18:00:34'),
+(3, 3, 'Đã giao', '2025-12-26 17:59:53'),
+(4, 4, 'Đang giao', '2025-12-26 18:01:09'),
+(5, 5, 'Đã giao', '2025-12-26 18:01:17'),
+(6, 6, 'Đang xử lý', '2025-12-26 18:01:30'),
+(7, 7, 'Đã giao', '2025-12-26 18:01:44'),
+(8, 8, 'Đã giao', '2025-12-26 18:02:08'),
+(9, 9, 'Đã giao', '2025-12-26 18:00:01'),
+(10, 10, 'Đang giao', '2025-12-26 18:02:23'),
+(11, 11, 'Đã giao', '2025-12-26 18:02:44'),
+(12, 12, 'Đang xử lý', '2025-12-26 18:03:26'),
+(13, 13, 'Đã giao', '2025-12-26 18:03:20'),
+(14, 14, 'Đã giao', '2025-12-26 18:03:15'),
+(15, 15, 'Đã giao', '2025-12-26 18:00:13'),
+(16, 101, 'Đang xử lý', '2025-12-29 16:36:06'),
+(17, 102, 'Đã giao', '2025-12-28 16:06:45'),
+(18, 103, 'Đã giao', '2025-12-28 16:07:25');
 
 -- --------------------------------------------------------
 
@@ -1069,7 +1070,8 @@ ALTER TABLE `order_items`
 -- Chỉ mục cho bảng `order_status`
 --
 ALTER TABLE `order_status`
-  ADD PRIMARY KEY (`order_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_order_status_orders` (`order_id`);
 
 --
 -- Chỉ mục cho bảng `products`
@@ -1162,6 +1164,12 @@ ALTER TABLE `order_items`
   MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
+-- AUTO_INCREMENT cho bảng `order_status`
+--
+ALTER TABLE `order_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
@@ -1250,7 +1258,7 @@ ALTER TABLE `order_items`
 -- Các ràng buộc cho bảng `order_status`
 --
 ALTER TABLE `order_status`
-  ADD CONSTRAINT `order_status_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_order_status_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `products`

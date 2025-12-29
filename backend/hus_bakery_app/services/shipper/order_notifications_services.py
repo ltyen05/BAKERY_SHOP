@@ -5,7 +5,6 @@ from sqlalchemy import desc
 
 
 def check_new_order_for_shipper(shipper_id):
-    # 1. Query lấy TẤT CẢ các đơn hàng (dùng .all() thay vì .first())
     active_orders = db.session.query(Order).join(
         OrderStatus, Order.order_id == OrderStatus.order_id
     ).filter(

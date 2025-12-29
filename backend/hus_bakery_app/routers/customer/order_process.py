@@ -11,12 +11,11 @@ from hus_bakery_app.services.customer.cart_services import (
     remove_from_cart,
     update_cart_quantity
 )
-from ...services.customer.order_services import create_order
-from ...services.customer.order_services import create_order
-
-
+from ...models.order import Order
+from hus_bakery_app.services.customer.order_services import create_order, get_order_detail_service
 
 order_bp = Blueprint("order_bp", __name__)
+
 
 # ==========================
 # 1. GET CART
@@ -42,12 +41,14 @@ def api_add_to_cart():
     # Lưu ý: item có thể là object, cần lấy product_id để trả về json
     return jsonify({"message": "Added to cart", "item": item.product_id}), 200
 
+
 # ==========================
 # 2. CHANGE QUANTITY
 # ==========================
 @order_bp.route("/changeQuantity", methods=["POST"])
 @jwt_required()
 def api_change_quantity():
+    # ✅ LẤY customer_id TỪ JWT
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
     data = request.json
@@ -120,13 +121,12 @@ def api_coupon_info(coupon_id):
 # 6. CREATE ORDER
 # ==========================
 @order_bp.route("/order", methods=["POST"])
-@jwt_required()  # Thêm decorator bảo mật
+@jwt_required()
 def api_create_order():
-    # Lấy customer_id an toàn từ Token
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
-
     data = request.json
+
     shipping_address = data.get("shipping_address")
     recipient_name = data.get("recipient_name")
     phone = data.get("phone")
@@ -134,21 +134,23 @@ def api_create_order():
     coupon_id = data.get("coupon_id")
     total_amount = data.get("total_amount")
     payment_method = data.get("payment_method")
-    order_data, msg = create_order(
-        customer_id,
-        recipient_name,
-        phone,
-        total_amount,
-        branch_id,
-        shipping_address,
-        payment_method,
-        coupon_id
+    order, msg = create_order(
+        customer_id=customer_id,
+        recipient_name=data.get("recipient_name"),
+        payment_method=data.get("payment_method"),
+        total_amount=data.get("total_amount"),
+        phone=data.get("phone"),
+        branch_id=data.get("branch_id"),
+        shipping_address=data.get("shipping_address"),
+        coupon_id=data.get("coupon_id"),
     )
-    # Trả về toàn bộ order_data cho FE
+
+    if not order:
+        return jsonify({"error": msg}), 400
+
     return jsonify({
-        "success": True,
         "message": msg,
-        "data": order_data # Bao gồm order_id, status, customer_phone, updated_at...
+        "order_id": order.order_id
     }), 200
 
 
@@ -171,3 +173,20 @@ def api_remove_from_cart():
         return jsonify({"error": "Item not found in cart"}), 404
 
     return jsonify({"message": "Item removed from cart"}), 200
+
+
+@order_bp.route("/order_details", methods=["POST"])
+def api_order_details():
+    data = request.json
+    order_id = data.get("order_id")
+    # ⭐ THÊM DEBUG
+    print(f"DEBUG - data: {data}")
+    print(f"DEBUG - order_id: {order_id}")
+    print(f"DEBUG - type(order_id): {type(order_id)}")
+    order_detail, msg = get_order_detail_service(order_id)
+    if not order_detail:
+        return jsonify({"error": msg}), 400
+    return jsonify({
+        "status": "success",
+        "data": order_detail
+    }), 200

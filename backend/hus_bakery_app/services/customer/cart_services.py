@@ -138,6 +138,7 @@ def coupon_of_customer(customer_id):
             "discount_value": coupon.discount_value,
             "discount_percent": coupon.discount_percent,
             "min_purchase": float(coupon.min_purchase),
+            "max_discount": float(coupon.max_discount or coupon.discount_value or 0),
             "end_date": coupon.end_date.strftime('%Y-%m-%d') if coupon.end_date else None
         })
     return data

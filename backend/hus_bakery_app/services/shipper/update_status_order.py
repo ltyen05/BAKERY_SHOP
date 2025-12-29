@@ -1,6 +1,6 @@
 import datetime
 from hus_bakery_app.models.order_status import OrderStatus
-from hus_bakery_app.models.shippers import Shipper
+from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app import db
 
 

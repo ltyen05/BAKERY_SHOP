@@ -45,6 +45,6 @@ def get_all_orders_service():
             "order_address": order.shipping_address,
             "created_at": order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             "shipper_id": order.shipper_id,
-            "status": getattr(order, 'status', 'Pending'),
+            "status": getattr(order, 'status', 'Đang xử lí'),
         })
     return orders_list

@@ -1,17 +1,17 @@
-# Sử dụng Python Slim cho nhẹ
 FROM python:3.11-slim
 
-# Thiết lập thư mục làm việc là /app
 WORKDIR /app
 
-# Copy file requirements trước để tận dụng cache của Docker
-COPY requirements.txt .
-
-# Cài đặt thư viện
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy toàn bộ code từ máy thật (thư mục backend) vào container
+# Vì context trong compose là ./backend, lệnh này copy 
+# nội dung bên trong thư mục backend máy thật vào /app trong container
 COPY . .
 
-# Lệnh chạy server (dự phòng, thực tế docker-compose sẽ ghi đè lệnh này)
+# Cài đặt thư viện (đảm bảo file requirements.txt nằm ngay trong thư mục backend)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Thiết lập môi trường để Flask tìm thấy file chạy
+ENV FLASK_APP=main.py
+ENV PYTHONPATH=/app
+
+# Chạy trực tiếp bằng python để dễ debug lỗi import
 CMD ["python", "main.py"]

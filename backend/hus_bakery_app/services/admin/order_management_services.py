@@ -6,10 +6,13 @@ from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.customer import Customer
 
+
 def order_detail(order_id):
     results = (db.session.query(OrderItem, Product)
                .join(Product, OrderItem.product_id == Product.product_id)
                .filter(OrderItem.order_id == order_id)).all()
+
+    order = Order.query.get(order_id)
 
     order_items_list = []
     for item, product in results:
@@ -18,10 +21,12 @@ def order_detail(order_id):
             "quantity": item.quantity,
             "price_at_purchase": float(item.price),
             "total_item_price": float(item.price * item.quantity),
+            "branch": order.branch,
             "image": product.avatar
         })
 
     return order_items_list
+
 
 def delete_order(order_id):
     order = Order.query.get(order_id)
@@ -30,6 +35,7 @@ def delete_order(order_id):
         db.session.commit()
         return True
     return False
+
 
 def get_all_orders_service():
     results = db.session.query(Order, Customer.name).join(
@@ -45,6 +51,6 @@ def get_all_orders_service():
             "order_address": order.shipping_address,
             "created_at": order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             "shipper_id": order.shipper_id,
-            "status": getattr(order, 'status', 'Đang xử lí'),
+            "status": getattr(order, 'status', 'Pending'),
         })
     return orders_list

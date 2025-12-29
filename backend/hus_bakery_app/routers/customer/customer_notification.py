@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.customer_notifications_service import check_pending_reviews_for_customer
+from hus_bakery_app.services.customer_notifications_service import check_pending_reviews_for_customer, mark_customer_notification_read
 
 customer_noti_bp = Blueprint("customer_noti", __name__)
 
@@ -20,3 +20,14 @@ def get_pending_reviews():
         "success": True,
         "data": notifications
     }), 200
+
+@customer_noti_bp.route("/mark-read/<int:order_id>", methods=["POST"])
+@jwt_required()
+def mark_as_read(order_id):
+    """
+    API để Frontend gọi sau khi khách hàng nhấn vào đơn hàng hoặc hoàn tất đánh giá.
+    """
+    success = mark_customer_notification_read(order_id)
+    if success:
+        return jsonify({"success": True, "message": "Đã đánh dấu đã đọc"}), 200
+    return jsonify({"success": False, "message": "Không tìm thấy thông báo"}), 404

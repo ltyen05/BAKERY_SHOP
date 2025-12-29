@@ -26,3 +26,14 @@ def check_pending_reviews_for_customer(customer_id):
         })
 
     return notifications
+
+def mark_customer_notification_read(order_id):
+    """
+    Đánh dấu thông báo đã đọc dựa trên order_id.
+    """
+    notification = CustomerNotification.query.filter_by(order_id=order_id, is_read=False).first()
+    if notification:
+        notification.is_read = True
+        db.session.commit()
+        return True
+    return False

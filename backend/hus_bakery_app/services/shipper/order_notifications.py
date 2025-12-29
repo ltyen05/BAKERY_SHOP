@@ -35,3 +35,21 @@ def check_new_order_for_shipper(shipper_id):
         })
 
     return notifications
+
+def get_current_order(shipper_id):
+    # Truy vấn lấy đơn hàng và trạng thái hiện tại
+    result = db.session.query(Order.order_id, OrderStatus.status)\
+        .join(OrderStatus, Order.order_id == OrderStatus.order_id)\
+        .filter(
+            Order.shipper_id == shipper_id,
+            ~OrderStatus.status.in_(["Đang xử lí", "Đang giao", "Đã giao"])
+        )\
+        .order_by(desc(Order.created_at))\
+        .first()
+
+    if result:
+        return {
+            "order_id": result.order_id,
+            "status": result.status
+        }
+    return None

@@ -22,7 +22,6 @@ def get_coupons():
             'begin_date': c.begin_date.strftime('%Y-%m-%d') if c.begin_date else None,
             'end_date': c.end_date.strftime('%Y-%m-%d') if c.end_date else None,
             'status': c.status,
-            'branch_id': c.branch_id
         })
 
     return jsonify(coupon_list), 200

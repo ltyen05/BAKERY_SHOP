@@ -71,7 +71,7 @@ def get_shipper_all_order_history(shipper_id):
             "quantity_text": f"{item_count} sản phẩm",
             "total_amount": float(order.total_amount),
             "shipping_address": order.shipping_address,
-            "status": "Đã g",
+            "status": "Đã giao",
             "rating": rating_val,
         })
 

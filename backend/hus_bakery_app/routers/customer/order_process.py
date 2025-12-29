@@ -150,7 +150,7 @@ def api_create_order():
 
     return jsonify({
         "message": msg,
-        "order_id": order.order_id
+        "order_id": order.shipper_id
     }), 200
 
 

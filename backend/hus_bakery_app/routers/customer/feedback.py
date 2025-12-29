@@ -1,20 +1,32 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from hus_bakery_app.services.customer.feedback_services import IntegratedFeedbackService
+from hus_bakery_app.forms.feedback import FeedbackForm
+from hus_bakery_app.services.customer.feedback_services import create_feedback
 
 feedback_bp = Blueprint('feedback', __name__)
 
-@feedback_bp.route('/submit-experience', methods=['POST'])
+
+@feedback_bp.route('/add', methods=['POST'])
 @jwt_required()
-def post_experience():
+def add_feedback():
+    current_user = get_jwt_identity()
+    user_id = current_user['id']
+
     data = request.get_json()
-    customer_id = get_jwt_identity()
+    form = FeedbackForm(data=data, meta={'csrf': False})
 
-    # Yêu cầu truyền order_id thay vì order_item_id đơn lẻ
-    required_fields = ['order_id', 'branch_rating', 'shipper_rating', 'product_rating']
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Vui lòng hoàn tất đủ thông tin đánh giá"}), 400
+    if form.validate():
+        # Gọi hàm service đã sửa (chỉ truyền user_id, order_id, rating)
+        success, message = create_feedback(
+            user_id=user_id,
+            order_id=form.order_id.data,
+            rating=form.rating.data
+            # Đã xóa dòng comment=form.comment.data
+        )
 
-    # Thực hiện xử lý thông qua Service tích hợp
-    result, status_code = IntegratedFeedbackService.submit_full_experience(data, customer_id)
-    return jsonify(result), status_code
+        if success:
+            return jsonify({"status": "success", "message": message}), 201
+        else:
+            return jsonify({"status": "fail", "message": message}), 400
+
+    return jsonify({"status": "fail", "errors": form.errors}), 400

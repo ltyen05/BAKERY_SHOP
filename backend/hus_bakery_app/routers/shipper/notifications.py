@@ -24,14 +24,14 @@ def check_notification():
     if noti:
         # Nhờ liên kết bảng, noti.order sẽ truy cập thẳng vào bảng orders
         return jsonify({
-            "has_new": True,
-            "noti_id": noti.id,
+            "is_read": False,
+            "id": noti.id,
             "order_id": noti.order_id,
-            "note": noti.order.note,  # Cột note bạn đã chuyển sang bảng orders
+            "note": noti.order.note,
             "address": noti.order.shipping_address
         }), 200
 
-    return jsonify({"has_new": False}), 200
+    return jsonify({"is_read": True}), 200
 
 
 @shipper_notifications_bp.route("/mark-read/<int:noti_id>", methods=["POST"])

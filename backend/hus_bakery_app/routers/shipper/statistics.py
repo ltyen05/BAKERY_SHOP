@@ -70,9 +70,15 @@ def api_shipper_history():
     shipper_id, role = get_current_shipper_id()
     if role != "shipper": return jsonify({"message": "Forbidden"}), 403
 
-    result = get_shipper_all_order_history(shipper_id)
+    # Lấy tham số phân trang từ URL
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    # Gọi hàm xử lý
+    result = get_shipper_all_order_history(shipper_id, page, limit)
 
     return jsonify({
         "status": "success",
         "data": result["data"],
+        "pagination": result["pagination"]
     }), 200

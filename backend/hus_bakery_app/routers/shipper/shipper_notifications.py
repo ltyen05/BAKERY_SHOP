@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
@@ -68,15 +67,16 @@ def current_order():
     identity = json.loads(get_jwt_identity())
     shipper_id = identity["id"]
 
-    order_info = get_current_order(shipper_id)
+    order, error = get_current_order(shipper_id)
 
-    if order_info:
-        return jsonify({
-            "success": True,
-            "data": order_info
-        }), 200
+    if error:
+        return jsonify({"message": error}), 500
+    if not order:
+        return "", 204
 
-    return jsonify({
-        "success": False,
-        "message": "Không có đơn hàng nào đang xử lý"
-    }), 404
+    result = {
+        "order_id": order[0],
+        "status": order[1]
+    }
+
+    return jsonify(result), 200

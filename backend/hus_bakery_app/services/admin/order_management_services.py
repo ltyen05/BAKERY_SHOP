@@ -51,6 +51,7 @@ def get_all_orders_service():
             "order_address": order.shipping_address,
             "created_at": order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             "shipper_id": order.shipper_id,
+            "branch":order.branch_id,
             "status": getattr(order, 'status', 'Pending'),
         })
     return orders_list

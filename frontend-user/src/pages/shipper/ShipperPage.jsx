@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Card, Avatar, Button, Steps, message, Empty } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Avatar, Button, Steps, message, Empty, Popconfirm } from "antd";
 import {
   PhoneOutlined,
   MessageOutlined,
@@ -7,30 +7,71 @@ import {
   DollarOutlined,
   ClockCircleOutlined,
   EyeOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
-
+import { useOrder } from "../../context/OrderContext";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import OrderDetails from "../../components/Order/OrderDetails";
 /* =========================
    STEP <-> STATUS MAP
 ========================= */
 const STEP_STATUS_MAP = {
-  0: "pending",
-  1: "picked_up",
-  2: "delivering",
-  3: "completed",
+  0: "Đang xử lý",
+  1: "Đang giao",
+  2: "Đã giao",
 };
 
 const STATUS_STEP_MAP = {
-  pending: 0,
-  picked_up: 1,
-  delivering: 2,
-  completed: 3,
+  "Đang xử lý": 0,
+  "Đang giao": 1,
+  "Đã giao": 2,
 };
 
 const OrderDetailPage = () => {
   /* =========================
      MOCK DATA (GIẢ LẬP BACKEND)
   ========================= */
-  const initialOrder = {
+  const { orderDetails } = useOrder();
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStatus, setCurrentStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const fetchCurrentOrder = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(
+        "http://localhost:5000/api/shipper/notifications/current-order",
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      if (response.status === 204) {
+        setCurrentOrder(null);
+        setCurrentStep(0);
+        setCurrentStatus(null);
+        return;
+      }
+      const data = await response.json();
+      setCurrentStatus(data.status);
+      const order = await orderDetails(data.order_id);
+      setCurrentOrder(order);
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      message.error("Không thể tải đơn hàng!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentOrder();
+  }, []);
+  const order = {
     orderId: "231",
     branch: "Hoa Bakery Cơ sở 1",
     status: "delivering",
@@ -48,48 +89,75 @@ const OrderDetailPage = () => {
   /* =========================
      STATE
   ========================= */
-  const [order, setOrder] = useState(initialOrder);
-  const [orderStatus, setOrderStatus] = useState(initialOrder.status);
-  const [currentStep, setCurrentStep] = useState(
-    STATUS_STEP_MAP[initialOrder.status]
-  );
 
   /* =========================
      STEPS
   ========================= */
   const steps = [
-    { title: "Shipper đang lấy hàng" },
-    { title: "Đã lấy hàng" },
+    { title: "Đang xử lý" },
     { title: "Đang giao" },
-    { title: "Giao hàng thành công" },
+    { title: "Đã giao" },
   ];
 
   /* =========================
      UPDATE STATUS
   ========================= */
-  const handleUpdateStatus = () => {
-    if (currentStep >= steps.length - 1) return;
+  const handleUpdateStatus = async () => {
+    if (currentStep >= steps.length - 1) {
+      message.info("Đơn hàng đã ở trạng thái cuối cùng");
+      return;
+    }
 
     const nextStep = currentStep + 1;
     const nextStatus = STEP_STATUS_MAP[nextStep];
 
-    setCurrentStep(nextStep);
-    setOrderStatus(nextStatus);
+    try {
+      const response = await fetchWithAuth(
+        "http://localhost:5000/api/shipper/notifications/update_order_status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            order_id: currentOrder.order_id,
+            status: nextStatus,
+          }),
+        }
+      );
 
-    message.success("Cập nhật trạng thái thành công");
+      const data = await response.json();
 
-    // Giả lập backend: completed => không còn đơn active
-    if (nextStatus === "completed") {
-      setTimeout(() => {
-        setOrder(null); // ❗ mấu chốt: xoá đơn
-      }, 500);
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Cập nhật thất bại");
+      }
+
+      message.success("Cập nhật trạng thái thành công");
+
+      if (nextStep >= steps.length - 1) {
+        // Nếu đã đến trạng thái cuối, xoá đơn
+        setCurrentOrder([]);
+        setCurrentStep(0);
+        setCurrentStatus(null);
+      } else {
+        // Cập nhật trạng thái bình thường
+        setCurrentStep(nextStep);
+        setCurrentStatus({ status: nextStatus });
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+      message.error("Cập nhật trạng thái thất bại");
     }
   };
-
+  useEffect(() => {
+    if (currentStatus?.status) {
+      setCurrentStep(STATUS_STEP_MAP[currentStatus.status]);
+    }
+  }, [currentStatus]);
   /* =========================
      NO DATA
   ========================= */
-  if (!order) {
+  if (!currentOrder) {
     return (
       <div
         style={{
@@ -132,21 +200,21 @@ const OrderDetailPage = () => {
             }}
           >
             <span style={{ color: "#ff6b35", fontWeight: 600 }}>
-              {order.branch}
+              {currentOrder.branch_name}
             </span>
-            <span>Mã đơn: #{order.orderId}</span>
+            <span>Mã đơn: #{currentOrder.order_id}</span>
           </div>
 
           {/* CUSTOMER */}
           <div style={{ display: "flex", marginBottom: 24 }}>
             <Avatar size={64} src={order.customer.avatar} />
             <div style={{ marginLeft: 16 }}>
-              <h3 style={{ marginBottom: 4 }}>{order.customer.name}</h3>
+              <h3 style={{ marginBottom: 4 }}>{currentOrder.recipient_name}</h3>
               <div>
-                <PhoneOutlined /> {order.customer.phone}
+                <PhoneOutlined /> {currentOrder.phone}
               </div>
               <div>
-                <EnvironmentOutlined /> {order.customer.address}
+                <EnvironmentOutlined /> {currentOrder.address}
               </div>
             </div>
           </div>
@@ -170,7 +238,7 @@ const OrderDetailPage = () => {
               <span>
                 <DollarOutlined /> Tổng tiền
               </span>
-              <b style={{ color: "#ff6b35" }}>{order.totalAmount}</b>
+              <b style={{ color: "#ff6b35" }}>{currentOrder.total_money}</b>
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -182,11 +250,12 @@ const OrderDetailPage = () => {
           </div>
 
           <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-            <Button icon={<EyeOutlined />} block>
+            <Button
+              icon={<EyeOutlined />}
+              block
+              onClick={() => setShowDetail(true)}
+            >
               Chi tiết
-            </Button>
-            <Button icon={<MessageOutlined />} block>
-              Nhắn tin
             </Button>
           </div>
         </Card>
@@ -210,17 +279,94 @@ const OrderDetailPage = () => {
             ))}
           </Steps>
 
-          <Button
-            type="primary"
-            block
-            size="large"
-            style={{ marginTop: 24 }}
-            onClick={handleUpdateStatus}
+          <div
+            style={{
+              gap: 12,
+            }}
+            className="mt-3 fl"
           >
-            Cập nhật trạng thái
-          </Button>
+            {/* Nút cập nhật trạng thái */}
+            <Button
+              type="primary"
+              block
+              size="large"
+              onClick={handleUpdateStatus}
+            >
+              Cập nhật trạng thái
+            </Button>
+
+            {/* Nút giao không thành công */}
+            <Popconfirm
+              title="Xác nhận giao không thành công?"
+              onConfirm={async () => {
+                if (!currentOrder) return;
+
+                try {
+                  const response = await fetchWithAuth(
+                    "http://localhost:5000/api/shipper/notifications/update_order_status",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        order_id: currentOrder.order_id,
+                        status: "Không thành công", // trạng thái thất bại
+                      }),
+                    }
+                  );
+
+                  const data = await response.json();
+                  if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Cập nhật thất bại");
+                  }
+
+                  // Xoá đơn khỏi UI vì đã thất bại
+                  setCurrentOrder([]);
+                  setCurrentStep(0);
+                  setCurrentStatus(null);
+
+                  message.success("Cập nhật trạng thái: Không thành công");
+                } catch (error) {
+                  console.error(error);
+                  message.error("Cập nhật trạng thái thất bại");
+                }
+              }}
+              okText="Xác nhận"
+              cancelText="Hủy"
+            >
+              <Button danger block>
+                Giao không thành công
+              </Button>
+            </Popconfirm>
+          </div>
         </Card>
       </div>
+      {showDetail && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "550px",
+              backgroundColor: "#fdfbf5",
+              height: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <OrderDetails order={currentOrder} />
+            <button
+              onClick={() => setShowDetail(false)}
+              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
+              className="out-line"
+            >
+              <CloseOutlined />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

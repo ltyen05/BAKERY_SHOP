@@ -112,7 +112,7 @@ const UserProfile = () => {
   const fileInputRef = useRef(null);
   const [form] = Form.useForm();
   //------------------------------------
-  // Fetch active-orders
+  // Lấy ra những đơn hàng chưa thành công
   // ------------------------------------
   const fetchActiveOrders = async ({ silent = false } = {}) => {
     try {

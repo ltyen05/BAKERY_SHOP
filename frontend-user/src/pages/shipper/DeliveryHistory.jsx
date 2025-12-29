@@ -1,63 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Input,
   Button,
   Tag,
-  Space,
   Typography,
   Card,
   Modal,
+  Spin,
+  Pagination,
 } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import { useOrder } from "../../context/OrderContext";
 
+import OrderDetails from "../../components/Order/OrderDetails";
 const { Title } = Typography;
 
-/* =========================
-   MOCK ORDER HISTORY DATA
-========================= */
-const MOCK_ORDERS = [
-  {
-    order_id: 231,
-    quantities: [1, 2],
-    products: ["Bánh mì", "Bánh kem"],
-    total_amount: 424000,
-    branch_id: "234 Nguyễn Trãi, Thanh Xuân",
-    status: "completed",
-    rating: 5,
-  },
-  {
-    order_id: 232,
-    quantities: [3],
-    products: ["Bánh croissant"],
-    total_amount: 180000,
-    branch_id: "12 Láng Hạ, Đống Đa",
-    status: "completed",
-    rating: 4,
-  },
-  {
-    order_id: 233,
-    quantities: [1, 1, 2],
-    products: ["Bánh tiramisu", "Bánh su", "Bánh quy"],
-    total_amount: 520000,
-    branch_id: "88 Cầu Giấy",
-    status: "failed",
-    rating: null,
-  },
-  {
-    order_id: 234,
-    quantities: [2],
-    products: ["Bánh sinh nhật"],
-    total_amount: 350000,
-    branch_id: "45 Hoàng Quốc Việt",
-    status: "completed",
-    rating: 5,
-  },
-];
-
-/* =========================
-   STATUS COLOR
-========================= */
 const STATUS_COLOR = {
   completed: "green",
   failed: "red",
@@ -65,38 +25,86 @@ const STATUS_COLOR = {
 };
 
 const OrderHistory = () => {
-  const [data] = useState(MOCK_ORDERS);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [sortedInfo, setSortedInfo] = useState({});
+  const [loadingOrder, setLoadingOrder] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const { orderDetails } = useOrder();
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  });
 
-  /* =========================
-     HANDLERS
-  ========================= */
+  // =========================
+  // Fetch dữ liệu từ API
+  // =========================
+  const fetchData = async (page = 1, limit = 5) => {
+    setLoading(true);
+    try {
+      const res = await fetchWithAuth(
+        `http://localhost:5000/api/shipper/statistics/history?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+        }
+      );
+      const result = await res.json();
+      if (result.status === "success") {
+        setData(
+          result.data.map((item) => ({
+            ...item,
+            status: item.status === "Đã giao" ? "completed" : "failed",
+          }))
+        );
+        setPagination({
+          current: page,
+          pageSize: limit,
+          total: result.pagination.total_records,
+        });
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch dữ liệu:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(pagination.current, pagination.pageSize);
+  }, []);
+
+  // =========================
+  // Table Handlers
+  // =========================
   const handleChange = (_, sorter) => {
     setSortedInfo(sorter);
   };
 
-  const handleShowOrderDetails = (order) => {
-    setCurrentOrder(order);
-    setShowDetail(true);
+  // ----------------------Order details  --------------------------
+  const handleShowOrderDetails = async (order_id) => {
+    try {
+      setLoadingOrder(true);
+      const order = await orderDetails(order_id);
+      setCurrentOrder(order);
+      setShowDetail(true);
+    } catch (err) {
+      message.error(err.message || "Không thể lấy chi tiết đơn hàng");
+    } finally {
+      setLoadingOrder(false);
+    }
   };
 
-  /* =========================
-     FILTER
-  ========================= */
   const filteredData = data.filter(
     (item) =>
       item.order_id.toString().includes(searchText) ||
-      item.products.some((p) =>
+      item.products?.some((p) =>
         p.toLowerCase().includes(searchText.toLowerCase())
       )
   );
 
-  /* =========================
-     TABLE COLUMNS
-  ========================= */
   const columns = [
     {
       title: "Order ID",
@@ -110,17 +118,10 @@ const OrderHistory = () => {
     },
     {
       title: "Số lượng",
-      dataIndex: "quantities",
-      key: "quantities",
+      dataIndex: "quantity_text",
+      key: "quantity_text",
       align: "center",
       width: 100,
-      render: (quantities) => (
-        <Space direction="vertical" size={4}>
-          {quantities.map((q, idx) => (
-            <div key={idx}>{q}</div>
-          ))}
-        </Space>
-      ),
     },
     {
       title: "Tổng tiền",
@@ -132,15 +133,13 @@ const OrderHistory = () => {
       sortOrder:
         sortedInfo.columnKey === "total_amount" ? sortedInfo.order : null,
       render: (total) => (
-        <span className="text-lg font-bold text-orange-600">
-          {total.toLocaleString("vi-VN")} VND
-        </span>
+        <span className="text-lg font-bold text-orange-600">{total} VND</span>
       ),
     },
     {
       title: "Địa chỉ giao hàng",
-      dataIndex: "branch_id",
-      key: "branch_id",
+      dataIndex: "shipping_address",
+      key: "shipping_address",
       align: "center",
       width: 200,
     },
@@ -164,7 +163,7 @@ const OrderHistory = () => {
         <Button
           type="text"
           icon={<EyeOutlined />}
-          onClick={() => handleShowOrderDetails(record)}
+          onClick={() => handleShowOrderDetails(record.order_id)}
         />
       ),
     },
@@ -186,7 +185,7 @@ const OrderHistory = () => {
       >
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6">
           <Title level={2} style={{ color: "#fff", margin: 0 }}>
-            Lịch sử mua hàng
+            Lịch sử giao hàng
           </Title>
         </div>
 
@@ -200,48 +199,56 @@ const OrderHistory = () => {
             allowClear
           />
 
-          <Table
-            columns={columns}
-            dataSource={filteredData}
-            rowKey="order_id"
-            onChange={handleChange}
-            pagination={{ pageSize: 5 }}
-            scroll={{ x: "max-content" }}
-            bordered
-          />
+          {loading ? (
+            <Spin size="large" />
+          ) : (
+            <>
+              <Table
+                columns={columns}
+                dataSource={filteredData}
+                rowKey="order_id"
+                onChange={handleChange}
+                pagination={false}
+                scroll={{ x: "max-content" }}
+                bordered
+              />
+              <Pagination
+                current={pagination.current}
+                pageSize={pagination.pageSize}
+                total={pagination.total}
+                onChange={(page, pageSize) => fetchData(page, pageSize)}
+                style={{ marginTop: 16, textAlign: "right" }}
+              />
+            </>
+          )}
         </div>
       </Card>
 
-      {/* =========================
-          ORDER DETAIL MODAL
-      ========================= */}
-      <Modal
-        open={showDetail}
-        onCancel={() => setShowDetail(false)}
-        footer={null}
-        title={`Chi tiết đơn #${currentOrder?.order_id}`}
-      >
-        {currentOrder && (
-          <div>
-            <p>
-              <b>Sản phẩm:</b> {currentOrder.products.join(", ")}
-            </p>
-            <p>
-              <b>Số lượng:</b> {currentOrder.quantities.join(", ")}
-            </p>
-            <p>
-              <b>Tổng tiền:</b>{" "}
-              {currentOrder.total_amount.toLocaleString("vi-VN")} VND
-            </p>
-            <p>
-              <b>Địa chỉ:</b> {currentOrder.branch_id}
-            </p>
-            <p>
-              <b>Trạng thái:</b> {currentOrder.status}
-            </p>
+      {showDetail && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "550px",
+              backgroundColor: "#fdfbf5",
+              height: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <OrderDetails order={currentOrder} />
+            <button
+              onClick={() => setShowDetail(false)}
+              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
+              className="out-line"
+            >
+              <CloseOutlined />
+            </button>
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };

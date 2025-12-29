@@ -1,28 +1,31 @@
 import React from "react";
 import { Badge, List, Avatar, Button, Space } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import { timeAgo } from "../../utils/timeAgo";
+
+import { useNavigate } from "react-router-dom";
 import "./notification.css";
-function OrderNotification({ notification, onMarkRead, onDelete }) {
+function OrderNotification({ notification, now, onMarkRead }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (notification.unread) {
+      onMarkRead(notification.id); // ✅ đánh dấu đã đọc
+    }
+
+    navigate("/shipperDelivery"); // ✅ chuyển trang
+  };
+
   return (
     <List.Item
       className={`notification-item ${notification.unread ? "unread" : ""}`}
-      onClick={() => onMarkRead(notification.id)}
+      onClick={handleClick}
       style={{
         padding: "12px 20px",
         border: "none",
         borderBottom: "1px solid #f0f0f0",
       }}
     >
-      <Button
-        type="text"
-        size="small"
-        className="delete-btn"
-        icon={<span>✕</span>}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(notification.id);
-        }}
-      />
       <List.Item.Meta
         avatar={
           <Badge color="#1d4ed8" className="mb-1">
@@ -36,7 +39,7 @@ function OrderNotification({ notification, onMarkRead, onDelete }) {
         title={
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <p strong style={{ fontSize: "14px" }}>
-              {notification.title}
+              Đơn hàng mới
             </p>
             {notification.unread && (
               <span
@@ -56,7 +59,7 @@ function OrderNotification({ notification, onMarkRead, onDelete }) {
                 marginBottom: "8px",
               }}
             >
-              {notification.message}
+              Bạn có đơn hàng mới (#id{notification.id})
             </p>
             <Space
               style={{
@@ -66,7 +69,7 @@ function OrderNotification({ notification, onMarkRead, onDelete }) {
               }}
             >
               <p type="secondary" style={{ fontSize: "12px" }}>
-                <ClockCircleOutlined /> {notification.time}
+                <ClockCircleOutlined /> {timeAgo(notification.time, now)}
               </p>
               <Button
                 type="link"

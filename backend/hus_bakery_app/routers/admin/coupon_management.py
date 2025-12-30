@@ -22,8 +22,8 @@ def get_coupons():
             "discount_percent": c.discount_percent,
             'discount_value': float(c.discount_value) if c.discount_value else 0,
             'discount_type' : c.discount_type,
-            'min_purchase': c.min_purchase,
-            'max_discount': c.max_discount,
+            'min_purchase': float(c.min_purchase) if c.min_purchase else 0,
+            'max_discount': float(c.max_discount) if c.max_discount else 0,
             'begin_date': c.begin_date,
             'end_date': c.end_date,
             'status': c.status,
@@ -34,7 +34,7 @@ def get_coupons():
     return jsonify(coupon_list), 200
 
 
-@coupon_admin_bp.route('/coupon', methods=['POST'])
+@coupon_admin_bp.route('/add_coupon', methods=['POST'])
 def add_coupon():
     data = request.json
     try:
@@ -44,7 +44,7 @@ def add_coupon():
         return jsonify({"error": str(e)}), 400
 
 
-@coupon_admin_bp.route('/coupon/<int:coupon_id>', methods=['PUT'])
+@coupon_admin_bp.route('/update_coupon/<int:coupon_id>', methods=['PUT'])
 def update_coupon(coupon_id):
     data = request.json
     if edit_coupon_service(coupon_id, data):
@@ -52,7 +52,7 @@ def update_coupon(coupon_id):
     return jsonify({"error": "Không tìm thấy mã giảm giá"}), 404
 
 
-@coupon_admin_bp.route('/coupon/<int:coupon_id>', methods=['DELETE'])
+@coupon_admin_bp.route('/delete_coupon/<int:coupon_id>', methods=['DELETE'])
 def delete_coupon(coupon_id):
     if delete_coupon_service(coupon_id):
         return jsonify({"message": "Xóa mã giảm giá thành công"}), 200

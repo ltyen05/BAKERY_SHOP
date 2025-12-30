@@ -3,7 +3,6 @@ from hus_bakery_app.models.coupon import Coupon
 
 
 def get_all_coupons_service():
-    # Lấy toàn bộ danh sách mã giảm giá
     return Coupon.query.all()
 
 

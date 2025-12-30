@@ -114,6 +114,7 @@ export default function ProductList() {
                   product_name={item?.name}
                   price={item?.price}
                   image={item?.image}
+                  rating={item?.rating}
                   onAddToCart={handleAddToCart}
                   isAddingToCart={addingToCart}
                 />

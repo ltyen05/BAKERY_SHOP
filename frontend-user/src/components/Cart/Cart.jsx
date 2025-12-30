@@ -89,7 +89,6 @@ const ProductCart = ({ onCloseDrawer }) => {
           onCloseDrawer(); // đóng Drawer
           navigate("/payment", {
             state: {
-              products: productInCart,
               totalItems,
               totalPrice,
             },

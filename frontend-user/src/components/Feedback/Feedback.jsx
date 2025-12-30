@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Rate, Input, Button, message } from "antd";
-
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 const { TextArea } = Input;
 
-const FeedbackComponent = () => {
+const FeedbackComponent = (order_id) => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [ratings, setRatings] = useState({
     store: 0,
     shipper: 0,
     product: 0,
   });
-  const [comment, setComment] = useState("");
 
   const handleRatingChange = (type, value) => {
     setRatings((prev) => ({
@@ -18,122 +18,131 @@ const FeedbackComponent = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (ratings.store === 0 || ratings.shipper === 0 || ratings.product === 0) {
       message.warning("Vui lòng đánh giá đầy đủ các mục!");
       return;
     }
 
-    message.success("Cảm ơn bạn đã đánh giá!");
-    console.log("Ratings:", ratings);
-    console.log("Comment:", comment);
+    try {
+      // hoặc từ context/state nếu bạn dùng
+      const res = await fetchWithAuth(
+        "http://localhost:5000/api/feedback/add",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            order_id, // cần truyền prop order_id vào component
+            rating_product: ratings.product,
+            rating_branch: ratings.store,
+            rating_shipper: ratings.shipper,
+          }),
+        }
+      );
 
-    // Reset form
-    setRatings({
-      store: 0,
-      shipper: 0,
-      product: 0,
-    });
-    setComment("");
+      const data = await res.json();
+
+      if (res.ok) {
+        messageApi.success(data.message || "Cảm ơn bạn đã đánh giá!");
+        // Reset form
+        setRatings({ store: 0, shipper: 0, product: 0 });
+      } else {
+        messageApi.error(data.message || "Có lỗi xảy ra, thử lại sau.");
+      }
+    } catch (error) {
+      console.error(error);
+      messageApi.error("Không thể kết nối server!");
+    }
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "transparent",
-        textAlign: "center",
-        maxWidth: 500,
-        width: "100%",
-        borderRadius: 8,
-        flexDirection: "column",
-      }}
-      className="fl-center"
-    >
-      <h2
+    <>
+      {contextHolder}
+      <div
         style={{
-          fontSize: 24,
-          fontWeight: 600,
+          backgroundColor: "transparent",
+          textAlign: "center",
+          maxWidth: 500,
+          width: "100%",
+          borderRadius: 8,
+          flexDirection: "column",
         }}
-        className="mb-6 mt-3"
+        className="fl-center"
       >
-        Đánh giá đơn hàng
-      </h2>
-
-      <div style={{ marginBottom: 24, width: "100%" }}>
-        <div
+        <h2
           style={{
-            justifyContent: "space-between",
+            fontSize: 24,
+            fontWeight: 600,
           }}
-          className="fl-center mb-3"
+          className="mb-6 mt-3"
         >
-          <span style={{ fontSize: 14 }}>Đánh giá về cửa hàng</span>
-          <Rate
-            value={ratings.store}
-            onChange={(value) => handleRatingChange("store", value)}
-            style={{ fontSize: 24 }}
-          />
+          Đánh giá đơn hàng
+        </h2>
+
+        <div style={{ marginBottom: 24, width: "100%" }}>
+          <div
+            style={{
+              justifyContent: "space-between",
+            }}
+            className="fl-center mb-3"
+          >
+            <span style={{ fontSize: 14 }}>Đánh giá về cửa hàng</span>
+            <Rate
+              value={ratings.store}
+              onChange={(value) => handleRatingChange("store", value)}
+              style={{ fontSize: 24 }}
+            />
+          </div>
+
+          <div
+            style={{
+              justifyContent: "space-between",
+            }}
+            className="fl-center mb-3"
+          >
+            <span style={{ fontSize: 14, color: "#333" }}>
+              Đánh giá về shipper
+            </span>
+            <Rate
+              value={ratings.shipper}
+              onChange={(value) => handleRatingChange("shipper", value)}
+              style={{ fontSize: 24 }}
+            />
+          </div>
+
+          <div
+            style={{
+              justifyContent: "space-between",
+            }}
+            className="fl-center mb-6"
+          >
+            <span style={{ fontSize: 14, color: "#333" }}>
+              Đánh giá về sản phẩm
+            </span>
+            <Rate
+              value={ratings.product}
+              onChange={(value) => handleRatingChange("product", value)}
+              style={{ fontSize: 24 }}
+            />
+          </div>
+
+          <Button
+            type="primary"
+            block
+            size="large"
+            onClick={handleSubmit}
+            style={{
+              height: 48,
+              fontSize: 16,
+              fontWeight: 500,
+              borderRadius: "8px",
+            }}
+            className="btn btn-second"
+          >
+            Thêm bình luận mới
+          </Button>
         </div>
-
-        <div
-          style={{
-            justifyContent: "space-between",
-          }}
-          className="fl-center mb-3"
-        >
-          <span style={{ fontSize: 14, color: "#333" }}>
-            Đánh giá về shipper
-          </span>
-          <Rate
-            value={ratings.shipper}
-            onChange={(value) => handleRatingChange("shipper", value)}
-            style={{ fontSize: 24 }}
-          />
-        </div>
-
-        <div
-          style={{
-            justifyContent: "space-between",
-          }}
-          className="fl-center mb-6"
-        >
-          <span style={{ fontSize: 14, color: "#333" }}>
-            Đánh giá về sản phẩm
-          </span>
-          <Rate
-            value={ratings.product}
-            onChange={(value) => handleRatingChange("product", value)}
-            style={{ fontSize: 24 }}
-          />
-        </div>
-
-        <TextArea
-          rows={4}
-          placeholder="Ghi phản hồi của bạn về sản phẩm tại đây ......"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          style={{
-            marginBottom: 24,
-            borderRadius: 4,
-          }}
-        />
-
-        <Button
-          type="primary"
-          block
-          size="large"
-          onClick={handleSubmit}
-          style={{
-            height: 48,
-            fontSize: 16,
-            fontWeight: 500,
-            borderRadius: "8px",
-          }}
-          className="btn btn-second"
-        >
-          Thêm bình luận mới
-        </Button>
       </div>
-    </div>
+    </>
   );
 };
 

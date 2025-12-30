@@ -24,4 +24,10 @@ export const accountApi = {
       method: "GET",
     });
   },
+  change_password(data) {
+    return fetchWithAuth(`${API}/change-password`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
 };

@@ -13,19 +13,8 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const { setCurrentProduct } = useProduct();
-  const reviews = Array.from({ length: 18 }, (_, i) => ({
-    id: i + 1,
-    name: `User ${i + 1}`,
-    content: `This is review number ${i + 1}.`,
-    rating: 4,
-  }));
   const [product, setProduct] = useState(null);
-  const pageSize = 5; // mỗi trang 5 cái
-  const [page, setPage] = useState(1);
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
 
-  const currentReviews = reviews.slice(start, end);
   useEffect(() => {
     if (!productId) return;
 
@@ -227,49 +216,10 @@ export default function ProductDetail() {
           <Rate
             allowHalf
             disabled
-            value={4.0}
+            value={product?.rating}
             style={{ marginRight: "40px" }}
           ></Rate>
-          <p>
-            4.0
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: "200px",
-                margin: "0px 5px",
-                opacity: "0.6",
-              }}
-            >
-              ({reviews.length})
-            </span>
-          </p>
-        </div>
-        <div style={{ width: "90%", maxWidth: "700px" }}>
-          {/* Hiển thị 5 review của trang hiện tại */}
-          <div style={{ height: "580px" }}>
-            {currentReviews.map((review) => (
-              <div className="mb-3">
-                <Review
-                  key={review.id}
-                  name={review.name}
-                  content={review.content}
-                  rating={review.rating}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Pagination căn giữa */}
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <Pagination
-              current={page}
-              total={reviews.length}
-              align="start"
-              pageSize={pageSize}
-              onChange={(p) => setPage(p)}
-              className="custom-pagination"
-            />
-          </div>
+          <p>{product?.rating}</p>
         </div>
       </div>
       {/* ----------------------------------------------------------------------------- */}

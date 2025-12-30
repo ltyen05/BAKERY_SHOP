@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
 import { useState, useEffect } from "react";
-import { Dropdown, Space, Button, Badge } from "antd";
+import { Dropdown, Space, Button, Badge, Drawer } from "antd";
 import bakesLogo from "../../assets/bakes.svg";
 import { routes } from "../../routes";
-import { LogoutOutlined, LockOutlined } from "@ant-design/icons";
+import { LogoutOutlined, LockOutlined, MenuOutlined } from "@ant-design/icons";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import OrderNotification from "../Notification/OrderNotification";
 
@@ -26,6 +26,7 @@ function getRoutesShipper(routesShipper) {
 }
 
 function NavBar({ user, onLogout }) {
+  const [openMenu, setOpenMenu] = useState(false);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const timer = setInterval(() => {
@@ -63,13 +64,9 @@ function NavBar({ user, onLogout }) {
   const [notifications, setNotifications] = useState([
     {
       id: 2,
-      type: "order",
-      title: "Đơn hàng đã giao",
-      message:
-        "Đơn hàng #12345 của bạn đã được giao thành công. Hãy kiểm tra và cho chúng tôi biết ý kiến của bạn!",
+
       time: "Mon Dec 29 2025 22:42:30 GMT+0700",
       unread: true,
-
       actionText: "Xem đơn hàng",
     },
   ]);
@@ -209,8 +206,15 @@ function NavBar({ user, onLogout }) {
         align="bottom"
         style={{ height: "77px", width: "90%" }}
       >
-        <Col xs={6} md={4}>
-          <Row justify="start">
+        <Col xs={9} md={4}>
+          <Row justify="space-between">
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              className="md-hidden"
+              onClick={() => setOpenMenu(true)}
+              style={{ marginTop: "10px" }}
+            />
             <img
               src={bakesLogo}
               alt="Stylized bakery logo"
@@ -287,6 +291,21 @@ function NavBar({ user, onLogout }) {
           </Row>
         </Col>
       </Row>
+      <Drawer
+        title="Menu"
+        placement="left"
+        open={openMenu}
+        onClose={() => setOpenMenu(false)}
+        width={260}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {getRoutesShipper(routes_Shipper).map((comp, idx) => (
+            <div key={idx} onClick={() => setOpenMenu(false)}>
+              {comp}
+            </div>
+          ))}
+        </div>
+      </Drawer>
     </div>
   );
 }

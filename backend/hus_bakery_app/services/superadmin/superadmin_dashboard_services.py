@@ -33,10 +33,6 @@ def get_order_delivery_stats_service():
 
 
 def get_revenue_by_time_and_branch_service(period='month'):
-    """
-    Thống kê doanh thu theo thời gian và chi nhánh.
-    period có thể là 'month' hoặc 'week' tùy theo dropdown chọn trên giao diện.
-    """
     time_filter = extract('month', Order.created_at) if period == 'month' else extract('week', Order.created_at)
 
     results = db.session.query(

@@ -39,7 +39,6 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = ('Hus Bakery', os.environ.get('MAIL_USERNAME'))
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
-    app.config['WTF_CSRF_ENABLED'] = False
 
     db.init_app(app)
     jwt.init_app(app)
@@ -55,6 +54,9 @@ def create_app():
     app.register_blueprint(account_bp, url_prefix="/api/account")
     from hus_bakery_app.routers.customer.product import product_bp
     app.register_blueprint(product_bp, url_prefix="/api/product")
+    from hus_bakery_app.routers.customer.customer_notification import customer_noti_bp
+    app.register_blueprint(customer_noti_bp, url_prefix='/api/notification')
+
 
     from hus_bakery_app.routers.admin.dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
@@ -71,7 +73,7 @@ def create_app():
     from hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
     app.register_blueprint(shipper_admin_bp, url_prefix='/admin/shipper_management')
 
-    from hus_bakery_app.routers.shipper.notifications import shipper_notifications_bp
+    from hus_bakery_app.routers.shipper.shipper_notifications import shipper_notifications_bp
     app.register_blueprint(shipper_notifications_bp, url_prefix='/shipper/notifications')
     from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
     app.register_blueprint(shipper_stats_bp, url_prefix='/shipper/statistics')

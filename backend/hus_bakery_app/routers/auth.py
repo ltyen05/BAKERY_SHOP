@@ -15,7 +15,7 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/', methods=['GET', 'POST'])
 @auth_bp.route('/index', methods=['GET', 'POST'])
-def index():               
+def index():
     return jsonify({"message": "Welcome to Hus Bakery API"})
 
 @auth_bp.route("/me", methods=["GET"])

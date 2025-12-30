@@ -6,7 +6,7 @@ from hus_bakery_app.services.shipper.shipper_statistics_services import (
     count_successful_orders,
     count_failed_orders,
     calculate_avg_rating,
-    get_shipper_order_history
+    get_shipper_all_order_history
 )
 
 shipper_stats_bp = Blueprint("shipper_stats", __name__)
@@ -75,11 +75,7 @@ def api_shipper_history():
     limit = request.args.get('limit', 10, type=int)
 
     # Gọi hàm xử lý
-<<<<<<< HEAD
-    result = get_shipper_order_history(shipper_id, page, limit)
-=======
     result = get_shipper_all_order_history(shipper_id, page, limit)
->>>>>>> backend
 
     return jsonify({
         "status": "success",

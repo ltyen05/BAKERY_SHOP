@@ -4,16 +4,4 @@ __pycache__/
 .idea
 *.pyc
 venv/
-__pycache__/
-*.pyc
 .env
-<<<<<<< HEAD
-=======
-# Python
-__pycache__/
-*.pyc
-hus_bakery_env/
-
-# OS
-.DS_Store
->>>>>>> main

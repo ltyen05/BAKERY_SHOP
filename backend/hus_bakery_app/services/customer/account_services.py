@@ -9,6 +9,7 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
+from hus_bakery_app.models.shipper import Shipper
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
@@ -82,15 +83,16 @@ def update_avatar(customer_id, file):
     return False, "File không hợp lệ"
 
 
-def change_password(customer_id, old_pass, new_pass, confirm_pass):
-    user = Customer.query.get(customer_id)
+def change_password(role, id, old_pass, new_pass, confirm_pass):
+    if role == "shipper":
+        user = Shipper.query.get(id)
+    elif role == "customer":
+        user = Customer.query.get(id)
 
     if not user or not user.check_password(old_pass):
         return False, "Mật khẩu cũ không chính xác"
     if new_pass != confirm_pass:
         return False, "Mật khẩu xác nhận không khớp"
-    if len(new_pass) < 6:
-        return False, "Mật khẩu mới phải ≥ 6 ký tự"
 
     user.password_hash = generate_password_hash(new_pass)
     db.session.commit()

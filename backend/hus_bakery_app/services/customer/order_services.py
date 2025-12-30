@@ -14,6 +14,8 @@ from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
+from hus_bakery_app.models.shipper_notifications import ShipperNotification
+
 
 # --- SECTION B: CLIENT ORDER CREATION ---
 def create_order(customer_id, recipient_name, payment_method, total_amount, phone, branch_id, shipping_address,
@@ -55,6 +57,14 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             updated_at=datetime.now(),
         )
         db.session.add(statusForOrder)
+        new_notification = ShipperNotification(
+            shipper_id=shipper.shipper_id,
+            order_id=new_order.order_id,
+            is_read=False,
+            created_at=datetime.now()
+        )
+
+        db.session.add(new_notification)
         # 8. Lưu Order Items và Xóa Cart
         for item in selected_items:
             product = Product.query.get(item.product_id)

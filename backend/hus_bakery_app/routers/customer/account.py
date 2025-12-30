@@ -81,15 +81,17 @@ def update_avatar_api():
 @jwt_required()
 def change_password_api():
     identity = get_jwt_identity()
-    current_user_id = identity["id"]
-
+    user_data = json.loads(identity) if isinstance(identity, str) else identity
+    current_user_id = user_data.get("id")
+    current_role = user_data.get("role")
     data = request.json
 
     success, msg = change_password(
-        current_user_id,
-        data.get("old_password"),
-        data.get("new_password"),
-        data.get("confirm_password"),
+        role=current_role,
+        id=current_user_id,
+        old_pass=data.get("old_password"),
+        new_pass=data.get("new_password"),
+        confirm_pass=data.get("confirm_password"),
     )
 
     return jsonify({"message": msg}), (200 if success else 400)

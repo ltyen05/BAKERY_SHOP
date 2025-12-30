@@ -5,6 +5,8 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from sqlalchemy import desc
 
+from hus_bakery_app.models.shipper_notifications import ShipperNotification
+
 
 def check_new_order_for_shipper(shipper_id):
     """
@@ -81,3 +83,20 @@ def get_current_order(shipper_id):
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Lỗi hệ thống"
+
+
+def get_all_notifications_service(shipper_id):
+    notifications = ShipperNotification.query.filter_by(shipper_id=shipper_id) \
+        .order_by(ShipperNotification.created_at.desc()).all()
+
+    result = []
+    for noti in notifications:
+        result.append({
+            "id": noti.id,
+            "customer_id": noti.customer_id,
+            "order_id": noti.order_id,
+            "is_read": noti.is_read,
+            "created_at": noti.created_at
+        })
+
+    return result

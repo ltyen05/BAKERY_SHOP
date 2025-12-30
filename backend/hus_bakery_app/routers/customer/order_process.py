@@ -149,7 +149,11 @@ def api_create_order():
     return jsonify({
         "success": True,
         "message": msg,
+<<<<<<< HEAD
         "data": order_data # Bao gồm order_id, status, customer_phone, updated_at...
+=======
+        "order_id": order.shipper_id
+>>>>>>> backend
     }), 200
 
 

@@ -6,22 +6,18 @@ from hus_bakery_app.models.order import Order
 
 # Bỏ tham số comment ở đây
 def create_feedback(user_id, order_id, rating):
-    # 1. Tìm đơn hàng
     order = Order.query.filter_by(order_id=order_id).first()
 
     if not order:
         return False, "Đơn hàng không tồn tại."
 
-    # 2. Check quyền chủ sở hữu
     if order.customer_id != user_id:
         return False, "Bạn không có quyền đánh giá đơn hàng của người khác."
 
-    # 3. Check đã đánh giá chưa
     existing_feedback = Feedback.query.filter_by(order_id=order_id).first()
     if existing_feedback:
         return False, "Bạn đã đánh giá đơn hàng này rồi."
 
-    # 4. Lưu Feedback (Bỏ comment ở đây đi)
     new_feedback = Feedback(
         order_id=order_id,
         branch_id=order.branch_id,
@@ -29,7 +25,6 @@ def create_feedback(user_id, order_id, rating):
         # Đã xóa dòng comment=comment
     )
 
-    # Nếu Model chưa có default date thì thêm dòng này
     new_feedback.created_at = datetime.now()
 
     try:

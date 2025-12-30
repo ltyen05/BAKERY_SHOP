@@ -28,12 +28,9 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             cc.status = "used"
             cc.used_at = datetime.now()
 
-    # Tìm Shipper (Optional)
     shipper = Shipper.query.filter_by(branch_id=branch_id, status="Đang hoạt động").first()
     if shipper:
         shipper.status = "Bận"
-    else: 
-        return None, "Hiện tại tất cả shipper tại chi nhánh này đang bận hoặc không hoạt động. Vui lòng chờ đợi ít phút hoặc chọn chi nhánh khác!"
 
     try:
         new_order = Order(

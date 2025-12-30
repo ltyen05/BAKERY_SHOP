@@ -1,4 +1,6 @@
 from hus_bakery_app import db
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import desc, exists, func, and_
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from sqlalchemy import desc
@@ -30,8 +32,52 @@ def check_new_order_for_shipper(shipper_id):
             # Nội dung text y hệt trong ảnh bạn gửi
             "message": "Bạn vừa có đơn hàng cần giao , vui lòng kiểm tra đơn hàng 📦",
 
-            "created_at": order.created_at.strftime("%H:%M %d/%m/%Y") if order.created_at else "",
+            "created_at": order.created_at if order.created_at else "",
             "is_read": False  # Luôn coi là mới để hiện đậm
         })
 
     return notifications
+
+
+def get_current_order(shipper_id):
+    try:
+        latest_status_time = (
+            db.session.query(
+                OrderStatus.order_id,
+                func.max(OrderStatus.updated_at).label("latest_time")
+            )
+            .group_by(OrderStatus.order_id)
+            .subquery()
+        )
+
+        latest_status = (
+            db.session.query(
+                OrderStatus.order_id,
+                OrderStatus.status
+            )
+            .join(
+                latest_status_time,
+                (OrderStatus.order_id == latest_status_time.c.order_id) &
+                (OrderStatus.updated_at == latest_status_time.c.latest_time)
+            )
+            .subquery()
+        )
+
+        order = (
+            db.session.query(
+                Order.order_id,
+                latest_status.c.status
+            )
+            .join(latest_status, Order.order_id == latest_status.c.order_id)
+            .filter(Order.shipper_id == shipper_id)
+            .filter(latest_status.c.status != "Đã giao")
+            .filter(latest_status.c.status != "Không thành công")
+            .order_by(Order.created_at.desc())
+            .first()
+        )
+
+        return order, None
+
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Lỗi hệ thống"

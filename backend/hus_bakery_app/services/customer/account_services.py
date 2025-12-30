@@ -1,6 +1,6 @@
 import os
-
-from sqlalchemy import desc, exists
+from sqlalchemy import desc, exists, func, and_
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from hus_bakery_app import db
@@ -9,17 +9,17 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
-from hus_bakery_app.models.feedback import Feedback
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+
 def total_amount_of_customer(customer_id):
     order_of_customer = db.session.query(Order).filter_by(customer_id=customer_id).all()
     total_amount = 0
     for order in order_of_customer:
-        total_amount += order.amount
+        total_amount += order.total_amount
 
     return total_amount
 
@@ -57,11 +57,7 @@ def update_profile(customer_id, profile):
     # Cập nhật Số điện thoại
     if "phone" in profile:
         user.phone = profile["phone"].strip()
-    
-    if "name" in profile:
-        name = profile["name"].strip()
-        user.name = name
-        
+
     db.session.commit()
     return True, "Cập nhật thành công"
 
@@ -100,31 +96,15 @@ def change_password(customer_id, old_pass, new_pass, confirm_pass):
     db.session.commit()
     return True, "Đổi mật khẩu thành công"
 
-
 def get_order_history_service(customer_id):
     orders = Order.query.filter_by(customer_id=customer_id).order_by(desc(Order.created_at)).all()
 
     history_list = []
 
     for order in orders:
-        # 1. Tìm bản ghi trạng thái "Hoàn thành" của đơn hàng này
-        # Giả sử trong DB cột trạng thái tên là 'status' và giá trị là 'Hoàn thành'
-        completed_status = OrderStatus.query.filter_by(
-            order_id=order.order_id,
-            status="Hoàn thành"
-        ).first()
-
-        # Nếu tìm thấy trạng thái Hoàn thành thì lấy ngày updated_at, ngược lại để trống
-        received_date = completed_status.updated_at.strftime(
-            "%d/%m/%Y") if completed_status and completed_status.updated_at else ""
-
-        # Lấy trạng thái hiện tại (mới nhất) để hiển thị ở cột Trạng thái
-        # (Nếu bạn vẫn muốn hiển thị trạng thái hiện tại của đơn hàng)
-        latest_status_obj = OrderStatus.query.filter_by(order_id=order.order_id).order_by(
-            desc(OrderStatus.updated_at)).first()
-        status_text = latest_status_obj.status if latest_status_obj else "Đang xử lý"
-
-        # 2. Lấy danh sách sản phẩm trong đơn (giữ nguyên logic cũ)
+        status_obj = OrderStatus.query.get(order.order_id)
+        status_text = status_obj.status if status_obj else "Đang xử lý"
+        received_date = status_obj.updated_at.strftime("%d/%m/%Y") if status_obj and status_obj.updated_at else ""
         items_query = db.session.query(OrderItem, Product).outerjoin(
             Product, OrderItem.product_id == Product.product_id
         ).filter(OrderItem.order_id == order.order_id).all()
@@ -137,67 +117,64 @@ def get_order_history_service(customer_id):
             p_name = product.name if product else "Sản phẩm cũ"
             product_names.append(p_name)
             quantities.append(str(item.quantity))
+            # Format giá: 300000.00 -> 300,000 VNĐ (hoặc để Frontend lo)
             prices.append(f"{float(item.price):,.0f} VNĐ")
 
-        # 3. Gom dữ liệu
         history_list.append({
             "order_id": order.order_id,
             "products": product_names,
             "quantities": quantities,
-            "prices": prices,
+            "prices": prices,  # Cột Giá
+
             "branch_id": order.branch_id if order.branch_id else "Kho tổng",
             "created_at": order.created_at.strftime("%d/%m/%Y"),
-            "received_at": received_date,  # Chỉ có giá trị nếu đơn hàng đã "Hoàn thành"
-            "total_amount": float(order.total_amount) if order.total_amount else 0,
-            "status": status_text
+            "received_at": received_date,
+            "total_amount": float(order.total_amount) if order.total_amount else 0,  # Cột Tổng tiền
+            "status": status_text 
         })
 
     return history_list
 
-def get_virtual_notifications(customer_id):
-    # 1. Tìm tất cả đơn hàng của khách
-    # Join với bảng OrderStatus để check trạng thái "Hoàn thành"
-    # Lưu ý: Sửa chuỗi "Hoàn thành" cho khớp với DB của bạn (ví dụ: "completed" hoặc "success")
-    completed_orders = db.session.query(Order, OrderStatus).join(
-        OrderStatus, Order.order_id == OrderStatus.order_id
-    ).filter(
-        Order.customer_id == customer_id,
-        OrderStatus.status == "Hoàn thành"  # <--- Quan trọng: Kiểm tra đúng string trạng thái trong DB
-    ).order_by(desc(Order.created_at)).all()
-
-    notifications = []
-
-    for order, status in completed_orders:
-        # 2. Kiểm tra xem đơn này đã có trong bảng Feedback chưa?
-        # Feedback có khóa chính là order_id, nên query rất nhanh
-        is_reviewed = db.session.query(Feedback).get(order.order_id)
-
-        # 3. Nếu CHƯA đánh giá -> Tạo thông báo nhắc nhở
-        if not is_reviewed:
-            notifications.append({
-                "type": "order_success",
-                "order_id": order.order_id,
-                "title": f"Giao hàng thành công 📦",
-                "message": f"Đơn hàng #{order.order_id} đã hoàn thành. Bạn hãy đánh giá dịch vụ nhé!",
-                "created_at": status.updated_at.strftime("%d/%m/%Y %H:%M") if status.updated_at else "",
-                "is_read": False # Vì không lưu DB nên lúc nào cũng coi là mới
-            })
-
-    return notifications
-
 def get_latest_active_order_id(customer_id):
-    finished_statuses = ["Đã giao"]
 
-    # Tạo một subquery để kiểm tra sự tồn tại của trạng thái "Đã giao"
-    has_finished_status = exists().where(
-        (OrderStatus.order_id == Order.order_id) &
-        (OrderStatus.status.in_(finished_statuses))
-    )
+    try:
+        latest_status_time = (
+            db.session.query(
+                OrderStatus.order_id,
+                func.max(OrderStatus.updated_at).label("latest_time")
+            )
+            .group_by(OrderStatus.order_id)
+            .subquery()
+        )
 
-    # Truy vấn chính: Lọc đơn hàng của khách và KHÔNG tồn tại trạng thái kết thúc
-    latest_order = db.session.query(Order) \
-        .filter(Order.customer_id == customer_id) \
-        .filter(~has_finished_status) \
-        .order_by(Order.created_at.desc()) \
+        latest_status = (
+            db.session.query(
+                OrderStatus.order_id,
+                OrderStatus.status
+            )
+            .join(
+                latest_status_time,
+                (OrderStatus.order_id == latest_status_time.c.order_id) &
+                (OrderStatus.updated_at == latest_status_time.c.latest_time)
+            )
+            .subquery()
+        )
 
-    return latest_order.order_id if latest_order else None
+        orders = (
+            db.session.query(
+                Order.order_id,
+                latest_status.c.status
+            )
+            .join(latest_status, Order.order_id == latest_status.c.order_id)
+            .filter(Order.customer_id == customer_id)
+            .filter(latest_status.c.status != "Đã giao")
+            .filter(latest_status.c.status !="Không thành công")
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+        return orders, None
+
+    except SQLAlchemyError:
+        db.session.rollback()
+        return None, "Lỗi hệ thống"

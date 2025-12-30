@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+<<<<<<< HEAD
 from hus_bakery_app.services.customer.account_services import (
     update_profile,
     change_password,
@@ -10,6 +11,10 @@ from hus_bakery_app.services.customer.account_services import (
     get_virtual_notifications,
     get_latest_active_order_id
 )
+=======
+from hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, \
+    total_amount_of_customer, get_customer_rank_service, get_order_history_service, get_latest_active_order_id
+>>>>>>> backend
 from hus_bakery_app.models.customer import Customer
 import json
 from hus_bakery_app.services.customer.order_services import get_order_detail_service

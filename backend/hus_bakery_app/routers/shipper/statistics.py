@@ -75,7 +75,11 @@ def api_shipper_history():
     limit = request.args.get('limit', 10, type=int)
 
     # Gọi hàm xử lý
+<<<<<<< HEAD
     result = get_shipper_order_history(shipper_id, page, limit)
+=======
+    result = get_shipper_all_order_history(shipper_id, page, limit)
+>>>>>>> backend
 
     return jsonify({
         "status": "success",

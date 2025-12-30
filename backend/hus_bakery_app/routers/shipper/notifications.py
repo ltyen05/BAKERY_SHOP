@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
@@ -60,3 +59,27 @@ def update_order_status():
         return jsonify({"success": True, "message": message}), 200
     else:
         return jsonify({"success": False, "message": message}), 500
+<<<<<<< HEAD:backend/hus_bakery_app/routers/shipper/notifications.py
+=======
+
+
+@shipper_notifications_bp.route("/current-order", methods=["GET"])
+@jwt_required()
+def current_order():
+    identity = json.loads(get_jwt_identity())
+    shipper_id = identity["id"]
+
+    order, error = get_current_order(shipper_id)
+
+    if error:
+        return jsonify({"message": error}), 500
+    if not order:
+        return "", 204
+
+    result = {
+        "order_id": order[0],
+        "status": order[1]
+    }
+
+    return jsonify(result), 200
+>>>>>>> backend:backend/hus_bakery_app/routers/shipper/shipper_notifications.py

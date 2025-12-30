@@ -51,7 +51,8 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
                 marginBottom: "8px",
               }}
             >
-              {notification.message}
+              Cảm ơn bạn vì đã mua sản phẩm của chúng tôi. Chúng tôi rất mong
+              nhận được đánh giá cho đơn hàng {notification.id} từ bạn
             </p>
             <Space
               style={{
@@ -68,7 +69,7 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
                 size="small"
                 style={{ color: "#92400e", padding: 0, height: "auto" }}
               >
-                {notification.actionText}
+                Đánh giá ngay
               </Button>
             </Space>
           </div>

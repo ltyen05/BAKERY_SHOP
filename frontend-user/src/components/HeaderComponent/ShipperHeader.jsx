@@ -1,18 +1,12 @@
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
+import { useState, useEffect } from "react";
 import { Dropdown, Space, Button, Badge } from "antd";
-import { useState } from "react"; // ⚠️ phải có// ⚠️ phải có
 import bakesLogo from "../../assets/bakes.svg";
 import { routes } from "../../routes";
-import {
-  UserOutlined,
-  LogoutOutlined,
-  LockOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import { LogoutOutlined, LockOutlined } from "@ant-design/icons";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import OrderNotification from "../Notification/OrderNotification";
-import ReviewNotification from "../Notification/ReviewNotification";
-import PromoNotification from "../Notification/PromoNotification";
 
 import bell from "../../assets/bell.svg";
 function getRoutesShipper(routesShipper) {
@@ -32,6 +26,15 @@ function getRoutesShipper(routesShipper) {
 }
 
 function NavBar({ user, onLogout }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 10000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const view = {
     items: [
       {
@@ -59,66 +62,87 @@ function NavBar({ user, onLogout }) {
   const routes_Shipper = routes.filter((route) => route.onlyShipper);
   const [notifications, setNotifications] = useState([
     {
-      id: 1,
-      type: "review",
-      title: "Đánh giá sản phẩm",
-      message:
-        "Cảm ơn bạn vì đã mua sản phẩm của chúng tôi. Chúng tôi rất mong nhận được đánh giá từ bạn để phục vụ tốt hơn trong lần tới!",
-      time: "5 phút trước",
-      unread: true,
-      actionText: "Để lại nhận xét",
-    },
-    {
       id: 2,
       type: "order",
       title: "Đơn hàng đã giao",
       message:
         "Đơn hàng #12345 của bạn đã được giao thành công. Hãy kiểm tra và cho chúng tôi biết ý kiến của bạn!",
-      time: "2 giờ trước",
+      time: "Mon Dec 29 2025 22:42:30 GMT+0700",
       unread: true,
+
       actionText: "Xem đơn hàng",
     },
-
-    {
-      id: 4,
-      type: "promo",
-      title: "Ưu đãi đặc biệt",
-      message: "Giảm 20% cho đơn hàng tiếp theo của bạn. Mã: REVIEW20",
-      time: "2 ngày trước",
-      unread: false,
-      actionText: "Sử dụng mã",
-    },
   ]);
+  const fetchNotification = async () => {
+    try {
+      const res = await fetchWithAuth(
+        "http://localhost:5000/api/shipper/notifications/check-notification",
+        { method: "GET" }
+      );
 
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      if (data.is_read) return;
+
+      setNotifications((prev) => {
+        if (prev.some((n) => n.id === data.id)) return prev;
+
+        return [
+          {
+            id: data.id,
+            type: "order",
+            time: data.created_at, // frontdend kiểm soát time
+            unread: true,
+            actionText: "Xem đơn hàng",
+            orderId: data.order_id,
+            address: data.address,
+          },
+          ...prev,
+        ];
+      });
+    } catch (err) {
+      console.error("Fetch notification error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotification(); // gọi ngay khi load
+
+    const interval = setInterval(() => {
+      // ❗ chỉ poll khi tab đang active
+      if (document.visibilityState === "visible") {
+        fetchNotification();
+      }
+    }, 10000); // ⏱ 15s (rất ổn)
+
+    return () => clearInterval(interval);
+  }, []);
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   const handleMarkRead = (id) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, unread: false } : n))
-    );
-  };
+    // ❗ Xoá ngay khỏi UI (UX mượt)
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
 
-  const handleDelete = (id) => {
-    setNotifications(notifications.filter((n) => n.id !== id));
+    // // Gọi API nền
+    // try {
+    //   await fetchWithAuth(
+    //     `http://localhost:5000/api/shipper/notifications/mark-read/${id}`,
+    //     { method: "POST" }
+    //   );
+    // } catch (err) {
+    //   console.error("Mark read error:", err);
+    // }
   };
 
   const renderNotification = (notification) => {
     const props = {
       notification,
       onMarkRead: handleMarkRead,
-      onDelete: handleDelete,
     };
 
-    switch (notification.type) {
-      case "review":
-        return <ReviewNotification key={notification.id} {...props} />;
-      case "order":
-        return <OrderNotification key={notification.id} {...props} />;
-      case "promo":
-        return <PromoNotification key={notification.id} {...props} />;
-      default:
-        return null;
-    }
+    return <OrderNotification key={notification.id} now={now} {...props} />;
   };
 
   const dropdownContent = (
@@ -222,7 +246,7 @@ function NavBar({ user, onLogout }) {
               }}
             >
               <Dropdown
-                dropdownRender={() => dropdownContent}
+                popupRender={() => dropdownContent}
                 trigger={["click"]}
                 placement="bottomRight"
               >

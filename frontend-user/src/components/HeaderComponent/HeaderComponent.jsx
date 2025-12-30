@@ -10,9 +10,7 @@ import {
   LockOutlined,
   DownOutlined,
 } from "@ant-design/icons";
-import OrderNotification from "../Notification/OrderNotification";
 import ReviewNotification from "../Notification/ReviewNotification";
-import PromoNotification from "../Notification/PromoNotification";
 import Cart from "../Cart/Cart";
 import bell from "../../assets/bell.svg";
 import cart from "../../assets/cart.svg";
@@ -87,7 +85,7 @@ function NavBar({
       },
       {
         key: "3",
-        label: "Đổi mật khẩu",
+        label: <Link to="/logInResetPassword">Đổi mật khẩu</Link>,
         icon: <LockOutlined />,
       },
       {
@@ -119,26 +117,6 @@ function NavBar({
       unread: true,
       actionText: "Để lại nhận xét",
     },
-    {
-      id: 2,
-      type: "order",
-      title: "Đơn hàng đã giao",
-      message:
-        "Đơn hàng #12345 của bạn đã được giao thành công. Hãy kiểm tra và cho chúng tôi biết ý kiến của bạn!",
-      time: "2 giờ trước",
-      unread: true,
-      actionText: "Xem đơn hàng",
-    },
-
-    {
-      id: 4,
-      type: "promo",
-      title: "Ưu đãi đặc biệt",
-      message: "Giảm 20% cho đơn hàng tiếp theo của bạn. Mã: REVIEW20",
-      time: "2 ngày trước",
-      unread: false,
-      actionText: "Sử dụng mã",
-    },
   ]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
@@ -159,17 +137,7 @@ function NavBar({
       onMarkRead: handleMarkRead,
       onDelete: handleDelete,
     };
-
-    switch (notification.type) {
-      case "review":
-        return <ReviewNotification key={notification.id} {...props} />;
-      case "order":
-        return <OrderNotification key={notification.id} {...props} />;
-      case "promo":
-        return <PromoNotification key={notification.id} {...props} />;
-      default:
-        return null;
-    }
+    return <ReviewNotification key={notification.id} {...props} />;
   };
 
   const dropdownContent = (

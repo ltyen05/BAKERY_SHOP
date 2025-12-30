@@ -1,12 +1,8 @@
 import { Form, Input, Button, message } from "antd";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import bakesLogo from "../../../assets/logo/bakes.png";
-import { message } from "antd";
-const ResetPassword = () => {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
 
-  const token = params.get("token"); // 🔥 token từ link email
+const ResetPassword = () => {
+  const navigate = useNavigate();
 
   const handleResetPassword = async (values) => {
     try {
@@ -35,21 +31,9 @@ const ResetPassword = () => {
     }
   };
 
-  if (!token) {
-    return <p>Link không hợp lệ hoặc đã hết hạn</p>;
-  }
-
   return (
     <div className="bound">
       <div className="fl-center bg-color pb-6 pt-3">
-        <Link to={"/"} className="mb-6">
-          <img
-            src={bakesLogo}
-            alt="Stylized bakery logo"
-            style={{ height: "100px" }}
-          />
-        </Link>
-
         <Form
           name="basic"
           style={{

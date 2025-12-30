@@ -14,9 +14,15 @@ const viewProfile = lazy(() => import("../pages/user/viewProfile/viewProfile"));
 const ForgotPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ForgotPassword")
 );
+const ResetPassword = lazy(() =>
+  import("../pages/auth/ForgotPassword/ResetPassword")
+);
 const DeliveryHistory = lazy(() => import("../pages/shipper/DeliveryHistory"));
 const ShipperDashboard = lazy(() =>
   import("../pages/shipper/ShipperDashboard")
+);
+const LogedInResetPassword = lazy(() =>
+  import("../pages/user/LogedInResetPassword/LogedInResetPassword")
 );
 const ShipperDelivery = lazy(() => import("../pages/shipper/ShipperPage"));
 const payment = lazy(() => import("../pages/user/PaymentPage/PaymentPage"));
@@ -121,12 +127,26 @@ export const routes = [
     roles: ["guest"],
   },
   {
+    path: "/resetPassword",
+    page: ResetPassword, // Dùng 'LogIn' (lazy)
+    name: "Reset Password",
+    roles: ["guest"],
+  },
+  {
     path: "/viewProfile",
     page: viewProfile,
     name: "View Profile",
     isShowHeader: true,
     isShowBreadCrumbs: true,
     roles: ["customer"],
+  },
+  {
+    path: "/logInResetPassword",
+    page: LogedInResetPassword,
+    name: "Đổi mật khẩu",
+    isShowHeader: true,
+    isShowBreadCrumbs: true,
+    roles: ["customer", "shipper", "admin"],
   },
   {
     path: "/payment",

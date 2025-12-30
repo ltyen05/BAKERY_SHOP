@@ -6,13 +6,52 @@ import {
   CloseCircleOutlined,
   StarOutlined,
 } from "@ant-design/icons";
-
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 const { Title } = Typography;
 
 const MAX_VALUE = 100;
 
 export default function Dashboard() {
   const [weeklyOrders, setWeeklyOrders] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    successful: 0,
+    failed: 0,
+    rating: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    const urls = [
+      "/stats/total-orders",
+      "/stats/successful",
+      "/stats/failed",
+      "/stats/rating",
+    ];
+
+    // Fetch song song bằng fetch thuần
+    Promise.all(
+      urls.map((url) =>
+        fetchWithAuth(`http://localhost:5000/api/shipper/statistics${url}`, {
+          method: "GET",
+        }).then((res) => res.json())
+      )
+    )
+      .then(([totalRes, successfulRes, failedRes, ratingRes]) => {
+        setStats({
+          total: totalRes.data,
+          successful: successfulRes.data,
+          failed: failedRes.data,
+          rating: ratingRes.data,
+        });
+      })
+      .catch((error) => {
+        console.error("Lỗi khi fetch stats:", error);
+        message.error("Không thể tải thông tin thống kê!");
+      });
+  }, []);
 
   useEffect(() => {
     // fake API
@@ -35,7 +74,7 @@ export default function Dashboard() {
           <Card>
             <Statistic
               title="Đơn hàng"
-              value={175}
+              value={stats.total}
               prefix={<ShoppingCartOutlined />}
             />
           </Card>
@@ -44,7 +83,7 @@ export default function Dashboard() {
           <Card>
             <Statistic
               title="Giao thành công"
-              value={100}
+              value={stats.successful}
               valueStyle={{ color: "#52c41a" }}
               prefix={<CheckCircleOutlined />}
             />
@@ -54,7 +93,7 @@ export default function Dashboard() {
           <Card>
             <Statistic
               title="Không thành công"
-              value={75}
+              value={stats.failed}
               valueStyle={{ color: "#ff4d4f" }}
               prefix={<CloseCircleOutlined />}
             />
@@ -64,7 +103,7 @@ export default function Dashboard() {
           <Card>
             <Statistic
               title="Đánh giá trung bình"
-              value={4.8}
+              value={stats.rating}
               suffix="/5"
               prefix={<StarOutlined />}
             />

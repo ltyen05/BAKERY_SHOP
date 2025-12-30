@@ -85,10 +85,16 @@ const OrderDetails = ({ order }) => {
             ))}
           </div>
 
-          <div className="order-summary mt-3 mb-3" style={{ textAlign: "end" }}>
+          <div className="order-summary mt-3 mb-2" style={{ textAlign: "end" }}>
             Tổng số tiền ({totalItems} sản phẩm):
             <span className="total-amount"> {formatCurrency(totalPrice)}</span>
           </div>
+          <h3 className="order-summary " style={{ textAlign: "end" }}>
+            Tổng tiền hàng :
+            <span className="total-amount">
+              {formatCurrency(order.total_money)}
+            </span>
+          </h3>
         </Col>
       </Row>
     </div>

@@ -37,23 +37,23 @@ def delete_order(order_id):
     return False
 
 
-def get_all_orders_service():
-    # Thêm Customer.customer_id vào query
-    results = db.session.query(Order, Customer.name, Customer.customer_id).join(
-        Customer, Order.customer_id == Customer.customer_id
-    ).order_by(desc(Order.created_at)).all()
+def get_all_orders_service(branch_id):
+    orders = Order.query.filter_by(branch_id=branch_id).order_by(desc(Order.created_at)).all()
 
     orders_list = []
-    for order, customer_name, customer_id in results:
+    for order in orders:
         orders_list.append({
             "order_id": order.order_id,
-            "customer_id": customer_id,
-            "customer_name": customer_name,
-            "total_amount": float(order.total_amount),
-            "order_address": order.shipping_address,
-            "created_at": order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "customer_id": order.customer_id,
+            "branch_id": order.branch_id,
             "shipper_id": order.shipper_id,
-            "branch": order.branch_id,
-            "status": getattr(order, 'status', 'Pending'),
+            "coupon_id": order.coupon_id,
+            "shipping_address": order.shipping_address,
+            "phone": order.phone,
+            "payment_method": order.payment_method,
+            "recipient_name": order.recipient_name,
+            "total_amount": float(order.total_amount) if order.total_amount else 0,
+            "note": getattr(order, 'note', ""), # Lấy ghi chú nếu có
+            "created_at": order.created_at
         })
     return orders_list

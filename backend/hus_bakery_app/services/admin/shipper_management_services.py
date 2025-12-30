@@ -6,8 +6,8 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.shipper_review import ShipperReview
 
-def get_all_shippers_service():
-    return Shipper.query.all()
+def get_all_shippers_service(branch_id):
+    return Shipper.query.get(Shipper, Shipper.branch_id == branch_id).all()
 
 def add_shipper_service(data):
     new_shipper = Shipper(

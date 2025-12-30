@@ -23,7 +23,21 @@ def delete_order_api(order_id):
         return jsonify({"message": "Xóa đơn hàng thành công"}), 200
     return jsonify({"error": "Không tìm thấy đơn hàng"}), 404
 
+
 @order_admin_bp.route("/orders", methods=['GET'])
 def get_orders():
-    orders = get_all_orders_service()
-    return jsonify(orders), 200
+    branch_id = request.args.get('branch_id')
+
+    if not branch_id:
+        return jsonify({"success": False, "message": "Thiếu branch_id"}), 400
+
+    try:
+        raw_orders = get_all_orders_service(branch_id)
+        return jsonify({
+            "success": True,
+            "branch_id": branch_id,
+            "count": len(raw_orders),
+            "data": raw_orders
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

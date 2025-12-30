@@ -10,7 +10,8 @@ shipper_admin_bp = Blueprint('shipper_admin_bp', __name__)
 @shipper_admin_bp.route('/infomation', methods=['GET'])
 def get_shippers():
     status_filter = request.args.get('status')
-    raw_shippers = get_all_shippers_service()
+    branch_id = request.args.get('branch_id')
+    raw_shippers = get_all_shippers_service(branch_id)
 
     shipper_list = []
     for s in raw_shippers:

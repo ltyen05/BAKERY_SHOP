@@ -31,6 +31,8 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
     shipper = Shipper.query.filter_by(branch_id=branch_id, status="Đang hoạt động").first()
     if shipper:
         shipper.status = "Bận"
+    elif not shipper:
+        return {"message": "Không có shipper nào đang sẵn sàng!"}, 400
 
     try:
         new_order = Order(

@@ -23,6 +23,7 @@ def get_top_3_products_service():
             "price": float(product.unit_price),
             "total_sold": int(total),
             "image": product.image_url,
+            "rating": get_rating_star_service(product.product_id)
         })
 
     return top_3

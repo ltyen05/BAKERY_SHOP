@@ -124,9 +124,5 @@ function Product({
     </div>
   );
 }
-<<<<<<< HEAD
-export default Product;
-=======
 
 export default Product;
->>>>>>> frontend-user

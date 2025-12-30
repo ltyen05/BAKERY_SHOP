@@ -19,7 +19,8 @@ def add_shipper_service(data):
         name=data.get('name'),
         phone=data.get('phone'),
         email=data.get('email'),
-        branch_id=data.get('branch_id')
+        salary = data.get('salary'),
+        branch_id=data.get('branch_id'),
     )
     new_shipper.status = data.get('status', 'active')
     new_shipper.password = new_shipper.set_password(data.get('password'))

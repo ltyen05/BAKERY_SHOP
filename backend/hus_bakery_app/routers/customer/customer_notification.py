@@ -4,7 +4,8 @@ import json
 from hus_bakery_app.services.customer.notification_services import (
     check_pending_reviews_for_customer,
     mark_customer_notification_read,
-    get_new_success_order_notification
+    get_new_success_order_notification,
+    get_all_success_order_notifications
 )
 
 customer_noti_bp = Blueprint("customer_noti", __name__)
@@ -56,3 +57,22 @@ def check_latest_success():
         "message": "Không có đơn hàng mới hoàn thành"
     }), 200
 
+@customer_noti_bp.route('/all_notifications/<int:customer_id>', methods=['GET'])
+def get_notifications(customer_id):
+    # 1. Gọi hàm xử lý logic đã viết
+    notifications = get_all_success_order_notifications(customer_id)
+
+    # 2. Kiểm tra nếu không có thông báo nào
+    if not notifications:
+        return jsonify({
+            "status": "success",
+            "message": "Không có thông báo mới",
+            "data": []
+        }), 200
+
+    # 3. Trả về danh sách thông báo dưới dạng JSON
+    return jsonify({
+        "status": "success",
+        "total": len(notifications),
+        "data": notifications
+    }), 200

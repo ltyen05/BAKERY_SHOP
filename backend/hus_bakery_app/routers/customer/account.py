@@ -1,37 +1,13 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-<<<<<<< HEAD
-from hus_bakery_app.services.customer.account_services import (
-    update_profile,
-    change_password,
-    update_avatar,
-    total_amount_of_customer,
-    get_customer_rank_service,
-    get_order_history_service,
-    get_virtual_notifications,
-    get_latest_active_order_id
-)
-=======
 from hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, \
     total_amount_of_customer, get_customer_rank_service, get_order_history_service, get_latest_active_order_id
->>>>>>> backend
 from hus_bakery_app.models.customer import Customer
 import json
 from hus_bakery_app.services.customer.order_services import get_order_detail_service
 
 account_bp = Blueprint("account", __name__)
 
-@account_bp.route("/total_amount_spent", methods=["POST"])
-@jwt_required()
-def total_amount():
-    identity_str = get_jwt_identity()
-    identity = json.loads(identity_str)
-    current_user_id = identity["id"]
-    total_amount = total_amount_of_customer(current_user_id)
-    return jsonify({
-        "customer_id": current_user_id,
-        "total_amount": total_amount
-    }), 200
 
 @account_bp.route("/rank", methods=["GET"])
 @jwt_required()
@@ -70,6 +46,7 @@ def profile_api():
             "name": user.name,
             "email": user.email,
             "phone": user.phone,
+            "address": user.address,
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
@@ -104,7 +81,6 @@ def update_avatar_api():
 @jwt_required()
 def change_password_api():
     identity = get_jwt_identity()
-    identity = json.loads(identity)
     current_user_id = identity["id"]
 
     data = request.json
@@ -135,26 +111,6 @@ def history_api():
         "data": data
     }), 200
 
-@account_bp.route("/notifications", methods=["GET"])
-@jwt_required()
-def api_notifications():
-    # Lấy ID user từ token
-    identity_str = get_jwt_identity()
-    try:
-        identity = json.loads(identity_str)
-        current_user_id = identity["id"]
-    except:
-        current_user_id = identity_str
-
-    # Gọi service tính toán thông báo
-    data = get_virtual_notifications(current_user_id)
-
-    return jsonify({
-        "status": "success",
-        "count": len(data),
-        "data": data
-    }), 200
-
 
 @account_bp.route("/current-active-order", methods=["GET"])
 @jwt_required()
@@ -163,15 +119,17 @@ def api_get_current_order():
     customer_id = identity["id"]
 
     # Bước 1: Tìm ID đơn hàng active mới nhất
-    order_id = get_latest_active_order_id(customer_id)
-
-    if not order_id:
-        return jsonify({"message": "Bạn không có đơn hàng nào đang xử lý"}), 404
-
-    # Bước 2: Lấy chi tiết qua service
-    order_detail, error = get_order_detail_service(order_id)
+    orders, error = get_latest_active_order_id(customer_id)
 
     if error:
-        return jsonify({"message": error}), 400
+        return jsonify({"message": error}), 500
 
-    return jsonify(order_detail), 200
+    result = [
+        {
+            "order_id": order_id,
+            "status": status
+        }
+        for order_id, status in orders
+    ]
+
+    return jsonify(result), 200

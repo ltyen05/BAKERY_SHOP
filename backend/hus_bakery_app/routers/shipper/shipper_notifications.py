@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.shipper.order_notifications import check_new_order_for_shipper
+from hus_bakery_app.services.shipper.order_notifications_services import check_new_order_for_shipper, get_current_order
 from hus_bakery_app.models.shipper_notificationss import ShipperNotification
 from hus_bakery_app.services.shipper.update_status_order import update_status_order
 from hus_bakery_app import db
@@ -23,14 +23,14 @@ def check_notification():
     if noti:
         # Nhờ liên kết bảng, noti.order sẽ truy cập thẳng vào bảng orders
         return jsonify({
-            "has_new": True,
-            "noti_id": noti.id,
+            "is_read": False,
+            "id": noti.id,
             "order_id": noti.order_id,
-            "note": noti.order.note,  # Cột note bạn đã chuyển sang bảng orders
+            "note": noti.order.note,
             "address": noti.order.shipping_address
         }), 200
 
-    return jsonify({"has_new": False}), 200
+    return jsonify({"is_read": True}), 200
 
 
 @shipper_notifications_bp.route("/mark-read/<int:noti_id>", methods=["POST"])
@@ -59,8 +59,6 @@ def update_order_status():
         return jsonify({"success": True, "message": message}), 200
     else:
         return jsonify({"success": False, "message": message}), 500
-<<<<<<< HEAD:backend/hus_bakery_app/routers/shipper/notifications.py
-=======
 
 
 @shipper_notifications_bp.route("/current-order", methods=["GET"])
@@ -82,4 +80,3 @@ def current_order():
     }
 
     return jsonify(result), 200
->>>>>>> backend:backend/hus_bakery_app/routers/shipper/shipper_notifications.py

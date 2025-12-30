@@ -38,20 +38,22 @@ def delete_order(order_id):
 
 
 def get_all_orders_service():
-    results = db.session.query(Order, Customer.name).join(
+    # Thêm Customer.customer_id vào query
+    results = db.session.query(Order, Customer.name, Customer.customer_id).join(
         Customer, Order.customer_id == Customer.customer_id
     ).order_by(desc(Order.created_at)).all()
 
     orders_list = []
-    for order, customer_id in results:
+    for order, customer_name, customer_id in results:
         orders_list.append({
             "order_id": order.order_id,
             "customer_id": customer_id,
+            "customer_name": customer_name,
             "total_amount": float(order.total_amount),
             "order_address": order.shipping_address,
             "created_at": order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             "shipper_id": order.shipper_id,
-            "branch":order.branch_id,
+            "branch": order.branch_id,
             "status": getattr(order, 'status', 'Pending'),
         })
     return orders_list

@@ -1,0 +1,8 @@
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.info-value {
+  text-align: end;
+}

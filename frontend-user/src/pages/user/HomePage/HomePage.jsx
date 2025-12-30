@@ -1,5 +1,5 @@
 import { Row, Col, Button } from "antd";
-import Product from "../components/Product/Product";
+import Product from "../../../components/Product/Product";
 import { Link } from "react-router-dom";
 import "./homePage.css";
 import { useEffect, useState } from "react";
@@ -8,18 +8,22 @@ import {
   HeartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import chef from "../assets/chef.svg";
-import award from "../assets/award.svg";
-import homePage from "../assets/HomePage.png";
-import { useOrder } from "../context/OrderContext";
+import chef from "../../../assets/chef.svg";
+import award from "../../../assets/award.svg";
+import homePage from "../../../assets/HomePage.png";
+import { useOrder } from "../../../context/OrderContext";
+import { useAuth } from "../../../context/AuthContext";
+
 function HomePage() {
   const [topProducts, setTopProducts] = useState([]);
-  const { setProductInCart } = useOrder();
+  const { user } = useAuth();
+  const { addToCart, addingToCart } = useOrder(); // ⭐ Dùng addToCart từ context
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/product/top-selling"
+          "http://localhost:5000/api/product/top-selling"
         );
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -34,6 +38,7 @@ function HomePage() {
 
     fetchData();
   }, []);
+
   useEffect(() => {
     if (!topProducts.length) return;
 
@@ -54,16 +59,30 @@ function HomePage() {
 
     return () => observer.disconnect();
   }, [topProducts]);
+
+  // ⭐ Handler mới sử dụng addToCart từ context
+  const handleAddToCart = async (product) => {
+    // Kiểm tra user
+    if (!user) {
+      alert("Bạn cần đăng nhập.");
+      return;
+    }
+
+    if (user.role !== "customer") {
+      alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
+
+    try {
+      await addToCart(product, 1);
+      console.log(`Đã thêm "${product.name}" vào giỏ hàng!`);
+    } catch (err) {
+      console.log(err.message || "Không thể thêm vào giỏ hàng");
+    }
+  };
+
   return (
     <div className="mb-6">
-      {/* <h1>Welcome to the Home Page</h1>
-      <p>This is the main landing page of the application.</p>
-      {user ? (
-        <h2 className="text-2xl">Chào mừng, {user}!</h2>
-      ) : (
-        <p className="text-gray-600">Bạn chưa đăng nhập.</p>
-      )} */}
-
       <div className="cham mb-24"></div>
       <div className="mb-6">
         <Row>
@@ -75,32 +94,17 @@ function HomePage() {
           <Row align="top" justify="center">
             {topProducts.map((item) => (
               <Col
-                className="animate-on-scroll fade-up "
+                className="animate-on-scroll fade-up"
                 style={{ transitionDelay: "0.05s" }}
                 key={item?.product_id}
               >
                 <Product
-                  product_id={item?.product_id} // DB trả về 'id' -> truyền vào prop 'productId'
-                  productName={item?.name} // DB trả về 'name' -> truyền vào prop 'productName'
-                  price={item?.price} // DB trả về 'price'
+                  product_id={item?.product_id}
+                  product_name={item?.name}
+                  price={item?.price}
                   image={item?.image}
-                  onAddToCart={(product) =>
-                    setProductInCart((prev) => {
-                      console.log("ADD TO CART:", product);
-                      const existingProduct = prev.find(
-                        (p) => p.product_id === product.product_id
-                      );
-                      if (existingProduct) {
-                        return prev.map((p) =>
-                          p.product_id === product.product_id
-                            ? { ...p, quantity: p.quantity + 1 }
-                            : p
-                        );
-                      } else {
-                        return [...prev, { ...product, quantity: 1 }];
-                      }
-                    })
-                  } // DB trả về 'image_url' -> truyền vào prop 'image'
+                  onAddToCart={handleAddToCart} // ⭐ Truyền handler mới
+                  isAddingToCart={addingToCart} // ⭐ Truyền loading state
                 />
               </Col>
             ))}
@@ -120,8 +124,8 @@ function HomePage() {
           </Button>
         </Link>
       </div>
+      {/* //       {/* -------------------------------------------------------------------------------------- */}
 
-      {/* -------------------------------------------------------------------------------------- */}
       <div
         className="center-box mt-18 "
         style={{ width: "93%", maxWidth: "1430px" }}
@@ -332,5 +336,4 @@ function HomePage() {
     </div>
   );
 }
-
 export default HomePage;

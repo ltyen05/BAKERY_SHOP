@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from hus_bakery_app.services.admin.dashboard_services import (
-    total_order_of_moth,
+    total_order_of_month,
     total_amount_of_month,
     total_customer_of_month,
     total_product_of_month,

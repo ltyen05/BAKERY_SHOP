@@ -90,13 +90,24 @@ def get_all_notifications():
         identity = json.loads(get_jwt_identity())
         shipper_id = identity["id"]
 
-        notifications = get_all_notifications_service(shipper_id)
+        # 1. Lấy số trang từ URL (mặc định là trang 1)
+        page = request.args.get('page', default=1, type=int)
+        per_page = 10
 
+        # 2. Gọi service với tham số phân trang
+        data = get_all_notifications_service(shipper_id, page, per_page)
+
+        # 3. Trả về kết quả kèm thông tin phân trang
         return jsonify({
             "success": True,
-            "count": len(notifications),
-            "notifications": notifications
+            "current_page": data["current_page"],
+            "total_pages": data["pages"],
+            "total_notifications": data["total"],
+            "notifications": data["notifications"] # Đây là mảng 10 phần tử
         }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
     except Exception as e:
         return jsonify({

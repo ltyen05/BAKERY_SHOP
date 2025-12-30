@@ -19,12 +19,13 @@ def get_all_products_admin_service():
 def add_product_service(data):
     new_product = Product(
         name=data.get('name'),
-        unit_price=data.get('unit_price'),
+        unit_price=data.get('price') or data.get('unit_price'),
         description=data.get('description'),
-        category_id=data.get('category_id'),
+        category_id=data.get('category') or data.get('category_id'),
+        image_url=data.get('image') or data.get('image_url')
     )
     db.session.add(new_product)
-    db.session.commit() # Lưu vào database
+    db.session.commit()
     return new_product
 
 
@@ -34,9 +35,10 @@ def edit_product_service(product_id, data):
         return None
 
     product.name = data.get('name', product.name)
-    product.price = data.get('price', product.unit_price)
+    product.unit_price = data.get('unit_price', product.unit_price)
     product.description = data.get('description', product.description)
     product.image_url = data.get('image', product.image_url)
+    product.category_id = data.get('category', product.category_id)
 
     db.session.commit()
     return product

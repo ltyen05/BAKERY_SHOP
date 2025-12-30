@@ -1,5 +1,7 @@
 from hus_bakery_app import db
 from hus_bakery_app.models.customer_notifications import CustomerNotification
+from hus_bakery_app.models.order import Order
+from hus_bakery_app.models.order_status import OrderStatus
 from sqlalchemy import desc
 
 def check_pending_reviews_for_customer(customer_id):
@@ -19,7 +21,6 @@ def check_pending_reviews_for_customer(customer_id):
             "id": noti.id,
             "order_id": noti.order_id,
             "message": "Bạn có đơn hàng chưa đánh giá, hãy chia sẻ cảm nhận nhé! ⭐",
-            # Giữ nguyên đối tượng datetime, không dùng .strftime()
             "created_at": noti.created_at,
             "note": noti.order.note if noti.order else "",
             "is_read": False
@@ -37,3 +38,9 @@ def mark_customer_notification_read(order_id):
         db.session.commit()
         return True
     return False
+
+def get_new_success_order(customer_id):
+    res = Order.query.get(Order, Order.order_id).join(OrderStatus, Order.order_id == OrderStatus.order_id).order_by(desc(OrderStatus.updated_at)).first()
+
+    if res.status == "Đã giao":
+

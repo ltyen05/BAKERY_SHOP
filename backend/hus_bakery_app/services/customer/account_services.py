@@ -4,12 +4,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from hus_bakery_app import db
+from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.shipper import Shipper
+from hus_bakery_app.services.customer.product_services import get_rating_star_service
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
@@ -94,7 +96,7 @@ def change_password(role, id, old_pass, new_pass, confirm_pass):
     if new_pass != confirm_pass:
         return False, "Mật khẩu xác nhận không khớp"
 
-    user.password_hash = generate_password_hash(new_pass)
+    user.password= generate_password_hash(new_pass)
     db.session.commit()
     return True, "Đổi mật khẩu thành công"
 
@@ -180,3 +182,39 @@ def get_latest_active_order_id(customer_id):
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Lỗi hệ thống"
+
+def get_product_was_bought(customer_id):
+    products = db.session.query(Product) \
+        .join(Order, Product.product_id == Order.product_id) \
+        .filter(Order.customer_id == customer_id) \
+        .distinct().all()
+
+    res = []
+    for p in products:
+        product = Product.query.get(id[0])
+        details = {
+            "product_id": product.product_id,
+            "name": product.name,
+            "price": float(product.unit_price),
+            "category_name": product.category_name,
+            "image": product.image_url,
+            "rating": get_rating_star_service(product.product_id)
+        }
+        res.append(details)
+
+    return res
+
+def get_branch_detail(branch_id):
+    branch = Branch.query.get(branch_id)
+    details = {
+        "id": branch.branch_id,
+        "name": branch.branch_name,
+        "address": branch.address,
+        "phone": branch.phone,
+        "email" : branch.email,
+        "manager_id" : branch.manager_id,
+        "mapSrc": branch.map_src,
+        "lat": branch.lat,
+        "lon": branch.lon,
+    }
+    return details

@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.customer.account_services import update_profile, change_password, update_avatar, \
-    total_amount_of_customer, get_customer_rank_service, get_order_history_service, get_latest_active_order_id
+    total_amount_of_customer, get_customer_rank_service, get_order_history_service, get_latest_active_order_id, \
+    get_product_was_bought, get_branch_detail
 from hus_bakery_app.models.customer import Customer
 import json
 from hus_bakery_app.services.customer.order_services import get_order_detail_service
@@ -135,3 +136,47 @@ def api_get_current_order():
     ]
 
     return jsonify(result), 200
+
+@account_bp.route("/bought_products", methods=["GET"])
+@jwt_required()
+def api_get_bought_products():
+    try:
+        identity_data = get_jwt_identity()
+        if isinstance(identity_data, str):
+            identity = json.loads(identity_data)
+        else:
+            identity = identity_data
+
+        customer_id = identity.get("customer_id")
+
+        if not customer_id:
+            return jsonify({"message": "Không tìm thấy ID khách hàng trong token"}), 400
+
+        products = get_product_was_bought(customer_id)
+
+        return jsonify({
+            "status": "success",
+            "total": len(products),
+            "data": products
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Đã xảy ra lỗi: {str(e)}"
+        }), 500
+
+@account_bp.route("/branch_detail/<int:branch_id>", methods=["GET"])
+def api_get_branch_info(branch_id):
+    if not branch_id:
+        return jsonify({
+            "status": "error",
+            "message": "Không tìm thấy chi nhánh"
+        }), 404
+
+    details = get_branch_detail(branch_id)
+
+    return jsonify({
+        "status": "success",
+        "branch_details": details
+    }), 200

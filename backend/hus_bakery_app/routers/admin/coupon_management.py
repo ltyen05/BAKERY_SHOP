@@ -18,10 +18,17 @@ def get_coupons():
 
         coupon_list.append({
             'coupon_id': c.coupon_id,
+            "description": c.description,
+            "discount_percent": c.discount_percent,
             'discount_value': float(c.discount_value) if c.discount_value else 0,
+            'discount_type' : c.get('discount_type'),
+            'min_purchase': c.get('min_purchase'),
+            'max_discount': c.get('max_discount'),
             'begin_date': c.begin_date.strftime('%Y-%m-%d') if c.begin_date else None,
             'end_date': c.end_date.strftime('%Y-%m-%d') if c.end_date else None,
             'status': c.status,
+            'used_count': c.used_count,
+            'created_at': c.created_at,
         })
 
     return jsonify(coupon_list), 200

@@ -1,391 +1,415 @@
-import React, { useMemo, useState } from 'react';
-import { 
-  FiEdit2, FiTrash2, FiPlus, FiDownload, FiChevronUp, FiChevronDown, 
-  FiSearch, FiUsers, FiCheckCircle, FiXCircle 
-} from 'react-icons/fi';
-import AddEmployeeModal from './AddEmployeeModal';
-import EditEmployeeModal from './EditEmployeeModal';
+// ===============================================
+// src/pages/Employee/Employee.jsx - SYNCED WITH CUSTOMER
+// ===============================================
+import React, { useState } from 'react';
+import { Tag, Space, Button, Tooltip, Modal } from 'antd';
+import { FiSearch, FiDownload, FiPlus, FiUser, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import StatsCard from '../../components/StatsCard/StatsCard';
+import DataTable from '../../components/Table/Table';
+import FormModal from '../../components/FormModal/FormModal';
+import { useEmployee } from './useEmployee';
+import { 
+  ROLE_TABS, 
+  EMPLOYEE_FIELDS, 
+  EMPLOYEE_EDIT_FIELDS,
+  STATS_CONFIG,
+  formatCurrency,
+  getRoleColor,
+  getBranchName,
+  getInitials
+} from './employeeConstants';
 import './Employee.css';
 
-// Generate more sample data
-const generateEmployees = () => {
-  const roles = ['CSKH', 'Tiếp tân', 'Đầu bếp'];
-  const firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Đặng', 'Bùi', 'Đỗ'];
-  const middleNames = ['Văn', 'Thị', 'Hồng', 'Minh', 'Thu', 'Đức', 'Quốc', 'Anh'];
-  const lastNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
-  
-  const employees = [
-    { id: 231, name: 'Phan Diệu Lê', role: 'CSKH', phone: '0123456789', email: 'example@hus.edu.vn', status: 'Active' },
-    { id: 232, name: 'Nguyễn Văn A', role: 'Tiếp tân', phone: '0987654321', email: 'a@hus.edu.vn', status: 'Inactive' },
-    { id: 233, name: 'Trần Văn B', role: 'Đầu bếp', phone: '0911222333', email: 'b@hus.edu.vn', status: 'Active' },
-    { id: 234, name: 'Nguyễn Văn C', role: 'CSKH', phone: '0123456789', email: 'c@hus.edu.vn', status: 'Active' },
-    { id: 235, name: 'Trần Văn D', role: 'Tiếp tân', phone: '0987654321', email: 'd@hus.edu.vn', status: 'Inactive' },
-    { id: 236, name: 'Nguyễn Văn E', role: 'Đầu bếp', phone: '0911222333', email: 'e@hus.edu.vn', status: 'Active' },
-  ];
+const { confirm } = Modal;
 
-  // Add more employees for pagination demo
-  for (let i = 7; i <= 25; i++) {
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const middleName = middleNames[Math.floor(Math.random() * middleNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-    const name = `${firstName} ${middleName} ${lastName}`;
-    const role = roles[Math.floor(Math.random() * roles.length)];
-    const status = Math.random() > 0.3 ? 'Active' : 'Inactive';
-    const letter = String.fromCharCode(96 + i);
+const Employee = () => {
+  const {
+    // Data
+    filteredEmployees,
+    stats,
     
-    employees.push({
-      id: 230 + i,
-      name,
-      role,
-      phone: `09${Math.floor(Math.random() * 100000000)}`.slice(0, 10),
-      email: `${letter}@hus.edu.vn`,
-      status
-    });
-  }
-  
-  return employees;
-};
-
-const ROLE_TABS = ['Tất cả', 'CSKH', 'Tiếp tân', 'Đầu bếp'];
-
-export default function Employee() {
-  const [employees, setEmployees] = useState(generateEmployees());
-  const [activeRole, setActiveRole] = useState('Tất cả');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const rowsPerPage = 10;
-
-  // Modal state
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState(null);
-
-  // Stats
-  const stats = useMemo(() => {
-    const total = employees.length;
-    const active = employees.filter(e => e.status === 'Active').length;
-    const inactive = total - active;
-    return { total, active, inactive };
-  }, [employees]);
-
-  // Filtered data
-  const filteredEmployees = useMemo(() => {
-    return employees.filter(emp => {
-      const matchRole = activeRole === 'Tất cả' || emp.role === activeRole;
-      const matchStatus = statusFilter === 'all' || emp.status === statusFilter;
-      const matchSearch = searchQuery === '' ||
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.phone.includes(searchQuery);
-      
-      return matchRole && matchStatus && matchSearch;
-    });
-  }, [employees, activeRole, statusFilter, searchQuery]);
-
-  // Sort
-  const sortedEmployees = useMemo(() => {
-    if (!sortConfig.key) return filteredEmployees;
+    // State
+    loading,
+    activeRole,
+    statusFilter,
+    searchQuery,
+    currentPage,
     
-    return [...filteredEmployees].sort((a, b) => {
-      const aVal = a[sortConfig.key];
-      const bVal = b[sortConfig.key];
-      
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredEmployees, sortConfig]);
+    // CRUD
+    addEmployee,
+    updateEmployee,
+    deleteEmployee,
+    
+    // Helpers
+    roleCount,
+    getHeaderTitle,
+    getHeaderSubtitle,
+    
+    // Handlers
+    setCurrentPage,
+    handleRoleChange,
+    handleStatusChange,
+    handleSearchChange,
+    
+    // Auth
+    isSuperAdmin,
+    isBranchAdmin,
+    currentBranchId
+  } = useEmployee();
 
-  // Pagination
-  const totalPages = Math.ceil(sortedEmployees.length / rowsPerPage);
-  const paginatedEmployees = sortedEmployees.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+  // ============= MODAL STATE =============
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  const roleCount = role =>
-    role === 'Tất cả'
-      ? employees.length
-      : employees.filter(e => e.role === role).length;
-
-  const handlePageChange = (page) => {
-    if(page < 1 || page > totalPages) return;
-    setCurrentPage(page);
+  // ============= MODAL HANDLERS =============
+  const handleAddClick = () => {
+    setModalMode('add');
+    setSelectedEmployee(null);
+    setIsModalOpen(true);
   };
 
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
+  const handleEditClick = (employee) => {
+    setModalMode('edit');
+    setSelectedEmployee(employee);
+    setIsModalOpen(true);
   };
 
-  // Add employee
-  const handleAddEmployee = (newEmp) => {
-    const maxId = employees.reduce((max, e) => Math.max(max, e.id), 0);
-    setEmployees(prev => [...prev, { ...newEmp, id: maxId + 1, status: 'Active' }]);
-    setIsAddModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEmployee(null);
   };
 
-  // Edit employee
-  const handleEditClick = (emp) => {
-    setEditingEmployee(emp);
-    setIsEditModalOpen(true);
-  };
-
-  const handleSaveEmployee = (updatedEmp) => {
-    setEmployees(prev => prev.map(e => e.id === updatedEmp.id ? updatedEmp : e));
-    setIsEditModalOpen(false);
-  };
-
-  // Delete employee
-  const handleDelete = (id) => {
-    if(window.confirm('Bạn có chắc muốn xóa nhân viên này?')) {
-      setEmployees(prev => prev.filter(e => e.id !== id));
+  const handleSaveEmployee = async (employeeData) => {
+    let result;
+    
+    if (modalMode === 'add') {
+      result = await addEmployee(employeeData);
+    } else {
+      const employeeId = selectedEmployee.employee_id || selectedEmployee.id;
+      console.log('📝 Editing employee ID:', employeeId, 'Data:', selectedEmployee);
+      result = await updateEmployee(employeeId, employeeData);
+    }
+    
+    if (result?.success) {
+      handleCloseModal();
     }
   };
 
-  // Export CSV
-  const handleExportCSV = () => {
-    const headers = ['ID', 'Họ và tên', 'Vai trò', 'Số điện thoại', 'Email', 'Trạng thái'];
-    const csvContent = [
+  // ============= DELETE HANDLER =============
+  const handleDelete = (employee) => {
+    confirm({
+      title: 'Xác nhận xóa nhân viên',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa nhân viên "${employee.name}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteEmployee(employee.employee_id, employee.name);
+      }
+    });
+  };
+
+  // ============= FIELDS CONFIG =============
+  const getFormFields = () => {
+    const baseFields = modalMode === 'edit' ? EMPLOYEE_EDIT_FIELDS : EMPLOYEE_FIELDS;
+    
+    return baseFields.map(field => {
+      // Nếu là Branch Admin, disable và set default branch_id
+      if (field.name === 'branch_id' && isBranchAdmin) {
+        return {
+          ...field,
+          defaultValue: currentBranchId?.toString() || '1',
+          disabled: true
+        };
+      }
+      
+      // Nếu đang xem 1 chi nhánh cụ thể, set default đó
+      if (field.name === 'branch_id' && currentBranchId) {
+        return {
+          ...field,
+          defaultValue: currentBranchId.toString()
+        };
+      }
+      
+      return field;
+    });
+  };
+
+  // ============= EXPORT HANDLER =============
+  const handleExport = () => {
+    if (filteredEmployees.length === 0) return;
+    
+    const headers = ['ID', 'Tên', 'Email', 'Vai trò', 'Lương', 'Chi nhánh', 'Trạng thái'];
+    const rows = filteredEmployees.map(emp => [
+      emp.employee_id,
+      emp.name,
+      emp.email,
+      emp.role,
+      emp.salary,
+      getBranchName(emp.branch_id),
+      emp.status
+    ]);
+    
+    const csv = [
       headers.join(','),
-      ...filteredEmployees.map(emp => 
-        [emp.id, emp.name, emp.role, emp.phone, emp.email, emp.status].join(',')
-      )
+      ...rows.map(row => row.join(','))
     ].join('\n');
     
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'employees.csv';
+    link.download = `employees_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
 
-  // Get initials for avatar
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  // ============= TABLE COLUMNS =============
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'employee_id',
+      key: 'employee_id',
+      width: 80,
+      align: 'center',
+      fixed: 'left',
+      render: (id) => (
+        <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
+          {id}
+        </span>
+      )
+    },
+    {
+      title: 'Nhân viên',
+      key: 'employee',
+      width: 220,
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: '#FFBD71',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#5D0C0C',
+              fontWeight: '600',
+              fontSize: '14px'
+            }}
+          >
+            {getInitials(record.name)}
+          </div>
+          <div>
+            <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
+              {record.name}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      width: 220,
+      render: (email) => (
+        <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
+      )
+    },
+    {
+      title: 'Vai trò',
+      dataIndex: 'role',
+      key: 'role',
+      width: 150,
+      align: 'center',
+      render: (role) => (
+        <Tag color={getRoleColor(role)} style={{ fontWeight: '600', fontSize: '13px' }}>
+          {role}
+        </Tag>
+      )
+    },
+    {
+      title: 'Lương',
+      dataIndex: 'salary',
+      key: 'salary',
+      width: 150,
+      align: 'right',
+      render: (salary) => (
+        <span style={{ fontWeight: '600', color: '#059669', fontSize: '14px' }}>
+          {formatCurrency(salary)}
+        </span>
+      )
+    },
+    {
+      title: 'Chi nhánh',
+      dataIndex: 'branch_id',
+      key: 'branch_id',
+      width: 200,
+      render: (branchId) => (
+        <span style={{ color: '#64748b', fontSize: '13px' }}>
+          {getBranchName(branchId)}
+        </span>
+      )
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 140,
+      align: 'center',
+      render: (status) => (
+        <Tag color={status === 'Đang làm việc' ? 'success' : 'default'}>
+          {status}
+        </Tag>
+      )
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      width: 120,
+      align: 'center',
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="Chỉnh sửa">
+            <Button
+              type="text"
+              icon={<FiEdit2 />}
+              onClick={() => handleEditClick(record)}
+              style={{ color: '#3b82f6' }}
+            />
+          </Tooltip>
+          <Tooltip title="Xóa">
+            <Button
+              type="text"
+              icon={<FiTrash2 />}
+              onClick={() => handleDelete(record)}
+              danger
+            />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
+
+  // ============= PAGINATION CONFIG =============
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredEmployees.length,
+    showSizeChanger: false
   };
 
-  // Get sort icon
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? <FiChevronUp /> : <FiChevronDown />;
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
   };
 
+  // ============= RENDER =============
   return (
     <div className="employee-container">
-      {/* Header */}
+      {/* HEADER */}
       <div className="employee-header">
-        <div>
-          <h2 className="employee-title">Employee Overview</h2>
-          <p className="employee-subtitle">Nhân viên – Chi nhánh đang chọn</p>
-        </div>
+        <h1 className="employee-title">{getHeaderTitle()}</h1>
+        <p className="employee-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
-      {/* Stats Cards - UPDATED TO USE STATSCARD COMPONENT */}
+      {/* STATS CARDS */}
       <div className="stats-grid">
-        <StatsCard 
-          title="TỔNG NHÂN VIÊN"
-          value={stats.total.toString()}
-          change={0}
-          period=""
-          color="purple"
-          icon={<FiUsers />}
-        />
-        
-        <StatsCard 
-          title="HOẠT ĐỘNG"
-          value={stats.active.toString()}
-          change={0}
-          period=""
-          color="green"
-          icon={<FiCheckCircle />}
-        />
-        
-        <StatsCard 
-          title="INACTIVE"
-          value={stats.inactive.toString()}
-          change={0}
-          period=""
-          color="blue"
-          icon={<FiXCircle />}
-        />
+        {STATS_CONFIG.map(stat => (
+          <StatsCard
+            key={stat.key}
+            title={stat.title}
+            value={stats[stat.key]}
+            icon={stat.icon}
+            color={stat.color}
+            trend={null}
+          />
+        ))}
       </div>
 
-      {/* Tabs + Actions Bar */}
+      {/* TABS + ACTIONS  */}
       <div className="tabs-action-bar">
+        {/* Role Tabs */}
         <div className="role-tabs">
-          {ROLE_TABS.map(role => (
+          {ROLE_TABS.map(tab => (
             <div
-              key={role}
-              className={`role-tab ${activeRole === role ? 'active' : ''}`}
-              onClick={() => { setActiveRole(role); setCurrentPage(1); }}
+              key={tab.id}
+              className={`role-tab ${activeRole === tab.id ? 'active' : ''}`}
+              onClick={() => handleRoleChange(tab.id)}
             >
-              {role} <span className="tab-count">({roleCount(role)})</span>
+              {tab.label} <span className="tab-count">({roleCount(tab.id)})</span>
             </div>
           ))}
         </div>
-        
+
+        {/* Right Actions */}
         <div className="right-actions">
-          {/* SEARCH BOX - ADDED */}
+          {/* Search */}
           <div className="search-box">
             <FiSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Tìm nhân viên..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="search-input"
+              placeholder="Tìm theo tên, email, ID..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-            className="status-select"
+          {/* Export Button */}
+          <button
+            className="export-btn"
+            onClick={handleExport}
+            disabled={filteredEmployees.length === 0 || loading}
           >
-            <option value="all">Tất cả</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-
-          <button className="export-btn" onClick={handleExportCSV}>
             <FiDownload />
             Export
           </button>
 
-          <button className="add-btn" onClick={() => setIsAddModalOpen(true)}>
+          {/* Add Button  */}
+          <button
+            className="add-customer-btn"
+            onClick={handleAddClick}
+            disabled={loading}
+          >
             <FiPlus />
             Thêm nhân viên
           </button>
         </div>
       </div>
 
-      {/* Table Container with Scroll */}
-      <div className="table-container">
-        <table className="employee-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('id')} className="sortable">
-                <div className="th-content">
-                  EmployeeID {getSortIcon('id')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('name')} className="sortable">
-                <div className="th-content">
-                  Họ và tên {getSortIcon('name')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('role')} className="sortable">
-                <div className="th-content">
-                  Vai trò {getSortIcon('role')}
-                </div>
-              </th>
-              <th>Số điện thoại</th>
-              <th>Email</th>
-              <th onClick={() => handleSort('status')} className="sortable">
-                <div className="th-content">
-                  Trạng thái {getSortIcon('status')}
-                </div>
-              </th>
-              <th className="action-col">Edit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedEmployees.map(emp => (
-              <tr key={emp.id}>
-                <td>{emp.id}</td>
-                <td>
-                  <div className="name-cell">
-                    <div className="avatar">{getInitials(emp.name)}</div>
-                    <span>{emp.name}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className="role-badge">{emp.role}</span>
-                </td>
-                <td>{emp.phone}</td>
-                <td>{emp.email}</td>
-                <td>
-                  <span className={`status ${emp.status.toLowerCase()}`}>
-                    {emp.status}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button className="icon-btn edit" onClick={() => handleEditClick(emp)} title="Chỉnh sửa">
-                      <FiEdit2 />
-                    </button>
-                    <button className="icon-btn delete" onClick={() => handleDelete(emp.id)} title="Xóa">
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Prev
-          </button>
-          
-          {Array.from({length: totalPages}, (_, i) => i + 1).map(page => {
-            if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                >
-                  {page}
-                </button>
-              );
-            } else if (page === currentPage - 2 || page === currentPage + 2) {
-              return <span key={page} className="pagination-ellipsis">...</span>;
-            }
-            return null;
-          })}
-          
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
-          
-          <span className="pagination-info">
-            Trang {currentPage} / {totalPages} • {sortedEmployees.length} kết quả
-          </span>
-        </div>
-      )}
-
-      {/* Modals */}
-      <AddEmployeeModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddEmployee}
+      {/* DATA TABLE */}
+      <DataTable
+        columns={columns}
+        dataSource={filteredEmployees}
+        loading={loading}
+        pagination={paginationConfig}
+        onChange={handleTableChange}
+        rowKey="employee_id"
+        scroll={{ x: 1400 }}
+        emptyText="Không có nhân viên nào"
       />
 
-      <EditEmployeeModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        employee={editingEmployee}
-        onSave={handleSaveEmployee}
+      {/* FORM MODAL */}
+      <FormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveEmployee}
+        title={{
+          add: 'Thêm nhân viên mới',
+          addDesc: 'Điền thông tin nhân viên vào form bên dưới',
+          edit: 'Chỉnh sửa nhân viên',
+          editDesc: 'Cập nhật thông tin nhân viên'
+        }}
+        icon={FiUser}
+        data={selectedEmployee}
+        fields={getFormFields()}
       />
     </div>
   );
-}
+};
+
+export default Employee;

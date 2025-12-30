@@ -1,351 +1,417 @@
-import React, { useMemo, useState } from 'react';
+// ===============================================
+// Location: src/pages/Shipper/Shipper.jsx - FIXED EDIT MAPPING
+// ===============================================
+import React, { useState } from 'react';
+import { Tag, Space, Button, Tooltip, Modal } from 'antd';
+import { FiSearch, FiDownload, FiPlus, FiTruck, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import StatsCard from '../../components/StatsCard/StatsCard';
+import DataTable from '../../components/Table/Table';
+import FormModal from '../../components/FormModal/FormModal';
+import { useShipper } from './useShipper';
 import { 
-  FiEdit2, FiTrash2, FiPlus, FiDownload, FiChevronUp, FiChevronDown, 
-  FiSearch, FiTruck, FiCheckCircle, FiClock 
-} from 'react-icons/fi';
+  SHIPPER_FIELDS, 
+  SHIPPER_EDIT_FIELDS,
+  VEHICLE_TABS,
+  STATS_CONFIG,
+  getInitials,
+  getVehicleIcon,
+  getVehicleColor,
+  formatRating,
+  getBranchName
+} from './shipperConstants';
 import './Shipper.css';
-import AddShipperModal from './AddShipperModal';
-import EditShipperModal from './EditShipperModal';
 
-// Generate sample shipper data
-const generateShippers = () => {
-  const shippers = [
-    { id: 1, name: 'Nguyễn Văn Giao', shipperId: 'SH001', phone: '0901234567', email: 'giao1@bakery.com', vehicle: '29A-12345', vehicleType: 'Xe máy', status: 'Active', todayOrders: 8, totalOrders: 234 },
-    { id: 2, name: 'Trần Thị Hàng', shipperId: 'SH002', phone: '0912345678', email: 'hang2@bakery.com', vehicle: '30B-67890', vehicleType: 'Xe máy', status: 'Active', todayOrders: 12, totalOrders: 456 },
-    { id: 3, name: 'Lê Văn Chuyển', shipperId: 'SH003', phone: '0923456789', email: 'chuyen3@bakery.com', vehicle: '29C-11111', vehicleType: 'Ô tô', status: 'Busy', todayOrders: 5, totalOrders: 189 },
-    { id: 4, name: 'Phạm Minh Tốc', shipperId: 'SH004', phone: '0934567890', email: 'toc4@bakery.com', vehicle: '30D-22222', vehicleType: 'Xe máy', status: 'Inactive', todayOrders: 0, totalOrders: 567 },
-    { id: 5, name: 'Hoàng Thu Nhanh', shipperId: 'SH005', phone: '0945678901', email: 'nhanh5@bakery.com', vehicle: '29E-33333', vehicleType: 'Xe máy', status: 'Active', todayOrders: 9, totalOrders: 345 },
-    { id: 6, name: 'Vũ Đức Hỏa', shipperId: 'SH006', phone: '0956789012', email: 'hoa6@bakery.com', vehicle: '30F-44444', vehicleType: 'Ô tô', status: 'Active', todayOrders: 6, totalOrders: 278 },
-  ];
+const { confirm } = Modal;
 
-  return shippers;
-};
+const Shipper = () => {
+  const {
+    filteredShippers,
+    stats,
+    loading,
+    activeVehicle,
+    statusFilter,
+    searchQuery,
+    currentPage,
+    addShipper,
+    updateShipper,
+    deleteShipper,
+    vehicleCount,
+    getHeaderTitle,
+    getHeaderSubtitle,
+    setCurrentPage,
+    handleVehicleChange,
+    handleStatusChange,
+    handleSearchChange,
+    isSuperAdmin,
+    isBranchAdmin,
+    currentBranchId
+  } = useShipper();
 
-const VEHICLE_TABS = ['Tất cả', 'Xe máy', 'Ô tô'];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedShipper, setSelectedShipper] = useState(null);
 
-export default function Shipper() {
-  const [shippers, setShippers] = useState(generateShippers());
-  const [activeVehicle, setActiveVehicle] = useState('Tất cả');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const rowsPerPage = 10;
+  const handleAddClick = () => {
+    setModalMode('add');
+    setSelectedShipper(null);
+    setIsModalOpen(true);
+  };
 
-  // Stats
-  const stats = useMemo(() => {
-    const total = shippers.length;
-    const active = shippers.filter(s => s.status === 'Active').length;
-    const busy = shippers.filter(s => s.status === 'Busy').length;
-    const totalOrdersToday = shippers.reduce((sum, s) => sum + s.todayOrders, 0);
-    return { total, active, busy, totalOrdersToday };
-  }, [shippers]);
-
-  // Filtered data
-  const filteredShippers = useMemo(() => {
-    return shippers.filter(shipper => {
-      const matchVehicle = activeVehicle === 'Tất cả' || shipper.vehicleType === activeVehicle;
-      const matchStatus = statusFilter === 'all' || shipper.status === statusFilter;
-      const matchSearch = searchQuery === '' ||
-        shipper.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        shipper.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        shipper.phone.includes(searchQuery) ||
-        shipper.vehicle.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      return matchVehicle && matchStatus && matchSearch;
-    });
-  }, [shippers, activeVehicle, statusFilter, searchQuery]);
-
-  // Sort
-  const sortedShippers = useMemo(() => {
-    if (!sortConfig.key) return filteredShippers;
+  // ✅ FIX: Map data đúng field names cho form
+  const handleEditClick = (shipper) => {
+    setModalMode('edit');
     
-    return [...filteredShippers].sort((a, b) => {
-      const aVal = a[sortConfig.key];
-      const bVal = b[sortConfig.key];
-      
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredShippers, sortConfig]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedShippers.length / rowsPerPage);
-  const paginatedShippers = sortedShippers.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  const vehicleCount = vehicle =>
-    vehicle === 'Tất cả'
-      ? shippers.length
-      : shippers.filter(s => s.vehicleType === vehicle).length;
-
-  const handlePageChange = (page) => {
-    if(page < 1 || page > totalPages) return;
-    setCurrentPage(page);
+    // Map từ display data sang form data
+    const formData = {
+      shipper_id: shipper.shipper_id,
+      shipper_name: shipper.name,        // ✅ name → shipper_name
+      email: shipper.email,
+      phone: shipper.phone,
+      vehicle_type: shipper.vehicle_type,
+      status: shipper.status,
+      branch_id: shipper.branch_id,
+      rating: shipper.rating,
+      total_success: shipper.total_success
+    };
+    
+    setSelectedShipper(formData);
+    setIsModalOpen(true);
   };
 
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedShipper(null);
   };
 
-  // Delete shipper
-  const handleDelete = (id) => {
-    if(window.confirm('Bạn có chắc muốn xóa shipper này?')) {
-      setShippers(prev => prev.filter(s => s.id !== id));
+  const handleSaveShipper = async (shipperData) => {
+    let result;
+    
+    if (modalMode === 'add') {
+      result = await addShipper(shipperData);
+    } else {
+      const shipperId = selectedShipper.shipper_id || selectedShipper.id;
+      console.log('📝 Editing shipper ID:', shipperId, 'Data:', shipperData);
+      result = await updateShipper(shipperId, shipperData);
+    }
+    
+    if (result?.success) {
+      handleCloseModal();
     }
   };
 
-  // Export CSV
-  const handleExportCSV = () => {
-    const headers = ['ID', 'Họ và tên', 'Mã shipper', 'Số điện thoại', 'Email', 'Biển số xe', 'Loại xe', 'Trạng thái', 'Đơn hôm nay', 'Tổng đơn'];
-    const csvContent = [
+  const handleDelete = (shipper) => {
+    confirm({
+      title: 'Xác nhận xóa shipper',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa shipper "${shipper.name}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteShipper(shipper.shipper_id, shipper.name);
+      }
+    });
+  };
+
+  const getFormFields = () => {
+    const baseFields = modalMode === 'edit' ? SHIPPER_EDIT_FIELDS : SHIPPER_FIELDS;
+    
+    return baseFields.map(field => {
+      if (field.name === 'branch_id' && isBranchAdmin) {
+        return {
+          ...field,
+          defaultValue: currentBranchId?.toString() || '1',
+          disabled: true
+        };
+      }
+      
+      if (field.name === 'branch_id' && currentBranchId) {
+        return {
+          ...field,
+          defaultValue: currentBranchId.toString()
+        };
+      }
+      
+      return field;
+    });
+  };
+
+  const handleExport = () => {
+    if (filteredShippers.length === 0) return;
+    
+    const headers = ['ID', 'Tên', 'Email', 'Số điện thoại', 'Loại xe', 'Rating', 'Trạng thái', 'Chi nhánh'];
+    const rows = filteredShippers.map(s => [
+      s.shipper_id,
+      s.name,
+      s.email,
+      s.phone,
+      s.vehicle_type,
+      s.rating,
+      s.status,
+      getBranchName(s.branch_id)
+    ]);
+    
+    const csv = [
       headers.join(','),
-      ...filteredShippers.map(s => 
-        [s.id, s.name, s.shipperId, s.phone, s.email, s.vehicle, s.vehicleType, s.status, s.todayOrders, s.totalOrders].join(',')
-      )
+      ...rows.map(row => row.join(','))
     ].join('\n');
     
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'shippers.csv';
+    link.download = `shippers_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
 
-  // Get initials for avatar
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'shipper_id',
+      key: 'shipper_id',
+      width: 80,
+      align: 'center',
+      fixed: 'left',
+      render: (id) => (
+        <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
+          {id}
+        </span>
+      )
+    },
+    {
+      title: 'Shipper',
+      key: 'shipper',
+      width: 220,
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: '#FFBD71',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#5D0C0C',
+              fontWeight: '600',
+              fontSize: '14px'
+            }}
+          >
+            {getInitials(record.name)}
+          </div>
+          <div>
+            <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
+              {record.name}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      width: 220,
+      render: (email) => (
+        <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
+      )
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
+      width: 140,
+      render: (phone) => (
+        <span style={{ color: '#475569', fontSize: '13px' }}>{phone}</span>
+      )
+    },
+    {
+      title: 'Loại xe',
+      dataIndex: 'vehicle_type',
+      key: 'vehicle_type',
+      width: 150,
+      align: 'center',
+      render: (type) => (
+        <Tag 
+          color={type === 'Ô tô' ? 'magenta' : 'blue'} 
+          style={{ fontWeight: '600', fontSize: '13px' }}
+        >
+          {getVehicleIcon(type)} {type}
+        </Tag>
+      )
+    },
+    {
+      title: 'Rating',
+      key: 'rating',
+      width: 140,
+      align: 'center',
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          <span style={{ fontWeight: '600', color: '#f59e0b', fontSize: '14px' }}>
+            ⭐ {formatRating(record.rating)}
+          </span>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>
+            ({record.total_success})
+          </span>
+        </div>
+      )
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 140,
+      align: 'center',
+      render: (status) => (
+        <Tag color={status === 'Đang hoạt động' ? 'success' : status === 'Đang giao' ? 'warning' : 'default'}>
+          {status}
+        </Tag>
+      )
+    },
+    {
+      title: 'Chi nhánh',
+      dataIndex: 'branch_id',
+      key: 'branch_id',
+      width: 200,
+      render: (branchId) => (
+        <span style={{ color: '#64748b', fontSize: '13px' }}>
+          {getBranchName(branchId)}
+        </span>
+      )
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      width: 120,
+      align: 'center',
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="Chỉnh sửa">
+            <Button
+              type="text"
+              icon={<FiEdit2 />}
+              onClick={() => handleEditClick(record)}
+              style={{ color: '#3b82f6' }}
+            />
+          </Tooltip>
+          <Tooltip title="Xóa">
+            <Button
+              type="text"
+              icon={<FiTrash2 />}
+              onClick={() => handleDelete(record)}
+              danger
+            />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
+
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredShippers.length,
+    showSizeChanger: false
   };
 
-  // Get sort icon
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? <FiChevronUp /> : <FiChevronDown />;
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
   };
 
   return (
     <div className="shipper-container">
-      {/* Header */}
       <div className="shipper-header">
-        <div>
-          <h2 className="shipper-title">Shipper Management</h2>
-          <p className="shipper-subtitle">Quản lý đội ngũ giao hàng</p>
-        </div>
+        <h1 className="shipper-title">{getHeaderTitle()}</h1>
+        <p className="shipper-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="stats-grid">
-        <div className="stat-card stat-card-blue">
-          <div className="stat-icon">
-            <FiTruck />
-          </div>
-          <div>
-            <p className="stat-label">TỔNG SHIPPER</p>
-            <h3 className="stat-value">{stats.total}</h3>
-          </div>
-        </div>
-        
-        <div className="stat-card stat-card-green">
-          <div className="stat-icon">
-            <FiCheckCircle />
-          </div>
-          <div>
-            <p className="stat-label">SẴN SÀNG</p>
-            <h3 className="stat-value">{stats.active}</h3>
-          </div>
-        </div>
-        
-        <div className="stat-card stat-card-orange">
-          <div className="stat-icon">
-            <FiClock />
-          </div>
-          <div>
-            <p className="stat-label">ĐANG GIAO</p>
-            <h3 className="stat-value">{stats.busy}</h3>
-          </div>
-        </div>
+        {STATS_CONFIG.map(stat => (
+          <StatsCard
+            key={stat.key}
+            title={stat.title}
+            value={stats[stat.key]}
+            icon={stat.icon}
+            color={stat.color}
+            trend={null}
+          />
+        ))}
       </div>
 
-      {/* Tabs + Actions Bar */}
       <div className="tabs-action-bar">
         <div className="vehicle-tabs">
-          {VEHICLE_TABS.map(vehicle => (
+          {VEHICLE_TABS.map(tab => (
             <div
-              key={vehicle}
-              className={`vehicle-tab ${activeVehicle === vehicle ? 'active' : ''}`}
-              onClick={() => { setActiveVehicle(vehicle); setCurrentPage(1); }}
+              key={tab.id}
+              className={`vehicle-tab ${activeVehicle === tab.id ? 'active' : ''}`}
+              onClick={() => handleVehicleChange(tab.id)}
             >
-              {vehicle} <span className="tab-count">({vehicleCount(vehicle)})</span>
+              {tab.label} <span className="tab-count">({vehicleCount(tab.id)})</span>
             </div>
           ))}
         </div>
-        
+
         <div className="right-actions">
-          {/* SEARCH BOX */}
           <div className="search-box">
             <FiSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Tìm shipper..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="search-input"
+              placeholder="Tìm theo tên, email, ID..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-            className="status-select"
+          <button
+            className="export-btn"
+            onClick={handleExport}
+            disabled={filteredShippers.length === 0 || loading}
           >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="Active">Sẵn sàng</option>
-            <option value="Busy">Đang giao</option>
-            <option value="Inactive">Nghỉ việc</option>
-          </select>
-
-          <button className="export-btn" onClick={handleExportCSV}>
             <FiDownload />
             Export
           </button>
 
-          <button className="add-btn">
+          <button
+            className="add-btn"
+            onClick={handleAddClick}
+            disabled={loading}
+          >
             <FiPlus />
             Thêm shipper
           </button>
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="table-container">
-        <table className="shipper-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('shipperId')} className="sortable">
-                <div className="th-content">
-                  Mã Shipper {getSortIcon('shipperId')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('name')} className="sortable">
-                <div className="th-content">
-                  Họ và tên {getSortIcon('name')}
-                </div>
-              </th>
-              <th>Số điện thoại</th>
-              <th>Email</th>
-              <th>Biển số xe</th>
-              <th onClick={() => handleSort('vehicleType')} className="sortable">
-                <div className="th-content">
-                  Loại xe {getSortIcon('vehicleType')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('todayOrders')} className="sortable">
-                <div className="th-content">
-                  Đơn hôm nay {getSortIcon('todayOrders')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('status')} className="sortable">
-                <div className="th-content">
-                  Trạng thái {getSortIcon('status')}
-                </div>
-              </th>
-              <th className="action-col">Edit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedShippers.map(shipper => (
-              <tr key={shipper.id}>
-                <td>
-                  <span className="shipper-id-badge">{shipper.shipperId}</span>
-                </td>
-                <td>
-                  <div className="name-cell">
-                    <div className="avatar">{getInitials(shipper.name)}</div>
-                    <span>{shipper.name}</span>
-                  </div>
-                </td>
-                <td>{shipper.phone}</td>
-                <td>{shipper.email}</td>
-                <td>
-                  <span className="vehicle-badge">{shipper.vehicle}</span>
-                </td>
-                <td>
-                  <span className={`vehicle-type ${shipper.vehicleType === 'Ô tô' ? 'vehicle-car' : 'vehicle-bike'}`}>
-                    {shipper.vehicleType === 'Ô tô' ? '🚗' : '🏍️'} {shipper.vehicleType}
-                  </span>
-                </td>
-                <td>
-                  <span className="order-count">{shipper.todayOrders}</span>
-                </td>
-                <td>
-                  <span className={`status ${shipper.status.toLowerCase()}`}>
-                    {shipper.status === 'Active' ? 'Sẵn sàng' : 
-                     shipper.status === 'Busy' ? 'Đang giao' : 'Nghỉ việc'}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button className="icon-btn edit" title="Chỉnh sửa">
-                      <FiEdit2 />
-                    </button>
-                    <button className="icon-btn delete" onClick={() => handleDelete(shipper.id)} title="Xóa">
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        dataSource={filteredShippers}
+        loading={loading}
+        pagination={paginationConfig}
+        onChange={handleTableChange}
+        rowKey="shipper_id"
+        scroll={{ x: 1400 }}
+        emptyText="Không có shipper nào"
+      />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Prev
-          </button>
-          
-          {Array.from({length: totalPages}, (_, i) => i + 1).map(page => {
-            if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                >
-                  {page}
-                </button>
-              );
-            } else if (page === currentPage - 2 || page === currentPage + 2) {
-              return <span key={page} className="pagination-ellipsis">...</span>;
-            }
-            return null;
-          })}
-          
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
-          
-          <span className="pagination-info">
-            Trang {currentPage} / {totalPages} • {sortedShippers.length} kết quả
-          </span>
-        </div>
-      )}
+      <FormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveShipper}
+        title={{
+          add: 'Thêm shipper mới',
+          addDesc: 'Điền thông tin shipper vào form bên dưới',
+          edit: 'Chỉnh sửa shipper',
+          editDesc: 'Cập nhật thông tin shipper'
+        }}
+        icon={FiTruck}
+        data={selectedShipper}
+        fields={getFormFields()}
+      />
     </div>
   );
-}
+};
+
+export default Shipper;

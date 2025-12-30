@@ -1,173 +1,87 @@
-import React, { useMemo, useState } from 'react';
-import { 
-  FiEye, FiTrash2, FiDownload, FiChevronUp, FiChevronDown,
-  FiShoppingBag, FiClock, FiCheckCircle, FiTruck, FiSearch,
-  FiDollarSign, FiPackage, FiXCircle
-} from 'react-icons/fi';
+// ===============================================
+// Location: src/pages/Orders/OrdersView.jsx
+// ===============================================
 
+
+import React, { useState } from 'react';
+import { 
+  FiEye, FiTrash2, FiDownload, FiShoppingBag, FiClock, 
+  FiCheckCircle, FiTruck, FiSearch, FiDollarSign, 
+  FiPackage, FiXCircle, FiAlertCircle, FiEdit3
+} from 'react-icons/fi';
+import DataTable from '../../components/Table/Table';
+import StatsCard from '../../components/StatsCard/StatsCard';
+import OrderDetailModal from './OrderDetailModal';
+import StatusUpdateModal from './StatusUpdateModal';
+import { useOrders } from './useOrders'; // ← Giữ nguyên (vì VSCode tự động thêm extension)
+import { STATUS_TABS, STATUS_INFO } from './constants';
+import { orderApi } from '../../api/orderApi';
 import './OrdersView.css';
 
-// Generate sample orders
-const generateOrders = () => {
-  const statuses = ['Pending', 'Confirmed', 'Shipping', 'Delivered', 'Cancelled'];
-  const customers = [
-    { name: 'Nguyễn Văn A', phone: '0123456789' },
-    { name: 'Trần Thị B', phone: '0987654321' },
-    { name: 'Lê Hoàng C', phone: '0911222333' },
-    { name: 'Phạm Minh D', phone: '0934567890' },
-    { name: 'Hoàng Thu E', phone: '0945678901' }
-  ];
+export default function OrdersView() {
+  const {
+    loading,
+    error,
+    activeStatus,
+    setActiveStatus,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    stats,
+    filteredOrders,
+    statusCount,
+    deleteOrder,
+    updateOrderStatus,
+    fetchOrders,
+  } = useOrders();
 
-  const products = [
-    'Bánh Croissant', 'Bánh Tiramisu', 'Bánh Macaron', 
-    'Bánh Bông Lan', 'Bánh Mì Que', 'Bánh Red Velvet',
-    'Bánh Chocolate', 'Bánh Eclair', 'Bánh Tart'
-  ];
-
-  const orders = [];
-  
-  for (let i = 1; i <= 50; i++) {
-    const customer = customers[Math.floor(Math.random() * customers.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const numItems = Math.floor(Math.random() * 4) + 1;
-    const items = [];
-    let total = 0;
-
-    for (let j = 0; j < numItems; j++) {
-      const product = products[Math.floor(Math.random() * products.length)];
-      const quantity = Math.floor(Math.random() * 3) + 1;
-      const price = Math.floor(Math.random() * 40000) + 15000;
-      items.push({ product, quantity, price });
-      total += quantity * price;
-    }
-
-    const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-
-    orders.push({
-      id: `#ORD${1000 + i}`,
-      customerName: customer.name,
-      customerPhone: customer.phone,
-      customerAddress: `${Math.floor(Math.random() * 500) + 1} Đường ABC, Quận ${Math.floor(Math.random() * 12) + 1}, Hà Nội`,
-      items,
-      total,
-      status,
-      paymentMethod: Math.random() > 0.5 ? 'COD' : 'Online',
-      date: date.toISOString(),
-      note: Math.random() > 0.7 ? 'Giao hàng buổi sáng' : ''
-    });
-  }
-
-  return orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-};
-
-const STATUS_TABS = ['Tất cả', 'Pending', 'Confirmed', 'Shipping', 'Delivered', 'Cancelled'];
-
-export default function Order() {
-  const [orders, setOrders] = useState(generateOrders());
-  const [activeStatus, setActiveStatus] = useState('Tất cả');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedOrderForUpdate, setSelectedOrderForUpdate] = useState(null);
+
   const rowsPerPage = 10;
 
-  // Stats
-  const stats = useMemo(() => {
-    const total = orders.length;
-    const pending = orders.filter(o => o.status === 'Pending').length;
-    const confirmed = orders.filter(o => o.status === 'Confirmed').length;
-    const shipping = orders.filter(o => o.status === 'Shipping').length;
-    const delivered = orders.filter(o => o.status === 'Delivered').length;
-    const cancelled = orders.filter(o => o.status === 'Cancelled').length;
-    const totalRevenue = orders
-      .filter(o => o.status === 'Delivered')
-      .reduce((sum, o) => sum + o.total, 0);
-    
-    return { total, pending, confirmed, shipping, delivered, cancelled, totalRevenue };
-  }, [orders]);
-
-  // Filtered data
-  const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
-      const matchStatus = activeStatus === 'Tất cả' || order.status === activeStatus;
-      const matchSearch = searchQuery === '' ||
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerPhone.includes(searchQuery);
-      
-      return matchStatus && matchSearch;
-    });
-  }, [orders, activeStatus, searchQuery]);
-
-  // Sort
-  const sortedOrders = useMemo(() => {
-    if (!sortConfig.key) return filteredOrders;
-    
-    return [...filteredOrders].sort((a, b) => {
-      let aVal = a[sortConfig.key];
-      let bVal = b[sortConfig.key];
-
-      if (sortConfig.key === 'date') {
-        aVal = new Date(aVal);
-        bVal = new Date(bVal);
-      }
-      
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredOrders, sortConfig]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedOrders.length / rowsPerPage);
-  const paginatedOrders = sortedOrders.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  const statusCount = status =>
-    status === 'Tất cả'
-      ? orders.length
-      : orders.filter(o => o.status === status).length;
-
-  const handlePageChange = (page) => {
-    if(page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
-
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const handleViewDetail = (order) => {
-    setSelectedOrder(order);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleDelete = (id) => {
-    if(window.confirm('Bạn có chắc muốn xóa đơn hàng này?')) {
-      setOrders(prev => prev.filter(o => o.id !== id));
+  // Fetch order details
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      setLoadingDetails(true);
+      const data = await orderApi.getOrderDetail(orderId);
+      setOrderDetails(data);
+    } catch (err) {
+      console.error(' Error fetching order details:', err);
+      setOrderDetails([]);
+    } finally {
+      setLoadingDetails(false);
     }
   };
 
-  // Export CSV
+  // Handlers
+  const handleViewDetail = async (order) => {
+    setSelectedOrder(order);
+    setIsDetailModalOpen(true);
+    await fetchOrderDetails(order.order_id);
+  };
+
+  const handleOpenStatusModal = (order) => {
+    setSelectedOrderForUpdate(order);
+    setIsStatusModalOpen(true);
+  };
+
   const handleExportCSV = () => {
-    const headers = ['Mã đơn', 'Khách hàng', 'SĐT', 'Tổng tiền', 'Trạng thái', 'Ngày đặt'];
+    const headers = ['Mã đơn', 'Khách hàng', 'Tổng tiền', 'Trạng thái', 'Ngày đặt'];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(order => 
         [
-          order.id, 
-          order.customerName, 
-          order.customerPhone, 
-          order.total, 
+          `#ORD${order.order_id}`, 
+          order.customer_id || 'N/A', 
+          order.total_amount, 
           order.status, 
-          formatDate(order.date)
+          formatDate(order.created_at)
         ].join(',')
       )
     ].join('\n');
@@ -179,7 +93,7 @@ export default function Order() {
     link.click();
   };
 
-  // Format currency
+  // Format helpers
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -187,8 +101,8 @@ export default function Order() {
     }).format(amount);
   };
 
-  // Format date
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', { 
       day: '2-digit', 
@@ -199,24 +113,132 @@ export default function Order() {
     });
   };
 
-  // Get status info
-  const getStatusInfo = (status) => {
-    const statusMap = {
-      'Pending': { label: 'Chờ xác nhận', class: 'pending', icon: <FiClock /> },
-      'Confirmed': { label: 'Đã xác nhận', class: 'confirmed', icon: <FiCheckCircle /> },
-      'Shipping': { label: 'Đang giao', class: 'shipping', icon: <FiTruck /> },
-      'Delivered': { label: 'Đã giao', class: 'delivered', icon: <FiPackage /> },
-      'Cancelled': { label: 'Đã hủy', class: 'cancelled', icon: <FiXCircle /> }
+  // Icon mapping
+  const getStatusIcon = (status) => {
+    const icons = {
+      'Pending': FiClock,
+      'Confirmed': FiCheckCircle,
+      'Shipping': FiTruck,
+      'Delivered': FiPackage,
+      'Cancelled': FiXCircle
     };
-    return statusMap[status] || statusMap['Pending'];
+    return icons[status] || FiClock;
   };
 
-  // Get sort icon
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? <FiChevronUp /> : <FiChevronDown />;
-  };
+  // Table columns
+  const columns = [
+    {
+      title: 'Mã đơn',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      render: (id) => <span className="order-id">#ORD{id}</span>,
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Ngày đặt',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      align: 'center',
+      render: (date) => <span className="date-cell">{formatDate(date)}</span>,
+      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+    },
+    {
+      title: 'Khách hàng',
+      dataIndex: 'customer_id',
+      key: 'customer_id',
+      align: 'center',
+      render: (id) => <div className="customer-name">{id || 'N/A'}</div>,
+    },
+    {
+      title: 'Địa chỉ',
+      dataIndex: 'order_address',
+      key: 'order_address',
+      align: 'left',
+      render: (address) => <div className="address-cell">{address || 'N/A'}</div>,
+    },
+    {
+      title: 'Tổng tiền',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      align: 'right',
+      render: (amount) => <span className="total-cell">{formatCurrency(amount)}</span>,
+      sorter: (a, b) => a.total_amount - b.total_amount,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      render: (status) => {
+        const statusInfo = STATUS_INFO[status] || STATUS_INFO['Pending'];
+        const StatusIcon = getStatusIcon(status);
+        
+        return (
+          <span className={`status ${statusInfo.class}`}>
+            <StatusIcon />
+            {statusInfo.label}
+          </span>
+        );
+      },
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <div className="action-buttons">
+          <button 
+            className="icon-btn view" 
+            onClick={() => handleViewDetail(record)}
+            title="Xem chi tiết"
+          >
+            <FiEye />
+          </button>
+          <button 
+            className="icon-btn edit" 
+            onClick={() => handleOpenStatusModal(record)}
+            title="Cập nhật trạng thái"
+          >
+            <FiEdit3 />
+          </button>
+          <button 
+            className="icon-btn delete" 
+            onClick={() => deleteOrder(record.order_id)}
+            title="Xóa"
+          >
+            <FiTrash2 />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="order-container">
+        <div className="loading-state">Đang tải dữ liệu...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="order-container">
+        <div className="error-state">
+          <FiAlertCircle size={48} />
+          <p className="error-message">{error}</p>
+          <button onClick={fetchOrders} className="retry-btn">
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main render
   return (
     <div className="order-container">
       {/* Header */}
@@ -229,48 +251,33 @@ export default function Order() {
 
       {/* Stats Cards */}
       <div className="stats-grid">
-        <div className="stat-card stat-card-blue">
-          <div className="stat-icon">
-            <FiShoppingBag />
-          </div>
-          <div>
-            <p className="stat-label">Tổng đơn hàng</p>
-            <h3 className="stat-value">{stats.total}</h3>
-          </div>
-        </div>
-        
-        <div className="stat-card stat-card-yellow">
-          <div className="stat-icon">
-            <FiClock />
-          </div>
-          <div>
-            <p className="stat-label">Chờ xác nhận</p>
-            <h3 className="stat-value">{stats.pending}</h3>
-          </div>
-        </div>
-        
-        <div className="stat-card stat-card-orange">
-          <div className="stat-icon">
-            <FiTruck />
-          </div>
-          <div>
-            <p className="stat-label">Đang giao</p>
-            <h3 className="stat-value">{stats.shipping}</h3>
-          </div>
-        </div>
-
-        <div className="stat-card stat-card-green">
-          <div className="stat-icon">
-            <FiDollarSign />
-          </div>
-          <div>
-            <p className="stat-label">Doanh thu</p>
-            <h3 className="stat-value">{formatCurrency(stats.totalRevenue).replace('₫', 'đ')}</h3>
-          </div>
-        </div>
+        <StatsCard
+          title="Tổng đơn hàng"
+          value={stats.total}
+          icon={<FiShoppingBag />}
+          color="blue"
+        />
+        <StatsCard
+          title="Chờ xác nhận"
+          value={stats.pending}
+          icon={<FiClock />}
+          color="yellow"
+        />
+        <StatsCard
+          title="Đang giao"
+          value={stats.shipping}
+          icon={<FiTruck />}
+          color="orange"
+        />
+        <StatsCard
+          title="Doanh thu"
+          value={formatCurrency(stats.totalRevenue).replace('₫', 'đ')}
+          icon={<FiDollarSign />}
+          color="green"
+        />
       </div>
 
-      {/* Tabs + Actions Bar */}
+      {/* Tabs + Actions */}
       <div className="tabs-action-bar">
         <div className="status-tabs">
           {STATUS_TABS.map(status => (
@@ -279,7 +286,7 @@ export default function Order() {
               className={`status-tab ${activeStatus === status ? 'active' : ''}`}
               onClick={() => { setActiveStatus(status); setCurrentPage(1); }}
             >
-              {status === 'Tất cả' ? status : getStatusInfo(status).label}
+              {status === 'Tất cả' ? status : STATUS_INFO[status]?.label || status}
               <span className="tab-count">({statusCount(status)})</span>
             </div>
           ))}
@@ -296,7 +303,6 @@ export default function Order() {
               className="search-input"
             />
           </div>
-
           <button className="export-btn" onClick={handleExportCSV}>
             <FiDownload />
             Export
@@ -304,157 +310,37 @@ export default function Order() {
         </div>
       </div>
 
-      {/* Table Container with Scroll */}
-      <div className="table-container">
-        <table className="order-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('id')} className="sortable">
-                <div className="th-content">
-                  Mã đơn {getSortIcon('id')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('date')} className="sortable">
-                <div className="th-content">
-                  Ngày đặt {getSortIcon('date')}
-                </div>
-              </th>
-              <th onClick={() => handleSort('customerName')} className="sortable">
-                <div className="th-content">
-                  Khách hàng {getSortIcon('customerName')}
-                </div>
-              </th>
-              <th>Sản phẩm</th>
-              <th onClick={() => handleSort('total')} className="sortable">
-                <div className="th-content">
-                  Tổng tiền {getSortIcon('total')}
-                </div>
-              </th>
-              <th>Thanh toán</th>
-              <th onClick={() => handleSort('status')} className="sortable">
-                <div className="th-content">
-                  Trạng thái {getSortIcon('status')}
-                </div>
-              </th>
-              <th className="action-col">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedOrders.map(order => {
-              const statusInfo = getStatusInfo(order.status);
-              return (
-                <tr key={order.id}>
-                  <td>
-                    <span className="order-id">{order.id}</span>
-                  </td>
-                  <td className="date-cell">{formatDate(order.date)}</td>
-                  <td>
-                    <div className="customer-cell">
-                      <div className="customer-avatar">
-                        {order.customerName.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </div>
-                      <div>
-                        <div className="customer-name">{order.customerName}</div>
-                        <div className="customer-phone">{order.customerPhone}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="items-cell">
-                      <span className="items-count">{order.items.length} món</span>
-                      <span className="items-preview">
-                        {order.items[0].product}
-                        {order.items.length > 1 && ` +${order.items.length - 1}`}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="total-cell">{formatCurrency(order.total)}</td>
-                  <td>
-                    <span className={`payment-badge ${order.paymentMethod.toLowerCase()}`}>
-                      {order.paymentMethod}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status ${statusInfo.class}`}>
-                      {statusInfo.icon}
-                      {statusInfo.label}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        className="icon-btn view" 
-                        onClick={() => handleViewDetail(order)}
-                        title="Xem chi tiết"
-                      >
-                        <FiEye />
-                      </button>
-                      <button 
-                        className="icon-btn delete" 
-                        onClick={() => handleDelete(order.id)}
-                        title="Xóa"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        dataSource={filteredOrders}
+        loading={loading}
+        rowKey="order_id"
+        pagination={{
+          current: currentPage,
+          pageSize: rowsPerPage,
+          total: filteredOrders.length,
+          onChange: (page) => setCurrentPage(page),
+        }}
+        scroll={{ x: 1200 }}
+        emptyText="Không tìm thấy đơn hàng nào"
+      />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Prev
-          </button>
-          
-          {Array.from({length: totalPages}, (_, i) => i + 1).map(page => {
-            if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                >
-                  {page}
-                </button>
-              );
-            } else if (page === currentPage - 2 || page === currentPage + 2) {
-              return <span key={page} className="pagination-ellipsis">...</span>;
-            }
-            return null;
-          })}
-          
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
-          
-          <span className="pagination-info">
-            Trang {currentPage} / {totalPages} • {sortedOrders.length} kết quả
-          </span>
-        </div>
-      )}
-
-      {/* Order Detail Modal - Comment if not created yet */}
-      {/*
+      {/* Modals */}
       <OrderDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         order={selectedOrder}
+        orderDetails={orderDetails}
+        loadingDetails={loadingDetails}
       />
-      */}
+
+      <StatusUpdateModal
+        isOpen={isStatusModalOpen}
+        order={selectedOrderForUpdate}
+        onClose={() => setIsStatusModalOpen(false)}
+        onUpdate={updateOrderStatus}
+      />
     </div>
   );
 }

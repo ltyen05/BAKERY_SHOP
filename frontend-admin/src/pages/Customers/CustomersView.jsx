@@ -1,413 +1,500 @@
-import { useState } from 'react';
+// ===============================================
+// src/pages/Customers/CustomersView.jsx 
+// ===============================================
+import React, { useState, useEffect, useMemo } from 'react';
+import { Tag, Space, Button, Modal, message } from 'antd';
+import { 
+  FiEdit2, FiTrash2, FiDownload, FiSearch, FiPlus, 
+  FiUsers, FiAward, FiMail, FiPhone, FiUser
+} from 'react-icons/fi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { customerApi } from '../../api/customerApi';
+import DataTable from '../../components/Table/Table';
+import FormModal from '../../components/FormModal/FormModal';
 import './CustomersView.css';
 
-const MEMBER_TYPES = ['Thường', 'VIP'];
+const { confirm } = Modal;
 
-export default function CustomersView() {
-  const [customers, setCustomers] = useState([
-    { id: 1, name: 'Nguyễn Văn A', customerId: 'KH001', phone: '0901234567', email: 'nguyenvana@email.com', address: 'Hà Nội', memberType: 'VIP', totalSpent: 5000000, note: 'Khách hàng thân thiết' },
-    { id: 2, name: 'Trần Thị B', customerId: 'KH002', phone: '0912345678', email: 'tranthib@email.com', address: 'TP HCM', memberType: 'Thường', totalSpent: 1200000, note: '' },
-    { id: 3, name: 'Lê Văn C', customerId: 'KH003', phone: '0923456789', email: 'levanc@email.com', address: 'Đà Nẵng', memberType: 'VIP', totalSpent: 8500000, note: 'Mua số lượng lớn' },
-  ]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
+const RANK_TABS = [
+  { id: 'all', label: 'Tất cả', rank: null },
+  { id: 'bronze', label: 'Bronze', rank: 'Bronze' },
+  { id: 'silver', label: 'Silver', rank: 'Silver' },
+  { id: 'gold', label: 'Gold', rank: 'Gold' },
+  { id: 'platinum', label: 'Platinum', rank: 'Platinum' }
+];
 
-  const filteredCustomers = customers.filter(customer => {
-    const matchSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       customer.customerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       customer.phone.includes(searchTerm);
-    const matchFilter = filterType === 'all' || customer.memberType === filterType;
-    return matchSearch && matchFilter;
-  });
-
-  function handleAddCustomer(newCustomer) {
-    setCustomers([...customers, { ...newCustomer, id: Date.now() }]);
-    setIsModalOpen(false);
+const customerFields = [
+  {
+    name: 'name',
+    label: 'Họ và tên',
+    type: 'input',
+    inputType: 'text',
+    icon: FiUser,
+    placeholder: 'Nguyễn Văn A',
+    required: true
+  },
+  {
+    name: 'phone',
+    label: 'Số điện thoại',
+    type: 'input',
+    inputType: 'tel',
+    icon: FiPhone,
+    placeholder: '0901234567',
+    required: true
+  },
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'input',
+    inputType: 'email',
+    icon: FiMail,
+    placeholder: 'customer@email.com',
+    required: true,
+    fullWidth: true
+  },
+  {
+    name: 'password',
+    label: 'Mật khẩu',
+    type: 'input',
+    inputType: 'password',
+    icon: FiUser,
+    placeholder: 'Nhập mật khẩu',
+    required: true,
+    fullWidth: true,
+    helperText: 'Bắt buộc khi thêm mới, tùy chọn khi chỉnh sửa (để reset mật khẩu)'
   }
+];
 
-  function handleDeleteCustomer(id) {
-    if (confirm('Bạn có chắc muốn xóa khách hàng này?')) {
-      setCustomers(customers.filter(c => c.id !== id));
+export default function Customer() {
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeRank, setActiveRank] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const rowsPerPage = 10;
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const result = await customerApi.getAllCustomers();
+      
+      if (!result.success) {
+        message.error(result.message || 'Không thể tải dữ liệu khách hàng');
+        setCustomers([]);
+        return;
+      }
+      
+      const customerArray = Array.isArray(result.data) ? result.data : [];
+      
+      const mappedCustomers = customerArray.map(c => {
+        const rank = c.rank 
+          ? c.rank.charAt(0).toUpperCase() + c.rank.slice(1).toLowerCase()
+          : 'Bronze';
+        
+        return {
+          key: c.id || c.customer_id,
+          id: c.id || c.customer_id,
+          customerId: `KH${String(c.id || c.customer_id).padStart(3, '0')}`,
+          name: c.name || 'N/A',
+          email: c.email || 'N/A',
+          phone: c.phone || 'N/A',
+          total_amount: c.total_amount || 0,
+          rank: rank
+        };
+      });
+      
+      setCustomers(mappedCustomers);
+      message.success(`Tải ${mappedCustomers.length} khách hàng thành công!`);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      message.error('Không thể tải dữ liệu khách hàng');
+      setCustomers([]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  // Stats
+  const stats = useMemo(() => {
+    const total = customers.length;
+    const bronze = customers.filter(c => c.rank === 'Bronze').length;
+    const silver = customers.filter(c => c.rank === 'Silver').length;
+    const gold = customers.filter(c => c.rank === 'Gold').length;
+    const platinum = customers.filter(c => c.rank === 'Platinum').length;
+    return { total, bronze, silver, gold, platinum };
+  }, [customers]);
+
+  const handleAddCustomer = async (data) => {
+    try {
+      if (!data.password || !data.password.trim()) {
+        message.error('Mật khẩu không được để trống khi thêm khách hàng mới');
+        throw new Error('Password required');
+      }
+      
+      const result = await customerApi.addCustomer(data);
+      
+      if (!result.success) {
+        message.error(result.message || 'Không thể thêm khách hàng');
+        throw new Error(result.message);
+      }
+      
+      await fetchCustomers();
+      setIsAddModalOpen(false);
+      message.success('Thêm khách hàng thành công!');
+    } catch (err) {
+      console.error('Error adding customer:', err);
+      throw err;
+    }
+  };
+
+  const handleUpdateCustomer = async (customerId, data) => {
+    try {
+      const updateData = { ...data };
+      // Chỉ gửi password nếu có thay đổi
+      if (!updateData.password || !updateData.password.trim()) {
+        delete updateData.password;
+      }
+      
+      const result = await customerApi.updateCustomer(customerId, updateData);
+      
+      if (!result.success) {
+        message.error(result.message || 'Không thể cập nhật khách hàng');
+        throw new Error(result.message);
+      }
+      
+      await fetchCustomers();
+      setIsEditModalOpen(false);
+      setSelectedCustomer(null);
+      message.success('Cập nhật khách hàng thành công!');
+    } catch (err) {
+      console.error('Error updating customer:', err);
+      throw err;
+    }
+  };
+
+  const handleDelete = (customer) => {
+    confirm({
+      title: 'Xác nhận xóa khách hàng',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc muốn xóa khách hàng "${customer.name}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        try {
+          const result = await customerApi.deleteCustomer(customer.id);
+          
+          if (!result.success) {
+            message.error(result.message || 'Không thể xóa khách hàng');
+            return;
+          }
+          
+          await fetchCustomers();
+          message.success('Xóa khách hàng thành công!');
+        } catch (err) {
+          console.error('Error deleting customer:', err);
+          message.error('Không thể xóa khách hàng');
+        }
+      }
+    });
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Mã KH', 'Họ và tên', 'Email', 'Số điện thoại', 'Tổng chi tiêu', 'Hạng'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredData.map(c => 
+        [c.id, c.customerId, c.name, c.email, c.phone, c.total_amount, c.rank].join(',')
+      )
+    ].join('\n');
+    
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    message.success('Xuất file CSV thành công!');
+  };
+
+  const filteredData = useMemo(() => {
+    return customers.filter(customer => {
+      const currentTab = RANK_TABS.find(t => t.id === activeRank);
+      const matchRank = !currentTab?.rank || customer.rank === currentTab.rank;
+      
+      const query = searchQuery.toLowerCase().trim();
+      const matchSearch = query === '' ||
+        customer.name.toLowerCase().includes(query) ||
+        customer.email.toLowerCase().includes(query) ||
+        customer.phone.includes(query) ||
+        customer.customerId.toLowerCase().includes(query);
+      
+      return matchRank && matchSearch;
+    });
+  }, [customers, activeRank, searchQuery]);
+
+  const rankCount = (rankId) => {
+    const tab = RANK_TABS.find(t => t.id === rankId);
+    if (!tab?.rank) return customers.length;
+    return customers.filter(c => c.rank === tab.rank).length;
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  const getInitials = (name) => {
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  const columns = [
+    {
+      title: 'Mã KH',
+      dataIndex: 'customerId',
+      key: 'customerId',
+      width: 100,
+      align: 'center',
+      fixed: 'left',
+      render: (text) => (
+        <Tag color="blue" style={{ fontWeight: 700, fontSize: '12px', fontFamily: 'monospace' }}>
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Họ và tên',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '13px',
+            fontWeight: 600
+          }}>
+            {getInitials(text)}
+          </div>
+          <span style={{ fontWeight: 600, color: '#1e293b' }}>{text}</span>
+        </div>
+      ),
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
+      width: 130,
+      align: 'center',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      width: 220,
+      ellipsis: true,
+    },
+    {
+      title: 'Tổng chi tiêu',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      width: 150,
+      align: 'center',
+      sorter: (a, b) => a.total_amount - b.total_amount,
+      render: (amount) => (
+        <span style={{ fontWeight: 700, color: '#10b981', fontSize: '14px' }}>
+          {formatCurrency(amount)}
+        </span>
+      ),
+    },
+    {
+      title: 'Hạng',
+      dataIndex: 'rank',
+      key: 'rank',
+      width: 120,
+      align: 'center',
+      render: (rank) => {
+        const colorMap = {
+          'Bronze': { color: '#92400e', bg: '#fef3c7', border: '#fde68a' },
+          'Silver': { color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' },
+          'Gold': { color: '#b45309', bg: '#fef3c7', border: '#fcd34d' },
+          'Platinum': { color: '#4338ca', bg: '#e0e7ff', border: '#c7d2fe' }
+        };
+        const style = colorMap[rank] || colorMap['Bronze'];
+        
+        return (
+          <Tag 
+            style={{ 
+              color: style.color,
+              background: style.bg,
+              border: `1px solid ${style.border}`,
+              fontWeight: 600,
+              fontSize: '12px',
+              borderRadius: '999px',
+              padding: '4px 12px'
+            }}
+          >
+            {rank}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      width: 100,
+      align: 'center',
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            type="text"
+            icon={<FiEdit2 style={{ color: '#3b82f6' }} />}
+            onClick={() => {
+              setSelectedCustomer(record);
+              setIsEditModalOpen(true);
+            }}
+            title="Chỉnh sửa"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          />
+          <Button
+            type="text"
+            icon={<FiTrash2 style={{ color: '#ef4444' }} />}
+            onClick={() => handleDelete(record)}
+            title="Xóa"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          />
+        </Space>
+      ),
+    },
+  ];
+
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: rowsPerPage,
+    total: filteredData.length,
+    onChange: (page) => setCurrentPage(page),
+    showSizeChanger: false,
+  };
 
   return (
-    <div className="customers-container">
-      <div className="customers-content">
-        {/* Header */}
-        <div className="customers-header-card">
-          <div className="header-top">
-            <div className="header-left">
-              <div className="header-icon-wrapper">
-                <svg className="header-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <div className="header-text-group">
-                <h1 className="header-title">Quản lý khách hàng</h1>
-                <p className="header-subtitle">Quản lý thông tin khách hàng và hội viên</p>
-              </div>
-            </div>
-            <button onClick={() => setIsModalOpen(true)} className="btn-add-customer">
-              <svg className="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Thêm khách hàng
-            </button>
-          </div>
-
-          {/* Filters */}
-          <div className="filters-row">
-            <div className="search-wrapper">
-              <input
-                type="text"
-                placeholder="Tìm kiếm theo tên, mã KH, số điện thoại..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-              <svg className="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="filter-select">
-              <option value="all">Tất cả loại hội viên</option>
-              <option value="VIP">VIP</option>
-              <option value="Thường">Thường</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card stat-blue">
-            <div className="stat-content">
-              <div>
-                <p className="stat-label">Tổng khách hàng</p>
-                <p className="stat-value">{customers.length}</p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-blue">
-                <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card stat-amber">
-            <div className="stat-content">
-              <div>
-                <p className="stat-label">Hội viên VIP</p>
-                <p className="stat-value">{customers.filter(c => c.memberType === 'VIP').length}</p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-amber">
-                <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card stat-green">
-            <div className="stat-content">
-              <div>
-                <p className="stat-label">Tổng doanh thu từ KH</p>
-                <p className="stat-value">
-                  {(customers.reduce((sum, c) => sum + c.totalSpent, 0) / 1000000).toFixed(1)}M
-                </p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-green">
-                <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Table */}
-        <div className="table-card">
-          <div className="table-wrapper">
-            <table className="customers-table">
-              <thead>
-                <tr>
-                  <th>Mã KH</th>
-                  <th>Họ và tên</th>
-                  <th>Số điện thoại</th>
-                  <th>Email</th>
-                  <th>Địa chỉ</th>
-                  <th>Loại HV</th>
-                  <th>Tổng chi tiêu</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCustomers.map((customer) => (
-                  <tr key={customer.id}>
-                    <td>
-                      <span className="customer-id">{customer.customerId}</span>
-                    </td>
-                    <td>
-                      <div className="customer-name-cell">
-                        <div className="customer-avatar">
-                          {customer.name.charAt(0)}
-                        </div>
-                        <span className="customer-name">{customer.name}</span>
-                      </div>
-                    </td>
-                    <td className="text-gray">{customer.phone}</td>
-                    <td className="text-gray">{customer.email}</td>
-                    <td className="text-gray">{customer.address}</td>
-                    <td>
-                      <span className={`badge ${customer.memberType === 'VIP' ? 'badge-vip' : 'badge-regular'}`}>
-                        {customer.memberType}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="total-spent">
-                        {customer.totalSpent.toLocaleString('vi-VN')}đ
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="action-btn action-view">
-                          <svg className="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </button>
-                        <button className="action-btn action-edit">
-                          <svg className="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button onClick={() => handleDeleteCustomer(customer.id)} className="action-btn action-delete">
-                          <svg className="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filteredCustomers.length === 0 && (
-              <div className="empty-state">
-                <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <p className="empty-text">Không tìm thấy khách hàng nào</p>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="customer-container">
+      {/* Header */}
+      <div className="customer-header">
+        <h2 className="customer-title">Customer Management</h2>
+        <p className="customer-subtitle">Quản lý thông tin khách hàng</p>
       </div>
 
-      {/* Add Customer Modal */}
-      {isModalOpen && (
-        <AddCustomerModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAdd={handleAddCustomer}
-        />
-      )}
-    </div>
-  );
-}
-
-// Add Customer Modal Component
-function AddCustomerModal({ isOpen, onClose, onAdd }) {
-  const [form, setForm] = useState({
-    name: '',
-    customerId: '',
-    phone: '',
-    email: '',
-    address: '',
-    memberType: 'Thường',
-    totalSpent: 0,
-    note: '',
-  });
-  const [error, setError] = useState('');
-
-  if (!isOpen) return null;
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!form.name.trim() || !form.customerId.trim() || !form.phone.trim()) {
-      setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
-      return;
-    }
-    setError('');
-    onAdd(form);
-    setForm({
-      name: '',
-      customerId: '',
-      phone: '',
-      email: '',
-      address: '',
-      memberType: 'Thường',
-      totalSpent: 0,
-      note: '',
-    });
-  }
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="modal-header">
-          <div className="modal-header-left">
-            <div className="modal-icon-wrapper">
-              <svg className="modal-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+      {/* Tabs + Actions */}
+      <div className="tabs-action-bar">
+        <div className="rank-tabs">
+          {RANK_TABS.map(tab => (
+            <div
+              key={tab.id}
+              onClick={() => { 
+                setActiveRank(tab.id); 
+                setCurrentPage(1); 
+              }}
+              className={`rank-tab ${activeRank === tab.id ? 'active' : ''}`}
+            >
+              {tab.label} <span className="tab-count">({rankCount(tab.id)})</span>
             </div>
-            <div>
-              <h2 className="modal-title">Thêm khách hàng mới</h2>
-              <p className="modal-subtitle">Điền thông tin để thêm khách hàng vào hệ thống</p>
-            </div>
+          ))}
+        </div>
+        
+        <div className="right-actions">
+          <div className="search-box">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Tìm theo tên, email, SĐT..."
+              value={searchQuery}
+              onChange={(e) => { 
+                setSearchQuery(e.target.value); 
+                setCurrentPage(1); 
+              }}
+              className="search-input"
+            />
           </div>
-          <button onClick={onClose} className="modal-close-btn">
-            <svg className="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+
+          <button onClick={handleExportCSV} className="export-btn">
+            <FiDownload /> Export
+          </button>
+
+          <button onClick={() => setIsAddModalOpen(true)} className="add-customer-btn">
+            <FiPlus /> Thêm khách hàng
           </button>
         </div>
-
-        {/* Form */}
-        <div className="modal-form">
-          <div className="form-grid-2">
-            <div className="form-field">
-              <label className="form-label">
-                Họ và tên <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Nguyễn Văn A"
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">
-                Mã khách hàng <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                name="customerId"
-                value={form.customerId}
-                onChange={handleChange}
-                placeholder="KH001"
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">
-                Số điện thoại <span className="required">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                placeholder="0901234567"
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="example@email.com"
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-field full-width">
-              <label className="form-label">Địa chỉ</label>
-              <input
-                type="text"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                placeholder="Số nhà, đường, quận/huyện, tỉnh/thành phố"
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">Loại hội viên</label>
-              <select name="memberType" value={form.memberType} onChange={handleChange} className="form-select">
-                <option value="Thường">Thường</option>
-                <option value="VIP">VIP</option>
-              </select>
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">Tổng chi tiêu (VNĐ)</label>
-              <input
-                type="number"
-                name="totalSpent"
-                value={form.totalSpent}
-                onChange={handleChange}
-                placeholder="0"
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-field full-width">
-              <label className="form-label">Ghi chú</label>
-              <textarea
-                name="note"
-                value={form.note}
-                onChange={handleChange}
-                placeholder="Thêm ghi chú về khách hàng..."
-                rows={3}
-                className="form-textarea"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="error-message">
-              <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
-          )}
-
-          <div className="modal-actions">
-            <button type="button" onClick={onClose} className="btn-cancel">
-              Hủy bỏ
-            </button>
-            <button onClick={handleSubmit} className="btn-submit">
-              <svg className="btn-submit-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Thêm khách hàng
-            </button>
-          </div>
-        </div>
       </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        dataSource={filteredData}
+        loading={loading}
+        pagination={paginationConfig}
+        rowKey="id"
+        scroll={{ x: 1200 }}
+        emptyText="Không tìm thấy khách hàng nào"
+      />
+
+      {/* Add Modal */}
+      <FormModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleAddCustomer}
+        title={{ 
+          add: 'Thêm khách hàng mới',
+          addDesc: 'Điền thông tin khách hàng mới'
+        }}
+        icon={FiUsers}
+        fields={customerFields}
+        mode="add"
+      />
+
+      {/* Edit Modal */}
+      <FormModal 
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedCustomer(null);
+        }}
+        onSubmit={handleUpdateCustomer}
+        data={selectedCustomer}
+        title={{ 
+          edit: 'Chỉnh sửa khách hàng',
+          editDesc: 'Cập nhật thông tin khách hàng (hạng tự động cập nhật theo tổng chi tiêu)'
+        }}
+        icon={FiUsers}
+        fields={customerFields}
+        mode="edit"
+      />
     </div>
   );
 }

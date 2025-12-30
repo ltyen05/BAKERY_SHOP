@@ -1,3 +1,7 @@
+/* =============================================== */
+/*  Location: src/pages/Orders/OrdersView.css */
+/* =============================================== */
+
 /* ================= CONTAINER ================= */
 .order-container {
   padding: 24px;
@@ -25,6 +29,50 @@
   margin: 6px 0 0 0;
   font-size: 14px;
   color: var(--text-secondary, #64748b);
+}
+
+/* ================= LOADING & ERROR STATES ================= */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-state {
+  font-size: 18px;
+  color: #64748b;
+}
+
+.error-state {
+  text-align: center;
+}
+
+.error-message {
+  font-size: 16px;
+  color: #ef4444;
+  margin: 16px 0;
+}
+
+.retry-btn {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.retry-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* ================= STATS CARDS ================= */
@@ -236,180 +284,38 @@
   height: 16px;
 }
 
-/* ================= TABLE ================= */
-.table-container {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1200px;
-}
-
-.order-table thead {
-  background: #f1f5f9;
-}
-
-.order-table th,
-.order-table td {
-  padding: 16px;
-  font-size: 14px;
-  border-bottom: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
-  color: #1e293b;
-}
-
-.order-table th:last-child,
-.order-table td:last-child {
-  border-right: none;
-}
-
-.order-table th {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  text-align: left;
-  border-bottom: 2px solid #e2e8f0;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.order-table th.sortable {
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.order-table th.sortable:hover {
-  color: #667eea;
-}
-
-.th-content {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.th-content svg {
-  width: 14px;
-  height: 14px;
-  color: #667eea;
-}
-
-.order-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.order-table tbody tr {
-  transition: background 0.15s;
-}
-
-.order-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-/* ================= ORDER ID ================= */
+/* ================= TABLE CELL STYLES (cho DataTable) ================= */
 .order-id {
   font-weight: 700;
   color: #667eea;
   font-family: 'Courier New', monospace;
 }
 
-/* ================= DATE CELL ================= */
 .date-cell {
   color: #64748b;
   font-size: 13px;
 }
 
-/* ================= CUSTOMER CELL ================= */
-.customer-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.customer-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
-.customer-name {
-  font-weight: 600;
+.customer-name,
+.address-cell {
   color: #1e293b;
+  font-size: 14px;
 }
 
-.customer-phone {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 2px;
-}
-
-/* ================= ITEMS CELL ================= */
-.items-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.items-count {
-  font-weight: 600;
-  color: #667eea;
-  font-size: 13px;
-}
-
-.items-preview {
-  font-size: 12px;
-  color: #94a3b8;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+.address-cell {
+  max-width: 250px;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ================= TOTAL CELL ================= */
 .total-cell {
   font-weight: 700;
   color: #10b981;
   font-size: 15px;
 }
 
-/* ================= PAYMENT BADGE ================= */
-.payment-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.payment-badge.cod {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.payment-badge.online {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-/* ================= STATUS ================= */
+/* ================= STATUS BADGES ================= */
 .status {
   display: inline-flex;
   align-items: center;
@@ -456,14 +362,10 @@
 }
 
 /* ================= ACTION BUTTONS ================= */
-.action-col {
-  text-align: center;
-}
-
 .action-buttons {
   display: flex;
-  justify-content: center;
   gap: 8px;
+  justify-content: center;
 }
 
 .icon-btn {
@@ -506,59 +408,6 @@
 
 .icon-btn:active {
   transform: translateY(0);
-}
-
-/* ================= PAGINATION ================= */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
-.pagination-btn {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #1e293b;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  border-color: #667eea;
-  color: #667eea;
-  background: #f5f8ff;
-}
-
-.pagination-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  font-weight: 600;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pagination-ellipsis {
-  padding: 0 8px;
-  color: #94a3b8;
-}
-
-.pagination-info {
-  margin-left: 12px;
-  font-size: 13px;
-  color: #64748b;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -606,23 +455,6 @@
   .search-input {
     width: 100%;
   }
-  
-  .pagination {
-    gap: 6px;
-  }
-  
-  .pagination-btn {
-    min-width: 36px;
-    height: 36px;
-    font-size: 13px;
-  }
-  
-  .pagination-info {
-    width: 100%;
-    text-align: center;
-    margin-left: 0;
-    margin-top: 8px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -641,5 +473,15 @@
   .export-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
   }
 }

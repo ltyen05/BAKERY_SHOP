@@ -1,9 +1,15 @@
+
+
+// ===============================================
+// src/App.jsx
+// ===============================================
 import { Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout/Layout";
-import { adminRoutes } from "./routes";
+import { getRoutesForUser } from "./routes";
+import 'antd/dist/reset.css';
 
-// Loading component
 function LoadingFallback() {
   return (
     <div style={{ 
@@ -21,24 +27,36 @@ function LoadingFallback() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            {adminRoutes.map((route) => {
-              const Component = route.element;
-              return (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={<Component />}
-                />
-              );
-            })}
-          </Route>
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingFallback />}>
+          <AppContent />
+        </Suspense>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+//  Component để render routes dựa trên user
+function AppContent() {
+  const { user } = useAuth();
+  const routes = getRoutesForUser(user);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        {routes.map((route) => {
+          const Component = route.element;
+          return (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<Component />}
+            />
+          );
+        })}
+      </Route>
+    </Routes>
   );
 }
 

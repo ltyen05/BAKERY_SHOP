@@ -2,7 +2,8 @@ from hus_bakery_app import db
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
-from sqlalchemy import func, extract
+from hus_bakery_app.models.products import Product
+from sqlalchemy import func, extract, desc
 from datetime import datetime, timedelta
 
 

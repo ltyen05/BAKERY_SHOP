@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.customer.notification_services import check_pending_reviews_for_customer, mark_customer_notification_read
+from hus_bakery_app.services.customer.notification_services import (
+    check_pending_reviews_for_customer,
+    mark_customer_notification_read,
+    get_new_success_order_notification
+)
 
 customer_noti_bp = Blueprint("customer_noti", __name__)
 
@@ -31,3 +35,23 @@ def mark_as_read(order_id):
     if success:
         return jsonify({"success": True, "message": "Đã đánh dấu đã đọc"}), 200
     return jsonify({"success": False, "message": "Không tìm thấy thông báo"}), 404
+
+
+@customer_noti_bp.route("/check-latest-success", methods=["GET"])
+@jwt_required()
+def check_latest_success():
+    identity = json.loads(get_jwt_identity())
+    customer_id = identity["customer_id"]
+
+    order_notification = get_new_success_order_notification(customer_id)
+
+    if order_notification:
+        return jsonify({
+            "success": True,
+            "data": order_notification
+        }), 200
+
+    return jsonify({
+        "success": False,
+        "message": "Không có đơn hàng mới hoàn thành"
+    }), 200

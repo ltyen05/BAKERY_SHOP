@@ -39,8 +39,19 @@ def mark_customer_notification_read(order_id):
         return True
     return False
 
-def get_new_success_order(customer_id):
-    res = Order.query.get(Order, Order.order_id).join(OrderStatus, Order.order_id == OrderStatus.order_id).order_by(desc(OrderStatus.updated_at)).first()
+def get_new_success_order_notification(customer_id):
+    latest_order = Order.query.get(Order, OrderStatus.status).join(OrderStatus, Order.order_id == OrderStatus.order_id).filter(Order.customer_id == customer_id).order_by(desc(OrderStatus.updated_at)).first()
 
-    if res.status == "Đã giao":
+    if latest_order:
+        order_obj, current_status = latest_order
+
+        if current_status == "Đã giao":
+            return {
+                "order_id": order_obj.order_id,
+                "status": current_status,
+                "message": f"Đơn hàng #{order_obj.order_id} đã giao thành công! Chúc bạn ngon miệng. ❤️",
+                "can_review": True
+            }
+
+    return None
 

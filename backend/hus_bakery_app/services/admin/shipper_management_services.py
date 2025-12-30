@@ -16,13 +16,13 @@ def get_all_shippers_service(branch_id):
 def add_shipper_service(data):
     new_shipper = Shipper(
         shipper_id=data.get('shipper_id'),
-        shipper_name=data.get('name'),
+        name=data.get('name'),
         phone=data.get('phone'),
         email=data.get('email'),
-        password=generate_password_hash(data.get('password')),
         branch_id=data.get('branch_id')
     )
     new_shipper.status = data.get('status', 'active')
+    new_shipper.password = new_shipper.set_password(data.get('password'))
 
     db.session.add(new_shipper)
     db.session.commit()

@@ -10,7 +10,7 @@ def get_all_products_admin_service():
         "product_id": p.product_id,
         "name": p.name,
         "category": p.category_id,  # Hoặc join bảng Category để lấy tên
-        "price": float(p.unit_price),
+        "unit_price": float(p.unit_price) if p.unit_price is not None else 0.0,
         "description": p.description,
         "rating": getattr(p, 'rating', 5.0),  # Giả sử mặc định 5.0
         "image": p.image_url

@@ -1,4 +1,6 @@
 import datetime
+
+from hus_bakery_app.models.customer_notifications import CustomerNotification
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.shipper import Shipper
@@ -20,6 +22,14 @@ def update_status_order(order_id, status):
                 shipper = Shipper.query.get(order.shipper_id)
                 if shipper:
                     shipper.status = "Đang hoạt động"
+
+            new_customer_noti = CustomerNotification(
+                customer_id=order.customer_id,  # Lấy từ thông tin đơn hàng
+                order_id=order_id,
+                is_read=False,
+                created_at=datetime.datetime.now()
+            )
+            db.session.add(new_customer_noti)
 
         db.session.commit()
         return True, "Cập nhật trạng thái đơn hàng thành công"

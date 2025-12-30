@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request
 from hus_bakery_app.services.customer.product_services import (
     get_top_3_products_service,
     get_products_by_category_service,
-    get_product_details_service
+    get_product_details_service,
+    get_rating_star_service
 )
 
 product_bp = Blueprint('product_bp', __name__)
@@ -62,3 +63,15 @@ def api_filter_products_by_type():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@product_bp.route("/<int:product_id>/rating", methods=["GET"])
+def get_product_rating(product_id):
+    try:
+        avg_star = get_rating_star_service(product_id)
+        return jsonify({
+            "success": True,
+            "product_id": product_id,
+            "average_rating": avg_star
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

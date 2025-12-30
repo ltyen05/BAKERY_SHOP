@@ -2,6 +2,7 @@ from sqlalchemy import func, desc
 from hus_bakery_app import db
 from hus_bakery_app.models.categories import Category
 from hus_bakery_app.models.order_item import OrderItem
+from hus_bakery_app.models.product_review import ProductReview
 from hus_bakery_app.models.products import Product
 
 
@@ -40,3 +41,8 @@ def get_product_details_service(p_id):
     ).filter(Product.product_id == p_id).first()
 
     return result
+
+def get_rating_star_service(product_id):
+    average = db.session.query(func.avg(ProductReview.rating))\
+        .filter(ProductReview.product_id == product_id).scalar()
+    return round(float(average), 1) if average else 0

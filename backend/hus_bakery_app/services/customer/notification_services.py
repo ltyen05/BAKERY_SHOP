@@ -40,7 +40,10 @@ def mark_customer_notification_read(order_id):
     return False
 
 def get_new_success_order_notification(customer_id):
-    latest_order = Order.query.get(Order, OrderStatus.status).join(OrderStatus, Order.order_id == OrderStatus.order_id).filter(Order.customer_id == customer_id).order_by(desc(OrderStatus.updated_at)).first()
+    latest_order = db.session.query(Order, OrderStatus.status)\
+        .join(OrderStatus, Order.order_id == OrderStatus.order_id)\
+        .filter(Order.customer_id == customer_id)\
+        .order_by(desc(OrderStatus.updated_at)).first()
 
     if latest_order:
         order_obj, current_status = latest_order

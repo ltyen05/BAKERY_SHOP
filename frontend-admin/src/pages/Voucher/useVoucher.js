@@ -1,12 +1,12 @@
 // ===============================================
-// src/pages/Voucher/useVoucher.js
+// Location: src/pages/Voucher/useVoucher.js
+// ✅ FIXED: khớp với voucherApi mới
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
-import couponApi from '../../api/voucherApi';
+import voucherApi from '../../api/voucherApi'; // ✅ Đúng tên API
 
 export const useVoucher = () => {
-  // ============= STATE =============
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
@@ -15,7 +15,6 @@ export const useVoucher = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ============= LOAD DATA =============
   useEffect(() => {
     loadVouchers();
   }, []);
@@ -23,8 +22,8 @@ export const useVoucher = () => {
   const loadVouchers = async () => {
     try {
       setLoading(true);
-      const data = await couponApi.getAllCoupons();
-      setVouchers(data);
+      const response = await voucherApi.getAllVouchers(); // ✅ Đúng tên hàm
+      setVouchers(response.data || []);
     } catch (error) {
       console.error('Error loading vouchers:', error);
       message.error('Không thể tải danh sách voucher');
@@ -33,40 +32,38 @@ export const useVoucher = () => {
     }
   };
 
-  // ============= COMPUTED VALUES =============
   const stats = useMemo(() => {
     const total = vouchers.length;
     const active = vouchers.filter(v => v.status === 'Active').length;
     const expired = vouchers.filter(v => v.status === 'Expired').length;
-    const totalUsed = vouchers.reduce((sum, v) => sum + v.used, 0);
+    const totalUsed = vouchers.reduce((sum, v) => sum + (v.used || 0), 0);
 
     return { total, active, expired, totalUsed };
   }, [vouchers]);
 
   const filteredVouchers = useMemo(() => {
     return vouchers.filter(voucher => {
-      const matchSearch = 
-        voucher.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        voucher.name.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchStatus = 
-        statusFilter === 'all' || 
-        voucher.status.toLowerCase() === statusFilter.toLowerCase();
-      
-      const matchType = 
-        typeFilter === 'all' || 
+      const matchSearch =
+        (voucher.code || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (voucher.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchStatus =
+        statusFilter === 'all' ||
+        voucher.status?.toLowerCase() === statusFilter.toLowerCase();
+
+      const matchType =
+        typeFilter === 'all' ||
         voucher.type === typeFilter;
 
       return matchSearch && matchStatus && matchType;
     });
   }, [vouchers, searchQuery, statusFilter, typeFilter]);
 
-  // ============= CRUD OPERATIONS =============
   const addVoucher = async (newVoucher) => {
     try {
       setLoading(true);
-      const response = await couponApi.addCoupon(newVoucher);
-      
+      const response = await voucherApi.addVoucher(newVoucher); // ✅ Đúng tên hàm
+
       if (response.success) {
         message.success('Thêm voucher thành công!');
         await loadVouchers();
@@ -84,9 +81,9 @@ export const useVoucher = () => {
     }
   };
 
-  const deleteVoucher = async (voucherId, voucherCode) => {
+  const deleteVoucher = async (voucherId) => {
     try {
-      const response = await couponApi.deleteCoupon(voucherId);
+      const response = await voucherApi.deleteVoucher(voucherId); // ✅ Đúng tên hàm
       if (response.success) {
         message.success('Xóa voucher thành công!');
         await loadVouchers();
@@ -102,7 +99,6 @@ export const useVoucher = () => {
     }
   };
 
-  // ============= FILTER HANDLERS =============
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
   };
@@ -122,27 +118,19 @@ export const useVoucher = () => {
     setCurrentPage(1);
   };
 
-  // ============= RETURN =============
   return {
-    // Data
     vouchers,
     filteredVouchers,
     stats,
-    
-    // State
     loading,
     viewMode,
     statusFilter,
     typeFilter,
     searchQuery,
     currentPage,
-    
-    // CRUD
     loadVouchers,
     addVoucher,
     deleteVoucher,
-    
-    // Handlers
     setCurrentPage,
     handleViewModeChange,
     handleStatusChange,

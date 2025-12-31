@@ -1,9 +1,5 @@
-// ===============================================
-// Location: src/pages/Voucher/voucherConstants.js
-// ===============================================
 import { 
   FiTag, 
-  FiFileText, 
   FiPercent,
   FiDollarSign,
   FiCalendar,
@@ -15,7 +11,6 @@ import {
   FiTrendingUp
 } from 'react-icons/fi';
 
-// ============= STATS CONFIG =============
 export const STATS_CONFIG = [
   {
     key: 'total',
@@ -43,13 +38,11 @@ export const STATS_CONFIG = [
   }
 ];
 
-// ============= DISCOUNT TYPE OPTIONS =============
 export const DISCOUNT_TYPE_OPTIONS = [
   { value: 'percent', label: 'Phần trăm (%)' },
   { value: 'fixed', label: 'Số tiền cố định (đ)' }
 ];
 
-// ============= FORM FIELDS =============
 export const VOUCHER_FIELDS = [
   {
     name: 'name',
@@ -83,7 +76,7 @@ export const VOUCHER_FIELDS = [
     placeholder: 'VD: 20 hoặc 50000',
     required: true,
     helperText: 'Nhập số % hoặc số tiền',
-    transform: (value) => parseFloat(value)
+    transform: (value) => parseFloat(value || 0)   // ✅ fix NaN khi nhập rỗng
   },
   {
     name: 'minOrder',
@@ -129,7 +122,6 @@ export const VOUCHER_FIELDS = [
   }
 ];
 
-// ============= HELPER FUNCTIONS =============
 export const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   const date = new Date(dateString);
@@ -138,9 +130,9 @@ export const formatDate = (dateString) => {
 
 export const formatDiscount = (voucher) => {
   if (voucher.type === 'percent') {
-    return `${voucher.discount}%`;
+    return `${voucher.discount ?? 0}%`;   // ✅ fix undefined
   }
-  return `${voucher.discount.toLocaleString('vi-VN')}đ`;
+  return `${(voucher.discount ?? 0).toLocaleString('vi-VN')}đ`;  // ✅ fix undefined
 };
 
 export const getStatusColor = (status) => {

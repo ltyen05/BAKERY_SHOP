@@ -1,5 +1,5 @@
 /* =============================================== */
-/* src/components/Sidebar/Sidebar.jsx */
+/* src/components/Sidebar/Sidebar.jsx  */
 /* =============================================== */
 
 import React, { useState } from "react";
@@ -60,7 +60,9 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
     }
   };
 
-  // Menu cho Super Admin
+  // ========================================
+  // Menu cho Super Admin (chưa xem chi nhánh)
+  // ========================================
   const renderSuperAdminMenu = () => (
     <>
       <div className="menu-section">
@@ -76,15 +78,55 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
           <span>Quản lý Chi nhánh</span>
         </Link>
 
+        <Link to="/products" className={`menu-item ${isActive("/products") ? "active" : ""}`} onClick={handleMenuClick}>
+          <span className="icon"><TbCake /></span>
+          <span>Quản lý Sản phẩm</span>
+        </Link>
+
+        <Link to="/voucher" className={`menu-item ${isActive("/voucher") ? "active" : ""}`} onClick={handleMenuClick}>
+          <span className="icon"><TbTicket /></span>
+          <span>Quản lý Voucher</span>
+        </Link>
+
         <Link to="/admins" className={`menu-item ${isActive("/admins") ? "active" : ""}`} onClick={handleMenuClick}>
           <span className="icon"><TbUserShield /></span>
           <span>Quản lý Admin</span>
         </Link>
       </div>
+
+      <div className="menu-section">
+        <div className="menu-title">CÀI ĐẶT</div>
+        
+        <div className="settings-wrapper">
+          <div 
+            className={`menu-item ${isActive("/settings") ? "active" : ""}`}
+            onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+          >
+            <span className="icon"><TbSettings /></span>
+            <span>Cài đặt</span>
+          </div>
+
+          {showSettingsMenu && (
+            <div className="settings-dropdown">
+              <div className="dropdown-item-sidebar" onClick={() => {
+                navigate('/profile');
+                handleMenuClick();
+              }}>
+                <TbUser />
+                <span>Edit Profile</span>
+              </div>
+              <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
+                <TbLogout />
+                <span>Log out</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 
-  // Menu cho Branch
+  // Menu cho Branch Admin (giữ nguyên)
   const renderBranchMenu = () => (
     <>
       <div className="menu-section">
@@ -133,7 +175,6 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
           <span>Shipper</span>
         </Link>
 
-        {/* Settings & Logout - Đặt ngay trong section này */}
         <div className="settings-wrapper">
           <div 
             className={`menu-item ${isActive("/settings") ? "active" : ""}`}
@@ -165,13 +206,11 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
 
   const sidebarContent = (
     <>
-      {/* Logo */}
       <div className="logo">
         <h1>BAKERY ADMIN</h1>
         <p>Hệ thống quản lý</p>
       </div>
 
-      {/* Nút quay lại - chỉ hiện khi Super Admin đang xem chi nhánh */}
       {isViewingBranch && (
         <div className="back-button-wrapper">
           <button className="back-button-sidebar" onClick={handleBackToAllBranches}>
@@ -181,7 +220,6 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
         </div>
       )}
 
-      {/* Menu */}
       {isSuperAdmin && !isViewingBranch ? renderSuperAdminMenu() : renderBranchMenu()}
     </>
   );

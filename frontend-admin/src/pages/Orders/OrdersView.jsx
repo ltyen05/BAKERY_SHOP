@@ -46,8 +46,8 @@ const OrdersView = () => {
     setCurrentPage,
     handleStatusChange,
     handleSearchChange,
-    canUpdateStatus, // ✅ Permission check
-    canDeleteOrder   // ✅ Permission check
+    canUpdateStatus, 
+    canDeleteOrder   
   } = useOrders();
 
   // ============= MODAL STATE =============
@@ -271,7 +271,7 @@ const OrdersView = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      width: canUpdateStatus ? 140 : 100, // ✅ Dynamic width based on permissions
+      width: canUpdateStatus ? 140 : 100, 
       align: 'center',
       fixed: 'right',
       render: (_, record) => (
@@ -285,7 +285,6 @@ const OrdersView = () => {
             />
           </Tooltip>
           
-          {/* ✅ Chỉ hiển thị nút Update Status cho Super Admin */}
           {canUpdateStatus && (
             <Tooltip title="Cập nhật trạng thái">
               <Button
@@ -297,7 +296,6 @@ const OrdersView = () => {
             </Tooltip>
           )}
           
-          {/* ✅ Hiển thị nút Delete nếu có quyền */}
           {canDeleteOrder && (
             <Tooltip title="Xóa">
               <Button
@@ -429,7 +427,7 @@ const OrdersView = () => {
         loadingDetails={loadingDetails}
       />
 
-      {/* STATUS UPDATE MODAL - Chỉ cho Super Admin */}
+      {/* STATUS UPDATE MODAL */}
       {canUpdateStatus && (
         <FormModal
           isOpen={isStatusModalOpen}

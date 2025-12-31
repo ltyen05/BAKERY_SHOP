@@ -1,17 +1,19 @@
 // ===============================================
-// src/pages/Voucher/Voucher.jsx - COMPLETE WITH FORM
+// Location: src/pages/Voucher/Voucher.jsx
+// ✅ FIXED: lỗi toLocaleString, key, VoucherCard data
 // ===============================================
 import React, { useState } from 'react';
 import { Tag, Space, Button, Tooltip, Modal } from 'antd';
 import { 
   FiSearch, FiPlus, FiTrash2, FiCheckCircle, 
-  FiXCircle, FiCalendar, FiPercent, FiDollarSign,
+  FiXCircle, FiPercent, FiDollarSign,
   FiGrid, FiList, FiTag
 } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import StatsCard from '../../components/StatsCard/StatsCard';
 import DataTable from '../../components/Table/Table';
 import FormModal from '../../components/FormModal/FormModal';
+import VoucherCard from '../../components/VoucherCard/VoucherCard';
 import { useVoucher } from './useVoucher';
 import { 
   VOUCHER_FIELDS,
@@ -45,20 +47,12 @@ const Voucher = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ============= HANDLERS =============
-  const handleAddClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleAddClick = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleSaveVoucher = async (voucherData) => {
     const result = await addVoucher(voucherData);
-    if (result?.success) {
-      handleCloseModal();
-    }
+    if (result?.success) handleCloseModal();
   };
 
   const handleDelete = (voucher) => {
@@ -76,82 +70,6 @@ const Voucher = () => {
     });
   };
 
-  // ============= RENDER VOUCHER CARD =============
-  const renderVoucherCard = (voucher) => (
-    <div 
-      key={voucher.id} 
-      className={`voucher-card ${voucher.status === 'Expired' ? 'expired' : ''}`}
-    >
-      <div className="voucher-header-card">
-        <div className="voucher-badge-group">
-          <div className="voucher-badge">
-            {voucher.status === 'Active' ? <FiCheckCircle /> : <FiXCircle />}
-            {getStatusText(voucher.status)}
-          </div>
-        </div>
-        <div className="voucher-actions">
-          <button 
-            className="btn-icon" 
-            onClick={() => handleDelete(voucher)}
-            title="Xóa"
-          >
-            <FiTrash2 data-icon="trash" />
-          </button>
-        </div>
-      </div>
-
-      <div className="voucher-code">
-        <span className="code-label">Mã:</span>
-        <span className="code-value">{voucher.code}</span>
-      </div>
-
-      <h3 className="voucher-name">{voucher.name}</h3>
-
-      <div className="voucher-discount">
-        {voucher.type === 'percent' ? <FiPercent /> : <FiDollarSign />}
-        {formatDiscount(voucher)}
-      </div>
-
-      <div className="voucher-details">
-        <div className="detail-item">
-          <span className="detail-label">Đơn tối thiểu:</span>
-          <span className="detail-value">
-            {voucher.minOrder > 0 ? `${voucher.minOrder.toLocaleString('vi-VN')}đ` : 'Không'}
-          </span>
-        </div>
-        {voucher.maxDiscount > 0 && (
-          <div className="detail-item">
-            <span className="detail-label">Giảm tối đa:</span>
-            <span className="detail-value">{voucher.maxDiscount.toLocaleString('vi-VN')}đ</span>
-          </div>
-        )}
-        <div className="detail-item">
-          <span className="detail-label">Đã dùng:</span>
-          <span className="detail-value">{voucher.used}/{voucher.quantity}</span>
-        </div>
-      </div>
-
-      <div className="voucher-progress">
-        <div className="progress-info">
-          <span>Tỷ lệ sử dụng</span>
-          <span>{Math.round((voucher.used / voucher.quantity) * 100)}%</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{ width: `${(voucher.used / voucher.quantity) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="voucher-date">
-        <FiCalendar />
-        {formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}
-      </div>
-    </div>
-  );
-
-  // ============= TABLE COLUMNS =============
   const columns = [
     {
       title: 'Mã voucher',
@@ -160,13 +78,7 @@ const Voucher = () => {
       width: 140,
       fixed: 'left',
       render: (code) => (
-        <span style={{ 
-          fontWeight: '700', 
-          color: '#667eea', 
-          fontSize: '14px',
-          fontFamily: 'monospace',
-          letterSpacing: '0.5px'
-        }}>
+        <span style={{ fontWeight: '700', color: '#667eea', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
           {code}
         </span>
       )
@@ -190,12 +102,7 @@ const Voucher = () => {
       render: (_, record) => (
         <Tag 
           color={record.type === 'percent' ? 'blue' : 'green'}
-          style={{ 
-            fontWeight: '600', 
-            fontSize: '14px',
-            padding: '6px 16px',
-            borderRadius: '8px'
-          }}
+          style={{ fontWeight: '600', fontSize: '14px', padding: '6px 16px', borderRadius: '8px' }}
         >
           {record.type === 'percent' ? <FiPercent size={12} /> : <FiDollarSign size={12} />}
           {' '}{formatDiscount(record)}
@@ -210,7 +117,7 @@ const Voucher = () => {
       align: 'right',
       render: (value) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>
-          {value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không'}
+          {typeof value === 'number' && value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không'}
         </span>
       )
     },
@@ -222,40 +129,20 @@ const Voucher = () => {
       align: 'right',
       render: (value) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>
-          {value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không giới hạn'}
+          {typeof value === 'number' && value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không giới hạn'}
         </span>
       )
     },
     {
       title: 'Đã sử dụng',
+      dataIndex: 'used',
       key: 'used',
-      width: 140,
+      width: 120,
       align: 'center',
-      render: (_, record) => (
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          gap: '4px' 
-        }}>
-          <span style={{ fontSize: '13px', color: '#64748b' }}>
-            {record.used}/{record.quantity}
-          </span>
-          <div style={{ 
-            width: '60px', 
-            height: '4px', 
-            background: '#e2e8f0', 
-            borderRadius: '4px',
-            overflow: 'hidden'
-          }}>
-            <div style={{ 
-              width: `${(record.used / record.quantity) * 100}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-              transition: 'width 0.3s'
-            }} />
-          </div>
-        </div>
+      render: (value) => (
+        <span style={{ fontSize: '13px', color: '#64748b' }}>
+          {value ?? 0}
+        </span>
       )
     },
     {
@@ -263,13 +150,7 @@ const Voucher = () => {
       key: 'dates',
       width: 200,
       render: (_, record) => (
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          gap: '2px',
-          fontSize: '13px',
-          color: '#64748b'
-        }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '13px', color: '#64748b' }}>
           <span>{formatDate(record.startDate)}</span>
           <span>{formatDate(record.endDate)}</span>
         </div>
@@ -312,7 +193,6 @@ const Voucher = () => {
     }
   ];
 
-  // ============= PAGINATION =============
   const paginationConfig = {
     current: currentPage,
     pageSize: 10,
@@ -324,10 +204,8 @@ const Voucher = () => {
     setCurrentPage(pagination.current);
   };
 
-  // ============= MAIN RENDER =============
   return (
     <div className="voucher-page">
-      {/* Header */}
       <div className="voucher-header">
         <div className="header-left">
           <h1>Quản lý Voucher</h1>
@@ -335,11 +213,10 @@ const Voucher = () => {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid">
-        {STATS_CONFIG.map(stat => (
+        {STATS_CONFIG.map((stat, index) => (
           <StatsCard
-            key={stat.key}
+            key={index}
             title={stat.title}
             value={stats[stat.key]}
             icon={stat.icon}
@@ -349,7 +226,6 @@ const Voucher = () => {
         ))}
       </div>
 
-      {/* Toolbar */}
       <div className="voucher-toolbar">
         <div className="toolbar-left">
           <div className="search-box-toolbar">
@@ -385,32 +261,7 @@ const Voucher = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="voucher-filters">
-        <div className="filter-group">
-          <label>Trạng thái:</label>
-          <div className="filter-tabs">
-            <button 
-              className={`filter-tab ${statusFilter === 'all' ? 'active' : ''}`}
-              onClick={() => handleStatusChange('all')}
-            >
-              Tất cả
-            </button>
-            <button 
-              className={`filter-tab ${statusFilter === 'active' ? 'active' : ''}`}
-              onClick={() => handleStatusChange('active')}
-            >
-              Đang hoạt động
-            </button>
-            <button 
-              className={`filter-tab ${statusFilter === 'expired' ? 'active' : ''}`}
-              onClick={() => handleStatusChange('expired')}
-            >
-              Đã hết hạn
-            </button>
-          </div>
-        </div>
-
         <div className="filter-group">
           <label>Loại giảm giá:</label>
           <div className="filter-tabs">
@@ -426,7 +277,7 @@ const Voucher = () => {
             >
               Phần trăm
             </button>
-            <button 
+                        <button 
               className={`filter-tab ${typeFilter === 'fixed' ? 'active' : ''}`}
               onClick={() => handleTypeChange('fixed')}
             >
@@ -436,7 +287,6 @@ const Voucher = () => {
         </div>
       </div>
 
-      {/* Content */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <p>Đang tải dữ liệu...</p>
@@ -449,7 +299,15 @@ const Voucher = () => {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="vouchers-grid">
-          {filteredVouchers.map(renderVoucherCard)}
+          {filteredVouchers.map((voucher) => (
+            <VoucherCard 
+              key={voucher.id}
+              voucher={voucher}   // ✅ truyền toàn bộ object để tránh thiếu dữ liệu
+              setSelectedVoucher={() => {}}
+              disabled={false}
+              isAdmin={true}
+            />
+          ))}
         </div>
       ) : (
         <DataTable
@@ -464,7 +322,6 @@ const Voucher = () => {
         />
       )}
 
-      {/* Form Modal */}
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

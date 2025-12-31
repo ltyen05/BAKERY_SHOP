@@ -1,6 +1,3 @@
-// ===============================================
-//  src/pages/Employee/employeeConstants.js - FIXED
-// ===============================================
 import { 
   FiUser, 
   FiMail, 
@@ -15,30 +12,27 @@ import {
   FiUserX
 } from 'react-icons/fi';
 
-// ============= STATS CONFIG =============
-
 export const STATS_CONFIG = [
   {
     key: 'total',
     title: 'Tổng nhân viên',
-    icon: FiUsers,  // ← KHÔNG có <>
+    icon: FiUsers,
     color: 'blue'
   },
   {
     key: 'active',
     title: 'Đang làm việc',
-    icon: FiUserCheck,  // ← KHÔNG có <>
+    icon: FiUserCheck,
     color: 'green'
   },
   {
     key: 'inactive',
     title: 'Nghỉ việc',
-    icon: FiUserX,  // ← KHÔNG có <>
+    icon: FiUserX,
     color: 'orange'
   }
 ];
 
-// ============= ROLE TABS =============
 export const ROLE_TABS = [
   { id: 'all', label: 'Tất cả', role: null },
   { id: 'manager', label: 'Quản lý', role: 'Quản lý' },
@@ -46,7 +40,6 @@ export const ROLE_TABS = [
   { id: 'sales', label: 'Bán hàng', role: 'Bán hàng' }
 ];
 
-// ============= BRANCHES =============
 export const BRANCHES = [
   { value: '1', label: 'HUS Bakery - Hoàn Kiếm', code: 'CN001' },
   { value: '2', label: 'HUS Bakery - Cầu Giấy', code: 'CN002' },
@@ -55,13 +48,11 @@ export const BRANCHES = [
   { value: '5', label: 'HUS Bakery - Thanh Xuân', code: 'CN005' }
 ];
 
-// Helper function để lấy tên chi nhánh
 export const getBranchName = (branchId) => {
   const branch = BRANCHES.find(b => b.value === String(branchId));
   return branch ? branch.label : `Chi nhánh ${branchId}`;
 };
 
-// ============= FORM FIELDS =============
 export const EMPLOYEE_FIELDS = [
   {
     name: 'name',
@@ -141,7 +132,6 @@ export const EMPLOYEE_FIELDS = [
   }
 ];
 
-// Fields cho Edit (có thể đổi password hoặc không)
 export const EMPLOYEE_EDIT_FIELDS = EMPLOYEE_FIELDS.map(field => {
   if (field.name === 'password') {
     return {
@@ -153,7 +143,6 @@ export const EMPLOYEE_EDIT_FIELDS = EMPLOYEE_FIELDS.map(field => {
   return field;
 });
 
-// ============= HELPER FUNCTIONS =============
 export const getInitials = (name) => {
   if (!name) return 'NA';
   return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();

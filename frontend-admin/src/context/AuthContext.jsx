@@ -1,60 +1,98 @@
 // ===============================================
-// Location: src/context/AuthContext.jsx - FIXED
+// FILE: frontend-admin/src/context/AuthContext.jsx
+// FIX: Loại bỏ mock data, chỉ dùng localStorage
 // ===============================================
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { message } from 'antd';
 
 const AuthContext = createContext();
 
-// ✅ Mock users - ĐÃ FIX branch_id thành số
-const mockUsers = {
-  superAdmin: {
-    id: 'SA001',
-    name: 'Helen Walter',
-    email: 'helen@husbakery.vn',
-    role: 'super_admin',
-    branch_id: null,
-    branch_name: null,
-    viewing_branch: null
-  },
-  branchAdmin: {
-    id: 'BA001',
-    name: 'Nguyễn Bảo Thạch',
-    email: 'thach@husbakery.vn',
-    role: 'admin',
-    branch_id: 1, // ✅ ĐÃ SỬA: Số thực, không phải 'CN001'
-    branch_name: 'HUS Bakery - Hoàn Kiếm',
-    viewing_branch: null
-  }
-};
-
 export const AuthProvider = ({ children }) => {
-  // Mặc định là Super Admin (hoặc đổi thành branchAdmin để test)
-  const [user, setUser] = useState(mockUsers.superAdmin);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Hàm để super admin xem chi nhánh cụ thể
+  // ========== KHỞI TẠO: ĐỌC TỪ LOCALSTORAGE ==========
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
+  /**
+   * Đọc thông tin admin từ localStorage
+   */
+  const initializeAuth = () => {
+    try {
+      const adminInfoStr = localStorage.getItem('admin_info');
+
+      if (!adminInfoStr) {
+        console.log('[Auth] Chưa đăng nhập');
+        setLoading(false);
+        return;
+      }
+
+      const adminInfo = JSON.parse(adminInfoStr);
+      console.log('[Auth] Loaded user:', adminInfo);
+
+      setUser(adminInfo);
+    } catch (error) {
+      console.error('[Auth] Error:', error);
+      localStorage.removeItem('admin_info');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Đăng xuất
+   */
+  const logout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('employee_id');
+    localStorage.removeItem('admin_info');
+    setUser(null);
+    window.location.href = '/login';
+  };
+
+  /**
+   * Super Admin xem chi nhánh cụ thể
+   */
   const viewBranch = (branch) => {
-    setUser(prev => ({
-      ...prev,
+    if (!isSuperAdmin) {
+      message.warning('Chỉ Super Admin mới có thể xem chi nhánh');
+      return;
+    }
+
+    const updatedUser = {
+      ...user,
       viewing_branch: branch
-    }));
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('admin_info', JSON.stringify(updatedUser));
+    message.info(`Đang xem chi nhánh: ${branch.name}`);
   };
 
-  // Hàm để về lại chế độ xem tổng quan
+  /**
+   * Super Admin quay về xem tổng quan
+   */
   const viewAllBranches = () => {
-    setUser(prev => ({
-      ...prev,
+    if (!isSuperAdmin) return;
+
+    const updatedUser = {
+      ...user,
       viewing_branch: null
-    }));
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('admin_info', JSON.stringify(updatedUser));
+    message.info('Đã quay về chế độ xem tổng quan');
   };
 
-  // Helper functions
+  // ========== HELPER FUNCTIONS ==========
+
   const isSuperAdmin = user?.role === 'super_admin';
   const isBranchAdmin = user?.role === 'admin';
-  
-  // Super admin đang xem 1 chi nhánh cụ thể
   const isViewingBranch = isSuperAdmin && user?.viewing_branch !== null;
-  
-  // Lấy branch hiện tại đang xem
+
   const getCurrentBranch = () => {
     if (isBranchAdmin) {
       return {
@@ -62,22 +100,57 @@ export const AuthProvider = ({ children }) => {
         name: user.branch_name
       };
     }
+
     if (isViewingBranch) {
       return user.viewing_branch;
     }
+
     return null;
   };
+
+  // ========== PERMISSION CHECKS ==========
+
+  const canManageProducts = () => isSuperAdmin;
+  const canManageVouchers = () => isSuperAdmin;
+  const canViewProducts = () => isSuperAdmin || isBranchAdmin;
+  const canViewVouchers = () => isSuperAdmin || isBranchAdmin;
+  const canManageBranches = () => isSuperAdmin;
+
+  // ========== CONTEXT VALUE ==========
 
   const value = {
     user,
     setUser,
+    loading,
+    logout,
     isSuperAdmin,
     isBranchAdmin,
     isViewingBranch,
     viewBranch,
     viewAllBranches,
-    getCurrentBranch
+    getCurrentBranch,
+    canManageProducts,
+    canManageVouchers,
+    canViewProducts,
+    canViewVouchers,
+    canManageBranches
   };
+
+  // Chỉ hiển thị loading khi đang check auth lần đầu
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        Đang tải...
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>

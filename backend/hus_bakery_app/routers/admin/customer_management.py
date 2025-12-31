@@ -8,10 +8,7 @@ customer_admin_bp = Blueprint('customer_admin_bp', __name__)
 @customer_admin_bp.route("/customer", methods=['GET'])
 def get_all_customers():
     # 1. Lấy branch_id từ URL query string
-    branch_id = request.args.get('branch_id')
     filter_rank = request.args.get('rank')
-    if not branch_id:
-        return jsonify({"error": "Vui lòng cung cấp branch_id"}), 400
 
     # 2. Truyền branch_id vào service
     raw_data = get_all_customers_with_stats_service()

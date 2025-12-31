@@ -204,17 +204,22 @@ def get_product_was_bought(customer_id):
 
     return res
 
-def get_branch_detail(branch_id):
-    branch = Branch.query.get(branch_id)
-    details = {
-        "id": branch.branch_id,
-        "name": branch.branch_name,
-        "address": branch.address,
-        "phone": branch.phone,
-        "email" : branch.email,
-        "manager_id" : branch.manager_id,
-        "mapSrc": branch.map_src,
-        "lat": branch.lat,
-        "lon": branch.lon,
-    }
-    return details
+def get_branch_detail():
+    branches = Branch.query.all()
+    branches_list = []
+
+    for branch in branches:
+        details = {
+            "id": branch.branch_id,
+            "name": branch.branch_name,
+            "address": branch.address,
+            "phone": branch.phone,
+            "email": branch.email,
+            "manager_id": branch.manager_id,
+            "mapSrc": branch.map_src,
+            "lat": branch.lat,
+            "lon": branch.lon,
+        }
+        branches_list.append(details)
+
+    return branches_list

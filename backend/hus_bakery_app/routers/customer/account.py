@@ -166,15 +166,9 @@ def api_get_bought_products():
             "message": f"Đã xảy ra lỗi: {str(e)}"
         }), 500
 
-@account_bp.route("/branch_detail/<int:branch_id>", methods=["GET"])
-def api_get_branch_info(branch_id):
-    if not branch_id:
-        return jsonify({
-            "status": "error",
-            "message": "Không tìm thấy chi nhánh"
-        }), 404
-
-    details = get_branch_detail(branch_id)
+@account_bp.route("/branch_detail", methods=["GET"])
+def api_get_branch_info():
+    details = get_branch_detail()
 
     return jsonify({
         "status": "success",

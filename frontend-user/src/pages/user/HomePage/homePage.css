@@ -211,3 +211,32 @@
     padding: 60px 15px;
   }
 }
+.banner-title {
+  font-size: 3rem;
+  color: #8b4513; /* nâu bánh mì */
+  margin-bottom: 20px;
+}
+
+.banner-description {
+  font-size: 1.2rem;
+  color: #a0522d;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .about-section {
+    padding: 60px 15px;
+  }
+  .banner-description {
+    display: none;
+  }
+  .banner-title {
+    font-size: 28px;
+  }
+}
+@media (min-width: 768px) {
+  .banner-container {
+    margin-top: -70px;
+  }
+}

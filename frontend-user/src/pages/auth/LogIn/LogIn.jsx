@@ -21,10 +21,8 @@ export default function Login() {
       if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role == "shipper") {
-        alert("It's here");
         navigate("/shipperDashBoard");
       } else {
-        alert("Đăng nhập thành công");
         navigate("/");
       }
     } catch (err) {

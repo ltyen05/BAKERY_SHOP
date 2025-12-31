@@ -2,7 +2,7 @@ import { createContext, use, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../api/authApi";
 import { tokenStorage } from "../utils/token";
-
+import logo from "../assets/bakes.svg";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -83,7 +83,11 @@ export function AuthProvider({ children }) {
   };
 
   if (loading) {
-    return <div>Đang xác thực...</div>;
+    return (
+      <div style={{ width: "100%", height: "100%" }} className="fl-center">
+        <img src={logo} alt="logoStore" style={{ width: "200px" }} />
+      </div>
+    );
   }
 
   return (

@@ -83,7 +83,33 @@ function HomePage() {
 
   return (
     <div className="mb-6">
-      <div className="cham mb-24"></div>
+      <div className="cham mb-24 fl-center" style={{ textAlign: "start" }}>
+        <Row
+          align="middle"
+          style={{
+            width: "90%",
+            maxWidth: "1300px",
+          }}
+          className="banner-container"
+        >
+          {/* Left side: Text + button */}
+          <Col xs={16} ms={16} md={10}>
+            <h1 className="banner-title">HUS BAKERY</h1>
+            <p className="banner-description">
+              Chất lượng tuyệt hảo, hương vị thơm ngon đến tay bạn mỗi sáng.
+              Ngọt ngào, giòn tan, thơm phức.
+            </p>
+
+            <Button
+              size="large"
+              className="btn-primary"
+              style={{ border: "2px solid  #ff8c00" }}
+            >
+              <DoubleRightOutlined /> Xem Menu
+            </Button>
+          </Col>
+        </Row>
+      </div>
       <div className="mb-6">
         <Row>
           <Col span={24} className="fl-center mb-3">
@@ -103,6 +129,7 @@ function HomePage() {
                   product_name={item?.name}
                   price={item?.price}
                   image={item?.image}
+                  rating={item?.rating}
                   onAddToCart={handleAddToCart} // ⭐ Truyền handler mới
                   isAddingToCart={addingToCart} // ⭐ Truyền loading state
                 />

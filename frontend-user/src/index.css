@@ -346,7 +346,11 @@ body,
     cursor: pointer !important;
   }
 }
-
+@media (min-width: 768px) {
+  .md-hidden {
+    display: none;
+  }
+}
 .custom-pagination .ant-pagination-item-active,
 .custom-pagination .ant-pagination-item-active:hover {
   background: #f97316;

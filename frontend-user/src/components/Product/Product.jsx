@@ -67,6 +67,7 @@ function Product({
   product_name,
   price,
   image,
+  rating,
   onAddToCart,
   isAddingToCart, // ⭐ Thêm prop
 }) {
@@ -99,7 +100,7 @@ function Product({
             </div>
             <div className="rating">
               <img src={starIcon} alt="star" />
-              <span>4.5</span>
+              <span>{rating}</span>
             </div>
           </div>
 

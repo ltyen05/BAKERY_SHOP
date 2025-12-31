@@ -9,6 +9,7 @@ import {
   LogoutOutlined,
   LockOutlined,
   DownOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import ReviewNotification from "../Notification/ReviewNotification";
 import Cart from "../Cart/Cart";
@@ -67,6 +68,11 @@ function NavBar({
   refetchCart,
   setProductInCart,
 }) {
+  const [openMenu, setOpenMenu] = useState(false);
+  const totalItems = productInCart.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
   const isCustomer = user?.role === "customer";
   const view = {
     items: [
@@ -204,13 +210,22 @@ function NavBar({
         align="bottom"
         style={{ height: "77px", width: "90%" }}
       >
-        <Col xs={6} md={4}>
-          <Row justify="start">
-            <img
-              src={bakesLogo}
-              alt="Stylized bakery logo"
-              style={{ height: "55px" }}
+        <Col xs={9} md={4}>
+          <Row justify="space-between">
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              className="md-hidden"
+              onClick={() => setOpenMenu(true)}
+              style={{ marginTop: "10px" }}
             />
+            <Link to="/">
+              <img
+                src={bakesLogo}
+                alt="Stylized bakery logo"
+                style={{ height: "55px" }}
+              />
+            </Link>
           </Row>
         </Col>
 
@@ -278,7 +293,11 @@ function NavBar({
                             borderRadius: "50px",
                           }}
                         >
-                          <img src={cart} alt="cart-image" width="30px" />
+                          <Badge count={totalItems} showZero color="#ab5506ff">
+                            <div className="fl-center">
+                              <img src={cart} alt="cart-image" width="30px" />
+                            </div>
+                          </Badge>
                         </div>
                       </button>
                       <Drawer
@@ -325,6 +344,21 @@ function NavBar({
           </Row>
         </Col>
       </Row>
+      <Drawer
+        title="Menu"
+        placement="left"
+        open={openMenu}
+        onClose={() => setOpenMenu(false)}
+        width={260}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {getRoutesByPosition(routes_middle).map((comp, idx) => (
+            <div key={idx} onClick={() => setOpenMenu(false)}>
+              {comp}
+            </div>
+          ))}
+        </div>
+      </Drawer>
     </div>
   );
 }

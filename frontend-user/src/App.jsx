@@ -11,6 +11,7 @@ import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultShipperHeader from "./components/DefaultComponent/DefaultShipperHeader";
 import DefaultBreadCrumbs from "./components/DefaultComponent/DefaultBreadCrumbs";
 import ScrollToTop from "./components/ScrollToTop";
+import logo from "./assets/bakes.svg";
 import RoleGuard from "./components/RoleGuard/RoleGuard";
 function renderRoutes(routes) {
   return routes.map((route) => {
@@ -63,7 +64,13 @@ function renderRoutes(routes) {
 }
 function AppContent() {
   return (
-    <Suspense fallback={<div>Đang tải trang...</div>}>
+    <Suspense
+      fallback={
+        <div style={{ width: "100%", height: "100%" }} className="fl-center">
+          <img src={logo} alt="logoStore" style={{ width: "200px" }} />
+        </div>
+      }
+    >
       <Routes>{renderRoutes(routes)}</Routes>
     </Suspense>
   );

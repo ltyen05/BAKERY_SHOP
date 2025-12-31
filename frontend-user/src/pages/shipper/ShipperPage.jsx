@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Card, Avatar, Button, Steps, message, Empty, Popconfirm } from "antd";
+import {
+  Card,
+  Avatar,
+  Button,
+  Steps,
+  message,
+  Empty,
+  Popconfirm,
+  Col,
+  Row,
+} from "antd";
 import {
   PhoneOutlined,
-  MessageOutlined,
   EnvironmentOutlined,
   DollarOutlined,
   ClockCircleOutlined,
   EyeOutlined,
   CloseOutlined,
+  CheckCircleOutlined,
+  CarOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import { useOrder } from "../../context/OrderContext";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
@@ -15,6 +27,21 @@ import OrderDetails from "../../components/Order/OrderDetails";
 /* =========================
    STEP <-> STATUS MAP
 ========================= */
+const STEP_ITEMS = [
+  {
+    title: "Đang xử lý",
+    icon: <InboxOutlined />,
+  },
+  {
+    title: "Đang giao",
+    icon: <CarOutlined />,
+  },
+  {
+    title: "Đã giao",
+    icon: <CheckCircleOutlined />,
+  },
+];
+
 const STEP_STATUS_MAP = {
   0: "Đang xử lý",
   1: "Đang giao",
@@ -31,6 +58,7 @@ const OrderDetailPage = () => {
   /* =========================
      MOCK DATA (GIẢ LẬP BACKEND)
   ========================= */
+  const [messageApi, contextHolder] = message.useMessage();
   const { orderDetails } = useOrder();
   const [currentOrder, setCurrentOrder] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -62,7 +90,7 @@ const OrderDetailPage = () => {
       setCurrentOrder(order);
     } catch (error) {
       console.error("Lỗi khi gọi API:", error);
-      message.error("Không thể tải đơn hàng!");
+      messageApi.error("Không thể tải đơn hàng!");
     } finally {
       setLoading(false);
     }
@@ -132,7 +160,7 @@ const OrderDetailPage = () => {
         throw new Error(data.message || "Cập nhật thất bại");
       }
 
-      message.success("Cập nhật trạng thái thành công");
+      messageApi.success("Cập nhật trạng thái thành công");
 
       if (nextStep >= steps.length - 1) {
         // Nếu đã đến trạng thái cuối, xoá đơn
@@ -145,8 +173,8 @@ const OrderDetailPage = () => {
         setCurrentStatus({ status: nextStatus });
       }
     } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-      message.error("Cập nhật trạng thái thất bại");
+      // console.error("Lỗi khi cập nhật trạng thái:", error);
+      messageApi.error("Cập nhật trạng thái thất bại");
     }
   };
   useEffect(() => {
@@ -251,9 +279,11 @@ const OrderDetailPage = () => {
 
           <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
             <Button
+              size="large"
               icon={<EyeOutlined />}
               block
               onClick={() => setShowDetail(true)}
+              className="btn-primary"
             >
               Chi tiết
             </Button>
@@ -273,73 +303,95 @@ const OrderDetailPage = () => {
             Trạng thái đơn hàng
           </h2>
 
-          <Steps current={currentStep}>
-            {steps.map((s, i) => (
-              <Steps.Step key={i} title={s.title} />
-            ))}
-          </Steps>
+          <Steps
+            current={currentStep}
+            labelPlacement="vertical"
+            items={STEP_ITEMS.map((item, index) => ({
+              ...item,
+              icon: React.cloneElement(item.icon, {
+                style: {
+                  borderRadius: "50%",
+                  fontSize: 24, // giữ icon step 2 lớn hơn
+                  border:
+                    index === currentStep
+                      ? "2px solid #fdfbf5"
+                      : "2px solid #D93F3C",
+                  padding: 8,
+                  color: index === currentStep ? "#fdfbf5" : "#D93F3C",
+                  backgroundColor:
+                    index === currentStep ? "#D93F3C" : "#fdfbf5",
+                },
+              }),
+            }))}
+            style={{ marginTop: 16 }}
+          />
 
-          <div
-            style={{
-              gap: 12,
-            }}
-            className="mt-3 fl"
+          <Row
+            // style={{
+            //   gap: 12,
+            // }}
+            className="mt-6"
+            justify="space-around"
           >
             {/* Nút cập nhật trạng thái */}
-            <Button
-              type="primary"
-              block
-              size="large"
-              onClick={handleUpdateStatus}
-            >
-              Cập nhật trạng thái
-            </Button>
+            <Col xs={22} md={10} className="mb-3">
+              <Button
+                block
+                size="large"
+                onClick={handleUpdateStatus}
+                className="btn-primary"
+              >
+                Cập nhật trạng thái
+              </Button>
+            </Col>
 
             {/* Nút giao không thành công */}
-            <Popconfirm
-              title="Xác nhận giao không thành công?"
-              onConfirm={async () => {
-                if (!currentOrder) return;
+            <Col xs={22} md={10}>
+              <Popconfirm
+                title="Xác nhận giao không thành công?"
+                onConfirm={async () => {
+                  if (!currentOrder) return;
 
-                try {
-                  const response = await fetchWithAuth(
-                    "http://localhost:5000/api/shipper/notifications/update_order_status",
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        order_id: currentOrder.order_id,
-                        status: "Không thành công", // trạng thái thất bại
-                      }),
+                  try {
+                    const response = await fetchWithAuth(
+                      "http://localhost:5000/api/shipper/notifications/update_order_status",
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          order_id: currentOrder.order_id,
+                          status: "Không thành công", // trạng thái thất bại
+                        }),
+                      }
+                    );
+
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                      throw new Error(data.message || "Cập nhật thất bại");
                     }
-                  );
 
-                  const data = await response.json();
-                  if (!response.ok || !data.success) {
-                    throw new Error(data.message || "Cập nhật thất bại");
+                    // Xoá đơn khỏi UI vì đã thất bại
+                    setCurrentOrder([]);
+                    setCurrentStep(0);
+                    setCurrentStatus(null);
+
+                    messageApi.success("Cập nhật trạng thái: Không thành công");
+                  } catch (error) {
+                    console.error(error);
+                    messageApi.error("Cập nhật trạng thái thất bại");
                   }
-
-                  // Xoá đơn khỏi UI vì đã thất bại
-                  setCurrentOrder([]);
-                  setCurrentStep(0);
-                  setCurrentStatus(null);
-
-                  message.success("Cập nhật trạng thái: Không thành công");
-                } catch (error) {
-                  console.error(error);
-                  message.error("Cập nhật trạng thái thất bại");
-                }
-              }}
-              okText="Xác nhận"
-              cancelText="Hủy"
-            >
-              <Button danger block>
-                Giao không thành công
-              </Button>
-            </Popconfirm>
-          </div>
+                }}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button size="large" danger block>
+                  Giao không thành công
+                </Button>
+              </Popconfirm>
+            </Col>
+          </Row>
         </Card>
       </div>
       {showDetail && (

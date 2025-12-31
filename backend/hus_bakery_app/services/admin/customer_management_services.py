@@ -5,13 +5,7 @@ from hus_bakery_app.models.order import Order
 
 
 def get_all_customers_with_stats_service(branch_id):
-    results = db.session.query(
-        Customer,
-        func.sum(Order.total_amount).label('total_spent')
-    ).outerjoin(Order, Customer.customer_id == Order.customer_id) \
-        .filter(Order.branch_id == branch_id) \
-        .group_by(Customer.customer_id).all()
-
+    results = Customer.query.all()
     return results
 
 

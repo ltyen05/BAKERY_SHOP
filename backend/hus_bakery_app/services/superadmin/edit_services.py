@@ -6,6 +6,7 @@ from datetime import datetime
 from hus_bakery_app import db
 
 def add_branch_service(data):
+    manager_id = data.get('manager_id')
     # Tạo đối tượng Branch mới với đầy đủ các trường từ file branches.py
     new_branch = Branch(
         name=data.get('name'),
@@ -18,16 +19,44 @@ def add_branch_service(data):
         manager_id=data.get('manager_id')
     )
 
+    if manager_id:
+        employee = Employee.query.get(manager_id)
+        if employee:
+            employee.role_name = 'Quản lý'
+            employee.branch_id = new_branch.branch_id
+        else:
+            pass
     db.session.add(new_branch)
     db.session.commit()
     return new_branch
+
 
 def update_branch_service(branch_id, data):
     branch = Branch.query.get(branch_id)
     if not branch:
         return None
 
-    # Cập nhật các trường thông tin
+    # Lấy ID quản lý cũ và mới
+    old_manager_id = branch.manager_id
+    new_manager_id = data.get('manager_id')
+
+    # Chỉ thực hiện hoán đổi nếu có sự thay đổi người quản lý
+    if new_manager_id and new_manager_id != old_manager_id:
+
+        # 1. Chuyển quản lý cũ thành 'Nhân viên'
+        if old_manager_id:
+            old_manager = Employee.query.get(old_manager_id)
+            if old_manager:
+                old_manager.role_name = 'Nhân viên'
+
+        # 2. Chuyển nhân viên mới thành 'Quản lý'
+        new_manager = Employee.query.get(new_manager_id)
+        if new_manager:
+            new_manager.role_name = 'Quản lý'
+            # Cập nhật luôn chi nhánh làm việc cho quản lý mới nếu cần
+            new_manager.branch_id = branch_id
+
+    # 3. Cập nhật các trường thông tin của chi nhánh
     branch.name = data.get('name', branch.name)
     branch.address = data.get('address', branch.address)
     branch.phone = data.get('phone', branch.phone)
@@ -35,9 +64,14 @@ def update_branch_service(branch_id, data):
     branch.mapSrc = data.get('mapSrc', branch.mapSrc)
     branch.lat = data.get('lat', branch.lat)
     branch.lng = data.get('lng', branch.lng)
-    branch.manager_id = data.get('manager_id', branch.manager_id)
+    branch.manager_id = new_manager_id if new_manager_id else branch.manager_id
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
     return branch
 
 def create_employee_service(data):

@@ -15,13 +15,13 @@ from hus_bakery_app.services.superadmin.edit_services import (
 
 admin_mgmt_bp = Blueprint('admin_mgmt', __name__)
 
-@admin_mgmt_bp.route('/branches', methods=['POST'])
+@admin_mgmt_bp.route('/add_branch', methods=['POST'])
 def create_branch():
     data = request.json
     branch = add_branch_service(data)
     return jsonify({"success": True, "message": "Thêm chi nhánh thành công", "id": branch.branch_id}), 201
 
-@admin_mgmt_bp.route('/branches/<int:id>', methods=['PUT'])
+@admin_mgmt_bp.route('/update_branch/<int:id>', methods=['PUT'])
 def update_branch(id):
     data = request.json
     branch = update_branch_service(id, data)
@@ -72,7 +72,7 @@ def update_coupon(id):
     return jsonify({"success": False, "message": "Không tìm thấy mã giảm giá"}), 404
 
 # Chi tiết chi nhánh
-@admin_mgmt_bp.route('/branches/<int:id>', methods=['GET'])
+@admin_mgmt_bp.route('/branch/<int:id>', methods=['GET'])
 def get_branch_detail(id):
     branch_data = get_branch_detail_service(id)
     if branch_data:

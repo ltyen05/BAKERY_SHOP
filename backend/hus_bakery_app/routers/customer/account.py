@@ -31,7 +31,6 @@ def profile_api():
     identity_str = get_jwt_identity()  # Lúc này là chuỗi '{"id": 17, "role": "customer"}'
 
     try:
-        # Chuyển từ chuỗi JSON ngược lại thành Dictionary
         identity = json.loads(identity_str)
         current_user_id = identity["id"]
     except Exception:
@@ -47,7 +46,6 @@ def profile_api():
             "name": user.name,
             "email": user.email,
             "phone": user.phone,
-            "address": user.address,
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
@@ -147,7 +145,7 @@ def api_get_bought_products():
         else:
             identity = identity_data
 
-        customer_id = identity.get("customer_id")
+        customer_id = identity.get("id")
 
         if not customer_id:
             return jsonify({

@@ -150,7 +150,11 @@ def api_get_bought_products():
         customer_id = identity.get("customer_id")
 
         if not customer_id:
-            return jsonify({"message": "Không tìm thấy ID khách hàng trong token"}), 400
+            return jsonify({
+                "status": "error",
+                "total": None,
+                "message": "Không tìm thấy ID khách hàng trong token"
+            }), 400
 
         products = get_product_was_bought(customer_id)
 
@@ -163,6 +167,7 @@ def api_get_bought_products():
     except Exception as e:
         return jsonify({
             "status": "error",
+            "total": None,
             "message": f"Đã xảy ra lỗi: {str(e)}"
         }), 500
 

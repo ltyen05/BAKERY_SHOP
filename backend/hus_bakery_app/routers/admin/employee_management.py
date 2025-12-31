@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+import json
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.admin.employee_management_services import (
     get_all_employees_service, add_employee_service,
     edit_employee_service, delete_employee_service
@@ -8,7 +10,12 @@ employee_admin_bp = Blueprint('employee_admin_bp', __name__)
 
 
 @employee_admin_bp.route('/employee', methods=['GET'])
+@jwt_required()
 def get_employees():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền xem danh sách nhân viên"}), 403
+
     status_filter = request.args.get('status')
     raw_employees = get_all_employees_service()
 
@@ -31,7 +38,12 @@ def get_employees():
 
 
 @employee_admin_bp.route('/add_employee', methods=['POST'])
+@jwt_required()
 def add_employee():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Chỉ Admin mới có thể thêm nhân viên"}), 403
+
     data = request.json
     try:
         new_emp = add_employee_service(data)
@@ -41,7 +53,12 @@ def add_employee():
 
 
 @employee_admin_bp.route('/update_employee/<int:emp_id>', methods=['PUT'])
+@jwt_required()
 def update_employee(emp_id):
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền chỉnh sửa nhân sự"}), 403
+
     data = request.json
     updated_emp = edit_employee_service(emp_id, data)
     if updated_emp:
@@ -50,7 +67,12 @@ def update_employee(emp_id):
 
 
 @employee_admin_bp.route('/delete_employee/<int:emp_id>', methods=['DELETE'])
+@jwt_required()
 def delete_employee(emp_id):
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền xóa nhân sự"}), 403
+
     if delete_employee_service(emp_id):
         return jsonify({"message": "Xóa nhân viên thành công"}), 200
     return jsonify({"error": "Không tìm thấy nhân viên"}), 404

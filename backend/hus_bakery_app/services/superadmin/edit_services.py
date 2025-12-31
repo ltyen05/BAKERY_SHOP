@@ -2,6 +2,7 @@ from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.employee import Employee
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.coupon import Coupon
+
 from datetime import datetime
 from hus_bakery_app import db
 

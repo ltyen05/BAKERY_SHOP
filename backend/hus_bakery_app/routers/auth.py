@@ -1,14 +1,13 @@
 import json
 from flask import Blueprint, request, render_template, flash, redirect, url_for, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from .. import db
-from ..forms.signup import SignupForm
-from ..forms.login import LoginForm
-from ..models.customer import Customer
-from ..models.employee import Employee
-from ..models.shipper import Shipper
-from ..services.auth_services import login_user, generate_token, check_email_exist
-from ..services.auth_services import get_current_admin_service, request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
+from hus_bakery_app import db
+from hus_bakery_app.forms.signup import SignupForm
+from hus_bakery_app.forms.login import LoginForm
+from hus_bakery_app.models.customer import Customer
+from hus_bakery_app.models.employee import Employee
+from hus_bakery_app.models.shipper import Shipper
+from hus_bakery_app.services.auth_services import get_current_admin_service, request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_current_customer_service
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -37,12 +36,12 @@ def api_get_me():
             return jsonify({"error": "Customer not found"}), 404
         current_user_data = json.dumps(shipper_data)
 
-    elif current_role == 'admin':
+    elif current_role == 'employee':
         current_user_id = indetity["id"]
-        admin_data = get_current_admin_service(current_user_id)
-        if not admin_data:
+        e_data = get_current_admin_service(current_user_id)
+        if not e_data:
             return jsonify({"error": "Customer not found"}), 404
-        current_user_data = json.dumps(admin_data)
+        current_user_data = json.dumps(e_data)
 
     return jsonify(current_user_data,), 200
 
@@ -176,4 +175,3 @@ def reset_password():
         return jsonify({"status": "success", "message": message}), 200
     else:
         return jsonify({"status": "fail", "message": message}), 400
-

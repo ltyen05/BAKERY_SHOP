@@ -60,12 +60,6 @@ def get_current_admin_service(admin_id):
     }
     return info
 
-def get_user_by_id_and_role(user_id, role):
-    if role == 'customer': return Customer.query.get(user_id)
-    if role == 'employee' or role == 'admin': return Employee.query.get(user_id)
-    if role == 'shipper': return Shipper.query.get(user_id)
-    return None
-
 
 def find_user_instance(email):
     """Tìm user trong 3 bảng và trả về (user_object, role)"""

@@ -3,8 +3,12 @@ from hus_bakery_app.models.employee import Employee
 from werkzeug.security import generate_password_hash
 
 
-def get_all_employees_service():
-    return Employee.query.all()
+def get_all_employees_service(branch_id):
+    query = Employee.query
+    if branch_id:
+        query = query.filter(Employee.branch_id == branch_id)
+
+    return query.all()
 
 
 def add_employee_service(data):

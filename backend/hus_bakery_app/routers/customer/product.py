@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request
 from hus_bakery_app.services.customer.product_services import (
     get_top_3_products_service,
     get_products_by_category_service,
-    get_product_details_service
+    get_product_details_service,
+    get_rating_star_service
 )
 
 product_bp = Blueprint('product_bp', __name__)
@@ -17,6 +18,7 @@ def get_product_details(product_id):
 
     product, category_name = data
 
+    avg_star = get_rating_star_service(product_id)
     # Trả về dữ liệu chi tiết dưới dạng JSON
     return jsonify({
         "product_id": product.product_id,
@@ -24,7 +26,8 @@ def get_product_details(product_id):
         "price": float(product.unit_price),  # Ép kiểu Numeric về float để tránh lỗi JSON
         "description": product.description,
         "image": product.image_url,
-        "category_name": category_name
+        "category_name": category_name,
+        "rating": avg_star
     }), 200
 @product_bp.route("/top-selling", methods=["GET"])
 def api_get_top_products():
@@ -57,6 +60,7 @@ def api_filter_products_by_type():
                 "price": float(p.unit_price),
                 "category_name": cat_name,
                 "image": p.image_url,
+                "rating": get_rating_star_service(p.product_id)
             })
 
         return jsonify(result), 200

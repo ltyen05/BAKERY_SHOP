@@ -43,10 +43,26 @@ def get_current_shipper_service(shipper_id):
         "role": "shipper"
     }
 
+def get_current_admin_service(admin_id):
+    admin = Employee.query.get(admin_id)
+
+    if not admin:
+        return None
+
+    info = {
+        "id": admin.employee_id,
+        "name": admin.employee_name,
+        "role_name": admin.role_name,
+        "email": admin.email,
+        "salary": float(admin.salary) if admin.salary else 0,
+        "status": admin.status,
+        "branch_id": admin.branch_id,
+    }
+    return info
 
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)
-    if role == 'employee': return Employee.query.get(user_id)
+    if role == 'employee' or role == 'admin': return Employee.query.get(user_id)
     if role == 'shipper': return Shipper.query.get(user_id)
     return None
 

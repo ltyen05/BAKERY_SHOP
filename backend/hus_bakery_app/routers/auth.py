@@ -1,5 +1,4 @@
 import json
-
 from flask import Blueprint, request, render_template, flash, redirect, url_for, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from .. import db
@@ -9,7 +8,7 @@ from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
 from ..services.auth_services import login_user, generate_token, check_email_exist
-from ..services.auth_services import request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
+from ..services.auth_services import get_current_admin_service, request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -37,6 +36,13 @@ def api_get_me():
         if not shipper_data:
             return jsonify({"error": "Customer not found"}), 404
         current_user_data = json.dumps(shipper_data)
+
+    elif current_role == 'admin':
+        current_user_id = indetity["id"]
+        admin_data = get_current_admin_service(current_user_id)
+        if not admin_data:
+            return jsonify({"error": "Customer not found"}), 404
+        current_user_data = json.dumps(admin_data)
 
     return jsonify(current_user_data,), 200
 

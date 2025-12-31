@@ -40,7 +40,10 @@ def mark_customer_notification_read(order_id):
     return False
 
 def get_new_success_order_notification(customer_id):
-    latest_order = Order.query.get(Order, OrderStatus.status).join(OrderStatus, Order.order_id == OrderStatus.order_id).filter(Order.customer_id == customer_id).order_by(desc(OrderStatus.updated_at)).first()
+    latest_order = db.session.query(Order, OrderStatus.status)\
+        .join(OrderStatus, Order.order_id == OrderStatus.order_id)\
+        .filter(Order.customer_id == customer_id)\
+        .order_by(desc(OrderStatus.updated_at)).first()
 
     if latest_order:
         order_obj, current_status = latest_order
@@ -55,3 +58,31 @@ def get_new_success_order_notification(customer_id):
 
     return None
 
+from sqlalchemy import desc
+
+def get_all_success_order_notifications(customer_id):
+    # 1. Truy vấn tất cả các đơn hàng có trạng thái "Đã giao" của khách hàng này
+    success_orders = db.session.query(Order, OrderStatus.status)\
+        .join(OrderStatus, Order.order_id == OrderStatus.order_id)\
+        .filter(Order.customer_id == customer_id)\
+        .filter(OrderStatus.status == "Đã giao")\
+        .order_by(desc(OrderStatus.updated_at)).all()
+
+    # 2. Tạo một danh sách trống để chứa các thông báo
+    notifications = []
+
+    # 3. Duyệt qua từng bản ghi trả về từ Database
+    for order_obj, current_status in success_orders:
+        # Với mỗi đơn hàng, tạo một dictionary thông báo
+        notif_data = {
+            "order_id": order_obj.order_id,
+            "status": current_status,
+            "message": f"Đơn hàng #{order_obj.order_id} đã giao thành công! Chúc bạn ngon miệng. ❤️",
+            "can_review": True,
+            "created_at": order_obj.created_at # Bạn có thể lấy thêm thời gian nếu muốn
+        }
+        # Thêm vào danh sách tổng
+        notifications.append(notif_data)
+
+    # 4. Trả về toàn bộ danh sách (nếu không có đơn nào sẽ trả về danh sách rỗng [])
+    return notifications

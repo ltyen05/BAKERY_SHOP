@@ -10,8 +10,7 @@ employee_admin_bp = Blueprint('employee_admin_bp', __name__)
 @employee_admin_bp.route('/employee', methods=['GET'])
 def get_employees():
     status_filter = request.args.get('status')
-    branch_id = request.args.get('branch_id')
-    raw_employees = get_all_employees_service(branch_id)
+    raw_employees = get_all_employees_service()
 
     employee_list = []
     for e in raw_employees:

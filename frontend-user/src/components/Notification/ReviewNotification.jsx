@@ -1,28 +1,31 @@
 import React from "react";
 import { Badge, List, Avatar, Button, Space } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import { timeAgo } from "../../utils/timeAgo";
+import { useNavigate } from "react-router-dom";
 import "./notification.css";
-function ReviewNotification({ notification, onMarkRead, onDelete }) {
+function ReviewNotification({
+  notification,
+  onMarkRead,
+
+  handleOpenFeedback,
+}) {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (notification.unread) {
+      onMarkRead(notification.id); // ✅ đánh dấu đã đọc
+    }
+  };
   return (
     <List.Item
       className={`notification-item ${notification.unread ? "unread" : ""}`}
-      onClick={() => onMarkRead(notification.id)}
+      onClick={handleClick}
       style={{
         padding: "12px 20px",
         border: "none",
         borderBottom: "1px solid #f0f0f0",
       }}
     >
-      <Button
-        type="text"
-        size="small"
-        className="delete-btn"
-        icon={<span>✕</span>}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(notification.id);
-        }}
-      />
       <List.Item.Meta
         avatar={
           <Badge color="#92400e" className="mb-1">
@@ -68,6 +71,7 @@ function ReviewNotification({ notification, onMarkRead, onDelete }) {
                 type="link"
                 size="small"
                 style={{ color: "#92400e", padding: 0, height: "auto" }}
+                onClick={() => handleOpenFeedback(notification)}
               >
                 Đánh giá ngay
               </Button>

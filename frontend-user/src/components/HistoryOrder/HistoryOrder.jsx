@@ -233,7 +233,7 @@ const OrderHistory = () => {
               dataSource={filteredData}
               onChange={handleChange}
               pagination={{
-                pageSize: 6,
+                pageSize: 4,
                 className: "custom-pagination",
               }}
               scroll={{ x: "max-content" }}

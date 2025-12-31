@@ -111,10 +111,10 @@ function AboutUs() {
                 src={aboutUs1}
                 alt="About HUS Bakery"
                 style={{
-                  width: "100%",
                   height: "100%",
                   objectFit: "cover",
                 }}
+                className="w100"
               />
             </div>
           </Col>
@@ -200,10 +200,10 @@ function AboutUs() {
                 src={aboutUs1}
                 alt="About HUS Bakery"
                 style={{
-                  width: "100%",
                   objectFit: "cover",
                   display: "block",
                 }}
+                className="w100"
               />
             </div>
           </Col>
@@ -273,10 +273,10 @@ function AboutUs() {
                 src={aboutUs1}
                 alt="About HUS Bakery"
                 style={{
-                  width: "100%",
                   objectFit: "cover",
                   display: "block",
                 }}
+                className="w100"
               />
             </div>
           </Col>

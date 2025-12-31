@@ -6,12 +6,17 @@ import { useMemo } from "react";
 import Bread from "../../../assets/toast.svg";
 import Cookie from "../../../assets/cookie.svg";
 import Croissant from "../../../assets/croissant.svg";
+import { useAuth } from "../../../context/AuthContext";
+import history from "../../../assets/history.svg";
 const iconMap = {
   Bread: Bread,
   Cookie: Cookie,
   Pastry: Croissant,
+  "Đã mua": history,
 };
 export default function Menu() {
+  const { user } = useAuth();
+  const isCustomer = user?.role === "customer";
   const navigate = useNavigate();
   const location = useLocation();
   const menuRoute = useMemo(() => routes.find((r) => r.path === "/menu"), []);
@@ -19,7 +24,12 @@ export default function Menu() {
   const items = useMemo(() => {
     if (!menuRoute?.children) return [];
     return menuRoute.children
-      .filter((child) => child.name) // bỏ redirect (vì nó ko có name)
+      .filter((child) => {
+        if (!child.name) return false; // bỏ redirect
+        // chỉ hiển thị tab "Đã mua" nếu user là customer
+        if (child.path === "purchased" && !isCustomer) return false;
+        return true;
+      })
       .map((child) => ({
         key: child.path,
         label: (

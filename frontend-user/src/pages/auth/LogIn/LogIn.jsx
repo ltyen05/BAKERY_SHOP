@@ -31,17 +31,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-  // const handleSubmit = (values) => {
-  //   if (values.username === "admin" && values.password === "1234567979") {
-  //     onLogin({ username: "admin", role: "admin" });
-  //     alert("Đăng nhập thành công!");
-  //   } else if (values.username === "user" && values.password === "1234567979") {
-  //     onLogin({ username: "user", role: "user" });
-  //     alert("Đăng nhập thành công!");
-  //   } else {
-  //     alert("Tên đăng nhập hoặc mật khẩu không đúng!");
-  //   }
-  // };
 
   return (
     <div className="bound">
@@ -97,12 +86,8 @@ export default function Login() {
             </Form.Item>
             <Link to="/forgotPassword">Forgot Password</Link>
           </div>
-          <Form.Item style={{ width: "100%" }} className="m-0">
-            <Button
-              htmlType="submit"
-              style={{ width: "100%" }}
-              className="mb-3 btn btn-primary"
-            >
+          <Form.Item className="m-0 w100">
+            <Button htmlType="submit" className="mb-3 btn btn-primary w100">
               Đăng nhập
             </Button>
           </Form.Item>

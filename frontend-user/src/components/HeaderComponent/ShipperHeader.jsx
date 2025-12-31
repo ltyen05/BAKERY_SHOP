@@ -1,17 +1,16 @@
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-import { useState, useEffect } from "react";
-import { Dropdown, Space, Button, Badge, Drawer } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Dropdown, Space, Button, Badge, Drawer, Spin } from "antd";
 import bakesLogo from "../../assets/bakes.svg";
 import { routes } from "../../routes";
 import { LogoutOutlined, LockOutlined, MenuOutlined } from "@ant-design/icons";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import OrderNotification from "../Notification/OrderNotification";
-
 import bell from "../../assets/bell.svg";
+
 function getRoutesShipper(routesShipper) {
   return routesShipper.map((route) => {
-    // Route không có children → chỉ là link thường
     return (
       <Link
         key={route.path}
@@ -28,13 +27,177 @@ function getRoutesShipper(routesShipper) {
 function NavBar({ user, onLogout }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [notifications, setNotifications] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const latestIdRef = useRef(null);
+  const totalCountRef = useRef(0);
+  const isLoadingMoreRef = useRef(false);
+  const isShipper = user?.role === "shipper";
+
+  const hasUnread = notifications.some((n) => n.unread);
   useEffect(() => {
+    if (!isShipper) return;
     const timer = setInterval(() => {
       setNow(Date.now());
     }, 10000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isShipper]);
+
+  const checkForNewNotifications = async () => {
+    if (!isShipper) return;
+    try {
+      const res = await fetchWithAuth(
+        "http://localhost:5000/api/shipper/notifications/check-status",
+        { method: "GET" }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      // Check có thông báo mới không (dựa vào total_count hoặc latest_id)
+      const hasNewNotification =
+        totalCountRef.current > 0 &&
+        (data.total_count > totalCountRef.current ||
+          (data.latest_id && data.latest_id !== latestIdRef.current));
+      if (hasNewNotification) {
+        // Có thông báo mới → Fetch full data
+        await fetchAllNotifications(1, true);
+
+        // Phát âm thanh + notification
+        // playNotificationSound();
+        showBrowserNotification();
+
+        // Cập nhật refs
+        totalCountRef.current = data.total_count;
+        latestIdRef.current = data.latest_id;
+      }
+    } catch (err) {
+      console.error("Check notification error:", err);
+    }
+  };
+  const fetchAllNotifications = async (page = 1, reset = false) => {
+    if (!isShipper || isLoadingMoreRef.current) return;
+
+    isLoadingMoreRef.current = true;
+    setLoading(true);
+
+    try {
+      const res = await fetchWithAuth(
+        `http://localhost:5000/api/shipper/notifications/all-notifications?page=${page}`,
+        { method: "GET" }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      const formattedNotifications = data.notifications.map((n) => ({
+        id: n.id,
+        time: n.created_at,
+        unread: !n.is_read,
+        actionText: "Xem đơn hàng",
+        orderId: n.order_id,
+        address: n.address || "",
+      }));
+
+      if (reset || page === 1) {
+        setNotifications(formattedNotifications);
+        setCurrentPage(1);
+
+        // Cập nhật totalCountRef khi fetch page 1
+        totalCountRef.current = data.total_notifications;
+      } else {
+        // Load more - append
+        setNotifications((prev) => [...prev, ...formattedNotifications]);
+        setCurrentPage(page);
+      }
+
+      setHasMore(data.current_page < data.total_pages);
+
+      if (formattedNotifications.length > 0 && page === 1) {
+        latestIdRef.current = formattedNotifications[0].id;
+      }
+    } catch (err) {
+      console.error("Fetch notifications error:", err);
+    } finally {
+      setLoading(false);
+      isLoadingMoreRef.current = false;
+    }
+  };
+  const showBrowserNotification = () => {
+    if (Notification.permission === "granted") {
+      new Notification("Đơn hàng mới! 🚚", {
+        body: "Bạn có đơn hàng mới cần xử lý",
+        icon: bakesLogo,
+      });
+    }
+  };
+
+  const handleMarkRead = async (id) => {
+    // Optimistic update
+
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+    );
+
+    try {
+      const res = await fetchWithAuth(
+        `http://localhost:5000/api/shipper/notifications/mark-read/${id}`,
+        { method: "POST" }
+      );
+
+      if (!res.ok) {
+        // Rollback - fetch lại page 1
+        console.log("Lỗi ");
+      }
+    } catch (err) {
+      console.error("Mark read error:", err);
+    }
+  };
+  const handleScroll = (e) => {
+    const container = e.target;
+    const scrollBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    if (scrollBottom < 50 && hasMore && !loading) {
+      fetchAllNotifications(currentPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (!isShipper) return;
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    // Fetch lần đầu
+    fetchAllNotifications(1);
+
+    // Polling mỗi 5s
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        checkForNewNotifications();
+      }
+    }, 20000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        checkForNewNotifications();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isShipper]);
 
   const view = {
     items: [
@@ -61,86 +224,6 @@ function NavBar({ user, onLogout }) {
     ],
   };
   const routes_Shipper = routes.filter((route) => route.onlyShipper);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 2,
-
-      time: "Mon Dec 29 2025 22:42:30 GMT+0700",
-      unread: true,
-      actionText: "Xem đơn hàng",
-    },
-  ]);
-  const fetchNotification = async () => {
-    try {
-      const res = await fetchWithAuth(
-        "http://localhost:5000/api/shipper/notifications/check-notification",
-        { method: "GET" }
-      );
-
-      if (!res.ok) return;
-
-      const data = await res.json();
-
-      if (data.is_read) return;
-
-      setNotifications((prev) => {
-        if (prev.some((n) => n.id === data.id)) return prev;
-
-        return [
-          {
-            id: data.id,
-            type: "order",
-            time: data.created_at, // frontdend kiểm soát time
-            unread: true,
-            actionText: "Xem đơn hàng",
-            orderId: data.order_id,
-            address: data.address,
-          },
-          ...prev,
-        ];
-      });
-    } catch (err) {
-      console.error("Fetch notification error:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotification(); // gọi ngay khi load
-
-    const interval = setInterval(() => {
-      // ❗ chỉ poll khi tab đang active
-      if (document.visibilityState === "visible") {
-        fetchNotification();
-      }
-    }, 10000); // ⏱ 15s (rất ổn)
-
-    return () => clearInterval(interval);
-  }, []);
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
-  const handleMarkRead = (id) => {
-    // ❗ Xoá ngay khỏi UI (UX mượt)
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-
-    // // Gọi API nền
-    // try {
-    //   await fetchWithAuth(
-    //     `http://localhost:5000/api/shipper/notifications/mark-read/${id}`,
-    //     { method: "POST" }
-    //   );
-    // } catch (err) {
-    //   console.error("Mark read error:", err);
-    // }
-  };
-
-  const renderNotification = (notification) => {
-    const props = {
-      notification,
-      onMarkRead: handleMarkRead,
-    };
-
-    return <OrderNotification key={notification.id} now={now} {...props} />;
-  };
 
   const dropdownContent = (
     <div
@@ -155,10 +238,10 @@ function NavBar({ user, onLogout }) {
       <div className="notification-header">
         <Space
           style={{
-            width: "100%",
             justifyContent: "space-between",
             alignItems: "center",
           }}
+          className="w100"
         >
           <div>
             <h1
@@ -167,36 +250,70 @@ function NavBar({ user, onLogout }) {
             >
               Thông báo
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "12px" }}>
-              Bạn có {unreadCount} thông báo chưa đọc
-            </p>
           </div>
         </Space>
       </div>
 
-      <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-        {notifications.length === 0 ? (
+      <div
+        onScroll={handleScroll}
+        style={{
+          maxHeight: "500px",
+          overflowY: "auto",
+        }}
+      >
+        {loading ? (
+          // Loading lần đầu
+          <div style={{ padding: "40px 20px", textAlign: "center" }}>
+            <Spin size="large" />
+          </div>
+        ) : notifications.length === 0 ? (
+          // Không có thông báo
           <div
             style={{ padding: "40px 20px", textAlign: "center", color: "#999" }}
           >
             <div style={{ fontSize: "48px", marginBottom: "12px" }}>🔔</div>
-            <p type="secondary">Không có thông báo mới</p>
+            <p>Không có thông báo</p>
           </div>
         ) : (
-          notifications.map((notification) => renderNotification(notification))
+          <>
+            {notifications.map((notification) => (
+              <OrderNotification
+                key={notification.id}
+                notification={notification}
+                now={now}
+                onMarkRead={handleMarkRead}
+              />
+            ))}
+
+            {/* Loading indicator */}
+            {loading && (
+              <div style={{ padding: "16px", textAlign: "center" }}>
+                <Spin size="small" />
+                <p
+                  style={{ marginTop: "8px", fontSize: "12px", color: "#999" }}
+                >
+                  Đang tải thêm...
+                </p>
+              </div>
+            )}
+
+            {/* End message */}
+            {!hasMore && notifications.length > 0 && (
+              <div
+                style={{
+                  padding: "16px",
+                  textAlign: "center",
+                  color: "#999",
+                  fontSize: "12px",
+                  borderTop: "1px solid #f0f0f0",
+                }}
+              >
+                Đã hiển thị tất cả thông báo
+              </div>
+            )}
+          </>
         )}
       </div>
-
-      {notifications.length > 0 && (
-        <div className="notification-footer">
-          <Button
-            type="link"
-            style={{ color: "#92400e", fontWeight: 600, padding: 0 }}
-          >
-            Xem tất cả thông báo
-          </Button>
-        </div>
-      )}
     </div>
   );
   return (
@@ -250,6 +367,8 @@ function NavBar({ user, onLogout }) {
               }}
             >
               <Dropdown
+                open={dropdownOpen}
+                onOpenChange={setDropdownOpen}
                 popupRender={() => dropdownContent}
                 trigger={["click"]}
                 placement="bottomRight"
@@ -262,11 +381,24 @@ function NavBar({ user, onLogout }) {
                     borderRadius: "50%",
                   }}
                 >
-                  <Badge count={unreadCount} showZero color="#ab5506ff">
-                    <div className="fl-center">
-                      <img src={bell} alt="bell-image" width="25px" color="" />
-                    </div>
-                  </Badge>
+                  {/* Dấu chấm đỏ thay vì Badge count */}
+                  {hasUnread && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        backgroundColor: "#ef4444",
+                        border: "2px solid white",
+                      }}
+                    />
+                  )}
+                  <div className="fl-center">
+                    <img src={bell} alt="bell-image" width="25px" />
+                  </div>
                 </div>
               </Dropdown>
 

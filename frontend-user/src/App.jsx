@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { AccountProvider } from "./context/AccountContext";
 import { ProductProvider } from "./context/ProductContext";
 import { OrderProvider } from "./context/OrderContext";
+import { NotificationProvider } from "./context/Notifications";
 import { useState } from "react";
 import DefaultHeader from "./components/DefaultComponent/DefaultHeader";
 import DefaultShipperHeader from "./components/DefaultComponent/DefaultShipperHeader";
@@ -83,10 +84,12 @@ function App() {
       <ProductProvider>
         <AuthProvider>
           <AccountProvider>
-            <OrderProvider>
-              <ScrollToTop />
-              <AppContent />
-            </OrderProvider>
+            <NotificationProvider>
+              <OrderProvider>
+                <ScrollToTop />
+                <AppContent />
+              </OrderProvider>
+            </NotificationProvider>
           </AccountProvider>
         </AuthProvider>
       </ProductProvider>

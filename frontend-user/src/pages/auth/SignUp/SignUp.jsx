@@ -218,8 +218,7 @@ const SignUp = () => {
           <Form.Item style={{ marginBottom: "0px" }}>
             <Button
               htmlType="submit"
-              style={{ width: "100%" }}
-              className="mb-3 btn btn-primary"
+              className="mb-3 btn btn-primary w100"
               loading={loading} // Hiệu ứng xoay khi đang gửi dữ liệu
             >
               Đăng ký

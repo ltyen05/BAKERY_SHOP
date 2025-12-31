@@ -7,6 +7,31 @@ export function AccountProvider({ children }) {
   /* =======================
      2️⃣ Profile
   ======================= */
+  const [branches, setBranches] = useState([]);
+  const [loadingBranch, setLoadingBranch] = useState(false);
+  useEffect(() => {
+    const fetchBranches = async () => {
+      setLoadingBranch(true);
+      try {
+        const res = await accountApi.get_branch();
+        const data = await res.json();
+
+        if (res.ok) {
+          // backend có thể trả { data: [...] } hoặc [...]
+          setBranches(data.details || data);
+        } else {
+          console.error(data.message || "Fetch branch thất bại");
+        }
+      } catch (err) {
+        console.error("Lỗi fetch branch:", err);
+      } finally {
+        setLoadingBranch(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
   const update_profile = async (email, phone) => {
     const res = await accountApi.update_profile({ email, phone });
     const data = await res.json();
@@ -57,6 +82,7 @@ export function AccountProvider({ children }) {
 
     return data;
   };
+  // ----------------------------History orders
   const history_orders = async () => {
     const res = await accountApi.history_orders();
     const data = await res.json();
@@ -66,6 +92,20 @@ export function AccountProvider({ children }) {
     }
     return data.data;
   };
+
+  // ------------------ Products bought ------------------
+  const products_bought = async () => {
+    try {
+      const res = await accountApi.products_bought();
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.message || "Lấy sản phẩm đã mua thất bại");
+      return data.data || []; // trả về mảng sản phẩm
+    } catch (err) {
+      console.error("Lỗi fetch bought products:", err);
+      return [];
+    }
+  };
   return (
     <AccountContext.Provider
       value={{
@@ -74,6 +114,8 @@ export function AccountProvider({ children }) {
         get_rank,
         history_orders,
         get_active_order,
+        branches,
+        products_bought,
       }}
     >
       {children}

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Rate, Input, Button, message } from "antd";
+import { Rate, Button, message } from "antd";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
-const { TextArea } = Input;
 
 const FeedbackComponent = (order_id) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -62,11 +61,10 @@ const FeedbackComponent = (order_id) => {
           backgroundColor: "transparent",
           textAlign: "center",
           maxWidth: 500,
-          width: "100%",
           borderRadius: 8,
           flexDirection: "column",
         }}
-        className="fl-center"
+        className="fl-center w100"
       >
         <h2
           style={{

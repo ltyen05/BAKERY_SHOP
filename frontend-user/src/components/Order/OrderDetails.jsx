@@ -14,9 +14,8 @@ const OrderDetails = ({ order }) => {
 
   return (
     <div
-      className="scrollbar"
+      className="scrollbar w100"
       style={{
-        width: "100%",
         maxHeight: "100%",
         overflowY: "auto",
       }}
@@ -65,6 +64,10 @@ const OrderDetails = ({ order }) => {
             <div className="info-row">
               <span className="info-label">Cơ sở </span>
               <span className="info-value">{order.branch_name}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Nhân viên giao hàng </span>
+              <span className="info-value">{order.shipper_name}</span>
             </div>
           </div>
 

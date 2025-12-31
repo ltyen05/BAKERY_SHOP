@@ -6,11 +6,9 @@ const formatCurrency = (amount) => {
 
 const ProductItem = ({ product }) => (
   <Row
-    className="product-item"
+    className="product-item w100"
     style={{
-      // backgroundColor: "white",
       borderRadius: "12px",
-      width: "100%",
       maxWidth: "500px",
     }}
   >
@@ -18,9 +16,8 @@ const ProductItem = ({ product }) => (
       <img
         src={product.image || garlicBread}
         alt={product.product_name}
-        className="product-image"
+        className="product-image w100"
         style={{
-          width: "100%",
           aspectRatio: "1 / 1",
           objectFit: "cover",
           borderRadius: "12px",

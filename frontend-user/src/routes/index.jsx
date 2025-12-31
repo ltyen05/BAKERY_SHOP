@@ -14,10 +14,12 @@ const viewProfile = lazy(() => import("../pages/user/viewProfile/viewProfile"));
 const ForgotPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ForgotPassword")
 );
+const PurchasedProductList = lazy(() =>
+  import("../pages/user/Menu/PurchasedProductList")
+);
 const ResetPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ResetPassword")
 );
-const DeliveryHistory = lazy(() => import("../pages/shipper/DeliveryHistory"));
 const ShipperDashboard = lazy(() =>
   import("../pages/shipper/ShipperDashboard")
 );
@@ -69,6 +71,13 @@ export const routes = [
         path: "pastry",
         name: "Pastry",
         page: ProductList,
+      },
+      {
+        path: "purchased",
+        name: "Đã mua",
+        tabOnly: true, // 🔥 CHỈ DÙNG CHO TAB
+        page: PurchasedProductList,
+        roles: ["customer"],
       },
     ],
   },
@@ -168,13 +177,6 @@ export const routes = [
     path: "/shipperDelivery",
     page: ShipperDelivery,
     name: "Đơn hàng hiện tại",
-    onlyShipper: true,
-    roles: ["shipper"],
-  },
-  {
-    path: "/historyDelivery",
-    page: DeliveryHistory,
-    name: "Lịch sử vận chuyển",
     onlyShipper: true,
     roles: ["shipper"],
   },

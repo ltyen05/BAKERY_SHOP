@@ -33,10 +33,10 @@ const ProductInCart = ({ product, onQuantityChange, onRemove }) => {
             alt={product.name}
             style={{
               borderRadius: "50%",
-              width: "100%",
               aspectRatio: "1/1",
               objectFit: "cover",
             }}
+            className="w100"
           />
         </Col>
 

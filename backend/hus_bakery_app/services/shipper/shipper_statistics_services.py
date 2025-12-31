@@ -44,24 +44,30 @@ def calculate_avg_rating(shipper_id):
     # Làm tròn 1 chữ số thập phân (VD: 4.8)
     return round(float(avg), 1) if avg else 0.0
 
-def get_shipper_all_order_history(shipper_id):
-    # 1. Query lấy toàn bộ đơn hàng "Đã giao" của Shipper này
-    orders = db.session.query(Order).join(
+from sqlalchemy import desc, func
+
+def get_shipper_all_order_history(shipper_id, page=1, limit=10):
+    # 1. Tạo Query cơ sở (chưa thực thi .all())
+    query = db.session.query(Order).join(
         OrderStatus, Order.order_id == OrderStatus.order_id
     ).filter(
         Order.shipper_id == shipper_id,
         OrderStatus.status == "Đã giao"
-    ).order_by(desc(Order.created_at)).all()
+    ).order_by(desc(Order.created_at))
+
+    # 2. Sử dụng paginate để chỉ lấy dữ liệu của trang hiện tại
+    # error_out=False giúp trả về danh sách rỗng thay vì lỗi 404 nếu trang không tồn tại
+    pagination = query.paginate(page=page, per_page=limit, error_out=False)
 
     history_list = []
 
-    for order in orders:
+    # Duyệt qua các item trong trang hiện tại (pagination.items)
+    for order in pagination.items:
         # a. Đếm số món trong đơn
         item_count = db.session.query(func.count(OrderItem.order_item_id))\
             .filter(OrderItem.order_id == order.order_id).scalar() or 0
 
         # b. Lấy Rating từ bảng ShipperReview theo order_id
-        # Vì order_id hiện là Primary Key duy nhất của ShipperReview
         review = ShipperReview.query.get(order.order_id)
         rating_val = review.rating if review else 0
 
@@ -73,9 +79,16 @@ def get_shipper_all_order_history(shipper_id):
             "shipping_address": order.shipping_address,
             "status": "Đã giao",
             "rating": rating_val,
+            "created_at": order.created_at.isoformat() if order.created_at else None
         })
 
+    # 3. Trả về dữ liệu kèm thông tin phân trang
     return {
         "data": history_list,
-        "total_records": len(history_list)
+        "pagination": {
+            "total_records": pagination.total,    # Tổng số đơn hàng trong DB
+            "total_pages": pagination.pages,      # Tổng số trang
+            "current_page": pagination.page,      # Trang hiện tại
+            "per_page": pagination.per_page       # Số lượng mỗi trang
+        }
     }

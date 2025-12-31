@@ -77,24 +77,6 @@ def api_change_quantity():
 
 
 # ==========================
-# 3. UPDATE SELECTED ITEM
-# ==========================
-@order_bp.route("/cart/select", methods=["PUT"])
-def api_update_selected():
-    data = request.json
-    customer_id = data.get("customer_id")
-    product_id = data.get("product_id")
-    selected = data.get("selected")
-
-    item = update_selected(customer_id, product_id, selected)
-
-    if not item:
-        return jsonify({"error": "Item not found"}), 404
-
-    return jsonify({"message": "Selection updated"}), 200
-
-
-# ==========================
 # 4. GET COUPONS OF CUSTOMER
 # ==========================
 @order_bp.route("/my-coupons", methods=["GET"])
@@ -148,9 +130,10 @@ def api_create_order():
     if not order:
         return jsonify({"error": msg}), 400
 
+    # File: /app/hus_bakery_app/routers/customer/order_process.py - Dòng 153
     return jsonify({
         "message": msg,
-        "order_id": order.shipper_id
+        "order_id": order['order_id']  # Đổi từ order.shipper_id thành order['order_id']
     }), 200
 
 

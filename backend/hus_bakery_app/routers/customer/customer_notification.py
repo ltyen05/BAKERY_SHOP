@@ -42,7 +42,7 @@ def mark_as_read(order_id):
 @jwt_required()
 def check_latest_success():
     identity = json.loads(get_jwt_identity())
-    customer_id = identity["customer_id"]
+    customer_id = identity["id"]
 
     order_notification = get_new_success_order_notification(customer_id)
 

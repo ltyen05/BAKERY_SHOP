@@ -4,14 +4,14 @@ from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.order import Order
 
 
-def get_all_customers_with_stats_service(branch_id):
+def get_all_customers_with_stats_service():
+    # Query lấy Customer và sum của total_amount từ bảng Order
     results = db.session.query(
-        Customer,
+        Customer, 
         func.sum(Order.total_amount).label('total_spent')
-    ).outerjoin(Order, Customer.customer_id == Order.customer_id) \
-        .filter(Order.branch_id == branch_id) \
-        .group_by(Customer.customer_id).all()
-
+    ).outerjoin(Order, Customer.customer_id == Order.customer_id)\
+     .group_by(Customer.customer_id).all()
+    
     return results
 
 

@@ -185,20 +185,21 @@ def get_latest_active_order_id(customer_id):
 
 def get_product_was_bought(customer_id):
     products = db.session.query(Product) \
-        .join(Order, Product.product_id == Order.product_id) \
+        .join(OrderItem, Product.product_id == OrderItem.product_id) \
+        .join(Order, Order.order_id == OrderItem.order_id)\
         .filter(Order.customer_id == customer_id) \
         .distinct().all()
 
     res = []
     for p in products:
-        product = Product.query.get(id[0])
+        
         details = {
-            "product_id": product.product_id,
-            "name": product.name,
-            "price": float(product.unit_price),
-            "category_name": product.category_name,
-            "image": product.image_url,
-            "rating": get_rating_star_service(product.product_id)
+            "product_id": p.product_id,
+            "name": p.name,
+            "price": float(p.unit_price),
+            "category_id": p.category_id,
+            "image": p.image_url,
+            "rating": get_rating_star_service(p.product_id)
         }
         res.append(details)
 
@@ -211,14 +212,14 @@ def get_branch_detail():
     for branch in branches:
         details = {
             "id": branch.branch_id,
-            "name": branch.branch_name,
+            "name": branch.name,
             "address": branch.address,
             "phone": branch.phone,
             "email": branch.email,
             "manager_id": branch.manager_id,
-            "mapSrc": branch.map_src,
+            "mapSrc": branch.mapSrc,
             "lat": branch.lat,
-            "lon": branch.lon,
+            "lon": branch.lng,
         }
         branches_list.append(details)
 

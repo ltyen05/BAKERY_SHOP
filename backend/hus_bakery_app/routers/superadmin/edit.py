@@ -103,21 +103,21 @@ def get_all_branches():
         # Xử lý lỗi nếu có vấn đề với database
         return jsonify({"error": str(e)}), 500
 #==============================EMPLOYEES=========================================
-@admin_mgmt_bp.route('/add_employees', methods=['POST'])
+@admin_mgmt_bp.route('/add_admin', methods=['POST'])
 def create_employee():
     data = request.json
     emp = create_employee_service(data)
-    return jsonify({"success": True, "message": "Thêm nhân viên thành công", "id": emp.employee_id}), 201
+    return jsonify({"success": True, "message": "Thêm quản lí thành công", "id": emp.employee_id}), 201
 
-@admin_mgmt_bp.route('/update_employees/<int:id>', methods=['PUT'])
+@admin_mgmt_bp.route('/update_admin/<int:id>', methods=['PUT'])
 def update_employee(id):
     data = request.json
     emp = update_employee_service(id, data)
     if emp:
-        return jsonify({"success": True, "message": "Cập nhật nhân viên thành công"}), 200
+        return jsonify({"success": True, "message": "Cập nhật quản lí thành công"}), 200
     return jsonify({"success": False, "message": "Không tìm thấy nhân viên"}), 404
 
-@admin_mgmt_bp.route('/delete_employees/<int:id>', methods=['DELETE'])
+@admin_mgmt_bp.route('/delete_admin/<int:id>', methods=['DELETE'])
 def delete_employee(id):
     success, message = delete_employee_service(id)
     if success:

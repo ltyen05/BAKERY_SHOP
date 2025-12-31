@@ -42,7 +42,6 @@ def api_get_me():
         if not e_data:
             return jsonify({"error": "Customer not found"}), 404
         current_user_data = json.dumps(e_data)
-
     return jsonify(current_user_data,), 200
 
 @auth_bp.route('/signup', methods=['POST'])

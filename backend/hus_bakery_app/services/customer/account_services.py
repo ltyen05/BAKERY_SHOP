@@ -224,4 +224,3 @@ def get_branch_detail():
 
     return branches_list
 
-

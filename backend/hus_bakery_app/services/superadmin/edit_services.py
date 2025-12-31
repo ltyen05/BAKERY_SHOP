@@ -79,7 +79,7 @@ def create_employee_service(data):
     new_emp = Employee(
         employee_id=data.get('employee_id'),
         employee_name=data.get('employee_name'),
-        role_name=data.get('role_name'),
+        role_name="Quản lý",
         email=data.get('email'),
         password=None,  # Sẽ set qua set_password
         salary=data.get('salary'),
@@ -102,7 +102,7 @@ def update_employee_service(emp_id, data):
     if not emp: return None
 
     emp.employee_name = data.get('employee_name', emp.employee_name)
-    emp.role_name = data.get('role_name', emp.role_name)
+    emp.role_name = 'Quản lý'
     emp.email = data.get('email', emp.email)
     emp.salary = data.get('salary', emp.salary)
     emp.status = data.get('status', emp.status)
@@ -272,27 +272,35 @@ def delete_coupon_service(coupon_id):
         print(f"Lỗi khi xóa coupon: {str(e)}")
         return False
 
+
 def delete_employee_service(employee_id):
     employee = Employee.query.get(employee_id)
     if not employee:
         return False, "Không tìm thấy nhân viên"
 
     try:
-        # Kiểm tra nếu nhân viên đang là quản lý của chi nhánh nào đó
         from hus_bakery_app.models.branches import Branch
-        managed_branch = Branch.query.filter_by(manager_id=employee_id).first()
-        if managed_branch:
-            return False, f"Không thể xóa vì nhân viên này đang quản lý chi nhánh: {managed_branch.name}"
 
-        # Tùy chọn 1: Xóa vĩnh viễn (Chỉ nên dùng nếu nhân viên chưa có dữ liệu liên quan)
+        # 1. Tìm tất cả chi nhánh mà nhân viên này đang quản lý
+        managed_branches = Branch.query.filter_by(manager_id=employee_id).all()
+
+        if managed_branches:
+            for branch in managed_branches:
+                # Gỡ bỏ quyền quản lý (để có thể xóa nhân viên mà không vi phạm ràng buộc dữ liệu)
+                branch.manager_id = None
+
+            # Cập nhật thay đổi cho các chi nhánh trước khi xóa nhân viên
+            db.session.flush()
+
+            # 2. Xóa vĩnh viễn nhân viên
         db.session.delete(employee)
         db.session.commit()
-        return True, "Xóa nhân viên thành công"
+        return True, "Đã gỡ quyền quản lý và xóa nhân viên thành công"
 
     except Exception as e:
         db.session.rollback()
         # Thường là lỗi IntegrityError do nhân viên đã có trong lịch sử đơn hàng/shipper
-        return False, "Không thể xóa nhân viên này do đã có dữ liệu lịch sử liên quan. Hãy dùng tính năng 'Nghỉ việc'."
+        return False, f"Lỗi hệ thống: {str(e)}. Nếu nhân viên đã có lịch sử đơn hàng, hãy dùng tính năng 'Nghỉ việc' thay vì xóa."
 
 def delete_branch_service(branch_id):
     branch = Branch.query.get(branch_id)

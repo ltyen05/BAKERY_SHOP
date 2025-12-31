@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 29, 2025 lúc 06:19 PM
+-- Thời gian đã tạo: Th12 31, 2025 lúc 05:15 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -311,8 +311,8 @@ INSERT INTO `coupons` (`coupon_id`, `description`, `discount_percent`, `discount
 (10, 'Giảm 50% cho bánh quy', 50, NULL, 'percent', 20000.00, 20000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
 (11, 'Giảm 100k đơn trên 1tr', NULL, 100000.00, 'value', 1000000.00, NULL, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
 (12, 'Giảm 15% cho khách VIP', 15, NULL, 'percent', 300000.00, 80000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(13, 'Giảm 10% toàn menu tháng 11', 10, NULL, 'percent', 0.00, 100000.00, '2025-11-01', '2025-11-30', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(14, 'Giảm 20% Black Friday', 20, NULL, 'percent', 200000.00, 100000.00, '2025-11-20', '2025-11-30', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
+(13, 'Giảm 10% toàn menu tháng 11', 10, NULL, 'percent', 0.00, 100000.00, '2025-11-01', '2025-11-30', 'Expired', 0, '2025-11-06 14:02:06', '2025-12-30 16:37:42'),
+(14, 'Giảm 20% Black Friday', 20, NULL, 'percent', 200000.00, 100000.00, '2025-11-20', '2025-11-30', 'Expired', 0, '2025-11-06 14:02:06', '2025-12-30 16:37:42'),
 (15, 'Giảm 5% mỗi thứ 2', 5, NULL, 'percent', 100000.00, 30000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06');
 
 -- --------------------------------------------------------
@@ -558,32 +558,33 @@ CREATE TABLE `feedback` (
   `order_id` int(11) NOT NULL,
   `branch_id` int(11) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL CHECK (`rating` >= 1 and `rating` <= 5),
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `customer_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `feedback`
 --
 
-INSERT INTO `feedback` (`order_id`, `branch_id`, `rating`, `created_at`) VALUES
-(1, 1, 4, '2025-12-29 06:55:52'),
-(2, 2, 5, '2025-12-29 06:55:52'),
-(3, 3, 5, '2025-12-29 06:55:52'),
-(4, 4, 5, '2025-12-29 06:55:52'),
-(5, 5, 4, '2025-12-29 06:55:52'),
-(6, 1, 5, '2025-12-29 06:55:52'),
-(7, 2, 4, '2025-12-29 06:55:52'),
-(8, 3, 4, '2025-12-29 06:55:52'),
-(9, 4, 4, '2025-12-29 06:55:52'),
-(10, 5, 4, '2025-12-29 06:55:52'),
-(11, 1, 4, '2025-12-29 06:55:52'),
-(12, 2, 4, '2025-12-29 06:55:52'),
-(13, 3, 5, '2025-12-29 06:55:52'),
-(14, 4, 5, '2025-12-29 06:55:52'),
-(15, 5, 5, '2025-12-29 06:55:52'),
-(101, 5, 5, '2025-12-29 06:55:52'),
-(102, 5, 5, '2025-12-29 06:55:52'),
-(103, 5, 5, '2025-12-29 06:55:52');
+INSERT INTO `feedback` (`order_id`, `branch_id`, `rating`, `created_at`, `customer_id`) VALUES
+(1, 1, 4, '2025-12-29 06:55:52', 1),
+(2, 2, 5, '2025-12-29 06:55:52', 2),
+(3, 3, 5, '2025-12-29 06:55:52', 3),
+(4, 4, 5, '2025-12-29 06:55:52', 4),
+(5, 5, 4, '2025-12-29 06:55:52', 5),
+(6, 1, 5, '2025-12-29 06:55:52', 6),
+(7, 2, 4, '2025-12-29 06:55:52', 7),
+(8, 3, 4, '2025-12-29 06:55:52', 8),
+(9, 4, 4, '2025-12-29 06:55:52', 9),
+(10, 5, 4, '2025-12-29 06:55:52', 10),
+(11, 1, 4, '2025-12-29 06:55:52', 11),
+(12, 2, 4, '2025-12-29 06:55:52', 12),
+(13, 3, 5, '2025-12-29 06:55:52', 13),
+(14, 4, 5, '2025-12-29 06:55:52', 14),
+(15, 5, 5, '2025-12-29 06:55:52', 15),
+(101, 5, 5, '2025-12-29 06:55:52', 16),
+(102, 5, 5, '2025-12-29 06:55:52', 16),
+(103, 5, 5, '2025-12-29 06:55:52', 16);
 
 -- --------------------------------------------------------
 
@@ -1046,7 +1047,8 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `feedback`
   ADD PRIMARY KEY (`order_id`),
-  ADD KEY `branch_id` (`branch_id`);
+  ADD KEY `branch_id` (`branch_id`),
+  ADD KEY `fk_feedback_customer` (`customer_id`);
 
 --
 -- Chỉ mục cho bảng `orders`
@@ -1236,7 +1238,8 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `feedback_ibfk_2` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `feedback_ibfk_2` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_feedback_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `orders`

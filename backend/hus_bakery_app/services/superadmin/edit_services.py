@@ -143,6 +143,20 @@ def update_product_service(product_id, data):
     db.session.commit()
     return product
 
+def delete_product_service(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return False
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        # Nếu sản phẩm đã có trong đơn hàng (OrderItem), Database sẽ báo lỗi khóa ngoại
+        print(f"Lỗi khi xóa sản phẩm: {str(e)}")
+        return False
 
 def create_coupon_service(data):
     new_coupon = Coupon()
@@ -157,6 +171,7 @@ def create_coupon_service(data):
     new_coupon.status = data.get('status', 'Active')
     new_coupon.used_count = 0
     new_coupon.created_at = datetime.now()
+    new_coupon.updated_at = datetime.now()
 
     db.session.add(new_coupon)
     db.session.commit()
@@ -207,7 +222,6 @@ def get_branch_manager_info_service(branch_id):
         Employee.employee_name,
         Employee.email,
         Employee.role_name,
-        Employee.phone,
         Employee.status
     ).join(Employee, Branch.manager_id == Employee.employee_id)\
      .filter(Branch.branch_id == branch_id).first()
@@ -241,3 +255,64 @@ def get_all_products_service():
             "updated_at": product.updated_at.isoformat() if product.updated_at else None
         })
     return result
+
+def delete_coupon_service(coupon_id):
+    coupon = Coupon.query.get(coupon_id)
+    if not coupon:
+        return False
+
+    try:
+        # Tùy chọn 1: Xóa vĩnh viễn (Hard Delete)
+        db.session.delete(coupon)
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        # Nếu mã đã được áp dụng vào Đơn hàng (Order), Database sẽ chặn xóa do ràng buộc khóa ngoại
+        print(f"Lỗi khi xóa coupon: {str(e)}")
+        return False
+
+def delete_employee_service(employee_id):
+    employee = Employee.query.get(employee_id)
+    if not employee:
+        return False, "Không tìm thấy nhân viên"
+
+    try:
+        # Kiểm tra nếu nhân viên đang là quản lý của chi nhánh nào đó
+        from hus_bakery_app.models.branches import Branch
+        managed_branch = Branch.query.filter_by(manager_id=employee_id).first()
+        if managed_branch:
+            return False, f"Không thể xóa vì nhân viên này đang quản lý chi nhánh: {managed_branch.name}"
+
+        # Tùy chọn 1: Xóa vĩnh viễn (Chỉ nên dùng nếu nhân viên chưa có dữ liệu liên quan)
+        db.session.delete(employee)
+        db.session.commit()
+        return True, "Xóa nhân viên thành công"
+
+    except Exception as e:
+        db.session.rollback()
+        # Thường là lỗi IntegrityError do nhân viên đã có trong lịch sử đơn hàng/shipper
+        return False, "Không thể xóa nhân viên này do đã có dữ liệu lịch sử liên quan. Hãy dùng tính năng 'Nghỉ việc'."
+
+def delete_branch_service(branch_id):
+    branch = Branch.query.get(branch_id)
+    if not branch:
+        return False, "Không tìm thấy chi nhánh."
+
+    try:
+        # Bước 1: Trước khi xóa chi nhánh, cần xử lý quản lý chi nhánh đó
+        # (Chuyển quản lý đó về lại làm nhân viên bình thường)
+        if branch.manager_id:
+            manager = Employee.query.get(branch.manager_id)
+            if manager:
+                manager.role_name = 'Nhân viên'
+
+        # Bước 2: Xóa chi nhánh
+        db.session.delete(branch)
+        db.session.commit()
+        return True, "Xóa chi nhánh thành công."
+
+    except Exception as e:
+        db.session.rollback()
+        # Lỗi thường gặp: Chi nhánh vẫn còn nhân viên hoặc đơn hàng liên quan
+        return False, "Không thể xóa chi nhánh này vì vẫn còn nhân viên hoặc dữ liệu đơn hàng liên quan."

@@ -61,28 +61,31 @@ def get_new_success_order_notification(customer_id):
 from sqlalchemy import desc
 
 def get_all_success_order_notifications(customer_id):
-    # 1. Truy vấn tất cả các đơn hàng có trạng thái "Đã giao" của khách hàng này
-    success_orders = db.session.query(Order, OrderStatus.status)\
-        .join(OrderStatus, Order.order_id == OrderStatus.order_id)\
-        .filter(Order.customer_id == customer_id)\
-        .filter(OrderStatus.status == "Đã giao")\
-        .order_by(desc(OrderStatus.updated_at)).all()
+    """
+        Lấy tất cả bản ghi từ bảng customer_notification của một khách hàng.
+        """
+    # 1. Truy vấn từ bảng CustomerNotification
+    query = CustomerNotification.query.filter_by(customer_id=customer_id) \
+        .order_by(desc(CustomerNotification.created_at))
 
-    # 2. Tạo một danh sách trống để chứa các thông báo
+    # 2. Phân trang
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # 3. Format dữ liệu trả về
     notifications = []
+    for notif in paginated_data.items:
+        notifications.append({
+            "id": notif.id,
+            "order_id": notif.order_id,
+            "is_read": notif.is_read,
+            "created_at": notif.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            # Nếu cần lấy thêm thông tin từ quan hệ 'order' đã định nghĩa ở relationship
+            "order_status": notif.order.status if notif.order else None
+        })
 
-    # 3. Duyệt qua từng bản ghi trả về từ Database
-    for order_obj, current_status in success_orders:
-        # Với mỗi đơn hàng, tạo một dictionary thông báo
-        notif_data = {
-            "order_id": order_obj.order_id,
-            "status": current_status,
-            "message": f"Đơn hàng #{order_obj.order_id} đã giao thành công! Chúc bạn ngon miệng. ❤️",
-            "can_review": True,
-            "created_at": order_obj.created_at # Bạn có thể lấy thêm thời gian nếu muốn
-        }
-        # Thêm vào danh sách tổng
-        notifications.append(notif_data)
-
-    # 4. Trả về toàn bộ danh sách (nếu không có đơn nào sẽ trả về danh sách rỗng [])
-    return notifications
+    return {
+        "items": notifications,
+        "total_pages": paginated_data.pages,
+        "current_page": paginated_data.page,
+        "total_items": paginated_data.total
+    }

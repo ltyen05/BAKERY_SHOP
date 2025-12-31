@@ -22,7 +22,7 @@ def api_get_order_stats():
     if not month or not year:
         return jsonify({"error": "Vui lòng cung cấp cả month và year"}), 400
 
-    total = total_order_of_moth(month, year)
+    total = total_order_of_month(month, year)
 
     return jsonify({
         "month": month,
@@ -45,7 +45,7 @@ def api_get_total_amount():
     return jsonify({
         "month": month,
         "year": year,
-        "total_orders": total
+        "total_amount": total
     }), 200
 
 

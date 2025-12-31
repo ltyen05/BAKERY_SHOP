@@ -1,8 +1,11 @@
 from flask import Blueprint, jsonify, request
-from hus_bakery_app.services.admin.order_management_services import order_detail, delete_order, get_all_orders_service
+from hus_bakery_app.services.admin.order_management_services import (
+    order_detail, delete_order,
+    get_all_orders_service
+)
 
 order_admin_bp = Blueprint('order_management', __name__)
-@order_admin_bp.route("/order_management", methods=['GET'])
+@order_admin_bp.route("/order_detail", methods=['GET'])
 def order_management():
     order_id = request.args.get('order_id')
 
@@ -16,7 +19,7 @@ def order_management():
 
     return jsonify(order_items), 200
 
-@order_admin_bp.route("/orders/<int:order_id>", methods=['DELETE'])
+@order_admin_bp.route("/delete_order/<int:order_id>", methods=['DELETE'])
 def delete_order_api(order_id):
     success = delete_order(order_id)
     if not success:

@@ -23,7 +23,7 @@ def add_shipper_service(data):
         branch_id=data.get('branch_id'),
     )
     new_shipper.status = data.get('status', 'active')
-    new_shipper.password = new_shipper.set_password(data.get('password'))
+    new_shipper.set_password(data.get('password'))
 
     db.session.add(new_shipper)
     db.session.commit()

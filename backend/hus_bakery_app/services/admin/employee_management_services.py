@@ -4,10 +4,7 @@ from werkzeug.security import generate_password_hash
 
 
 def get_all_employees_service(branch_id):
-    query = Employee.query
-    if branch_id:
-        query = query.filter(Employee.branch_id == branch_id)
-
+    query = Employee.query.filter_by(branch_id=branch_id)
     return query.all()
 
 

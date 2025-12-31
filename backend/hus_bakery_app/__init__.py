@@ -80,6 +80,11 @@ def create_app():
     from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
     app.register_blueprint(shipper_stats_bp, url_prefix='/shipper/statistics')
 
+    from hus_bakery_app.routers.superadmin.superadmin_dashboard import superadmin_dashboard_bp
+    app.register_blueprint(superadmin_dashboard_bp, url_prefix='/superadmin/dashboard')
+    from hus_bakery_app.routers.superadmin.edit import admin_mgmt_bp
+    app.register_blueprint(admin_mgmt_bp, url_prefix='/superadmin')
+
     @app.route("/test_db")
     def test_db():
         try:

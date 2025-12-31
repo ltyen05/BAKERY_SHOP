@@ -1,73 +1,80 @@
 // ===============================================
-// src/api/productApi.js
+// Location: src/api/productApi.js
 // ===============================================
 import api from './axiosConfig';
 
 const BASE_PATH = '/admin/product_management';
 
-const transformToBackendFormat = (data) => {
-  return {
-    name: data.name,
-    category: data.category_id, 
-    price: data.unit_price, 
-    image: data.image_url, 
-    description: data.description || '',
-    rating: data.rating || 5.0
-  };
-};
-
-const transformToFrontendFormat = (data) => {
-  return {
-    product_id: data.product_id,
-    name: data.name,
-    category_id: data.category, 
-    unit_price: data.price, 
-    image_url: data.image, 
-    description: data.description || '',
-    rating: data.rating || 5.0
-  };
-};
-
 export const productApi = {
-  // Lấy danh sách tất cả sản phẩm
+  // GET all products
   getAllProducts: async () => {
-    const response = await api.get(`${BASE_PATH}/products`);
-    return response.data.map(transformToFrontendFormat);
+    try {
+      const response = await api.get(`${BASE_PATH}/products`);
+      console.log('Backend response:', response.data);
+      
+      // Backend trả về: { product_id, name, category, price, image, description, rating }
+      return response.data;
+    } catch (error) {
+      console.error(' Error fetching products:', error);
+      throw error;
+    }
   },
 
-  // Thêm sản phẩm mới
+  // CREATE product
   addProduct: async (data) => {
-    const backendData = transformToBackendFormat(data);
-    const response = await api.post(`${BASE_PATH}/products`, backendData);
-    return transformToFrontendFormat(response.data);
+    try {
+
+      const backendData = {
+        name: data.name,
+        unit_price: parseFloat(data.unit_price),
+        description: data.description || '',
+        category_id: parseInt(data.category_id),
+        image_url: data.image_url || ''
+      };
+
+      console.log(' Sending to backend:', backendData);
+      const response = await api.post(`${BASE_PATH}/add_products`, backendData);
+      console.log(' Add product response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(' Error adding product:', error.response?.data || error);
+      throw error;
+    }
   },
 
-  // Cập nhật sản phẩm
+  // UPDATE product
   updateProduct: async (productId, data) => {
-    const backendData = transformToBackendFormat(data);
-    const response = await api.put(`${BASE_PATH}/products/${productId}`, backendData);
-    return transformToFrontendFormat(response.data);
+    try {
+      const backendData = {
+        name: data.name,
+        unit_price: parseFloat(data.unit_price),
+        description: data.description || '',
+        category_id: parseInt(data.category_id),
+        image_url: data.image_url || ''
+      };
+
+      console.log(' Updating product:', productId, backendData);
+      const response = await api.put(`${BASE_PATH}/update_products/${productId}`, backendData);
+      console.log(' Update response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(' Error updating product:', error.response?.data || error);
+      throw error;
+    }
   },
 
-  // Xóa sản phẩm
+  // DELETE product
   deleteProduct: async (productId) => {
-    const response = await api.delete(`${BASE_PATH}/products/${productId}`);
-    return response.data;
-  },
-
-  // Lấy chi tiết sản phẩm theo ID
-  getProductById: async (productId) => {
-    const response = await api.get(`${BASE_PATH}/products/${productId}`);
-    return transformToFrontendFormat(response.data);
-  },
-
-  // Tìm kiếm sản phẩm
-  searchProducts: async (keyword) => {
-    const response = await api.get(`${BASE_PATH}/products/search`, {
-      params: { keyword },
-    });
-    return response.data.map(transformToFrontendFormat);
-  },
+    try {
+      console.log(' Deleting product:', productId);
+      const response = await api.delete(`${BASE_PATH}/delete_products/${productId}`);
+      console.log(' Delete response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(' Error deleting product:', error.response?.data || error);
+      throw error;
+    }
+  }
 };
 
 export default productApi;

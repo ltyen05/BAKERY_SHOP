@@ -60,7 +60,7 @@ def get_new_success_order_notification(customer_id):
 
 from sqlalchemy import desc
 
-def get_all_success_order_notifications(customer_id):
+def get_all_success_order_notifications(customer_id, page=1, per_page=10):
     """
         Lấy tất cả bản ghi từ bảng customer_notification của một khách hàng.
         """

@@ -43,20 +43,20 @@ def get_current_shipper_service(shipper_id):
         "role": "shipper"
     }
 
-def get_current_admin_service(admin_id):
-    admin = Employee.query.get(admin_id)
+def get_current_admin_service(employee_id):
+    employee = Employee.query.get(employee_id)
 
-    if not admin:
+    if not employee:
         return None
 
     info = {
-        "id": admin.employee_id,
-        "name": admin.employee_name,
-        "role_name": admin.role_name,
-        "email": admin.email,
-        "salary": float(admin.salary) if admin.salary else 0,
-        "status": admin.status,
-        "branch_id": admin.branch_id,
+        "id": employee.employee_id,
+        "full_name": employee.employee_name,
+        "role": employee.role_name,
+        "email": employee.email,
+        "salary": float(employee.salary) if employee.salary else 0,
+        "status": employee.status,
+        "branch_id": employee.branch_id,
     }
     return info
 

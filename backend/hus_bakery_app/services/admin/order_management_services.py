@@ -26,7 +26,11 @@ def order_detail(order_id):
             "image": product.image_url
         })
 
-    return order_items_list
+    return {
+        "shipping_address": order.shipping_address,  # Đây là phần bạn cần
+        "order_items": order_items_list,
+        "total_amount": float(order.total_amount)
+    }
 
 
 def delete_order(order_id):

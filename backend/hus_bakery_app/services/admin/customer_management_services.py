@@ -4,7 +4,7 @@ from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.order import Order
 
 
-def get_all_customers_with_stats_service(branch_id):
+def get_all_customers_with_stats_service():
     results = Customer.query.all()
     return results
 

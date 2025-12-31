@@ -14,7 +14,7 @@ def get_all_customers():
         return jsonify({"error": "Vui lòng cung cấp branch_id"}), 400
 
     # 2. Truyền branch_id vào service
-    raw_data = get_all_customers_with_stats_service(branch_id)
+    raw_data = get_all_customers_with_stats_service()
 
     customer_list = []
     for customer, total_spent in raw_data:

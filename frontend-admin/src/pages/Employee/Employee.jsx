@@ -88,7 +88,7 @@ const Employee = () => {
       result = await addEmployee(employeeData);
     } else {
       const employeeId = selectedEmployee.employee_id || selectedEmployee.id;
-      console.log('📝 Editing employee ID:', employeeId, 'Data:', selectedEmployee);
+      console.log(' Editing employee ID:', employeeId, 'Data:', selectedEmployee);
       result = await updateEmployee(employeeId, employeeData);
     }
     

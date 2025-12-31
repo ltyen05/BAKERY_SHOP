@@ -1,11 +1,11 @@
 // ===============================================
-// src/context/mockUser.js
+// Location: src/context/mockUser.js - FIXED
 // ===============================================
 
-// Mock data chi nhánh
+// ✅ Mock data chi nhánh - ĐÃ FIX id thành số để khớp với backend
 export const mockBranches = [
   {
-    id: 'CN001',
+    id: 1, // ✅ ĐÃ SỬA: Số thực thay vì 'CN001'
     code: 'CN001',
     name: 'HUS Bakery - Hoàn Kiếm',
     address: '15 Hàng Bạc, Hoàn Kiếm, Hà Nội',
@@ -20,7 +20,7 @@ export const mockBranches = [
     customers: 89
   },
   {
-    id: 'CN002',
+    id: 2, // ✅ ĐÃ SỬA
     code: 'CN002',
     name: 'HUS Bakery - Cầu Giấy',
     address: '89 Trần Duy Hưng, Cầu Giấy, Hà Nội',
@@ -34,7 +34,7 @@ export const mockBranches = [
     customers: 76
   },
   {
-    id: 'CN003',
+    id: 3, // ✅ ĐÃ SỬA
     code: 'CN003',
     name: 'HUS Bakery - Đống Đa',
     address: '120 Tây Sơn, Đống Đa, Hà Nội',
@@ -48,7 +48,7 @@ export const mockBranches = [
     customers: 120
   },
   {
-    id: 'CN004',
+    id: 4, // ✅ ĐÃ SỬA
     code: 'CN004',
     name: 'HUS Bakery - Hà Đông',
     address: '65 Quang Trung, Hà Đông, Hà Nội',
@@ -62,7 +62,7 @@ export const mockBranches = [
     customers: 65
   },
   {
-    id: 'CN005',
+    id: 5, // ✅ ĐÃ SỬA
     code: 'CN005',
     name: 'HUS Bakery - Thanh Xuân',
     address: '334, Nguyễn Trãi, Thanh Xuân, Hà Nội',

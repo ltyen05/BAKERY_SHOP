@@ -1,11 +1,11 @@
 // ===============================================
-// src/context/AuthContext.jsx
+// Location: src/context/AuthContext.jsx - FIXED
 // ===============================================
 import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
-//  Mock users để test - SAU NÀY SẼ THAY BẰNG DATA TỪ LOGIN
+// ✅ Mock users - ĐÃ FIX branch_id thành số
 const mockUsers = {
   superAdmin: {
     id: 'SA001',
@@ -21,17 +21,17 @@ const mockUsers = {
     name: 'Nguyễn Bảo Thạch',
     email: 'thach@husbakery.vn',
     role: 'admin',
-    branch_id: 'CN001',
+    branch_id: 1, // ✅ ĐÃ SỬA: Số thực, không phải 'CN001'
     branch_name: 'HUS Bakery - Hoàn Kiếm',
     viewing_branch: null
   }
 };
 
 export const AuthProvider = ({ children }) => {
-  //  Mặc định là Super Admin (hoặc đổi thành branchAdmin để test)
+  // Mặc định là Super Admin (hoặc đổi thành branchAdmin để test)
   const [user, setUser] = useState(mockUsers.superAdmin);
 
-  //  Hàm để super admin xem chi nhánh cụ thể
+  // Hàm để super admin xem chi nhánh cụ thể
   const viewBranch = (branch) => {
     setUser(prev => ({
       ...prev,
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     }));
   };
 
-  //  Hàm để về lại chế độ xem tổng quan
+  // Hàm để về lại chế độ xem tổng quan
   const viewAllBranches = () => {
     setUser(prev => ({
       ...prev,
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     }));
   };
 
-  //  Helper functions
+  // Helper functions
   const isSuperAdmin = user?.role === 'super_admin';
   const isBranchAdmin = user?.role === 'admin';
   

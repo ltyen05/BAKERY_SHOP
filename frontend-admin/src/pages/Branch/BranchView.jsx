@@ -1,12 +1,12 @@
 /* =============================================== */
-/*  Location: src/pages/Branch/BranchView.jsx */
+/*  Location: src/pages/Branch/BranchView.jsx - FIXED */
 /* =============================================== */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Space, Tag, Modal, Form, Input, Select, message, Popconfirm, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ShopOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
-import { mockBranches } from '../../context/mockUser'; // ✅ Import từ context/mockUser.js
+import { mockBranches } from '../../context/mockUser';
 import DataTable from '../../components/Table/Table';
 import './BranchView.css';
 
@@ -35,8 +35,9 @@ const BranchView = () => {
   const fetchBranches = async () => {
     setLoading(true);
     try {
+      // ✅ Transform mockBranches để có branch_id đúng
       const mockData = mockBranches.map(branch => ({
-        branch_id: parseInt(branch.id.replace('CN', '')),
+        branch_id: branch.id, // ✅ ĐÃ SỬA: Dùng id số thực
         code: branch.code,
         name: branch.name,
         address: branch.address,
@@ -73,11 +74,12 @@ const BranchView = () => {
   };
 
   const handleViewBranchDashboard = (record) => {
-    const branchData = mockBranches.find(b => b.code === record.code);
+    // ✅ ĐÃ SỬA: Tìm branch theo id số thực
+    const branchData = mockBranches.find(b => b.id === record.branch_id);
     
     if (branchData) {
       viewBranch({
-        id: branchData.id,
+        id: branchData.id, // ✅ Dùng id số thực
         name: branchData.name,
         code: branchData.code
       });

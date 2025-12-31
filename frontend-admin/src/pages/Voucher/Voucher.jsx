@@ -1,73 +1,101 @@
-/* =============================================== */
-/* Location: src/pages/Voucher/Voucher.jsx 
-/* =============================================== */
-
-import { useState, useEffect } from 'react';
-import './Voucher.css';
+// ===============================================
+// src/pages/Voucher/Voucher.jsx - COMPLETE WITH FORM
+// ===============================================
+import React, { useState } from 'react';
+import { Tag, Space, Button, Tooltip, Modal } from 'antd';
 import { 
-  FaPlus, 
-  FaSearch, 
-  FaEdit, 
-  FaTrash, 
-  FaTag, 
-  FaCheckCircle, 
-  FaTimesCircle, 
-  FaUsers,
-  FaCalendarAlt,
-  FaTh,
-  FaList,
-  FaCrown,
-  FaStar,
-  FaGem
-} from 'react-icons/fa';
-import { couponApi } from '../../api/voucherApi';
+  FiSearch, FiPlus, FiTrash2, FiCheckCircle, 
+  FiXCircle, FiCalendar, FiPercent, FiDollarSign,
+  FiGrid, FiList, FiTag
+} from 'react-icons/fi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import StatsCard from '../../components/StatsCard/StatsCard';
+import DataTable from '../../components/Table/Table';
+import FormModal from '../../components/FormModal/FormModal';
+import { useVoucher } from './useVoucher';
+import { 
+  VOUCHER_FIELDS,
+  STATS_CONFIG,
+  formatDate,
+  formatDiscount,
+  getStatusText
+} from './voucherConstants';
+import './Voucher.css';
 
-// Component: Stat Card
-const StatCard = ({ icon: Icon, label, value, gradient }) => (
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: gradient }}>
-      <Icon />
-    </div>
-    <div className="stat-info">
-      <p className="stat-label">{label}</p>
-      <h3 className="stat-value">{value}</h3>
-    </div>
-  </div>
-);
+const { confirm } = Modal;
 
-// Component: Voucher Card
-const VoucherCard = ({ voucher, onDelete, onEdit }) => {
-  const getLevelIcon = () => {
-    switch(voucher.level) {
-      case 'VIP': return <FaCrown style={{color: '#f59e0b'}} />;
-      case 'Silver': return <FaStar style={{color: '#94a3b8'}} />;
-      case 'Gold': return <FaGem style={{color: '#eab308'}} />;
-      default: return null;
+const Voucher = () => {
+  const {
+    filteredVouchers,
+    stats,
+    loading,
+    viewMode,
+    statusFilter,
+    typeFilter,
+    searchQuery,
+    currentPage,
+    addVoucher,
+    deleteVoucher,
+    setCurrentPage,
+    handleViewModeChange,
+    handleStatusChange,
+    handleTypeChange,
+    handleSearchChange
+  } = useVoucher();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ============= HANDLERS =============
+  const handleAddClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSaveVoucher = async (voucherData) => {
+    const result = await addVoucher(voucherData);
+    if (result?.success) {
+      handleCloseModal();
     }
   };
 
-  return (
-    <div className={`voucher-card ${voucher.status.toLowerCase()}`}>
+  const handleDelete = (voucher) => {
+    confirm({
+      title: 'Xác nhận xóa voucher',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa voucher "${voucher.code}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteVoucher(voucher.id, voucher.code);
+      }
+    });
+  };
+
+  // ============= RENDER VOUCHER CARD =============
+  const renderVoucherCard = (voucher) => (
+    <div 
+      key={voucher.id} 
+      className={`voucher-card ${voucher.status === 'Expired' ? 'expired' : ''}`}
+    >
       <div className="voucher-header-card">
         <div className="voucher-badge-group">
           <div className="voucher-badge">
-            {voucher.status === 'Active' 
-              ? <><FaCheckCircle /> Hoạt động</>
-              : <><FaTimesCircle /> Hết hạn</>
-            }
+            {voucher.status === 'Active' ? <FiCheckCircle /> : <FiXCircle />}
+            {getStatusText(voucher.status)}
           </div>
-          {voucher.level !== 'Normal' && (
-            <div className={`level-badge ${voucher.level.toLowerCase()}`}>
-              {getLevelIcon()} {voucher.level}
-            </div>
-          )}
         </div>
         <div className="voucher-actions">
-          <button className="btn-icon" onClick={() => onEdit(voucher)} title="Sửa">
-            <FaEdit data-icon="edit" />
-          </button>
-          <button className="btn-icon" onClick={() => onDelete(voucher.id)} title="Xóa">
-            <FaTrash data-icon="trash" />
+          <button 
+            className="btn-icon" 
+            onClick={() => handleDelete(voucher)}
+            title="Xóa"
+          >
+            <FiTrash2 data-icon="trash" />
           </button>
         </div>
       </div>
@@ -80,28 +108,32 @@ const VoucherCard = ({ voucher, onDelete, onEdit }) => {
       <h3 className="voucher-name">{voucher.name}</h3>
 
       <div className="voucher-discount">
-        {voucher.type === 'percent' 
-          ? `Giảm ${voucher.discount}%`
-          : `Giảm ${parseFloat(voucher.discount).toLocaleString()}đ`
-        }
+        {voucher.type === 'percent' ? <FiPercent /> : <FiDollarSign />}
+        {formatDiscount(voucher)}
       </div>
 
       <div className="voucher-details">
         <div className="detail-item">
           <span className="detail-label">Đơn tối thiểu:</span>
-          <span className="detail-value">{voucher.minOrder.toLocaleString()}đ</span>
+          <span className="detail-value">
+            {voucher.minOrder > 0 ? `${voucher.minOrder.toLocaleString('vi-VN')}đ` : 'Không'}
+          </span>
         </div>
-        {voucher.maxDiscount && (
+        {voucher.maxDiscount > 0 && (
           <div className="detail-item">
             <span className="detail-label">Giảm tối đa:</span>
-            <span className="detail-value">{voucher.maxDiscount.toLocaleString()}đ</span>
+            <span className="detail-value">{voucher.maxDiscount.toLocaleString('vi-VN')}đ</span>
           </div>
         )}
+        <div className="detail-item">
+          <span className="detail-label">Đã dùng:</span>
+          <span className="detail-value">{voucher.used}/{voucher.quantity}</span>
+        </div>
       </div>
 
       <div className="voucher-progress">
         <div className="progress-info">
-          <span>Đã dùng: {voucher.used}/{voucher.quantity}</span>
+          <span>Tỷ lệ sử dụng</span>
           <span>{Math.round((voucher.used / voucher.quantity) * 100)}%</span>
         </div>
         <div className="progress-bar">
@@ -113,155 +145,241 @@ const VoucherCard = ({ voucher, onDelete, onEdit }) => {
       </div>
 
       <div className="voucher-date">
-        <FaCalendarAlt />
-        <span>{voucher.startDate} → {voucher.endDate}</span>
+        <FiCalendar />
+        {formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}
       </div>
     </div>
   );
-};
 
-// Main Component
-export default function Voucher() {
-  const [vouchers, setVouchers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [filterLevel, setFilterLevel] = useState('All');
-  const [showModal, setShowModal] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
-
-  // Load vouchers từ API khi component mount
-  useEffect(() => {
-    fetchVouchers();
-  }, []);
-
-  const fetchVouchers = async () => {
-    try {
-      setLoading(true);
-      const data = await couponApi.getAllCoupons();
-      setVouchers(data);
-      console.log('✅ Loaded vouchers:', data);
-    } catch (error) {
-      console.error('❌ Error loading vouchers:', error);
-      alert('Không thể tải danh sách voucher. Vui lòng thử lại!');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredVouchers = vouchers.filter(v => {
-    const matchSearch = v.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       v.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === 'All' || v.status === filterStatus;
-    const matchLevel = filterLevel === 'All' || v.level === filterLevel;
-    return matchSearch && matchStatus && matchLevel;
-  });
-
-  const stats = {
-    total: vouchers.length,
-    active: vouchers.filter(v => v.status === 'Active').length,
-    expired: vouchers.filter(v => v.status === 'Expired').length,
-    used: vouchers.reduce((sum, v) => sum + v.used, 0)
-  };
-
-  const handleDeleteVoucher = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa voucher này?')) {
-      try {
-        await couponApi.deleteCoupon(id);
-        setVouchers(vouchers.filter(v => v.id !== id));
-        alert('✅ Xóa voucher thành công!');
-      } catch (error) {
-        console.error('❌ Error deleting voucher:', error);
-        alert('❌ Không thể xóa voucher. Vui lòng thử lại!');
-      }
-    }
-  };
-
-  const handleEditVoucher = (voucher) => {
-    console.log('Edit voucher:', voucher);
-    // TODO: Mở modal edit với dữ liệu voucher
-    alert('Chức năng sửa voucher đang phát triển');
-  };
-
-  if (loading) {
-    return (
-      <div className="voucher-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-          <p>Đang tải dữ liệu...</p>
+  // ============= TABLE COLUMNS =============
+  const columns = [
+    {
+      title: 'Mã voucher',
+      dataIndex: 'code',
+      key: 'code',
+      width: 140,
+      fixed: 'left',
+      render: (code) => (
+        <span style={{ 
+          fontWeight: '700', 
+          color: '#667eea', 
+          fontSize: '14px',
+          fontFamily: 'monospace',
+          letterSpacing: '0.5px'
+        }}>
+          {code}
+        </span>
+      )
+    },
+    {
+      title: 'Tên voucher',
+      dataIndex: 'name',
+      key: 'name',
+      width: 280,
+      render: (name) => (
+        <span style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
+          {name}
+        </span>
+      )
+    },
+    {
+      title: 'Giảm giá',
+      key: 'discount',
+      width: 140,
+      align: 'center',
+      render: (_, record) => (
+        <Tag 
+          color={record.type === 'percent' ? 'blue' : 'green'}
+          style={{ 
+            fontWeight: '600', 
+            fontSize: '14px',
+            padding: '6px 16px',
+            borderRadius: '8px'
+          }}
+        >
+          {record.type === 'percent' ? <FiPercent size={12} /> : <FiDollarSign size={12} />}
+          {' '}{formatDiscount(record)}
+        </Tag>
+      )
+    },
+    {
+      title: 'Đơn tối thiểu',
+      dataIndex: 'minOrder',
+      key: 'minOrder',
+      width: 150,
+      align: 'right',
+      render: (value) => (
+        <span style={{ color: '#475569', fontSize: '13px' }}>
+          {value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không'}
+        </span>
+      )
+    },
+    {
+      title: 'Giảm tối đa',
+      dataIndex: 'maxDiscount',
+      key: 'maxDiscount',
+      width: 150,
+      align: 'right',
+      render: (value) => (
+        <span style={{ color: '#475569', fontSize: '13px' }}>
+          {value > 0 ? `${value.toLocaleString('vi-VN')}đ` : 'Không giới hạn'}
+        </span>
+      )
+    },
+    {
+      title: 'Đã sử dụng',
+      key: 'used',
+      width: 140,
+      align: 'center',
+      render: (_, record) => (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          gap: '4px' 
+        }}>
+          <span style={{ fontSize: '13px', color: '#64748b' }}>
+            {record.used}/{record.quantity}
+          </span>
+          <div style={{ 
+            width: '60px', 
+            height: '4px', 
+            background: '#e2e8f0', 
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              width: `${(record.used / record.quantity) * 100}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+              transition: 'width 0.3s'
+            }} />
+          </div>
         </div>
-      </div>
-    );
-  }
+      )
+    },
+    {
+      title: 'Thời gian',
+      key: 'dates',
+      width: 200,
+      render: (_, record) => (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '2px',
+          fontSize: '13px',
+          color: '#64748b'
+        }}>
+          <span>{formatDate(record.startDate)}</span>
+          <span>{formatDate(record.endDate)}</span>
+        </div>
+      )
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 140,
+      align: 'center',
+      render: (status) => (
+        <Tag 
+          color={status === 'Active' ? 'success' : 'error'}
+          style={{ fontWeight: '600', fontSize: '13px' }}
+        >
+          {status === 'Active' ? <FiCheckCircle size={12} /> : <FiXCircle size={12} />}
+          {' '}{getStatusText(status)}
+        </Tag>
+      )
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      width: 100,
+      align: 'center',
+      fixed: 'right',
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="Xóa">
+            <Button
+              type="text"
+              icon={<FiTrash2 />}
+              onClick={() => handleDelete(record)}
+              danger
+            />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
+  // ============= PAGINATION =============
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredVouchers.length,
+    showSizeChanger: false
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+  };
+
+  // ============= MAIN RENDER =============
   return (
     <div className="voucher-page">
       {/* Header */}
       <div className="voucher-header">
         <div className="header-left">
           <h1>Quản lý Voucher</h1>
-          <p>Tạo và quản lý các mã giảm giá cho khách hàng</p>
+          <p>Quản lý và theo dõi các mã giảm giá của cửa hàng</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="stats-grid">
-        <StatCard 
-          icon={FaTag} 
-          label="Tổng voucher" 
-          value={stats.total}
-          gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-        />
-        <StatCard 
-          icon={FaCheckCircle} 
-          label="Đang hoạt động" 
-          value={stats.active}
-          gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
-        />
-        <StatCard 
-          icon={FaTimesCircle} 
-          label="Đã hết hạn" 
-          value={stats.expired}
-          gradient="linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
-        />
-        <StatCard 
-          icon={FaUsers} 
-          label="Lượt sử dụng" 
-          value={stats.used}
-          gradient="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
-        />
+        {STATS_CONFIG.map(stat => (
+          <StatsCard
+            key={stat.key}
+            title={stat.title}
+            value={stats[stat.key]}
+            icon={stat.icon}
+            color={stat.color}
+            trend={null}
+          />
+        ))}
       </div>
 
       {/* Toolbar */}
       <div className="voucher-toolbar">
         <div className="toolbar-left">
           <div className="search-box-toolbar">
-            <FaSearch />
+            <FiSearch />
             <input
               type="text"
-              placeholder="Tìm kiếm theo mã hoặc tên voucher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm kiếm voucher..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>
-          <button className="btn-add-voucher" onClick={() => setShowModal(true)}>
-            <FaPlus />
-            Tạo voucher mới
+          <button className="btn-add-voucher" onClick={handleAddClick}>
+            <FiPlus />
+            Thêm voucher
           </button>
         </div>
+
         <div className="toolbar-right">
           <div className="view-toggle">
             <button 
               className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
+              onClick={() => handleViewModeChange('grid')}
             >
-              <FaTh />
+              <FiGrid />
             </button>
             <button 
               className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
+              onClick={() => handleViewModeChange('table')}
             >
-              <FaList />
+              <FiList />
             </button>
           </div>
         </div>
@@ -272,144 +390,95 @@ export default function Voucher() {
         <div className="filter-group">
           <label>Trạng thái:</label>
           <div className="filter-tabs">
-            {['All', 'Active', 'Expired'].map(status => (
-              <button
-                key={status}
-                className={`filter-tab ${filterStatus === status ? 'active' : ''}`}
-                onClick={() => setFilterStatus(status)}
-              >
-                {status === 'All' ? 'Tất cả' : status === 'Active' ? 'Hoạt động' : 'Hết hạn'}
-              </button>
-            ))}
+            <button 
+              className={`filter-tab ${statusFilter === 'all' ? 'active' : ''}`}
+              onClick={() => handleStatusChange('all')}
+            >
+              Tất cả
+            </button>
+            <button 
+              className={`filter-tab ${statusFilter === 'active' ? 'active' : ''}`}
+              onClick={() => handleStatusChange('active')}
+            >
+              Đang hoạt động
+            </button>
+            <button 
+              className={`filter-tab ${statusFilter === 'expired' ? 'active' : ''}`}
+              onClick={() => handleStatusChange('expired')}
+            >
+              Đã hết hạn
+            </button>
           </div>
         </div>
+
         <div className="filter-group">
-          <label>Phân loại:</label>
+          <label>Loại giảm giá:</label>
           <div className="filter-tabs">
-            {['All', 'VIP', 'Silver', 'Gold', 'Normal'].map(level => (
-              <button
-                key={level}
-                className={`filter-tab ${filterLevel === level ? 'active' : ''}`}
-                onClick={() => setFilterLevel(level)}
-              >
-                {level === 'All' ? 'Tất cả' : level}
-              </button>
-            ))}
+            <button 
+              className={`filter-tab ${typeFilter === 'all' ? 'active' : ''}`}
+              onClick={() => handleTypeChange('all')}
+            >
+              Tất cả
+            </button>
+            <button 
+              className={`filter-tab ${typeFilter === 'percent' ? 'active' : ''}`}
+              onClick={() => handleTypeChange('percent')}
+            >
+              Phần trăm
+            </button>
+            <button 
+              className={`filter-tab ${typeFilter === 'fixed' ? 'active' : ''}`}
+              onClick={() => handleTypeChange('fixed')}
+            >
+              Số tiền cố định
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Grid View */}
-      {viewMode === 'grid' && (
-        <div className="vouchers-grid">
-          {filteredVouchers.map(voucher => (
-            <VoucherCard 
-              key={voucher.id} 
-              voucher={voucher} 
-              onDelete={handleDeleteVoucher}
-              onEdit={handleEditVoucher}
-            />
-          ))}
+      {/* Content */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <p>Đang tải dữ liệu...</p>
         </div>
-      )}
-
-      {/* Table View */}
-      {viewMode === 'table' && (
-        <div className="voucher-table-container">
-          <table className="voucher-table">
-            <thead>
-              <tr>
-                <th>Mã Voucher</th>
-                <th>Tên</th>
-                <th>Phân loại</th>
-                <th>Giảm giá</th>
-                <th>Đơn tối thiểu</th>
-                <th>Đã dùng</th>
-                <th>Thời gian</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredVouchers.map(voucher => (
-                <tr key={voucher.id}>
-                  <td><span className="table-code">{voucher.code}</span></td>
-                  <td><span className="table-name">{voucher.name}</span></td>
-                  <td>
-                    <span className={`level-badge-small ${voucher.level.toLowerCase()}`}>
-                      {voucher.level}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="table-discount">
-                      {voucher.type === 'percent' 
-                        ? `${voucher.discount}%`
-                        : `${parseFloat(voucher.discount).toLocaleString()}đ`
-                      }
-                    </span>
-                  </td>
-                  <td>{voucher.minOrder.toLocaleString()}đ</td>
-                  <td>
-                    <div className="table-progress">
-                      <span>{voucher.used}/{voucher.quantity}</span>
-                      <div className="mini-progress-bar">
-                        <div 
-                          className="mini-progress-fill"
-                          style={{ width: `${(voucher.used / voucher.quantity) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="table-date">
-                      <div>{voucher.startDate}</div>
-                      <div style={{color: '#9ca3af', fontSize: '12px'}}>{voucher.endDate}</div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`table-status ${voucher.status.toLowerCase()}`}>
-                      {voucher.status === 'Active' 
-                        ? <><FaCheckCircle /> Hoạt động</>
-                        : <><FaTimesCircle /> Hết hạn</>
-                      }
-                    </span>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button className="btn-icon" onClick={() => handleEditVoucher(voucher)}>
-                        <FaEdit data-icon="edit" />
-                      </button>
-                      <button className="btn-icon" onClick={() => handleDeleteVoucher(voucher.id)}>
-                        <FaTrash data-icon="trash" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {filteredVouchers.length === 0 && (
+      ) : filteredVouchers.length === 0 ? (
         <div className="empty-state">
-          <FaTag style={{ fontSize: '64px', color: '#d1d5db' }} />
+          <FiTag size={64} color="#9ca3af" />
           <h3>Không tìm thấy voucher</h3>
-          <p>Thử thay đổi bộ lọc hoặc tạo voucher mới</p>
+          <p>Hãy thêm voucher mới hoặc thay đổi bộ lọc</p>
         </div>
+      ) : viewMode === 'grid' ? (
+        <div className="vouchers-grid">
+          {filteredVouchers.map(renderVoucherCard)}
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          dataSource={filteredVouchers}
+          loading={loading}
+          pagination={paginationConfig}
+          onChange={handleTableChange}
+          rowKey="id"
+          scroll={{ x: 1600 }}
+          emptyText="Không có voucher nào"
+        />
       )}
 
-      {showModal && (
-        <div className="modal-placeholder" onClick={() => setShowModal(false)}>
-          <div style={{ background: 'white', padding: '40px', borderRadius: '16px' }} onClick={(e) => e.stopPropagation()}>
-            <h2>Thêm Voucher Mới</h2>
-            <p>Modal sẽ hoàn thiện sau</p>
-            <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', cursor: 'pointer' }}>
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Form Modal */}
+      <FormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveVoucher}
+        title={{
+          add: 'Thêm voucher mới',
+          addDesc: 'Điền thông tin voucher vào form bên dưới'
+        }}
+        icon={FiTag}
+        data={null}
+        fields={VOUCHER_FIELDS}
+      />
     </div>
   );
-}
+};
+
+export default Voucher;

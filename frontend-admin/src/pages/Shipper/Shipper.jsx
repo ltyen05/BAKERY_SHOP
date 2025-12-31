@@ -1,5 +1,5 @@
 // ===============================================
-// Location: src/pages/Shipper/Shipper.jsx - FIXED EDIT MAPPING
+// src/pages/Shipper/Shipper.jsx - COMPLETE FIXED
 // ===============================================
 import React, { useState } from 'react';
 import { Tag, Space, Button, Tooltip, Modal } from 'antd';
@@ -12,12 +12,8 @@ import { useShipper } from './useShipper';
 import { 
   SHIPPER_FIELDS, 
   SHIPPER_EDIT_FIELDS,
-  VEHICLE_TABS,
   STATS_CONFIG,
   getInitials,
-  getVehicleIcon,
-  getVehicleColor,
-  formatRating,
   getBranchName
 } from './shipperConstants';
 import './Shipper.css';
@@ -29,19 +25,14 @@ const Shipper = () => {
     filteredShippers,
     stats,
     loading,
-    activeVehicle,
-    statusFilter,
     searchQuery,
     currentPage,
     addShipper,
     updateShipper,
     deleteShipper,
-    vehicleCount,
     getHeaderTitle,
     getHeaderSubtitle,
     setCurrentPage,
-    handleVehicleChange,
-    handleStatusChange,
     handleSearchChange,
     isSuperAdmin,
     isBranchAdmin,
@@ -58,21 +49,17 @@ const Shipper = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ FIX: Map data đúng field names cho form
   const handleEditClick = (shipper) => {
     setModalMode('edit');
     
-    // Map từ display data sang form data
     const formData = {
       shipper_id: shipper.shipper_id,
-      shipper_name: shipper.name,        // ✅ name → shipper_name
+      shipper_name: shipper.name,
       email: shipper.email,
       phone: shipper.phone,
-      vehicle_type: shipper.vehicle_type,
       status: shipper.status,
       branch_id: shipper.branch_id,
-      rating: shipper.rating,
-      total_success: shipper.total_success
+      salary: shipper.salary || 8000000
     };
     
     setSelectedShipper(formData);
@@ -90,8 +77,7 @@ const Shipper = () => {
     if (modalMode === 'add') {
       result = await addShipper(shipperData);
     } else {
-      const shipperId = selectedShipper.shipper_id || selectedShipper.id;
-      console.log('📝 Editing shipper ID:', shipperId, 'Data:', shipperData);
+      const shipperId = selectedShipper.shipper_id;
       result = await updateShipper(shipperId, shipperData);
     }
     
@@ -110,30 +96,31 @@ const Shipper = () => {
       cancelText: 'Hủy',
       centered: true,
       async onOk() {
-        await deleteShipper(shipper.shipper_id, shipper.name);
+        await deleteShipper(shipper.shipper_id);
       }
     });
   };
 
+  // ✅ FIX: Ẩn hoàn toàn field branch_id cho Branch Admin
   const getFormFields = () => {
     const baseFields = modalMode === 'edit' ? SHIPPER_EDIT_FIELDS : SHIPPER_FIELDS;
     
-    return baseFields.map(field => {
+    // ✅ Lọc bỏ field branch_id nếu là Branch Admin
+    const filteredFields = baseFields.filter(field => {
       if (field.name === 'branch_id' && isBranchAdmin) {
-        return {
-          ...field,
-          defaultValue: currentBranchId?.toString() || '1',
-          disabled: true
-        };
+        return false; // ✅ Không thêm field này vào array
       }
-      
-      if (field.name === 'branch_id' && currentBranchId) {
+      return true;
+    });
+    
+    // Với Super Admin, set default value nếu có currentBranchId
+    return filteredFields.map(field => {
+      if (field.name === 'branch_id' && isSuperAdmin && currentBranchId) {
         return {
           ...field,
           defaultValue: currentBranchId.toString()
         };
       }
-      
       return field;
     });
   };
@@ -141,14 +128,12 @@ const Shipper = () => {
   const handleExport = () => {
     if (filteredShippers.length === 0) return;
     
-    const headers = ['ID', 'Tên', 'Email', 'Số điện thoại', 'Loại xe', 'Rating', 'Trạng thái', 'Chi nhánh'];
+    const headers = ['ID', 'Ten', 'Email', 'So dien thoai', 'Trang thai', 'Chi nhanh'];
     const rows = filteredShippers.map(s => [
       s.shipper_id,
       s.name,
       s.email,
       s.phone,
-      s.vehicle_type,
-      s.rating,
       s.status,
       getBranchName(s.branch_id)
     ]);
@@ -182,7 +167,7 @@ const Shipper = () => {
     {
       title: 'Shipper',
       key: 'shipper',
-      width: 220,
+      width: 240,
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
@@ -213,7 +198,7 @@ const Shipper = () => {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      width: 220,
+      width: 240,
       render: (email) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
       )
@@ -228,37 +213,6 @@ const Shipper = () => {
       )
     },
     {
-      title: 'Loại xe',
-      dataIndex: 'vehicle_type',
-      key: 'vehicle_type',
-      width: 150,
-      align: 'center',
-      render: (type) => (
-        <Tag 
-          color={type === 'Ô tô' ? 'magenta' : 'blue'} 
-          style={{ fontWeight: '600', fontSize: '13px' }}
-        >
-          {getVehicleIcon(type)} {type}
-        </Tag>
-      )
-    },
-    {
-      title: 'Rating',
-      key: 'rating',
-      width: 140,
-      align: 'center',
-      render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-          <span style={{ fontWeight: '600', color: '#f59e0b', fontSize: '14px' }}>
-            ⭐ {formatRating(record.rating)}
-          </span>
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
-            ({record.total_success})
-          </span>
-        </div>
-      )
-    },
-    {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
@@ -270,22 +224,24 @@ const Shipper = () => {
         </Tag>
       )
     },
-    {
+    // ✅ Chỉ hiển thị cột Chi nhánh cho Super Admin
+    ...(isSuperAdmin ? [{
       title: 'Chi nhánh',
       dataIndex: 'branch_id',
       key: 'branch_id',
-      width: 200,
+      width: 220,
       render: (branchId) => (
         <span style={{ color: '#64748b', fontSize: '13px' }}>
           {getBranchName(branchId)}
         </span>
       )
-    },
+    }] : []),
     {
       title: 'Thao tác',
       key: 'action',
       width: 120,
       align: 'center',
+      fixed: 'right',
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Chỉnh sửa">
@@ -320,6 +276,14 @@ const Shipper = () => {
     setCurrentPage(pagination.current);
   };
 
+  console.log('🔍 Debug getFormFields:', {
+    isBranchAdmin,
+    isSuperAdmin,
+    currentBranchId,
+    fieldsCount: getFormFields().length,
+    fields: getFormFields().map(f => f.name)
+  });
+
   return (
     <div className="shipper-container">
       <div className="shipper-header">
@@ -342,15 +306,7 @@ const Shipper = () => {
 
       <div className="tabs-action-bar">
         <div className="vehicle-tabs">
-          {VEHICLE_TABS.map(tab => (
-            <div
-              key={tab.id}
-              className={`vehicle-tab ${activeVehicle === tab.id ? 'active' : ''}`}
-              onClick={() => handleVehicleChange(tab.id)}
-            >
-              {tab.label} <span className="tab-count">({vehicleCount(tab.id)})</span>
-            </div>
-          ))}
+          {/* Empty */}
         </div>
 
         <div className="right-actions">
@@ -392,7 +348,7 @@ const Shipper = () => {
         pagination={paginationConfig}
         onChange={handleTableChange}
         rowKey="shipper_id"
-        scroll={{ x: 1400 }}
+        scroll={{ x: isSuperAdmin ? 1100 : 900 }}
         emptyText="Không có shipper nào"
       />
 

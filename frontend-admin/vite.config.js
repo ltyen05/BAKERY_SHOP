@@ -12,7 +12,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://localhost:5000', // ✅ SỬA Ở ĐÂY
+        target: 'http://localhost:5000', 
         changeOrigin: true,
       }
     }

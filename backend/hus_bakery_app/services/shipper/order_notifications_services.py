@@ -97,7 +97,6 @@ def get_all_notifications_service(shipper_id, page=1, per_page=10):
     for noti in pagination_obj.items:
         result.append({
             "id": noti.id,
-            "customer_id": noti.customer_id,
             "order_id": noti.order_id,
             "is_read": noti.is_read,
             "created_at": noti.created_at.isoformat() if noti.created_at else None

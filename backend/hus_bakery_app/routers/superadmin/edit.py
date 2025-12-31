@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+
+from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.services.superadmin.edit_services import (
     add_branch_service,
     update_branch_service,
@@ -70,6 +72,36 @@ def delete_branch(id):
     if success:
         return jsonify({"success": True, "message": message}), 200
     return jsonify({"success": False, "message": message}), 400
+
+
+@admin_mgmt_bp.route('/api/branches', methods=['GET'])
+def get_all_branches():
+    try:
+        # 1. Truy vấn toàn bộ danh sách chi nhánh
+        branches = Branch.query.all()
+
+        # 2. Chuyển đổi list các object thành list các dictionary (Serialization)
+        res = []
+        for b in branches:
+            res.append({
+                "branch_id": b.branch_id,
+                "name": b.name,
+                "address": b.address,
+                "phone": b.phone,
+                "email": b.email,
+                "mapSrc": b.mapSrc,
+                # Ép kiểu float để đảm bảo JSON có thể đọc được (vì Decimal thường lỗi)
+                "lat": float(b.lat) if b.lat else None,
+                "lng": float(b.lng) if b.lng else None,
+                "manager_id": b.manager_id
+            })
+
+        # 3. Trả về định dạng JSON và mã trạng thái 200 (Success)
+        return jsonify(res), 200
+
+    except Exception as e:
+        # Xử lý lỗi nếu có vấn đề với database
+        return jsonify({"error": str(e)}), 500
 #==============================EMPLOYEES=========================================
 @admin_mgmt_bp.route('/add_employees', methods=['POST'])
 def create_employee():

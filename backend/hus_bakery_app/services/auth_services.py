@@ -52,7 +52,7 @@ def get_current_admin_service(employee_id):
     info = {
         "id": employee.employee_id,
         "full_name": employee.employee_name,
-        "role": employee.role_name,
+        "role": "admin",
         "email": employee.email,
         "salary": float(employee.salary) if employee.salary else 0,
         "status": employee.status,

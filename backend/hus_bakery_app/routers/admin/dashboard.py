@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request
+import json
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.admin.dashboard_services import (
     total_order_of_month,
     total_amount_of_month,
@@ -13,7 +15,11 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 
 @dashboard_bp.route('/total_orders', methods=['GET'])
+@jwt_required()
 def api_get_order_stats():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền truy cập dữ liệu thống kê"}), 403
     # Lấy tham số month và year từ query string (ví dụ: /api/stats/orders?month=12&year=2025)
     month = request.args.get('month', type=int)
     year = request.args.get('year', type=int)
@@ -32,7 +38,12 @@ def api_get_order_stats():
 
 
 @dashboard_bp.route('/total_amount_for_month', methods=['POST'])
+@jwt_required()
 def api_get_total_amount():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     month = request.args.get('month', type=int)
     year = request.args.get('year', type=int)
 
@@ -50,7 +61,12 @@ def api_get_total_amount():
 
 
 @dashboard_bp.route('/total_customer_of_month', methods=['POST'])
+@jwt_required()
 def api_get_total_customer():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     month = request.args.get('month', type=int)
     year = request.args.get('year', type=int)
 
@@ -68,7 +84,12 @@ def api_get_total_customer():
 
 
 @dashboard_bp.route('/total_product_of_month', methods=['POST'])
+@jwt_required()
 def api_get_total_product():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     month = request.args.get('month', type=int)
     year = request.args.get('year', type=int)
 
@@ -86,7 +107,12 @@ def api_get_total_product():
 
 
 @dashboard_bp.route('/order-status-distribution', methods=['GET'])
+@jwt_required()
 def api_order_status_distribution():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     try:
         data = get_order_status_distribution()
         return jsonify({
@@ -101,7 +127,12 @@ def api_order_status_distribution():
 
 
 @dashboard_bp.route('/top-products', methods=['GET'])
+@jwt_required()
 def api_top_products():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     data = get_top_selling_products()
     return jsonify({
         "success": True,
@@ -110,7 +141,12 @@ def api_top_products():
 
 
 @dashboard_bp.route('/customer-growth', methods=['GET'])
+@jwt_required()
 def api_customer_growth():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
     try:
         growth_stats = get_customer_growth_service()
 

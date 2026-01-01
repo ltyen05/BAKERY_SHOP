@@ -1,12 +1,19 @@
 from flask import Blueprint, jsonify, request
+import json
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.admin.order_management_services import (
     order_detail, delete_order,
     get_all_orders_service
 )
 
 order_admin_bp = Blueprint('order_management', __name__)
+@jwt_required()
 @order_admin_bp.route("/order_detail", methods=['GET'])
 def order_management():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền xem chi tiết đơn hàng"}), 403
+
     order_id = request.args.get('order_id')
 
     if not order_id:
@@ -20,7 +27,12 @@ def order_management():
     return jsonify(order_items), 200
 
 @order_admin_bp.route("/delete_order/<int:order_id>", methods=['DELETE'])
+@jwt_required()
 def delete_order_api(order_id):
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền xóa đơn hàng"}), 403
+
     success = delete_order(order_id)
     if not success:
         return jsonify({"message": "Xóa đơn hàng thành công"}), 200
@@ -28,7 +40,12 @@ def delete_order_api(order_id):
 
 
 @order_admin_bp.route("/orders", methods=['GET'])
+@jwt_required()
 def get_orders():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền truy cập danh sách đơn hàng"}), 403
+
     branch_id = request.args.get('branch_id')
 
     if not branch_id:

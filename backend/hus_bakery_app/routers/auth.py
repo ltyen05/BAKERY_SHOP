@@ -169,16 +169,29 @@ def forgot_password():
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
+    # Phải đảm bảo lấy đúng JSON data
     data = request.get_json()
-    token = data.get('token')  # Token lấy từ URL (Frontend cắt ra gửi xuống)
+    
+    if not data:
+        return jsonify({"message": "Dữ liệu yêu cầu không hợp lệ"}), 400
+
+    token = data.get('token')
     new_password = data.get('new_password')
 
-    if not token or not new_password:
-        return jsonify({"message": "Thiếu thông tin"}), 400
+    # Log ra terminal để kiểm tra chắc chắn server nhận được gì
+    print(f"--- DEBUG RESET ---")
+    print(f"Token: {token[:20]}...") 
+    print(f"New Password: {new_password}")
+    print(f"-------------------")
 
+    if not token or not new_password:
+        return jsonify({"message": "Thiếu thông tin token hoặc mật khẩu"}), 400
+
+    # Gọi hàm xử lý logic từ service
     success, message = reset_password_with_token(token, new_password)
 
     if success:
         return jsonify({"status": "success", "message": message}), 200
     else:
+        # Nếu thất bại trong logic (token hết hạn, sai role...), trả về 400
         return jsonify({"status": "fail", "message": message}), 400

@@ -82,51 +82,82 @@ def find_user_instance(email):
 
 
 def request_password_reset(email):
-    # 1. Tìm user (Giữ nguyên code cũ của bạn)
     user, role = find_user_instance(email)
     if not user:
         return False, "Email này chưa được đăng ký trong hệ thống."
 
-    # 2. Tạo Token (Giữ nguyên code cũ)
+    # 🔥 FIX: identity PHẢI là string
+    identity_data = json.dumps({
+        "id": user.get_id(),
+        "role": role,
+        "type": "reset"
+    })
+
     reset_token = create_access_token(
-        identity={"id": user.get_id(), "role": role, "type": "reset"},
+        identity=identity_data,
         expires_delta=timedelta(minutes=15)
     )
 
-    # 3. Tạo Link (Sửa localhost:3000 thành domain thật nếu có)
-    link = f"http://localhost:3000/reset-password?token={reset_token}"
+    link = f"http://localhost:3000/resetPassword?token={reset_token}"
 
-    # 4. GỬI EMAIL THẬT (Sửa đoạn này)
     try:
         msg = Message(
             subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
-            recipients=[email],  # Gửi đến email khách hàng nhập
-            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
+            recipients=[email],
+            body=f"Chào bạn,\n\n"
+                 f"Bạn vừa yêu cầu đặt lại mật khẩu.\n"
+                 f"Link có hiệu lực 15 phút:\n\n{link}\n\n"
+                 f"Nếu không phải bạn, vui lòng bỏ qua email này."
         )
-
-        mail.send(msg)  # <--- Lệnh gửi quan trọng nhất
-
+        mail.send(msg)
         return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
 
     except Exception as e:
-        print(f"Lỗi gửi mail: {str(e)}")
+        print("MAIL ERROR >>>", repr(e))
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
 
 
+
+import json
+import jwt
+from flask import current_app
+from werkzeug.security import generate_password_hash
+
 def reset_password_with_token(token, new_password):
     try:
-        # 1. Giải mã token
-        decoded = decode_token(token)
-        identity = decoded['sub']  # Lấy phần identity đã lưu lúc tạo token
+        # 1. Giải mã bằng thư viện jwt gốc để tránh lỗi "Subject must be a string"
+        secret_key = current_app.config['JWT_SECRET_KEY']
+        # Không dùng decode_token của flask-jwt-extended ở đây
+        decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
+        
+        # 2. Lấy dữ liệu identity từ trường 'sub'
+        identity_raw = decoded.get('sub')
 
-        # Check an toàn: đảm bảo đây là token reset chứ không phải token đăng nhập
-        if identity.get('type') != 'reset':
-            return False, "Token không hợp lệ cho việc đổi mật khẩu."
+        # 3. Xử lý linh hoạt: Nếu là chuỗi JSON thì loads, nếu là dict thì dùng luôn
+        if isinstance(identity_raw, str):
+            try:
+                identity = json.loads(identity_raw)
+            except:
+                identity = identity_raw
+        else:
+            identity = identity_raw
 
-        user_id = identity['id']
-        role = identity['role']
+        # 4. Kiểm tra ID và Role (Xử lý cả trường hợp identity là dict hoặc giá trị đơn)
+        if isinstance(identity, dict):
+            user_id = identity.get('id')
+            role = identity.get('role')
+            token_type = identity.get('type')
+        else:
+            # Trường hợp identity chỉ chứa ID đơn thuần
+            user_id = identity
+            role = 'customer' # Mặc định hoặc xử lý thêm
+            token_type = 'reset'
 
-        # 2. Tìm lại User trong DB để sửa pass
+        # Kiểm tra an toàn
+        if not user_id:
+            return False, "Token không chứa ID người dùng."
+
+        # 5. Truy vấn Database
         if role == 'customer':
             user = Customer.query.get(user_id)
         elif role == 'employee':
@@ -139,16 +170,18 @@ def reset_password_with_token(token, new_password):
         if not user:
             return False, "Người dùng không tồn tại."
 
-        # 3. Cập nhật mật khẩu mới (Mã hóa)
-        # Giả sử trong model bạn đặt tên cột là password_hash
-        # Nếu model bạn dùng hàm set_password() thì gọi user.set_password(new_password)
+        # 6. Cập nhật mật khẩu
         user.password_hash = generate_password_hash(new_password)
-
         db.session.commit()
-        return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
+        
+        return True, "Đặt lại mật khẩu thành công!"
 
+    except jwt.ExpiredSignatureError:
+        return False, "Link đặt lại mật khẩu đã hết hạn."
     except Exception as e:
-        return False, "Link đã hết hạn hoặc không hợp lệ."
+        if db: db.session.rollback()
+        print(f"CRITICAL RESET ERROR: {str(e)}")
+        return False, "Link không hợp lệ hoặc lỗi hệ thống."
 
 
 def generate_token(user, role):

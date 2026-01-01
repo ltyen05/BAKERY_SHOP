@@ -6,24 +6,19 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.shipper_review import ShipperReview
 
-def get_all_shippers_service(branch_id):
-    query = Shipper.query
-    if branch_id:
-        query = query.filter(Shipper.branch_id == branch_id)
-
-    return query.all()
+def get_all_shippers_service():
+    return Shipper.query.all()
 
 def add_shipper_service(data):
     new_shipper = Shipper(
         shipper_id=data.get('shipper_id'),
-        name=data.get('name'),
+        shipper_name=data.get('name'),
         phone=data.get('phone'),
         email=data.get('email'),
-        salary = data.get('salary'),
-        branch_id=data.get('branch_id'),
+        password=generate_password_hash(data.get('password')),
+        branch_id=data.get('branch_id')
     )
     new_shipper.status = data.get('status', 'active')
-    new_shipper.set_password(data.get('password'))
 
     db.session.add(new_shipper)
     db.session.commit()

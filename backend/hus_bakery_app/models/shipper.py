@@ -13,8 +13,7 @@ class Shipper(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('branches.branch_id', ondelete='SET NULL'))
     password = db.Column(db.String(200))
 
-    def __init__(self, shipper_id,name, phone, email, salary, branch_id):
-        self.shipper_id= shipper_id
+    def __init__(self, name, phone, email, salary, branch_id):
         self.name = name
         self.phone = phone
         self.email = email

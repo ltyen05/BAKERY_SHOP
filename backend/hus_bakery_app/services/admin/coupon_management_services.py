@@ -1,9 +1,9 @@
 from hus_bakery_app import db
-from datetime import datetime
 from hus_bakery_app.models.coupon import Coupon
 
 
 def get_all_coupons_service():
+    # Lấy toàn bộ danh sách mã giảm giá
     return Coupon.query.all()
 
 
@@ -21,8 +21,7 @@ def add_coupon_service(data):
         end_date=data.get('end_date'),
         status=data.get("status"),
         used_count=data.get("used_count"),
-        created_at=datetime.now(),
-        updated_at=datetime.now()
+        created_at=data.get("created_at")
     )
     # Trạng thái mặc định là 'active' nếu không truyền vào
     new_coupon.status = data.get('status', 'active')
@@ -30,6 +29,7 @@ def add_coupon_service(data):
     db.session.add(new_coupon)
     db.session.commit()
     return new_coupon
+
 
 def edit_coupon_service(coupon_id, data):
     coupon = Coupon.query.get(coupon_id)

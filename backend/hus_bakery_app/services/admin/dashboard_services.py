@@ -7,7 +7,7 @@ from sqlalchemy import func, extract, desc
 from datetime import datetime, timedelta
 
 
-def total_order_of_month(month, year):
+def total_order_of_moth(month, year):
     orders_count = Order.query.filter(
         extract('month', Order.created_at) == month,
         extract('year', Order.created_at) == year,

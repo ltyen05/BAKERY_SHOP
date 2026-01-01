@@ -2,9 +2,8 @@ from sqlalchemy import func, desc
 from hus_bakery_app import db
 from hus_bakery_app.models.categories import Category
 from hus_bakery_app.models.order_item import OrderItem
-from hus_bakery_app.models.product_review import ProductReview
 from hus_bakery_app.models.products import Product
-
+from hus_bakery_app.models.product_review import ProductReview
 
 def get_top_3_products_service():
     results = db.session.query(

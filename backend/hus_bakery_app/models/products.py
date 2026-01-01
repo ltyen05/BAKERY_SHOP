@@ -18,6 +18,7 @@ class Product(db.Model):
     def __init__(self, name, description=None, image_url=None, unit_price=None, category_id=None, updated_at=None):
         self.name = name
         self.description = description
+
         self.image_url = image_url
         self.unit_price = unit_price
         self.category_id = category_id

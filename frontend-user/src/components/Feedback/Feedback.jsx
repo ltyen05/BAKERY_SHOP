@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Rate, Button, message } from "antd";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
-const FeedbackComponent = (order_id) => {
+const FeedbackComponent = ({order_id}) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [ratings, setRatings] = useState({
     store: 0,

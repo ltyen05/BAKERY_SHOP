@@ -9,10 +9,7 @@ import {
   Button,
   Tag,
   Typography,
-<<<<<<< HEAD
   Modal,
-=======
->>>>>>> frontend-user
   Spin,
   Pagination,
   message,

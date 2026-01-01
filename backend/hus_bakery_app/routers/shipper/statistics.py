@@ -22,7 +22,7 @@ def get_current_shipper_id():
         return identity.get("id"), identity.get("role")
     except:
         return None, None
-
+    
 # API 1: Lấy tổng đơn hàng
 @shipper_stats_bp.route("/stats/total-orders", methods=["GET"])
 @jwt_required()

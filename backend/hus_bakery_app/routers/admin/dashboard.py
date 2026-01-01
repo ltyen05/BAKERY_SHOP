@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from hus_bakery_app.services.admin.dashboard_services import (
-    total_order_of_month,
+    total_order_of_moth,
     total_amount_of_month,
     total_customer_of_month,
     total_product_of_month,
@@ -22,7 +22,7 @@ def api_get_order_stats():
     if not month or not year:
         return jsonify({"error": "Vui lòng cung cấp cả month và year"}), 400
 
-    total = total_order_of_month(month, year)
+    total = total_order_of_moth(month, year)
 
     return jsonify({
         "month": month,
@@ -45,7 +45,7 @@ def api_get_total_amount():
     return jsonify({
         "month": month,
         "year": year,
-        "total_amount": total
+        "total_orders": total
     }), 200
 
 
@@ -102,17 +102,11 @@ def api_order_status_distribution():
 
 @dashboard_bp.route('/top-products', methods=['GET'])
 def api_top_products():
-    try:
-        data = get_top_selling_products()
-        return jsonify({
-            "success": True,
-            "data": data
-        }), 200
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": str(e)
-        }), 500
+    data = get_top_selling_products()
+    return jsonify({
+        "success": True,
+        "data": data
+    }), 200
 
 
 @dashboard_bp.route('/customer-growth', methods=['GET'])

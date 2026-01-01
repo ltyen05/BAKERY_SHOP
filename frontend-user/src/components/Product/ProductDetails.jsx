@@ -89,13 +89,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!productId) return;
-<<<<<<< HEAD
-
     fetch(`http://localhost:5001/api/product/${productId}`)
-=======
-    setLoading(true);
-    fetch(`http://localhost:5000/api/product/${productId}`)
->>>>>>> frontend-user
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);

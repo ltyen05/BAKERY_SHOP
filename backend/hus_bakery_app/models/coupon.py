@@ -16,7 +16,7 @@ class Coupon(db.Model):
     used_count = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-    
+
     def get_discount_percent(self):
         return self.discount_percent
 

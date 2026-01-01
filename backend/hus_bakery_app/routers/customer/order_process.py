@@ -12,10 +12,9 @@ from hus_bakery_app.services.customer.cart_services import (
     update_cart_quantity
 )
 from ...models.order import Order
-from hus_bakery_app.services.customer.order_services import create_order, get_order_detail_service
+from hus_bakery_app.services.customer.order_services import create_order,get_order_detail_service
 
 order_bp = Blueprint("order_bp", __name__)
-
 
 # ==========================
 # 1. GET CART
@@ -29,7 +28,6 @@ def api_get_cart():
     cart = get_cart(customer_id)
     return jsonify(cart), 200
 
-
 @order_bp.route("/addToCart", methods=["POST"])
 def api_add_to_cart():
     data = request.json
@@ -41,14 +39,13 @@ def api_add_to_cart():
     # Lưu ý: item có thể là object, cần lấy product_id để trả về json
     return jsonify({"message": "Added to cart", "item": item.product_id}), 200
 
-
 # ==========================
 # 2. CHANGE QUANTITY
 # ==========================
 @order_bp.route("/changeQuantity", methods=["POST"])
 @jwt_required()
 def api_change_quantity():
-    # ✅ LẤY customer_id TỪ JWT
+     # ✅ LẤY customer_id TỪ JWT
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
     data = request.json
@@ -74,6 +71,22 @@ def api_change_quantity():
             "quantity": item.quantity
         }
     }), 200
+# ==========================
+# 3. UPDATE SELECTED ITEM
+# ==========================
+@order_bp.route("/cart/select", methods=["PUT"])
+def api_update_selected():
+    data = request.json
+    customer_id = data.get("customer_id")
+    product_id = data.get("product_id")
+    selected = data.get("selected")
+
+    item = update_selected(customer_id, product_id, selected)
+
+    if not item:
+        return jsonify({"error": "Item not found"}), 404
+
+    return jsonify({"message": "Selection updated"}), 200
 
 
 # ==========================
@@ -103,7 +116,7 @@ def api_coupon_info(coupon_id):
 # 6. CREATE ORDER
 # ==========================
 @order_bp.route("/order", methods=["POST"])
-@jwt_required()
+@jwt_required() 
 def api_create_order():
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
@@ -130,13 +143,11 @@ def api_create_order():
     if not order:
         return jsonify({"error": msg}), 400
 
-    # File: /app/hus_bakery_app/routers/customer/order_process.py - Dòng 153
     return jsonify({
         "message": msg,
-        "order_id": order.order_id  # Đổi từ order.shipper_id thành order['order_id']
+        "order_id": order.shipper_id
     }), 200
-
-
+    
 @order_bp.route("/cart/remove", methods=["DELETE"])
 @jwt_required()
 def api_remove_from_cart():
@@ -158,18 +169,19 @@ def api_remove_from_cart():
     return jsonify({"message": "Item removed from cart"}), 200
 
 
+
 @order_bp.route("/order_details", methods=["POST"])
 def api_order_details():
     data = request.json
     order_id = data.get("order_id")
-    # ⭐ THÊM DEBUG
+        # ⭐ THÊM DEBUG
     print(f"DEBUG - data: {data}")
     print(f"DEBUG - order_id: {order_id}")
     print(f"DEBUG - type(order_id): {type(order_id)}")
     order_detail, msg = get_order_detail_service(order_id)
     if not order_detail:
         return jsonify({"error": msg}), 400
-    return jsonify({
+    return jsonify({ 
         "status": "success",
         "data": order_detail
     }), 200

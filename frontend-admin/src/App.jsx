@@ -1,6 +1,6 @@
 // ===============================================
 // Location: src/App.jsx
-// FIX: Branch Admin automatic redirect to Dashboard
+// FIXED: Proper role handling for super_admin and admin
 // ===============================================
 import { Suspense, useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -27,30 +27,6 @@ function LoadingFallback() {
   );
 }
 
-// Loading screen during fetch user info
-function AuthLoading() {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
-      <Spin size="large" />
-      <p style={{ 
-        marginTop: 20, 
-        color: 'white', 
-        fontSize: 16,
-        fontWeight: 500 
-      }}>
-        Đang tải thông tin...
-      </p>
-    </div>
-  );
-}
-
 function App() {
   return (
     <AuthProvider>
@@ -67,24 +43,37 @@ function App() {
 function AppContent() {
   const { user, loading } = useAuth();
 
-  // Use useMemo to prevent unnecessary route recalculations
+  // 
   const routes = useMemo(() => {
     if (!user) return [];
     return getRoutesForUser(user);
-  }, [user?.role, user?.viewing_branch]);
+  }, [user]);
 
-  console.log('Debug: Routing update', {
-    user: user?.name,
-    role: user?.role,
-    viewing_branch: user?.viewing_branch,
-    routes_count: routes.length,
-    loading
-  });
-
+  // Show loading only during initial auth check
   if (loading) {
-    return <AuthLoading />;
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      }}>
+        <Spin size="large" />
+        <p style={{ 
+          marginTop: 20, 
+          color: 'white', 
+          fontSize: 16,
+          fontWeight: 500 
+        }}>
+          Đang tải thông tin...
+        </p>
+      </div>
+    );
   }
 
+  //  MOCK LOGIN - Will be replaced with real Login component
   if (!user) {
     return (
       <div style={{
@@ -98,19 +87,20 @@ function AppContent() {
         <h2 style={{ marginBottom: 8 }}>Bạn chưa đăng nhập</h2>
         <p style={{ color: '#666', marginBottom: 24 }}>Vui lòng đăng nhập để tiếp tục</p>
         
+        {/* MOCK: Super Admin Login */}
         <button 
           onClick={() => {
             const mockSuperAdmin = {
               id: 'SA001',
               name: 'Helen Walter',
               email: 'helen@husbakery.vn',
-              role: 'super_admin',
+              role: 'super_admin', // ← Role trong routes
               role_name: 'Super Admin',
               salary: 20000000,
               status: 'Active',
               branch_id: null,
               branch_name: null,
-              viewing_branch: null
+              viewing_branch: null // ← null = xem tất cả chi nhánh
             };
             localStorage.setItem('admin_info', JSON.stringify(mockSuperAdmin));
             localStorage.setItem('employee_id', 'SA001');
@@ -133,19 +123,20 @@ function AppContent() {
           Login as Super Admin
         </button>
         
+        {/* MOCK: Branch Admin (admin role) Login */}
         <button 
           onClick={() => {
             const mockBranchAdmin = {
               id: 'BA001',
               name: 'Nguyễn Bảo Thạch',
               email: 'thach@husbakery.vn',
-              role: 'admin',
-              role_name: 'Quản lý',
+              role: 'admin', // ← Role cho Branch Admin
+              role_name: 'Quản lý Chi nhánh',
               salary: 15000000,
               status: 'Active',
               branch_id: 1,
               branch_name: 'HUS Bakery - Hoàn Kiếm',
-              viewing_branch: null
+              viewing_branch: null // ← Branch Admin không cần viewing_branch
             };
             localStorage.setItem('admin_info', JSON.stringify(mockBranchAdmin));
             localStorage.setItem('employee_id', 'BA001');

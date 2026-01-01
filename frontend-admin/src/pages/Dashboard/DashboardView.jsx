@@ -1,13 +1,10 @@
 // ===============================================
 // FILE: src/pages/Dashboard/DashboardView.jsx
-// FIXED - Theo logic nghiệp vụ thực tế
 // ===============================================
-import { Row, Col, Card, Select, Button, Spin, Alert, Statistic } from 'antd';
-import { ReloadOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import { FiDollarSign, FiShoppingCart, FiTrendingUp, FiPackage } from 'react-icons/fi';
+import { Row, Col, Card, Select, Button, Spin, Statistic, Tag, Space } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import StatsCard from '../../components/StatsCard/StatsCard';
 import { useDashboard } from './useDashboard';
 import './DashboardView.css';
 
@@ -21,7 +18,6 @@ const DashboardView = () => {
     revenuePerBranch, orderStats, revenueChart
   } = useDashboard();
 
-  // Dynamic year options (current year + 4 years ago)
   const currentYear = new Date().getFullYear();
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({ 
     value: i + 1, 
@@ -120,10 +116,10 @@ const DashboardView = () => {
       <div className="dashboard-container">
         <div className="dashboard-header">
           <div>
-            <h1 className="dashboard-title">Dashboard Chi Nhánh</h1>
-            <p className="dashboard-subtitle">
-              Thống kê tháng {selectedMonth}/{selectedYear}
-            </p>
+            <h1 className="dashboard-title">Dashboard Cửa Hàng</h1>
+            <Space style={{ marginTop: 8 }}>
+              <Tag color="blue">Tháng {selectedMonth}/{selectedYear}</Tag>
+            </Space>
           </div>
           <div className="dashboard-controls">
             <Select 
@@ -144,9 +140,9 @@ const DashboardView = () => {
           </div>
         </div>
 
-        {/* STATS - FOCUSED ON REVENUE */}
+        {/* 🎯 CHỈ DOANH THU */}
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={12}>
+          <Col xs={24}>
             <Card
               style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -155,48 +151,31 @@ const DashboardView = () => {
               }}
             >
               <Statistic
-                title={<span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>Doanh thu tháng {selectedMonth}</span>}
+                title={
+                  <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16 }}>
+                    💰 Doanh thu tháng {selectedMonth}/{selectedYear}
+                  </span>
+                }
                 value={branchStats.amount || 0}
                 precision={0}
-                valueStyle={{ color: '#fff', fontSize: 32, fontWeight: 700 }}
+                valueStyle={{ color: '#fff', fontSize: 36, fontWeight: 700 }}
                 suffix="₫"
                 formatter={(value) => formatNumber(value)}
               />
             </Card>
           </Col>
-
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard 
-              title="Đơn hàng" 
-              value={branchStats.orders || 0} 
-              color="blue" 
-              icon={FiShoppingCart} 
-            />
-          </Col>
-
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard 
-              title="Sản phẩm đã bán" 
-              value={branchStats.products || 0} 
-              color="orange" 
-              icon={FiPackage} 
-            />
-          </Col>
         </Row>
 
-        <Alert
-          message="📊 Lưu ý"
-          description="Số liệu trên: Thống kê tháng được chọn. Biểu đồ bên dưới: Tổng hợp toàn bộ thời gian."
-          type="info"
-          showIcon
-          style={{ marginTop: 16 }}
-        />
-
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        {/* Biểu đồ */}
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
           <Col xs={24} lg={12}>
             <Card 
-              title="Phân bố trạng thái đơn hàng" 
-              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>Tổng hợp</span>}
+              title={
+                <Space>
+                  <span>Trạng thái đơn hàng</span>
+                  <Tag color="purple">Tổng: {orderStatus.total_orders}</Tag>
+                </Space>
+              }
             >
               <div style={{ height: 300 }}>
                 {pieData.labels.length > 0 ? (
@@ -210,8 +189,12 @@ const DashboardView = () => {
 
           <Col xs={24} lg={12}>
             <Card 
-              title="Top sản phẩm bán chạy" 
-              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>Tổng hợp</span>}
+              title={
+                <Space>
+                  <span>Top 5 sản phẩm</span>
+                  <Tag color="orange">Bán chạy nhất</Tag>
+                </Space>
+              }
             >
               <div style={{ height: 300 }}>
                 {barData.labels.length > 0 ? (
@@ -227,8 +210,12 @@ const DashboardView = () => {
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
           <Col xs={24}>
             <Card 
-              title="Khách hàng mới theo tháng" 
-              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>6 tháng đầu năm {currentYear}</span>}
+              title={
+                <Space>
+                  <span>Khách hàng mới</span>
+                  <Tag color="green">6 tháng đầu năm {currentYear}</Tag>
+                </Space>
+              }
             >
               <div style={{ height: 300 }}>
                 {lineData.labels.length > 0 ? (
@@ -244,7 +231,7 @@ const DashboardView = () => {
     );
   }
 
-  // ===== SUPER ADMIN - FOCUSED ON REVENUE =====
+  // ===== SUPER ADMIN =====
   if (isSuperAdmin) {
     const totalRevenue = revenuePerBranch?.reduce((sum, b) => sum + (b.total_revenue || 0), 0) || 0;
     const totalOrders = orderStats?.reduce((sum, o) => sum + (o.count || 0), 0) || 0;
@@ -349,12 +336,22 @@ const DashboardView = () => {
           </Col>
 
           <Col xs={24} lg={8}>
-            <StatsCard 
-              title="Tổng đơn hàng" 
-              value={totalOrders} 
-              color="blue" 
-              icon={FiShoppingCart} 
-            />
+            <Card
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
+                border: 'none',
+                borderRadius: 12,
+                height: '100%'
+              }}
+            >
+              <Statistic
+                title={<span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>Tổng đơn hàng</span>}
+                value={totalOrders}
+                precision={0}
+                valueStyle={{ color: '#fff', fontSize: 32, fontWeight: 700 }}
+                formatter={(value) => formatNumber(value)}
+              />
+            </Card>
           </Col>
         </Row>
 

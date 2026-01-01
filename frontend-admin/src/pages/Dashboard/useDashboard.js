@@ -10,17 +10,13 @@ export const useDashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   
-  // Filter (Branch Admin)
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
-  // Branch Admin Data
+  // Branch Admin Data - CHỈ DOANH THU
   const [branchStats, setBranchStats] = useState({ 
-    orders: 0, 
-    amount: 0, 
-    customers: 0, 
-    products: 0 
+    amount: 0 
   });
   const [orderStatus, setOrderStatus] = useState({ 
     total_orders: 0, 
@@ -68,41 +64,29 @@ export const useDashboard = () => {
     console.log('[useDashboard] Loading Branch Admin data...');
 
     try {
-      //  Call 7 APIs song song
+      // ✅ CHỈ GỌI 4 APIs: 1 filtered (doanh thu) + 3 unfiltered (biểu đồ)
       const [
-        ordersRes, 
         amountRes, 
-        customersRes, 
-        productsRes, 
         orderStatusRes, 
         topProductsRes, 
         customerGrowthRes
       ] = await Promise.all([
-        dashboardApi.getTotalOrders(selectedMonth, selectedYear),
         dashboardApi.getTotalAmount(selectedMonth, selectedYear),
-        dashboardApi.getTotalCustomers(selectedMonth, selectedYear),
-        dashboardApi.getTotalProducts(selectedMonth, selectedYear),
         dashboardApi.getOrderStatusDistribution(),
         dashboardApi.getTopProducts(),
         dashboardApi.getCustomerGrowth()
       ]);
 
       console.log('[useDashboard] Branch data:', {
-        orders: ordersRes.data,
         amount: amountRes.data,
-        customers: customersRes.data,
-        products: productsRes.data,
         orderStatus: orderStatusRes.data,
         topProducts: topProductsRes.data,
         customerGrowth: customerGrowthRes.data
       });
 
-      //  Set state
+      // ✅ Set state - CHỈ DOANH THU
       setBranchStats({
-        orders: ordersRes.data || 0,
-        amount: amountRes.data || 0,
-        customers: customersRes.data || 0,
-        products: productsRes.data || 0
+        amount: amountRes.data || 0
       });
 
       setOrderStatus(orderStatusRes.data || { total_orders: 0, distribution: [] });
@@ -119,7 +103,6 @@ export const useDashboard = () => {
     console.log('[useDashboard] Loading Super Admin data...');
 
     try {
-      //  Call 3 APIs song song
       const [revenueRes, orderStatsRes, revenueChartRes] = await Promise.all([
         dashboardApi.getRevenuePerBranch(),
         dashboardApi.getOrderStats(),
@@ -132,7 +115,6 @@ export const useDashboard = () => {
         revenueChart: revenueChartRes.data
       });
 
-      //  Set state
       setRevenuePerBranch(revenueRes.data || []);
       setOrderStats(orderStatsRes.data || []);
       setRevenueChart(revenueChartRes.data || []);

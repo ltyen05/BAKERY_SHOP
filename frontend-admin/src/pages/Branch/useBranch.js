@@ -1,8 +1,8 @@
 // ===============================================
 // FILE: src/pages/Branch/useBranch.js
-// Custom Hook for Branch Management
 // ===============================================
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { message } from 'antd';
 import { branchApi } from '../../api/branchApi';
 import { useAuth } from '../../context/AuthContext';
@@ -10,17 +10,14 @@ import { useAuth } from '../../context/AuthContext';
 export const useBranch = () => {
   // AUTH CONTEXT
   const { viewBranch, canManageBranches } = useAuth();
+  const navigate = useNavigate(); 
 
   // STATE
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // FETCH DATA
-  useEffect(() => {
-    fetchBranches();
-  }, []);
-
-  const fetchBranches = async () => {
+  // FETCH BRANCHES
+  const fetchBranches = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -33,16 +30,20 @@ export const useBranch = () => {
         setBranches([]);
       }
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Fetch branches error:', error);
       message.error('Đã xảy ra lỗi khi tải dữ liệu');
       setBranches([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // VIEW BRANCH (Click vào ID)
-  const handleViewBranch = async (branch) => {
+  useEffect(() => {
+    fetchBranches();
+  }, [fetchBranches]);
+
+  //  FIXED: VIEW BRANCH - Auto navigate to dashboard
+  const handleViewBranch = useCallback(async (branch) => {
     try {
       const branchData = {
         id: branch.branch_id,
@@ -53,14 +54,18 @@ export const useBranch = () => {
 
       viewBranch(branchData);
       message.success(`Đang xem chi nhánh: ${branch.name}`);
+      
+      //  AUTO NAVIGATE TO DASHBOARD
+      navigate('/dashboard');
+      
     } catch (error) {
-      console.error('View error:', error);
+      console.error('View branch error:', error);
       message.error('Không thể xem chi nhánh');
     }
-  };
+  }, [viewBranch, navigate]); 
 
   // ADD BRANCH
-  const addBranch = async (branchData) => {
+  const addBranch = useCallback(async (branchData) => {
     try {
       const result = await branchApi.addBranch(branchData);
 
@@ -73,14 +78,14 @@ export const useBranch = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Add error:', error);
+      console.error('Add branch error:', error);
       message.error('Đã xảy ra lỗi khi thêm chi nhánh');
       return { success: false };
     }
-  };
+  }, [fetchBranches]);
 
   // UPDATE BRANCH
-  const updateBranch = async (branchId, branchData) => {
+  const updateBranch = useCallback(async (branchId, branchData) => {
     try {
       const result = await branchApi.updateBranch(branchId, branchData);
 
@@ -93,14 +98,14 @@ export const useBranch = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Update error:', error);
+      console.error('Update branch error:', error);
       message.error('Đã xảy ra lỗi khi cập nhật chi nhánh');
       return { success: false };
     }
-  };
+  }, [fetchBranches]);
 
   // DELETE BRANCH
-  const deleteBranch = async (branchId, branchName) => {
+  const deleteBranch = useCallback(async (branchId, branchName) => {
     try {
       const result = await branchApi.deleteBranch(branchId);
 
@@ -113,11 +118,11 @@ export const useBranch = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Delete branch error:', error);
       message.error('Đã xảy ra lỗi khi xóa chi nhánh');
       return { success: false };
     }
-  };
+  }, [fetchBranches]);
 
   // RETURN
   return {

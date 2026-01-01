@@ -1,3 +1,6 @@
+// ===============================================
+// FILE: src/pages/Branch/BranchView.jsx 
+// ===============================================
 import { useState } from "react";
 import { Space, Button, Tooltip, Modal } from "antd";
 import { FiMapPin, FiPhone, FiMail, FiHome, FiSearch, FiDownload, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';

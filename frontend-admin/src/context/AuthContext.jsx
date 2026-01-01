@@ -1,5 +1,6 @@
 // ===============================================
-// FILE: frontend-admin/src/context/AuthContext.jsx
+// FILE: src/context/AuthContext.jsx
+// FIXED: Removed redundant loading UI, optimized logic
 // ===============================================
 import { createContext, useContext, useState, useEffect } from 'react';
 import { message } from 'antd';
@@ -35,6 +36,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('[Auth] Error:', error);
       localStorage.removeItem('admin_info');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('employee_id');
     } finally {
       setLoading(false);
     }
@@ -48,7 +51,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('employee_id');
     localStorage.removeItem('admin_info');
     setUser(null);
-    window.location.href = '/login';
+    message.info('Đã đăng xuất');
+    window.location.href = '/';
   };
 
   /**
@@ -135,22 +139,7 @@ export const AuthProvider = ({ children }) => {
     canManageBranches
   };
 
-  // Chỉ hiển thị loading khi đang check auth lần đầu
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px',
-        color: '#666'
-      }}>
-        Đang tải...
-      </div>
-    );
-  }
-
+  // ✅ FIXED: Removed redundant loading UI - handled in App.jsx
   return (
     <AuthContext.Provider value={value}>
       {children}

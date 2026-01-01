@@ -1,40 +1,43 @@
 // ===============================================
-// Location: src/api/axiosConfig.js - CHECKED & FIXED
+// Location: src/api/axiosConfig.js
+// FIXED: Better token handling, cleaner interceptors
 // ===============================================
 import axios from 'axios';
 
 const api = axios.create({
-  //  KHÔNG CẦN baseURL vì Vite proxy đã handle
+  // ✅ Không cần baseURL vì Vite proxy đã handle
   // Vite proxy sẽ chuyển:
-  // /admin/... -> http://localhost:5001/admin/...
-  // /api/...   -> http://localhost:5000/api/...
+  // /superadmin/... -> http://localhost:5001/superadmin/...
   
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, //  Gửi cookies
-  timeout: 10000, //  10s timeout
+  withCredentials: true, // Gửi cookies nếu cần
+  timeout: 10000, // 10s timeout
 });
 
 // ============= REQUEST INTERCEPTOR =============
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    console.log(' Request:', {
-      method: config.method.toUpperCase(),
-      url: config.url,
-      params: config.params,
-      data: config.data
-    });
+    // ✅ Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📤 Request:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        params: config.params,
+        data: config.data
+      });
+    }
     
     return config;
   },
   (error) => {
-    console.error(' Request error:', error);
+    console.error('❌ Request error:', error);
     return Promise.reject(error);
   }
 );
@@ -42,47 +45,50 @@ api.interceptors.request.use(
 // ============= RESPONSE INTERCEPTOR =============
 api.interceptors.response.use(
   (response) => {
-    console.log(' Response:', {
-      status: response.status,
-      url: response.config.url,
-      data: response.data
-    });
+    // ✅ Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📥 Response:', {
+        status: response.status,
+        url: response.config.url,
+        data: response.data
+      });
+    }
     return response;
   },
   (error) => {
-    // Handle error responses
     if (error.response) {
       // Server responded with error
-      console.error(' API Error:', {
+      console.error('❌ API Error:', {
         status: error.response.status,
         url: error.config?.url,
-        data: error.response.data
+        message: error.response.data?.message || error.message
       });
 
-      // Handle specific status codes
+      // ✅ Handle specific status codes
       switch (error.response.status) {
         case 401:
-          console.error(' Unauthorized - Token expired or invalid');
-          // Optional: Clear token and redirect to login
-          // localStorage.removeItem('token');
-          // window.location.href = '/login';
+          // Token expired or invalid
+          console.error('🔒 Unauthorized - Token invalid');
+          // ✅ IMPORTANT: Uncomment when you have real login
+          // localStorage.clear();
+          // window.location.href = '/';
           break;
         case 403:
-          console.error(' Forbidden - No permission');
+          console.error('🚫 Forbidden - No permission');
           break;
         case 404:
-          console.error(' Not Found');
+          console.error('🔍 Not Found');
           break;
         case 500:
-          console.error(' Server Error');
+          console.error('💥 Server Error');
           break;
       }
     } else if (error.request) {
       // Request was made but no response
-      console.error(' No response from server:', error.request);
+      console.error('🌐 No response from server');
     } else {
       // Something else happened
-      console.error(' Error:', error.message);
+      console.error('⚠️ Error:', error.message);
     }
     
     return Promise.reject(error);

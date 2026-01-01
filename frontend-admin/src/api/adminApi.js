@@ -1,64 +1,87 @@
 // ===============================================
 // FILE: src/api/adminApi.js
-// FIXED: Update API không cần branch_id
 // ===============================================
 import api from './axiosConfig';
 
-const BASE_PATH = '/superadmin/branch';
-
 export const adminApi = {
-  getManagerByBranch: async (branchId) => {
+  // ================= GET ALL BRANCHES =================
+  getAllBranches: async () => {
     try {
-      console.log('[adminApi] Fetching manager for branch:', branchId);
-
-      const response = await api.get(`${BASE_PATH}/${branchId}/manager`);
-
-      if (response.data.success && response.data.data) {
-        const data = response.data.data;
-        
+      const response = await api.get('/superadmin/api/branches');
+      
+      if (response.data && Array.isArray(response.data)) {
         return {
           success: true,
-          data: {
-            manager_id: data.manager_id,
-            manager_name: data.manager_name,
-            email: data.email,
-            role: data.role,
-            status: data.status,
-            salary: data.salary,
-            branch_id: branchId,
-            branch_name: data.branch_name
-          }
+          data: response.data
         };
       }
-
+      
       return {
         success: false,
-        message: 'Không tìm thấy manager',
-        data: null
+        data: []
       };
     } catch (error) {
-      console.error('[adminApi] Error:', error);
+      console.error('[adminApi]  Get branches error:', error);
       return {
         success: false,
-        message: error.response?.data?.error || 'Không thể lấy thông tin manager',
-        data: null
+        data: []
       };
     }
   },
 
-  getAllAdmins: async (branchIds) => {
+  // ================= GET ALL ADMINS =================
+  getAllAdmins: async () => {
     try {
-      console.log('[adminApi] Fetching admins for branches:', branchIds);
+      console.log('[adminApi]  Fetching all admins from branches...');
 
-      const promises = branchIds.map(id => adminApi.getManagerByBranch(id));
-      const results = await Promise.allSettled(promises);
+      // Bước 1: Lấy danh sách tất cả branches từ API
+      const branchesResult = await adminApi.getAllBranches();
+      
+      if (!branchesResult.success || branchesResult.data.length === 0) {
+        console.log('[adminApi]  No branches found');
+        return {
+          success: true,
+          data: [],
+          count: 0
+        };
+      }
 
-      const admins = results
-        .filter(result => result.status === 'fulfilled' && result.value.success)
-        .map(result => result.value.data)
-        .filter(admin => admin !== null);
+      const branches = branchesResult.data;
+      console.log('[adminApi]  Found', branches.length, 'branches');
 
-      console.log('[adminApi] All admins loaded:', admins.length);
+      // Bước 2: Lấy manager từng chi nhánh
+      const adminPromises = branches.map(async (branch) => {
+        try {
+          const managerResponse = await api.get(`/superadmin/branch/${branch.branch_id}/manager`);
+          
+          if (managerResponse.data && managerResponse.data.data) {
+            const manager = managerResponse.data.data;
+            return {
+              manager_id: manager.manager_id || manager.employee_id,
+              manager_name: manager.manager_name || manager.employee_name,
+              email: manager.email,
+              phone: manager.phone,
+              salary: manager.salary,
+              status: manager.status || 'Active',
+              role: manager.role || manager.role_name || 'Quản lý',
+              branch_id: branch.branch_id,
+              branch_name: manager.branch_name || branch.name
+            };
+          }
+          return null;
+        } catch (error) {
+          if (error.response?.status === 404) {
+            console.log(`[adminApi] ℹBranch ${branch.branch_id} (${branch.name}): No manager`);
+            return null;
+          }
+          console.error(`[adminApi]  Branch ${branch.branch_id} error:`, error.message);
+          return null;
+        }
+      });
+
+      const admins = (await Promise.all(adminPromises)).filter(admin => admin !== null);
+
+      console.log('[adminApi]  Total admins:', admins.length);
 
       return {
         success: true,
@@ -66,105 +89,92 @@ export const adminApi = {
         count: admins.length
       };
     } catch (error) {
-      console.error('[adminApi] Error:', error);
+      console.error('[adminApi]  Error:', error);
+
       return {
         success: false,
-        message: 'Không thể lấy danh sách admin',
-        data: [],
-        count: 0
+        message: error.message || 'Không thể lấy danh sách admin',
+        data: []
       };
     }
   },
 
-  // ✅ FIXED: Update admin - Lấy branch_id từ admin hiện tại
-  updateAdmin: async (adminId, adminData, currentBranchId) => {
+  // ================= UPDATE ADMIN =================
+  updateAdmin: async (adminId, adminData) => {
     try {
-      console.log('[adminApi] 📤 Updating admin:', {
-        adminId,
-        adminData,
-        currentBranchId
-      });
+      console.log('[adminApi]  Updating admin:', adminId, adminData);
 
-      // ✅ Validate branch_id
-      if (!currentBranchId) {
-        console.error('[adminApi] ❌ Missing branch_id');
-        return {
-          success: false,
-          message: 'Thiếu thông tin chi nhánh'
-        };
-      }
-
-      // ✅ Chỉ gửi các field được phép sửa
       const payload = {
+        employee_name: adminData.username || adminData.manager_name,
         email: adminData.email,
-        salary: adminData.salary ? parseFloat(adminData.salary) : null,
-        status: adminData.status
       };
 
-      console.log('[adminApi] 📤 Payload:', payload);
-
-      const response = await api.put(
-        `${BASE_PATH}/${currentBranchId}/manager/${adminId}`,
-        payload
-      );
-
-      console.log('[adminApi] ✅ Response:', response.data);
-
-      if (response.data.success) {
-        return {
-          success: true,
-          message: 'Cập nhật admin thành công',
-          data: response.data.data
-        };
+      // Password chỉ gửi nếu có nhập
+      if (adminData.password && adminData.password.trim() !== '') {
+        payload.password = adminData.password;
       }
 
+      // Optional: status
+      if (adminData.status) {
+        const statusMap = {
+          'Đang làm việc': 'Active',
+          'Đã nghỉ việc': 'Inactive'
+        };
+        payload.status = statusMap[adminData.status] || 'Active';
+      }
+
+      // Optional: branch_id
+      if (adminData.branch_id !== undefined) {
+        if (adminData.branch_id === '' || adminData.branch_id === null) {
+          payload.branch_id = null;
+        } else {
+          payload.branch_id = parseInt(adminData.branch_id);
+        }
+      }
+
+      console.log('[adminApi]  Payload:', payload);
+
+      const response = await api.put(`/superadmin/update_admin/${adminId}`, payload);
+
+      console.log('[adminApi]  Response:', response.data);
+
       return {
-        success: false,
-        message: response.data.error || 'Không thể cập nhật admin'
+        success: response.data.success !== false,
+        message: response.data.message || 'Cập nhật admin thành công'
       };
     } catch (error) {
-      console.error('[adminApi] ❌ Update error:', error);
-      console.error('[adminApi] ❌ Response:', error.response?.data);
-      
+      console.error('[adminApi]  Update Error:', error);
+
       return {
         success: false,
-        message: error.response?.data?.error || 
+        message: error.response?.data?.error ||
                  error.response?.data?.message ||
-                 'Đã xảy ra lỗi khi cập nhật admin'
+                 'Không thể cập nhật admin'
       };
     }
   },
 
-  // ✅ FIXED: Delete admin - Không cần branch_id
+  // ================= DELETE ADMIN =================
   deleteAdmin: async (adminId) => {
     try {
-      console.log('[adminApi] 📤 Deleting admin:', adminId);
+      console.log('[adminApi]  Deleting admin:', adminId);
 
-      // ✅ Endpoint đơn giản hơn
-      const response = await api.delete(`/superadmin/manager/${adminId}`);
+      const response = await api.delete(`/superadmin/delete_admin/${adminId}`);
 
-      console.log('[adminApi] ✅ Response:', response.data);
-
-      if (response.data.success) {
-        return {
-          success: true,
-          message: 'Xóa admin thành công'
-        };
-      }
+      console.log('[adminApi]  Response:', response.data);
 
       return {
-        success: false,
-        message: response.data.error || 'Không thể xóa admin'
+        success: response.data.success !== false,
+        message: response.data.message || 'Xóa admin thành công'
       };
     } catch (error) {
-      console.error('[adminApi] ❌ Delete error:', error);
-      console.error('[adminApi] ❌ Response:', error.response?.data);
-      
+      console.error('[adminApi]  Delete Error:', error);
+
       return {
         success: false,
-        message: error.response?.data?.error || 
+        message: error.response?.data?.error ||
                  error.response?.data?.message ||
-                 'Đã xảy ra lỗi khi xóa admin'
+                 'Không thể xóa admin'
       };
     }
   }

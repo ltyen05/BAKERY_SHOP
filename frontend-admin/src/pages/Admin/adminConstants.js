@@ -1,12 +1,19 @@
+
 // ===============================================
 // FILE: src/pages/Admin/adminConstants.js
-// CHỈ GIỮ FIELD CÓ THỂ CHỈNH SỬA
 // ===============================================
-import { FiMail, FiDollarSign } from 'react-icons/fi';
+import { FiUser, FiMail, FiDollarSign, FiLock } from 'react-icons/fi';
 
-// ✅ CHỈ cho phép sửa: email, salary, status
-// ❌ BỎ: manager_name, branch_id, role (không cho sửa)
 export const ADMIN_FIELDS = [
+  {
+    name: 'username',
+    label: 'Tên admin',
+    type: 'text',
+    icon: FiUser,
+    placeholder: 'VD: Nguyễn Văn A',
+    required: true,
+    helpText: 'Tên hiển thị của admin'
+  },
   {
     name: 'email',
     label: 'Email',
@@ -15,6 +22,16 @@ export const ADMIN_FIELDS = [
     icon: FiMail,
     placeholder: 'VD: admin@husbakery.vn',
     required: true
+  },
+  {
+    name: 'password',
+    label: 'Mật khẩu',
+    type: 'text',
+    inputType: 'password',
+    icon: FiLock,
+    placeholder: 'Để trống nếu không đổi',
+    required: false,
+    helpText: 'Chỉ nhập nếu muốn thay đổi mật khẩu'
   },
   {
     name: 'salary',
@@ -32,35 +49,49 @@ export const ADMIN_FIELDS = [
     type: 'select',
     placeholder: 'Chọn trạng thái',
     required: true,
+    defaultValue: 'Đang làm việc',
     options: [
-      { value: 'Đang làm việc', label: 'Đang làm việc' },
-      { value: 'Nghỉ phép', label: 'Nghỉ phép' },
-      { value: 'Đã nghỉ việc', label: 'Đã nghỉ việc' }
+      { value: 'Đang làm việc', label: 'Active' },
+     
+      { value: 'Nghỉ việc', label: 'Inactive' }
     ]
   }
 ];
 
 export const STATUS_CONFIG = {
+  'Active': {
+    color: 'success',
+    label: 'Đang làm việc'
+  },
   'Đang làm việc': {
     color: 'success',
     label: 'Đang làm việc'
   },
-  'Nghỉ phép': {
-    color: 'warning',
-    label: 'Nghỉ phép'
-  },
-  'Đã nghỉ việc': {
+  
+  'Inactive': {
     color: 'error',
-    label: 'Đã nghỉ việc'
+    label: 'Nghỉ việc'
+  },
+  'Nghỉ việc': {
+    color: 'error',
+    label: 'Nghỉ việc'
   }
 };
 
 export const ROLE_CONFIG = {
   'Quản lý': {
-    color: '#667eea',
-    label: 'Quản lý'
+    color: '#FFBD71',
+    label: 'Admin'
   },
-  'Super Admin': {
+  'admin': {
+    color: '#FFBD71',
+    label: 'Admin'
+  },
+  'super_admin': {
+    color: '#f59e0b',
+    label: 'Super Admin'
+  },
+  'employee': {
     color: '#f59e0b',
     label: 'Super Admin'
   }

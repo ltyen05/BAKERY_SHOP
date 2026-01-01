@@ -1,5 +1,6 @@
 /* =============================================== */
 /* FILE: src/pages/Dashboard/DashboardView.css */
+/* REDESIGNED - With Chart Styling */
 /* =============================================== */
 
 /* Container */
@@ -31,6 +32,7 @@
   margin: 6px 0 0 0;
   font-size: 14px;
   color: #64748b;
+  font-weight: 500;
 }
 
 /* Controls */
@@ -46,16 +48,84 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
+  transition: all 0.3s;
+}
+
+.dashboard-container .ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-container .ant-card-head {
   border-bottom: 2px solid #f1f5f9;
   font-weight: 600;
   color: #1e293b;
+  font-size: 16px;
 }
 
 .dashboard-container .ant-card-body {
   padding: 20px;
+}
+
+/* Chart Cards */
+.chart-card {
+  height: 100%;
+}
+
+.chart-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* No Data State */
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #94a3b8;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Recharts Customization */
+.recharts-wrapper {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  font-size: 12px;
+  fill: #64748b;
+}
+
+.recharts-legend-item-text {
+  color: #475569 !important;
+  font-weight: 500;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Custom Tooltip */
+.recharts-default-tooltip {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.recharts-tooltip-label {
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  margin-bottom: 8px !important;
+}
+
+.recharts-tooltip-item {
+  color: #475569 !important;
+  font-size: 13px !important;
 }
 
 /* Responsive */
@@ -67,6 +137,10 @@
 
   .dashboard-controls {
     width: 100%;
+  }
+
+  .chart-card .ant-card-body {
+    min-height: 250px;
   }
 }
 
@@ -82,6 +156,10 @@
   .dashboard-subtitle {
     font-size: 13px;
   }
+
+  .chart-card .ant-card-body {
+    min-height: 200px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -96,5 +174,13 @@
 
   .dashboard-controls > * {
     width: 100%;
+  }
+
+  .chart-card .ant-card-body {
+    padding: 12px;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    font-size: 10px;
   }
 }

@@ -1,28 +1,36 @@
 // ===============================================
 // FILE: src/pages/Admin/AdminView.jsx
-// FINAL VERSION - CHỈ XEM VÀ SỬA EMAIL/LƯƠNG/TRẠNG THÁI
+
 // ===============================================
 import { useState } from "react";
-import { Button, Table, Space, Tooltip, Tag } from "antd";
-import { EditOutlined } from "@ant-design/icons";
-import { FiSearch, FiUser, FiMail, FiHome } from 'react-icons/fi';
+import { Button, Space, Tooltip, Modal, Tag } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { FiSearch, FiUser, FiMail, FiHome, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import DataTable from "../../components/Table/Table";
 import FormModal from "../../components/FormModal/FormModal";
 import { useAdmin } from "./useAdmin";
 import { ADMIN_FIELDS, STATUS_CONFIG, formatCurrency } from "./adminConstants";
 import "./AdminView.css";
+
+const { confirm } = Modal;
 
 const AdminView = () => {
   const {
     admins,
     loading,
     updateAdmin,
+    deleteAdmin,
     canManageAdmins
   } = useAdmin();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // ========================================
+  // FILTER
+  // ========================================
   const filteredAdmins = admins.filter(admin => {
     if (!searchQuery.trim()) return true;
     
@@ -40,10 +48,41 @@ const AdminView = () => {
     );
   });
 
+  // ========================================
+  // HANDLERS
+  // ========================================
   const handleEditClick = (admin) => {
-    console.log('[AdminView] Editing admin:', admin);
-    setSelectedAdmin(admin);
+    const formData = {
+      manager_id: admin.manager_id,
+      username: admin.manager_name, 
+      email: admin.email,
+      salary: admin.salary || '',
+      status: admin.status || 'Đang làm việc',
+      branch_id: admin.branch_id,
+      branch_name: admin.branch_name,
+      
+      password: ''
+    };
+    
+    console.log('📝 Edit admin data:', formData);
+    
+    setSelectedAdmin(formData);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (admin) => {
+    confirm({
+      title: 'Xác nhận xóa admin',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa admin "${admin.manager_name}"? \n\nHành động này không thể hoàn tác!`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteAdmin(admin.manager_id, admin.manager_name);
+      }
+    });
   };
 
   const handleCloseModal = () => {
@@ -51,35 +90,33 @@ const AdminView = () => {
     setSelectedAdmin(null);
   };
 
-  // ✅ FIXED: Truyền branch_id vào updateAdmin
   const handleSaveAdmin = async (adminData) => {
-    console.log('[AdminView] Saving admin:', {
-      adminData,
-      selectedAdmin
-    });
-
-    const result = await updateAdmin(
-      selectedAdmin.manager_id, 
-      adminData,
-      selectedAdmin.branch_id  // ✅ Truyền branch_id
-    );
+    console.log('💾 Saving admin:', adminData);
+    
+    const result = await updateAdmin(selectedAdmin.manager_id, adminData);
     
     if (result?.success) {
       handleCloseModal();
     }
   };
 
+  // ========================================
+  // RENDER HELPERS
+  // ========================================
   const renderStatus = (status) => {
     const config = STATUS_CONFIG[status] || { color: 'default' };
     return <Tag color={config.color}>{status}</Tag>;
   };
 
+  // ========================================
+  // TABLE COLUMNS
+  // ========================================
   const columns = [
     {
       title: 'ID',
       dataIndex: 'manager_id',
       key: 'manager_id',
-      width: 80,
+      width: 70,
       align: 'center',
       render: (id) => (
         <span className="clickable-id">
@@ -143,88 +180,70 @@ const AdminView = () => {
         );
       }
     },
-    {
-      title: 'Lương',
-      dataIndex: 'salary',
-      key: 'salary',
-      width: 150,
-      align: 'right',
-      render: (salary) => {
-        if (!salary) {
-          return <span style={{ color: '#94a3b8', fontSize: '13px' }}>Chưa xác định</span>;
-        }
-        
-        return (
-          <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '13px' }}>
-            {formatCurrency(salary)}
-          </span>
-        );
-      }
-    },
+   
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      width: 150,
+      width: 120,
       align: 'center',
       render: (status) => renderStatus(status || 'Đang làm việc')
     },
     {
       title: 'Thao tác',
       key: 'action',
-      width: 100,
+      width: 120,
       align: 'center',
       render: (_, record) => (
         <Space size="small">
           {canManageAdmins() && (
-            <Tooltip title="Chỉnh sửa">
-              <Button
-                type="text"
-                icon={<EditOutlined />}
-                onClick={() => handleEditClick(record)}
-                style={{ color: '#3b82f6' }}
-              />
-            </Tooltip>
+            <>
+              <Tooltip title="Chỉnh sửa">
+                <Button
+                  type="text"
+                  icon={<FiEdit2 />}
+                  onClick={() => handleEditClick(record)}
+                  style={{ color: '#3b82f6' }}
+                />
+              </Tooltip>
+              <Tooltip title="Xóa">
+                <Button
+                  type="text"
+                  icon={<FiTrash2 />}
+                  onClick={() => handleDeleteClick(record)}
+                  danger
+                />
+              </Tooltip>
+            </>
           )}
-          {/* ❌ BỎ NÚT XÓA - Admin chỉ có thể xóa từ trang Branch */}
         </Space>
       )
     }
   ];
 
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredAdmins.length,
+    showSizeChanger: false,
+    showTotal: (total) => `Tổng ${total} admin`
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+  };
+
+  // ========================================
+  // RENDER
+  // ========================================
   return (
     <div className="admin-container">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Danh sách Admin</h1>
+          <h1 className="admin-page-title">Quản lý Admin</h1>
           <p className="admin-page-subtitle">
-            Xem và chỉnh sửa thông tin admin ({admins.length} admin)
+            Xem và quản lý thông tin các admin của hệ thống • Tổng: {admins.length} admin
           </p>
-          <div style={{ 
-            marginTop: '12px',
-            padding: '12px 16px',
-            background: '#f0f9ff',
-            border: '1px solid #bae6fd',
-            borderRadius: '8px',
-            fontSize: '13px',
-            color: '#0369a1',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <span style={{ fontSize: '16px' }}>💡</span>
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: '4px' }}>
-                Hướng dẫn quản lý Admin:
-              </div>
-              <div>
-                • Thêm/Xóa admin: Vào trang <strong>"Chi nhánh"</strong> → Chọn/bỏ chọn quản lý
-              </div>
-              <div>
-                • Chỉnh sửa: Email, Lương, Trạng thái (tại trang này)
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="admin-header-actions">
@@ -238,38 +257,35 @@ const AdminView = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+        
         </div>
       </div>
 
-      <Table
+      <DataTable
         columns={columns}
         dataSource={filteredAdmins}
         loading={loading}
+        pagination={paginationConfig}
+        onChange={handleTableChange}
         rowKey="manager_id"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} admin`,
-          position: ['bottomCenter'],
-          pageSizeOptions: ['10', '20', '50']
-        }}
-        scroll={{ 
-          x: 1400
-        }}
+        scroll={{ x: 1400 }}
+        emptyText="Không có admin nào"
       />
 
-      {/* ✅ MODAL CHỈ CHO CHỈNH SỬA */}
+      {/*  MODAL CHỈ Ở CHẾ ĐỘ EDIT */}
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSaveAdmin}
         title={{
-          edit: 'Chỉnh sửa thông tin Admin',
-          editDesc: 'Chỉ có thể sửa: Email, Lương, Trạng thái'
+          edit: 'Chỉnh sửa thông tin admin',
+          editDesc: 'Cập nhật thông tin admin (Mật khẩu chỉ nhập nếu muốn thay đổi)'
         }}
         icon={FiUser}
         data={selectedAdmin}
         fields={ADMIN_FIELDS}
+        mode="edit" 
       />
     </div>
   );

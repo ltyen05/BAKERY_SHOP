@@ -1,5 +1,5 @@
 /* =============================================== */
-/* Location: src/pages/Admin/AdminView.css - SYNCED WITH BRANCH */
+/* Location: src/pages/Admin/AdminView.css */
 /* =============================================== */
 
 /* ================= CONTAINER ================= */
@@ -73,41 +73,8 @@
 }
 
 .search-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* ================= ADD BUTTON ================= */
-.admin-add-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-  white-space: nowrap;
-  border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.admin-add-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
-}
-
-.admin-add-btn:active {
-  transform: translateY(0);
-}
-
-.admin-add-btn svg {
-  width: 16px;
-  height: 16px;
+  border-color: #FFBD71;
+  box-shadow: 0 0 0 3px rgba(255, 189, 113, 0.1);
 }
 
 /* ================= TABLE CUSTOM ================= */
@@ -133,7 +100,7 @@
 }
 
 .admin-container .ant-table-tbody > tr:hover > td {
-  background: #f8fafc;
+  background: #fffbf5;
 }
 
 .admin-container .ant-table-tbody > tr:last-child > td {
@@ -159,7 +126,7 @@
 .clickable-id {
   font-weight: 700;
   font-size: 14px;
-  color: #667eea;
+  color: #FFBD71;
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
@@ -169,16 +136,16 @@
 }
 
 .clickable-id:hover {
-  background: #f5f8ff;
+  background: #fffbf5;
   transform: scale(1.05);
-  color: #5568d3;
+  color: #ff9d3d;
 }
 
 .clickable-id:active {
   transform: scale(0.98);
 }
 
-/* ================= ADMIN INFO ================= */
+/* ================= ADMIN INFO - ICON VÀNG ================= */
 .admin-info {
   display: flex;
   align-items: center;
@@ -189,12 +156,13 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FFBD71 0%, #ff9d3d 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 18px;
+  box-shadow: 0 4px 12px rgba(255, 189, 113, 0.3);
 }
 
 .admin-name-text {
@@ -293,8 +261,7 @@
     flex-direction: column;
   }
 
-  .search-input,
-  .admin-add-btn {
+  .search-input {
     width: 100%;
   }
 }

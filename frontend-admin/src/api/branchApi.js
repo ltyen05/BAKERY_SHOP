@@ -28,9 +28,9 @@ export const branchApi = {
         }
       }
 
-      console.log('[branchApi] ✅ Branches loaded:', branches.length);
+      console.log('[branchApi] Branches loaded:', branches.length);
 
-      console.log('[branchApi] 🔍 Fetching manager info for each branch...');
+      console.log('[branchApi] 📋 Fetching manager info for each branch...');
       
       const branchesWithManager = await Promise.all(
         branches.map(async (branch) => {
@@ -60,7 +60,7 @@ export const branchApi = {
 
       console.log('[branchApi] ✅ Branches with manager info:', branchesWithManager.length);
       if (branchesWithManager.length > 0) {
-        console.log('[branchApi] 📦 Sample branch:', branchesWithManager[0]);
+        console.log('[branchApi] 📄 Sample branch:', branchesWithManager[0]);
       }
 
       return {
@@ -71,7 +71,7 @@ export const branchApi = {
 
     } catch (error) {
       console.error('[branchApi] ❌ Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error('[branchApi] Response:', error.response?.data);
 
       return {
         success: false,
@@ -135,20 +135,40 @@ export const branchApi = {
 
   addBranch: async (branchData) => {
     try {
-      console.log('[branchApi] 📤 Adding branch:', branchData);
+      console.log('[branchApi] ➕ Adding branch:', branchData);
 
-      const response = await api.post('/superadmin/add_branch', branchData);
+      // Chuẩn hóa dữ liệu trước khi gửi
+      const payload = {
+        name: branchData.name,
+        address: branchData.address,
+        phone: branchData.phone,
+        email: branchData.email || null,
+        mapSrc: branchData.mapSrc || null,
+        lat: branchData.lat ? parseFloat(branchData.lat) : null,
+        lng: branchData.lng ? parseFloat(branchData.lng) : null
+      };
 
-      console.log('[branchApi] ✅ Branch added:', response.data);
+      // IMPORTANT: Chỉ thêm manager_id nếu có giá trị hợp lệ
+      // Tránh gửi manager_id không tồn tại trong bảng employees
+      if (branchData.manager_id && branchData.manager_id !== '' && branchData.manager_id !== '0') {
+        payload.manager_id = parseInt(branchData.manager_id);
+      }
 
+      console.log('[branchApi] 📤 Payload:', payload);
+
+      const response = await api.post('/superadmin/add_branch', payload);
+
+      console.log('[branchApi] ✅ Response:', response.data);
+
+      // Backend trả về {success: true, message: "...", id: 123}
       return {
-        success: response.data.success || true,
+        success: response.data.success !== false, // Mặc định true nếu không có lỗi
         message: response.data.message || 'Thêm chi nhánh thành công',
         id: response.data.id
       };
     } catch (error) {
       console.error('[branchApi] ❌ Add Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error('[branchApi] Response:', error.response?.data);
 
       return {
         success: false,
@@ -161,19 +181,39 @@ export const branchApi = {
 
   updateBranch: async (branchId, branchData) => {
     try {
-      console.log('[branchApi] 📤 Updating branch:', branchId, branchData);
+      console.log('[branchApi] ✏️ Updating branch:', branchId, branchData);
 
-      const response = await api.put(`/superadmin/update_branch/${branchId}`, branchData);
+      // Chuẩn hóa dữ liệu trước khi gửi (giống add)
+      const payload = {
+        name: branchData.name,
+        address: branchData.address,
+        phone: branchData.phone,
+        email: branchData.email || null,
+        mapSrc: branchData.mapSrc || null,
+        lat: branchData.lat ? parseFloat(branchData.lat) : null,
+        lng: branchData.lng ? parseFloat(branchData.lng) : null
+      };
 
-      console.log('[branchApi] ✅ Branch updated:', response.data);
+      // IMPORTANT: Chỉ thêm manager_id nếu có giá trị hợp lệ
+      if (branchData.manager_id && branchData.manager_id !== '' && branchData.manager_id !== '0') {
+        payload.manager_id = parseInt(branchData.manager_id);
+      }
 
+      console.log('[branchApi] 📤 Payload:', payload);
+
+      // FIX: Sửa endpoint đúng với backend
+      const response = await api.put(`/superadmin/update_branch/${branchId}`, payload);
+
+      console.log('[branchApi] ✅ Response:', response.data);
+
+      // Backend trả về {success: true, message: "Cập nhật chi nhánh thành công"}
       return {
-        success: response.data.success || true,
+        success: response.data.success !== false, // Mặc định true nếu không có lỗi
         message: response.data.message || 'Cập nhật chi nhánh thành công'
       };
     } catch (error) {
       console.error('[branchApi] ❌ Update Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error('[branchApi] Response:', error.response?.data);
 
       return {
         success: false,
@@ -186,19 +226,19 @@ export const branchApi = {
 
   deleteBranch: async (branchId) => {
     try {
-      console.log('[branchApi] 📤 Deleting branch:', branchId);
+      console.log('[branchApi] 🗑️ Deleting branch:', branchId);
 
       const response = await api.delete(`/superadmin/delete_branch/${branchId}`);
 
       console.log('[branchApi] ✅ Branch deleted:', response.data);
 
       return {
-        success: response.data.success || true,
+        success: response.data.success !== false,
         message: response.data.message || 'Xóa chi nhánh thành công'
       };
     } catch (error) {
       console.error('[branchApi] ❌ Delete Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error('[branchApi] Response:', error.response?.data);
 
       return {
         success: false,

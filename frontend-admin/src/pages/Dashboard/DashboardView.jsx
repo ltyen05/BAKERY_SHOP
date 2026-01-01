@@ -1,64 +1,48 @@
 // ===============================================
 // FILE: src/pages/Dashboard/DashboardView.jsx
-// Dashboard phân quyền Admin/Super Admin
+// FIXED - Theo logic nghiệp vụ thực tế
 // ===============================================
-import { Row, Col, Card, Select, Button, Spin } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
-import { 
-  FiShoppingCart, 
-  FiDollarSign, 
-  FiUsers, 
-  FiPackage 
-} from 'react-icons/fi';
+import { Row, Col, Card, Select, Button, Spin, Alert, Statistic } from 'antd';
+import { ReloadOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { FiDollarSign, FiShoppingCart, FiTrendingUp, FiPackage } from 'react-icons/fi';
+import { Bar, Pie, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import StatsCard from '../../components/StatsCard/StatsCard';
 import { useDashboard } from './useDashboard';
 import './DashboardView.css';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend);
+
 const DashboardView = () => {
   const {
-    loading,
-    isSuperAdmin,
-    isAdmin,
-    selectedMonth,
-    selectedYear,
-    period,
-    handleMonthChange,
-    handleYearChange,
-    handlePeriodChange,
-    refreshData,
-    
-    // Branch Admin Data
-    branchStats,
-    orderStatus,
-    topProducts,
-    customerGrowth,
-    
-    // Super Admin Data
-    revenuePerBranch,
-    orderStats,
-    revenueChart
+    loading, isSuperAdmin, isAdmin, selectedMonth, selectedYear,
+    handleMonthChange, handleYearChange, refreshData,
+    branchStats, orderStatus, topProducts, customerGrowth,
+    revenuePerBranch, orderStats, revenueChart
   } = useDashboard();
 
-  // Tạo options cho select month
-  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-    value: i + 1,
-    label: `Tháng ${i + 1}`
-  }));
-
-  // Tạo options cho select year
+  // Dynamic year options (current year + 4 years ago)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
-    value: currentYear - i,
-    label: `${currentYear - i}`
+  const monthOptions = Array.from({ length: 12 }, (_, i) => ({ 
+    value: i + 1, 
+    label: `Tháng ${i + 1}` 
+  }));
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({ 
+    value: currentYear - i, 
+    label: `${currentYear - i}` 
   }));
 
-  // Format currency
   const formatCurrency = (amount) => {
     if (!amount) return '0 ₫';
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
+    return new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND' 
     }).format(amount);
+  };
+
+  const formatNumber = (num) => {
+    if (!num) return '0';
+    return new Intl.NumberFormat('vi-VN').format(num);
   };
 
   if (loading) {
@@ -67,383 +51,359 @@ const DashboardView = () => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '60vh' 
+        height: '60vh',
+        flexDirection: 'column',
+        gap: 16
       }}>
-        <Spin size="large" tip="Đang tải dữ liệu..." />
+        <Spin size="large" />
+        <p style={{ color: '#64748b', fontSize: 15 }}>Đang tải dữ liệu...</p>
+      </div>
+    );
+  }
+
+  // ===== BRANCH ADMIN =====
+  if (isAdmin) {
+    const pieData = {
+      labels: orderStatus?.distribution?.map(d => d.name) || [],
+      datasets: [{
+        data: orderStatus?.distribution?.map(d => d.value) || [],
+        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+        borderWidth: 0
+      }]
+    };
+
+    const barData = {
+      labels: topProducts?.slice(0, 5).map(p => p.name) || [],
+      datasets: [{
+        label: 'Số lượng bán',
+        data: topProducts?.slice(0, 5).map(p => p.orders) || [],
+        backgroundColor: '#667eea',
+        borderRadius: 8
+      }]
+    };
+
+    const lineData = {
+      labels: customerGrowth?.map(g => g.month) || [],
+      datasets: [{
+        label: 'Khách hàng mới',
+        data: customerGrowth?.map(g => g.customers) || [],
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointBackgroundColor: '#10b981'
+      }]
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          display: true, 
+          position: 'bottom',
+          labels: { padding: 15, font: { size: 12 } }
+        },
+        tooltip: { 
+          backgroundColor: 'rgba(0,0,0,0.8)', 
+          padding: 12, 
+          cornerRadius: 8,
+          titleFont: { size: 13, weight: 'bold' },
+          bodyFont: { size: 12 }
+        }
+      }
+    };
+
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <div>
+            <h1 className="dashboard-title">Dashboard Chi Nhánh</h1>
+            <p className="dashboard-subtitle">
+              Thống kê tháng {selectedMonth}/{selectedYear}
+            </p>
+          </div>
+          <div className="dashboard-controls">
+            <Select 
+              value={selectedMonth} 
+              onChange={handleMonthChange} 
+              options={monthOptions} 
+              style={{ width: 120 }}
+            />
+            <Select 
+              value={selectedYear} 
+              onChange={handleYearChange} 
+              options={yearOptions} 
+              style={{ width: 100 }}
+            />
+            <Button icon={<ReloadOutlined />} onClick={refreshData}>
+              Làm mới
+            </Button>
+          </div>
+        </div>
+
+        {/* STATS - FOCUSED ON REVENUE */}
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={12}>
+            <Card
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: 'none',
+                borderRadius: 12
+              }}
+            >
+              <Statistic
+                title={<span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>Doanh thu tháng {selectedMonth}</span>}
+                value={branchStats.amount || 0}
+                precision={0}
+                valueStyle={{ color: '#fff', fontSize: 32, fontWeight: 700 }}
+                suffix="₫"
+                formatter={(value) => formatNumber(value)}
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <StatsCard 
+              title="Đơn hàng" 
+              value={branchStats.orders || 0} 
+              color="blue" 
+              icon={FiShoppingCart} 
+            />
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <StatsCard 
+              title="Sản phẩm đã bán" 
+              value={branchStats.products || 0} 
+              color="orange" 
+              icon={FiPackage} 
+            />
+          </Col>
+        </Row>
+
+        <Alert
+          message="📊 Lưu ý"
+          description="Số liệu trên: Thống kê tháng được chọn. Biểu đồ bên dưới: Tổng hợp toàn bộ thời gian."
+          type="info"
+          showIcon
+          style={{ marginTop: 16 }}
+        />
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24} lg={12}>
+            <Card 
+              title="Phân bố trạng thái đơn hàng" 
+              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>Tổng hợp</span>}
+            >
+              <div style={{ height: 300 }}>
+                {pieData.labels.length > 0 ? (
+                  <Pie data={pieData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card 
+              title="Top sản phẩm bán chạy" 
+              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>Tổng hợp</span>}
+            >
+              <div style={{ height: 300 }}>
+                {barData.labels.length > 0 ? (
+                  <Bar data={barData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24}>
+            <Card 
+              title="Khách hàng mới theo tháng" 
+              extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>6 tháng đầu năm {currentYear}</span>}
+            >
+              <div style={{ height: 300 }}>
+                {lineData.labels.length > 0 ? (
+                  <Line data={lineData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
+  // ===== SUPER ADMIN - FOCUSED ON REVENUE =====
+  if (isSuperAdmin) {
+    const totalRevenue = revenuePerBranch?.reduce((sum, b) => sum + (b.total_revenue || 0), 0) || 0;
+    const totalOrders = orderStats?.reduce((sum, o) => sum + (o.count || 0), 0) || 0;
+
+    const revenueBarData = {
+      labels: revenuePerBranch?.map(b => b.branch_name) || [],
+      datasets: [{
+        label: 'Doanh thu',
+        data: revenuePerBranch?.map(b => b.total_revenue) || [],
+        backgroundColor: '#10b981',
+        borderRadius: 8
+      }]
+    };
+
+    const orderPieData = {
+      labels: orderStats?.map(o => o.status) || [],
+      datasets: [{
+        data: orderStats?.map(o => o.count) || [],
+        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+        borderWidth: 0
+      }]
+    };
+
+    const revenueLineData = {
+      labels: revenueChart?.map(r => `T${r.time}`) || [],
+      datasets: revenueChart?.[0] ? Object.keys(revenueChart[0])
+        .filter(k => k !== 'time')
+        .map((branchName, i) => ({
+          label: branchName,
+          data: revenueChart.map(r => r[branchName] || 0),
+          borderColor: ['#667eea', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'][i % 5],
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 4
+        })) : []
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          display: true, 
+          position: 'bottom',
+          labels: { padding: 15, font: { size: 12 } }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            label: (context) => {
+              const value = context.parsed.y || context.parsed;
+              return `${context.dataset.label}: ${formatCurrency(value)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: (value) => `${(value / 1000000).toFixed(1)}M`
+          }
+        }
+      }
+    };
+
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <div>
+            <h1 className="dashboard-title">Dashboard Tổng Quan</h1>
+            <p className="dashboard-subtitle">Thống kê toàn hệ thống</p>
+          </div>
+          <div className="dashboard-controls">
+            <Button icon={<ReloadOutlined />} onClick={refreshData}>
+              Làm mới
+            </Button>
+          </div>
+        </div>
+
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={16}>
+            <Card
+              style={{
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                border: 'none',
+                borderRadius: 12,
+                height: '100%'
+              }}
+            >
+              <Statistic
+                title={<span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16 }}>Tổng doanh thu toàn hệ thống</span>}
+                value={totalRevenue}
+                precision={0}
+                valueStyle={{ color: '#fff', fontSize: 36, fontWeight: 700 }}
+                suffix="₫"
+                formatter={(value) => formatNumber(value)}
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={8}>
+            <StatsCard 
+              title="Tổng đơn hàng" 
+              value={totalOrders} 
+              color="blue" 
+              icon={FiShoppingCart} 
+            />
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24} lg={12}>
+            <Card title="Doanh thu theo chi nhánh">
+              <div style={{ height: 400 }}>
+                {revenueBarData.labels.length > 0 ? (
+                  <Bar data={revenueBarData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card title="Phân bố đơn hàng">
+              <div style={{ height: 400 }}>
+                {orderPieData.labels.length > 0 ? (
+                  <Pie data={orderPieData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24}>
+            <Card title="Xu hướng doanh thu theo tháng">
+              <div style={{ height: 400 }}>
+                {revenueLineData.labels.length > 0 ? (
+                  <Line data={revenueLineData} options={chartOptions} />
+                ) : (
+                  <div className="no-data">Chưa có dữ liệu</div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1 className="dashboard-title">
-            {isSuperAdmin ? 'Dashboard Tổng Quan' : 'Dashboard Chi Nhánh'}
-          </h1>
-          <p className="dashboard-subtitle">
-            {isSuperAdmin 
-              ? 'Theo dõi hiệu suất toàn hệ thống' 
-              : `Dữ liệu tháng ${selectedMonth}/${selectedYear}`}
-          </p>
-        </div>
-
-        <div className="dashboard-controls">
-          {/* Chỉ hiện select month/year cho Branch Admin */}
-          {isAdmin && (
-            <>
-              <Select
-                value={selectedMonth}
-                onChange={handleMonthChange}
-                options={monthOptions}
-                style={{ width: 120 }}
-              />
-              <Select
-                value={selectedYear}
-                onChange={handleYearChange}
-                options={yearOptions}
-                style={{ width: 100 }}
-              />
-            </>
-          )}
-
-          {/* Period selector cho Super Admin */}
-          {isSuperAdmin && (
-            <Select
-              value={period}
-              onChange={handlePeriodChange}
-              options={[
-                { value: 'month', label: 'Theo tháng' },
-                { value: 'week', label: 'Theo tuần' }
-              ]}
-              style={{ width: 130 }}
-            />
-          )}
-
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={refreshData}
-          >
-            Làm mới
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Cards - Branch Admin */}
-      {isAdmin && (
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Tổng đơn hàng"
-              value={branchStats.orders}
-              color="purple"
-              icon={FiShoppingCart}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Doanh thu"
-              value={formatCurrency(branchStats.amount)}
-              color="green"
-              icon={FiDollarSign}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Khách hàng"
-              value={branchStats.customers}
-              color="blue"
-              icon={FiUsers}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatsCard
-              title="Sản phẩm bán"
-              value={branchStats.products}
-              color="orange"
-              icon={FiPackage}
-            />
-          </Col>
-        </Row>
-      )}
-
-      {/* Charts - Branch Admin */}
-      {isAdmin && (
-        <>
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-            <Col xs={24} lg={12}>
-              <Card title="Phân bố trạng thái đơn hàng">
-                {orderStatus.distribution.length > 0 ? (
-                  <div>
-                    {orderStatus.distribution.map((item, index) => (
-                      <div key={index} style={{ marginBottom: 12 }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          marginBottom: 4
-                        }}>
-                          <span>{item.status}</span>
-                          <span style={{ fontWeight: 600 }}>{item.count}</span>
-                        </div>
-                        <div style={{ 
-                          height: 8, 
-                          background: '#f0f0f0', 
-                          borderRadius: 4 
-                        }}>
-                          <div style={{ 
-                            height: '100%', 
-                            width: `${(item.count / orderStatus.total_orders) * 100}%`,
-                            background: '#667eea',
-                            borderRadius: 4
-                          }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <Card title="Top sản phẩm bán chạy">
-                {topProducts.length > 0 ? (
-                  <div>
-                    {topProducts.slice(0, 5).map((product, index) => (
-                      <div key={index} style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        gap: 12,
-                        marginBottom: 12,
-                        padding: 8,
-                        background: '#f9fafb',
-                        borderRadius: 8
-                      }}>
-                        <img 
-                          src={product.image} 
-                          alt={product.name}
-                          style={{ 
-                            width: 50, 
-                            height: 50, 
-                            borderRadius: 8,
-                            objectFit: 'cover'
-                          }}
-                        />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600 }}>{product.name}</div>
-                          <div style={{ fontSize: 13, color: '#64748b' }}>
-                            Đã bán: {product.total_sold}
-                          </div>
-                        </div>
-                        <div style={{ fontWeight: 700, color: '#667eea' }}>
-                          #{index + 1}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-            <Col xs={24}>
-              <Card title="Tăng trưởng khách hàng">
-                {customerGrowth.length > 0 ? (
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: 8,
-                    overflowX: 'auto',
-                    padding: '16px 0'
-                  }}>
-                    {customerGrowth.map((item, index) => (
-                      <div key={index} style={{ 
-                        minWidth: 80,
-                        textAlign: 'center'
-                      }}>
-                        <div style={{ 
-                          height: 120,
-                          display: 'flex',
-                          alignItems: 'flex-end',
-                          justifyContent: 'center'
-                        }}>
-                          <div style={{ 
-                            width: 40,
-                            height: `${(item.customers / Math.max(...customerGrowth.map(g => g.customers))) * 100}%`,
-                            background: '#667eea',
-                            borderRadius: '4px 4px 0 0',
-                            minHeight: 10
-                          }} />
-                        </div>
-                        <div style={{ 
-                          marginTop: 8,
-                          fontSize: 12,
-                          color: '#64748b'
-                        }}>
-                          {item.month}
-                        </div>
-                        <div style={{ 
-                          fontWeight: 600,
-                          fontSize: 14
-                        }}>
-                          {item.customers}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-          </Row>
-        </>
-      )}
-
-      {/* Charts - Super Admin */}
-      {isSuperAdmin && (
-        <>
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-            <Col xs={24} lg={12}>
-              <Card title="Doanh thu theo chi nhánh">
-                {revenuePerBranch.length > 0 ? (
-                  <div>
-                    {revenuePerBranch.map((branch, index) => (
-                      <div key={index} style={{ marginBottom: 16 }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          marginBottom: 6
-                        }}>
-                          <span style={{ fontWeight: 600 }}>
-                            {branch.branch_name}
-                          </span>
-                          <span style={{ color: '#10b981', fontWeight: 700 }}>
-                            {formatCurrency(branch.total_revenue)}
-                          </span>
-                        </div>
-                        <div style={{ 
-                          height: 10, 
-                          background: '#f0f0f0', 
-                          borderRadius: 5 
-                        }}>
-                          <div style={{ 
-                            height: '100%', 
-                            width: `${(branch.total_revenue / Math.max(...revenuePerBranch.map(b => b.total_revenue))) * 100}%`,
-                            background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
-                            borderRadius: 5
-                          }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <Card title="Thống kê đơn hàng toàn hệ thống">
-                {orderStats.length > 0 ? (
-                  <div>
-                    {orderStats.map((stat, index) => (
-                      <div key={index} style={{ 
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 16px',
-                        background: '#f9fafb',
-                        borderRadius: 8,
-                        marginBottom: 12
-                      }}>
-                        <span style={{ fontWeight: 600 }}>{stat.status}</span>
-                        <span style={{ 
-                          fontSize: 20,
-                          fontWeight: 700,
-                          color: '#667eea'
-                        }}>
-                          {stat.count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-            <Col xs={24}>
-              <Card title={`Biểu đồ doanh thu (${period === 'month' ? 'Theo tháng' : 'Theo tuần'})`}>
-                {revenueChart.length > 0 ? (
-                  <div style={{ 
-                    display: 'flex',
-                    gap: 16,
-                    overflowX: 'auto',
-                    padding: '16px 0'
-                  }}>
-                    {revenueChart.map((item, index) => {
-                      // Lấy tất cả branch names (bỏ qua key "time")
-                      const branches = Object.keys(item).filter(key => key !== 'time');
-                      
-                      return (
-                        <div key={index} style={{ minWidth: 100, textAlign: 'center' }}>
-                          <div style={{ 
-                            height: 150,
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                            justifyContent: 'center',
-                            gap: 4
-                          }}>
-                            {branches.map((branchName, bIndex) => (
-                              <div key={bIndex} style={{ 
-                                width: 30,
-                                height: `${(item[branchName] / Math.max(...revenueChart.flatMap(d => branches.map(b => d[b])))) * 100}%`,
-                                background: `hsl(${(bIndex * 60) % 360}, 70%, 60%)`,
-                                borderRadius: '4px 4px 0 0',
-                                minHeight: 10
-                              }} />
-                            ))}
-                          </div>
-                          <div style={{ 
-                            marginTop: 8,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: '#64748b'
-                          }}>
-                            {period === 'month' ? `T${item.time}` : `W${item.time}`}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ textAlign: 'center', color: '#999' }}>
-                    Chưa có dữ liệu
-                  </p>
-                )}
-              </Card>
-            </Col>
-          </Row>
-        </>
-      )}
+    <div style={{ padding: 40, textAlign: 'center' }}>
+      <h2 style={{ color: '#64748b' }}>Không có quyền truy cập</h2>
     </div>
   );
 };

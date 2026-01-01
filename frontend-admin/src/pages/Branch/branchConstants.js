@@ -31,13 +31,13 @@ export const BRANCH_FIELDS = [
   },
   {
     name: 'manager_id',
-    label: 'ID Quản lý',
+    label: 'ID Quản lý (Employee ID)',
     type: 'text',
     inputType: 'number',
     icon: FiUser,
-    placeholder: 'VD: 2',
-    required: true, // Required: mandatory for backend processing
-    helpText: 'Nhập ID của người quản lý chi nhánh'
+    placeholder: 'VD: 2 (để trống nếu chưa có)',
+    required: false, // ← CHANGED: Không bắt buộc vì có thể chưa có manager
+    helpText: '⚠️ Nhập employee_id hợp lệ từ bảng employees. Có thể để trống nếu chưa có quản lý.'
   },
   {
     name: 'email',

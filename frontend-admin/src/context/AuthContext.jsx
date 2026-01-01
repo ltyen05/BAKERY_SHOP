@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: frontend-admin/src/context/AuthContext.jsx
-// FIX: Loại bỏ mock data, chỉ dùng localStorage
 // ===============================================
 import { createContext, useContext, useState, useEffect } from 'react';
 import { message } from 'antd';

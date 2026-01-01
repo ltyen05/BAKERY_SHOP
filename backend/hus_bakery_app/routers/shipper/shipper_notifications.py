@@ -109,8 +109,32 @@ def get_all_notifications():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+
+@shipper_notifications_bp.route("/check-status", methods=["GET"])
+@jwt_required()
+def check_notification_status():
+    try:
+        identity = json.loads(get_jwt_identity())
+        shipper_id = identity["id"]
+
+        # Đếm TỔNG SỐ thông báo (tất cả, không phân biệt đã đọc)
+        total_count = ShipperNotification.query.filter_by(
+            shipper_id=shipper_id
+        ).count()
+
+        # Lấy ID của notification mới nhất
+        latest = ShipperNotification.query.filter_by(
+            shipper_id=shipper_id
+        ).order_by(ShipperNotification.created_at.desc()).first()
+
+        return jsonify({
+            "success": True,
+            "total_count": total_count,
+            "latest_id": latest.id if latest else None
+        }), 200
+
     except Exception as e:
         return jsonify({
             "success": False,
-            "message": f"Lỗi: {str(e)}"
+            "message": str(e)
         }), 500

@@ -1,48 +1,61 @@
 import json
+
 from flask import Blueprint, request, render_template, flash, redirect, url_for, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from hus_bakery_app import db
-from hus_bakery_app.forms.signup import SignupForm
-from hus_bakery_app.forms.login import LoginForm
-from hus_bakery_app.models.customer import Customer
-from hus_bakery_app.models.employee import Employee
-from hus_bakery_app.models.shipper import Shipper
-from hus_bakery_app.services.auth_services import get_current_admin_service, request_password_reset, get_current_shipper_service, reset_password_with_token, login_user, generate_token, check_email_exist, get_current_customer_service
+from .. import db
+from ..forms.signup import SignupForm
+from ..forms.login import LoginForm
+from ..models.customer import Customer
+from ..models.employee import Employee
+from ..models.shipper import Shipper
+from ..services.auth_services import login_user, generate_token, check_email_exist
+from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, \
+    check_email_exist, get_user_by_id_and_role, get_current_customer_service, get_current_shipper_service, \
+    get_current_admin_service
 
 auth_bp = Blueprint('auth', __name__)
+
 
 @auth_bp.route('/', methods=['GET', 'POST'])
 @auth_bp.route('/index', methods=['GET', 'POST'])
 def index():
     return jsonify({"message": "Welcome to Hus Bakery API"})
 
+
+# @auth_bp.route("/me", methods=["GET"])
+# @jwt_required()
+# def api_get_me():
+#     identity_str = get_jwt_identity()
+#     indetity = json.loads(identity_str)
+#     current_user_id = indetity["id"]
+#     customer_data = get_current_customer_service(current_user_id)
+#     if not customer_data:
+#         return jsonify({"error": "Customer not found"}), 404
+
+#     return jsonify(customer_data), 200
+
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
 def api_get_me():
-    identity_str = get_jwt_identity()
-    indetity = json.loads(identity_str)
-    current_role = indetity["role"]
-    current_user_data = ""
-    if current_role == 'customer':
-        current_user_id = indetity["id"]
-        customer_data = get_current_customer_service(current_user_id)
-        if not customer_data:
-            return jsonify({"error": "Customer not found"}), 404
-        # current_user_data = json.dumps(customer_data)
-    elif current_role == 'shipper':
-        current_user_id = indetity["id"]
-        shipper_data = get_current_shipper_service(current_user_id)
-        if not shipper_data:
-            return jsonify({"error": "Customer not found"}), 404
-        # current_user_data = json.dumps(shipper_data)
+    identity = json.loads(get_jwt_identity())
 
-    elif current_role == 'employee':
-        current_user_id = indetity["id"]
-        e_data = get_current_admin_service(current_user_id)
-        if not e_data:
-            return jsonify({"error": "Customer not found"}), 404
-        # current_user_data = json.dumps(e_data)
-    return jsonify(current_user_data,), 200
+    user_id = identity["id"]
+    role = identity["role"]
+
+    if role == "customer":
+        user_data = get_current_customer_service(user_id)
+    elif role == "shipper":
+        user_data = get_current_shipper_service(user_id)
+    elif role == "employee":
+        user_data = get_current_admin_service(user_id)
+    else:
+        return jsonify({"error": "Invalid role"}), 403
+
+    if not user_data:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user_data), 200
+
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
@@ -76,6 +89,7 @@ def signup():
         "errors": form.errors
     }), 400
 
+
 @auth_bp.route('/check-email', methods=['POST'])
 def check_email():
     try:
@@ -91,13 +105,14 @@ def check_email():
 
         return jsonify({
             "status": "success",
-            "exists": exists, # Frontend sẽ dựa vào biến này (True/False)
+            "exists": exists,  # Frontend sẽ dựa vào biến này (True/False)
             "message": "Email đã tồn tại" if exists else "Email chưa tồn tại"
         }), 200
 
     except Exception as e:
         print("Lỗi Check Email:", str(e))
         return jsonify({"status": "error", "message": "Lỗi Server"}), 500
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -119,7 +134,6 @@ def login():
 
         # Nếu không có lỗi -> Tạo token
         token = generate_token(user, role)
-
 
         return jsonify({
             "status": "success",
@@ -161,16 +175,29 @@ def forgot_password():
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
+    # Phải đảm bảo lấy đúng JSON data
     data = request.get_json()
-    token = data.get('token')  # Token lấy từ URL (Frontend cắt ra gửi xuống)
+
+    if not data:
+        return jsonify({"message": "Dữ liệu yêu cầu không hợp lệ"}), 400
+
+    token = data.get('token')
     new_password = data.get('new_password')
 
-    if not token or not new_password:
-        return jsonify({"message": "Thiếu thông tin"}), 400
+    # Log ra terminal để kiểm tra chắc chắn server nhận được gì
+    print(f"--- DEBUG RESET ---")
+    print(f"Token: {token[:20]}...")
+    print(f"New Password: {new_password}")
+    print(f"-------------------")
 
+    if not token or not new_password:
+        return jsonify({"message": "Thiếu thông tin token hoặc mật khẩu"}), 400
+
+    # Gọi hàm xử lý logic từ service
     success, message = reset_password_with_token(token, new_password)
 
     if success:
         return jsonify({"status": "success", "message": message}), 200
     else:
+        # Nếu thất bại trong logic (token hết hạn, sai role...), trả về 400
         return jsonify({"status": "fail", "message": message}), 400

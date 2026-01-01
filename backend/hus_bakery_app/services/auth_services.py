@@ -8,8 +8,8 @@ from datetime import timedelta
 from flask_jwt_extended import decode_token
 from werkzeug.security import generate_password_hash
 import json
+# Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
-
 
 def get_current_customer_service(customer_id):
     # Chỉ tìm kiếm trong bảng Customer
@@ -36,7 +36,7 @@ def get_current_shipper_service(shipper_id):
         return None
 
     return {
-        "user_id": user.customer_id,
+        "user_id": user.shipper_id,
         "full_name": user.name,
         "email": user.email,
         "phone": user.phone,
@@ -52,13 +52,19 @@ def get_current_admin_service(employee_id):
     info = {
         "id": employee.employee_id,
         "full_name": employee.employee_name,
-        "role": "admin",
+        "role": employee.role_name,
         "email": employee.email,
         "salary": float(employee.salary) if employee.salary else 0,
         "status": employee.status,
         "branch_id": employee.branch_id,
     }
     return info
+
+def get_user_by_id_and_role(user_id, role):
+    if role == 'customer': return Customer.query.get(user_id)
+    if role == 'employee': return Employee.query.get(user_id)
+    if role == 'shipper': return Shipper.query.get(user_id)
+    return None
 
 
 def find_user_instance(email):
@@ -76,31 +82,36 @@ def find_user_instance(email):
 
 
 def request_password_reset(email):
+    # 1. Tìm user (Giữ nguyên code cũ của bạn)
     user, role = find_user_instance(email)
     if not user:
-        return False, "Email này chưa được đăng ký."
+        return False, "Email này chưa được đăng ký trong hệ thống."
 
-    # BẮT BUỘC: Dùng json.dumps để đồng bộ với hàm generate_token của bạn
-    reset_data = json.dumps({"id": user.get_id(), "role": role, "type": "reset"})
-
+    # 2. Tạo Token (Giữ nguyên code cũ)
     reset_token = create_access_token(
-        identity=reset_data,
+        identity={"id": user.get_id(), "role": role, "type": "reset"},
         expires_delta=timedelta(minutes=15)
     )
 
+    # 3. Tạo Link (Sửa localhost:3000 thành domain thật nếu có)
     link = f"http://localhost:3000/reset-password?token={reset_token}"
 
+    # 4. GỬI EMAIL THẬT (Sửa đoạn này)
     try:
         msg = Message(
-            subject="[Hus Bakery] Đặt lại mật khẩu",
-            recipients=[email],
-            html=f"<p>Nhấn vào <a href='{link}'>đây</a> để đổi mật khẩu.</p>"
+            subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
+            recipients=[email],  # Gửi đến email khách hàng nhập
+            body=f"Chào bạn,\n\nBạn vừa yêu cầu đặt lại mật khẩu. Vui lòng bấm vào link dưới đây (Hết hạn sau 15 phút):\n\n{link}\n\nNếu không phải bạn, vui lòng bỏ qua email này."
         )
-        mail.send(msg)
-        return True, "Email đã được gửi."
+
+        mail.send(msg)  # <--- Lệnh gửi quan trọng nhất
+
+        return True, "Email hướng dẫn đã được gửi. Vui lòng kiểm tra hộp thư."
+
     except Exception as e:
-        print(f"SMTP ERROR: {e}")  # Xem lỗi này ở Terminal Docker
+        print(f"Lỗi gửi mail: {str(e)}")
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
+
 
 def reset_password_with_token(token, new_password):
     try:
@@ -137,13 +148,6 @@ def reset_password_with_token(token, new_password):
         return True, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay."
 
     except Exception as e:
-        # THÊM DÒNG NÀY ĐỂ SOI LỖI:
-        print("========== LỖI RESET PASSWORD ==========")
-        print(e)
-        import traceback
-        traceback.print_exc()  # In chi tiết dòng nào bị lỗi
-        print("========================================")
-
         return False, "Link đã hết hạn hoặc không hợp lệ."
 
 

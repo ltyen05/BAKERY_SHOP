@@ -4,16 +4,11 @@ import { ClockCircleOutlined } from "@ant-design/icons";
 import { timeAgo } from "../../utils/timeAgo";
 import { useNavigate } from "react-router-dom";
 import "./notification.css";
-function ReviewNotification({
-  notification,
-  onMarkRead,
-
-  handleOpenFeedback,
-}) {
+function ReviewNotification({ notification, onMarkRead, handleOpenFeedback }) {
   const navigate = useNavigate();
   const handleClick = () => {
     if (notification.unread) {
-      onMarkRead(notification.id); // ✅ đánh dấu đã đọc
+      onMarkRead(notification.orderId); // ✅ đánh dấu đã đọc
     }
   };
   return (
@@ -38,9 +33,7 @@ function ReviewNotification({
         }
         title={
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
-            <p strong style={{ fontSize: "14px" }}>
-              Đánh giá sản phẩm
-            </p>
+            <p style={{ fontSize: "14px" }}>Đánh giá sản phẩm</p>
             {notification.unread && <span className="unread-badge" />}
           </Space>
         }

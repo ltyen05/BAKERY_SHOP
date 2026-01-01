@@ -17,6 +17,7 @@ import ReviewNotification from "../Notification/ReviewNotification";
 import Cart from "../Cart/Cart";
 import bell from "../../assets/bell.svg";
 import cart from "../../assets/cart.svg";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import { useNotification } from "../../context/Notifications";
 function getRoutesByPosition(routesByPosition) {
   return routesByPosition
@@ -171,7 +172,7 @@ function NavBar({ user, onLogout, productInCart }) {
     // Optimistic update
 
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+      prev.map((n) => (n.orderId === id ? { ...n, unread: false } : n))
     );
 
     try {

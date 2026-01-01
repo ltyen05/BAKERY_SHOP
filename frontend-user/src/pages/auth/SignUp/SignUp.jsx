@@ -47,7 +47,7 @@ const SignUp = () => {
       if (data.status === "success") {
         // Hiển thị thông báo thành công
         message.success(data.message);
-
+        alert(data.message);
         form.resetFields();
 
         setTimeout(() => {
@@ -56,6 +56,7 @@ const SignUp = () => {
       } else if (data.status === "fail") {
         // Xử lý lỗi validation từ backend
         if (data.errors) {
+          alert("Có lỗi xảy ra");
           // Hiển thị tất cả lỗi validation
           Object.entries(data.errors).forEach(([field, errors]) => {
             errors.forEach((error) => {
@@ -75,10 +76,11 @@ const SignUp = () => {
       } else if (data.status === "error") {
         // Lỗi server
         message.error(data.message || "Có lỗi xảy ra từ server");
+        alert(data.message);
       }
     } catch (err) {
       message.error("Lỗi kết nối server: " + err.message);
-      console.error("Signup error:", err);
+      alert(err);
     } finally {
       setLoading(false);
     }

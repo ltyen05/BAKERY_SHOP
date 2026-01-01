@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Row, Col } from "antd";
+import { Row, Col, Spin } from "antd";
 import { Dropdown, Space, Button, Avatar, Badge, Drawer } from "antd";
-import { useState } from "react"; // ⚠️ phải có// ⚠️ phải có
+import { useState, useEffect } from "react"; // ⚠️ phải có// ⚠️ phải có
 import bakesLogo from "../../assets/bakes.svg";
+import FeedbackComponent from "../../components/Feedback/Feedback";
 import { routes } from "../../routes";
 import {
   UserOutlined,
@@ -10,43 +11,48 @@ import {
   LockOutlined,
   DownOutlined,
   MenuOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import ReviewNotification from "../Notification/ReviewNotification";
 import Cart from "../Cart/Cart";
 import bell from "../../assets/bell.svg";
 import cart from "../../assets/cart.svg";
+import { useNotification } from "../../context/Notifications";
 function getRoutesByPosition(routesByPosition) {
-  return routesByPosition.map((route) => {
-    if (route.children && route.children.length > 0) {
-      // Tạo danh sách item con cho Dropdown
-      const items = route.children.map((child) => ({
-        key: child.path,
-        label: <Link to={`${route.path}/${child.path}`}>{child.name}</Link>,
-      }));
+  return routesByPosition
+    .map((route) => {
+      const visibleChildren = route.children?.filter((child) => !child.tabOnly);
 
-      return (
-        <Dropdown
-          key={route.path}
-          placement="bottom"
-          menu={{ items, className: "my-dropdown" }}
-        >
-          <span onClick={(e) => e.preventDefault()}>
-            <Space>
-              <Link
-                key={route.path}
-                to={route.path}
-                className="text-main-color text-16"
-                style={{ fontWeight: "200" }}
-              >
-                {route.name}
-              </Link>
-              <DownOutlined className="text-main-color" />
-            </Space>
-          </span>
-        </Dropdown>
-      );
-    } else {
-      // Route không có children → chỉ là link thường
+      if (visibleChildren && visibleChildren.length > 0) {
+        const items = visibleChildren.map((child) => ({
+          key: child.path,
+          label: <Link to={`${route.path}/${child.path}`}>{child.name}</Link>,
+        }));
+
+        return (
+          <Dropdown
+            key={route.path}
+            placement="bottom"
+            menu={{ items, className: "my-dropdown" }}
+          >
+            <span onClick={(e) => e.preventDefault()}>
+              <Space>
+                <Link
+                  to={route.path}
+                  className="text-main-color text-16"
+                  style={{ fontWeight: "200" }}
+                >
+                  {route.name}
+                </Link>
+                <DownOutlined className="text-main-color" />
+              </Space>
+            </span>
+          </Dropdown>
+        );
+      }
+
+      if (route.children && route.children.length > 0) return null;
+      if (route.isTabOnly) return null;
       return (
         <Link
           key={route.path}
@@ -57,23 +63,44 @@ function getRoutesByPosition(routesByPosition) {
           {route.name}
         </Link>
       );
-    }
-  });
+    })
+    .filter(Boolean);
 }
 
-function NavBar({
-  user,
-  onLogout,
-  productInCart,
-  refetchCart,
-  setProductInCart,
-}) {
+function NavBar({ user, onLogout, productInCart }) {
+  const [showFeedback, setShowFeedback] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const {
+    notifications,
+    hasMore,
+    currentPage,
+    loading,
+    setNotifications,
+    fetchAllNotifications,
+  } = useNotification();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const handleOpenFeedback = (notification) => {
+    setSelectedNotification(notification);
+    setShowFeedback(true);
+  };
+  const isCustomer = user?.role === "customer";
+  const hasUnread = notifications.some((n) => n.unread);
+
+  useEffect(() => {
+    if (!isCustomer) return;
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 10000);
+
+    return () => clearInterval(timer);
+  }, [isCustomer]);
   const totalItems = productInCart.reduce(
     (sum, item) => sum + item.quantity,
     0
   );
-  const isCustomer = user?.role === "customer";
+
   const view = {
     items: [
       {
@@ -84,11 +111,24 @@ function NavBar({
       {
         type: "divider",
       },
-      {
-        key: "Tài khoản",
-        label: <Link to="/viewProfile">Tài khoản</Link>,
-        icon: <UserOutlined />,
-      },
+      ...(user?.role === "shipper"
+        ? [
+            {
+              key: "shipperPage",
+              label: <Link to="/shipperDelivery">Shipper</Link>,
+              icon: <UserOutlined />,
+            },
+          ]
+        : []),
+      ...(user?.role === "customer"
+        ? [
+            {
+              key: "Tài khoản",
+              label: <Link to="/viewProfile">Tài khoản</Link>,
+              icon: <UserOutlined />,
+            },
+          ]
+        : []),
       {
         key: "3",
         label: <Link to="/logInResetPassword">Đổi mật khẩu</Link>,
@@ -103,6 +143,7 @@ function NavBar({
       },
     ],
   };
+
   const [open, setOpen] = useState(false);
   const showDrawer = () => {
     setOpen(true);
@@ -110,40 +151,42 @@ function NavBar({
   const onClose = () => {
     setOpen(false);
   };
+
+  const handleScroll = (e) => {
+    const container = e.target;
+    const scrollBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    if (scrollBottom < 50 && hasMore && !loading) {
+      fetchAllNotifications(currentPage + 1);
+    }
+  };
+
   const routes_middle = routes.filter((route) => route.position === "middle");
   const routes_right = routes.filter((route) => route.position === "right");
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "review",
-      title: "Đánh giá sản phẩm",
-      message:
-        "Cảm ơn bạn vì đã mua sản phẩm của chúng tôi. Chúng tôi rất mong nhận được đánh giá từ bạn để phục vụ tốt hơn trong lần tới!",
-      time: "5 phút trước",
-      unread: true,
-      actionText: "Để lại nhận xét",
-    },
-  ]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  const handleMarkRead = (id) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, unread: false } : n))
+  const handleMarkRead = async (id) => {
+    // Optimistic update
+
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
     );
-  };
 
-  const handleDelete = (id) => {
-    setNotifications(notifications.filter((n) => n.id !== id));
-  };
+    try {
+      const res = await fetchWithAuth(
+        `http://localhost:5001/api/notification/mark-read/${id}`,
+        { method: "POST" }
+      );
 
-  const renderNotification = (notification) => {
-    const props = {
-      notification,
-      onMarkRead: handleMarkRead,
-      onDelete: handleDelete,
-    };
-    return <ReviewNotification key={notification.id} {...props} />;
+      if (!res.ok) {
+        // Rollback - fetch lại page 1
+        console.log("Lỗi ");
+      }
+    } catch (err) {
+      console.error("Mark read error:", err);
+    }
   };
 
   const dropdownContent = (
@@ -159,10 +202,10 @@ function NavBar({
       <div className="notification-header">
         <Space
           style={{
-            width: "100%",
             justifyContent: "space-between",
             alignItems: "center",
           }}
+          className="w100"
         >
           <div>
             <h1
@@ -171,36 +214,69 @@ function NavBar({
             >
               Thông báo
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "12px" }}>
-              Bạn có {unreadCount} thông báo chưa đọc
-            </p>
           </div>
         </Space>
       </div>
-
-      <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-        {notifications.length === 0 ? (
+      <div
+        onScroll={handleScroll}
+        style={{
+          maxHeight: "500px",
+          overflowY: "auto",
+        }}
+      >
+        {loading ? (
+          // Loading lần đầu
+          <div style={{ padding: "40px 20px", textAlign: "center" }}>
+            <Spin size="large" />
+          </div>
+        ) : notifications.length === 0 ? (
           <div
             style={{ padding: "40px 20px", textAlign: "center", color: "#999" }}
           >
             <div style={{ fontSize: "48px", marginBottom: "12px" }}>🔔</div>
-            <p type="secondary">Không có thông báo mới</p>
+            <p>Không có thông báo</p>
           </div>
         ) : (
-          notifications.map((notification) => renderNotification(notification))
+          <>
+            {notifications.map((notification) => (
+              <ReviewNotification
+                key={notification.id}
+                notification={notification}
+                now={now}
+                onMarkRead={handleMarkRead}
+                handleOpenFeedback={handleOpenFeedback}
+              />
+            ))}
+
+            {/* Loading indicator */}
+            {loading && (
+              <div style={{ padding: "16px", textAlign: "center" }}>
+                <Spin size="small" />
+                <p
+                  style={{ marginTop: "8px", fontSize: "12px", color: "#999" }}
+                >
+                  Đang tải thêm...
+                </p>
+              </div>
+            )}
+
+            {/* End message */}
+            {!hasMore && notifications.length > 0 && (
+              <div
+                style={{
+                  padding: "16px",
+                  textAlign: "center",
+                  color: "#999",
+                  fontSize: "12px",
+                  borderTop: "1px solid #f0f0f0",
+                }}
+              >
+                Đã hiển thị tất cả thông báo
+              </div>
+            )}
+          </>
         )}
       </div>
-
-      {notifications.length > 0 && (
-        <div className="notification-footer">
-          <Button
-            type="link"
-            style={{ color: "#92400e", fontWeight: 600, padding: 0 }}
-          >
-            Xem tất cả thông báo
-          </Button>
-        </div>
-      )}
     </div>
   );
   return (
@@ -247,19 +323,21 @@ function NavBar({
           </Row>
         </Col>
         <Col xs={12} md={4}>
-          <Row justify="end" style={{ minHeight: "55px" }} align="middle">
+          <Row justify="end" style={{ minHeight: "45px" }} align="middle">
             {user ? (
               <>
                 <div
                   style={{
-                    display: "flex",
                     gap: "15px",
                     alignItems: "center",
                   }}
+                  className="fl"
                 >
                   {isCustomer && (
                     <>
                       <Dropdown
+                        open={dropdownOpen}
+                        onOpenChange={setDropdownOpen}
                         popupRender={() => dropdownContent}
                         trigger={["click"]}
                         placement="bottomRight"
@@ -272,16 +350,23 @@ function NavBar({
                             borderRadius: "50%",
                           }}
                         >
-                          <Badge count={unreadCount} showZero color="#ab5506ff">
-                            <div className="fl-center">
-                              <img
-                                src={bell}
-                                alt="bell-image"
-                                width="25px"
-                                color=""
-                              />
-                            </div>
-                          </Badge>
+                          {hasUnread && (
+                            <span
+                              style={{
+                                position: "absolute",
+                                top: "8px",
+                                right: "8px",
+                                width: "10px",
+                                height: "10px",
+                                borderRadius: "50%",
+                                backgroundColor: "#ef4444",
+                                border: "2px solid white",
+                              }}
+                            />
+                          )}
+                          <div className="fl-center">
+                            <img src={bell} alt="bell-image" width="25px" />
+                          </div>
                         </div>
                       </Dropdown>
                       <button className="no-border" onClick={showDrawer}>
@@ -359,6 +444,47 @@ function NavBar({
           ))}
         </div>
       </Drawer>
+      {showFeedback && selectedNotification && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              maxWidth: "500px",
+              backgroundColor: " #fdfbf5",
+              maxHeight: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <div
+              className="scrollbar w100"
+              style={{
+                maxHeight: "100%",
+                maxWidth: "450px",
+                overflowY: "auto",
+                padding: "20px",
+              }}
+            >
+              <button
+                onClick={() => setShowFeedback(false)}
+                style={{
+                  position: "absolute",
+                  top: "15px",
+                  right: "15px",
+                  fontSize: "15px",
+                }}
+                className="out-line"
+              >
+                <CloseOutlined />
+              </button>
+
+              <FeedbackComponent order_id={selectedNotification.orderId} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

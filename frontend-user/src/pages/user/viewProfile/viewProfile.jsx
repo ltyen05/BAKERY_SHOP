@@ -27,6 +27,7 @@ import OrderDetails from "../../../components/Order/OrderDetails";
 import { useAuth } from "../../../context/AuthContext";
 import { useAccount } from "../../../context/AccountContext";
 import { useOrder } from "../../../context/OrderContext";
+import HistoryOrder from "../../../components/HistoryOrder/HistoryOrder";
 const { Title, Text } = Typography;
 const rankColors = {
   diamond: "#b9f2ff", // màu xanh sáng cho diamond
@@ -84,13 +85,13 @@ const STEP_ITEMS = [
 // -------------------
 const STATUS_STEP_MAP = {
   "Đang xử lý": 0,
-
   "Đang giao": 1,
-
   "Đã giao": 2,
 };
+
 const UserProfile = () => {
-  const { user, setUser } = useAuth(); // nhớ context phải có setUserInfo nếu muốn update
+  const { user, setUser } = useAuth();
+
   const { update_profile, get_rank, get_active_order } = useAccount();
   const [loadingOrder, setLoadingOrder] = useState(false);
   const { coupons, refetchCoupons, setSelectedVoucher, orderDetails } =
@@ -104,6 +105,7 @@ const UserProfile = () => {
   const [voucherList, setVoucherList] = useState([]);
   const [isShowingVoucher, setIsShowingVoucher] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showHistoryOrder, setShowHistoryOrder] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState(
     "https://i.pinimg.com/originals/24/bd/d9/24bdd9ec59a9f8966722063fe7791183.jpg"
@@ -309,7 +311,12 @@ const UserProfile = () => {
             </Button>
           </Col>
           <Col>
-            <Button className="btn btn-primary">Lịch sử mua hàng</Button>
+            <Button
+              className="btn btn-primary"
+              onClick={() => setShowHistoryOrder(true)}
+            >
+              Lịch sử mua hàng
+            </Button>
           </Col>
         </Row>
       </Col>
@@ -396,9 +403,8 @@ const UserProfile = () => {
             className="fl-center"
           >
             <div
-              className="scrollbar"
+              className="scrollbar w100"
               style={{
-                width: "100%",
                 maxHeight: "100%",
                 overflowY: "auto",
                 padding: "20px",
@@ -421,12 +427,11 @@ const UserProfile = () => {
               {coupons.map((voucher) => (
                 <div
                   key={voucher?.coupon_id}
-                  className="mt-3"
+                  className="mt-3 w100"
                   style={{
                     borderRadius: 12,
                     border: "1px solid",
                     overflow: "hidden",
-                    width: "100%",
                   }}
                 >
                   <Voucher
@@ -458,6 +463,31 @@ const UserProfile = () => {
             <OrderDetails order={currentOrder} />
             <button
               onClick={() => setShowOrderDetails(false)}
+              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
+              className="out-line"
+            >
+              <CloseOutlined />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showHistoryOrder && (
+        <div className="fl-center showUp">
+          <div
+            style={{
+              width: "95%",
+              backgroundColor: "#fdfbf5",
+              height: "90%",
+              borderRadius: "8px",
+              flexDirection: "column",
+              position: "relative",
+            }}
+            className="fl-center"
+          >
+            <HistoryOrder />
+            <button
+              onClick={() => setShowHistoryOrder(false)}
               style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
               className="out-line"
             >

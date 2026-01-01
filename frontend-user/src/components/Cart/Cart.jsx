@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "antd";
 import ProductInCart from "../Product/ProductInCart";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,7 @@ const ProductCart = ({ onCloseDrawer }) => {
   };
 
   const handleRemove = async (product_id) => {
-    // Kiểm tra user
+ 
     if (!user) {
       alert.error("Bạn cần đăng nhập.");
       return;

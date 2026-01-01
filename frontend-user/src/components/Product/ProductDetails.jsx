@@ -8,12 +8,16 @@ import { useEffect } from "react";
 import { Pagination, Rate } from "antd";
 import { useProduct } from "../../context/ProductContext";
 import { useOrder } from "../../context/OrderContext";
+import { useAuth } from "../../context/AuthContext";
 export default function ProductDetail() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToCart, addingToCart } = useOrder();
   const [quantity, setQuantity] = useState(1);
   const { setCurrentProduct } = useProduct();
   const [product, setProduct] = useState(null);
+  const { topProducts } = useProduct();
 
   useEffect(() => {
     if (!productId) return;
@@ -26,9 +30,30 @@ export default function ProductDetail() {
       })
       .catch((err) => console.error(err));
   }, [productId]);
+  const handleAddToCart = async (product, quantity = 1) => {
+    // Kiểm tra user
+    if (!user) {
+      alert("Bạn cần đăng nhập.");
+      return;
+    }
+
+    if (user.role !== "customer") {
+      alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
+
+    try {
+      await addToCart(product, quantity);
+      console.log(`Đã thêm "${product.name}" vào giỏ hàng!`);
+    } catch (err) {
+      console.log(err.message || "Không thể thêm vào giỏ hàng");
+    }
+  };
+
   if (!product) {
     return <div style={{ textAlign: "center" }}>Đang tải sản phẩm...</div>;
   }
+
   return (
     <div>
       {/* ------------------------------------------------ */}
@@ -48,13 +73,12 @@ export default function ProductDetail() {
             alt={product?.name}
             style={{
               borderRadius: "16px",
-              width: "100%",
               maxWidth: "530px",
               objectFit: "cover",
               aspectRatio: "1 / 1",
               boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
             }}
-            className="mb-3"
+            className="mb-3 w100"
           />
         </Col>
         <Col xs={24} lg={11} style={{ textAlign: "start" }}>
@@ -65,9 +89,11 @@ export default function ProductDetail() {
             <p style={{ fontSize: "22px", fontWeight: "500" }}>
               {(product?.price).toLocaleString("vi-VN")}
               <span style={{ fontSize: "16px" }}>đ</span> <br />
-              <p style={{ fontSize: "14px", opacity: 0.6, fontWeight: "300" }}>
+              <span
+                style={{ fontSize: "14px", opacity: 0.6, fontWeight: "300" }}
+              >
                 (Giá chưa bao gồm thuế VAT)
-              </p>
+              </span>
             </p>
             <p
               style={{
@@ -164,6 +190,8 @@ export default function ProductDetail() {
                   cursor: "pointer",
                 }}
                 className="btn-primary"
+                onClick={() => handleAddToCart(product, quantity)}
+                disabled={addingToCart}
               >
                 THÊM VÀO GIỎ HÀNG
               </button>
@@ -200,8 +228,8 @@ export default function ProductDetail() {
       </Row>
       {/* ------------------------------------------------ */}
       <div
-        className="mt-24 mb-24"
-        style={{ maxWidth: "1300px", width: "100%", margin: "0 auto" }}
+        className="mt-12 mb-24 w100"
+        style={{ maxWidth: "1300px", margin: "0 auto" }}
       >
         <div style={{ justifyContent: "start" }} className="fl-center mb-6">
           <p
@@ -231,15 +259,19 @@ export default function ProductDetail() {
         </Row>
         <div>
           <Row align="top" justify="center">
-            <Col>
-              <Product productName={"Bánh kem chesse"} price={"120000"} />
-            </Col>
-            <Col>
-              <Product productName={"Sourdough"} price={"120000"} />
-            </Col>
-            <Col>
-              <Product productName={"Sourdough"} price={"120000"} />
-            </Col>
+            {topProducts.map((item) => (
+              <Col key={item?.product_id}>
+                <Product
+                  product_id={item?.product_id}
+                  product_name={item?.name}
+                  price={item?.price}
+                  image={item?.image}
+                  rating={item?.rating}
+                  onAddToCart={handleAddToCart} // ⭐ Truyền handler mới
+                  isAddingToCart={addingToCart} // ⭐ Truyền loading state
+                />
+              </Col>
+            ))}
           </Row>
         </div>
         <div className="mt-6 mb-18">

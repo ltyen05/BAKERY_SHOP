@@ -30,4 +30,17 @@ export const accountApi = {
       body: JSON.stringify(data),
     });
   },
+  get_branch() {
+    return fetch(`${API}/branch_detail`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
+  products_bought() {
+    return fetchWithAuth(`${API}/bought_products`, {
+      method: "GET",
+    });
+  },
 };

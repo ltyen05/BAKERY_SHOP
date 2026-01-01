@@ -139,9 +139,8 @@ export default function ProductList() {
             className="fl-center"
           >
             <div
-              className="scrollbar"
+              className="scrollbar w100"
               style={{
-                width: "100%",
                 maxHeight: "100%",
                 maxWidth: "450px",
                 overflowY: "auto",

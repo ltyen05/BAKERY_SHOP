@@ -35,7 +35,6 @@ function Breadcrumbs() {
     let name = getRouteNameByPath(url, routes) || segment;
     const isProductId = url.startsWith("/productDetails") && !isNaN(segment);
 
-    // 👉 Nếu là trang chi tiết sản phẩm
     if (isProductId) {
       name = currentProduct?.name || "";
     }
@@ -46,7 +45,7 @@ function Breadcrumbs() {
       key: url,
       title:
         isLast || isProductId ? (
-          <span>{name}</span> // ❌ không clickable
+          <span>{name}</span>
         ) : (
           <Link to={url}>{name}</Link>
         ),

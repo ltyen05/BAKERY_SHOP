@@ -13,31 +13,11 @@ import award from "../../../assets/award.svg";
 import homePage from "../../../assets/HomePage.png";
 import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
-
+import { useProduct } from "../../../context/ProductContext";
 function HomePage() {
-  const [topProducts, setTopProducts] = useState([]);
+  const { topProducts } = useProduct();
   const { user } = useAuth();
   const { addToCart, addingToCart } = useOrder(); // ⭐ Dùng addToCart từ context
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(
-          "http://localhost:5001/api/product/top-selling"
-        );
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setTopProducts(data);
-        } else {
-          setTopProducts([]);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (!topProducts.length) return;
@@ -166,9 +146,9 @@ function HomePage() {
                     src={homePage}
                     alt=""
                     style={{
-                      width: "100%",
                       height: "auto",
                     }}
+                    className="w100"
                   />
                 </Row>
               </Col>
@@ -184,9 +164,9 @@ function HomePage() {
                     src={homePage}
                     alt=""
                     style={{
-                      width: "100%",
                       height: "auto",
                     }}
+                    className="w100"
                   />
                 </Row>
                 <Row
@@ -200,9 +180,9 @@ function HomePage() {
                     src={homePage}
                     alt=""
                     style={{
-                      width: "100%",
                       height: "auto",
                     }}
+                    className="w100"
                   />
                 </Row>
               </Col>

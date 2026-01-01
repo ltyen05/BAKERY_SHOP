@@ -2,8 +2,11 @@ from hus_bakery_app.models.branches import Branch
 from hus_bakery_app.models.employee import Employee
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.coupon import Coupon
+
 from datetime import datetime
 from hus_bakery_app import db
+
+#============================BRANCH==================================
 
 def add_branch_service(data):
     manager_id = data.get('manager_id')
@@ -74,6 +77,71 @@ def update_branch_service(branch_id, data):
 
     return branch
 
+def delete_branch_service(branch_id):
+    branch = Branch.query.get(branch_id)
+    if not branch:
+        return False, "Không tìm thấy chi nhánh."
+
+    try:
+        # Bước 1: Trước khi xóa chi nhánh, cần xử lý quản lý chi nhánh đó
+        # (Chuyển quản lý đó về lại làm nhân viên bình thường)
+        if branch.manager_id:
+            manager = Employee.query.get(branch.manager_id)
+            if manager:
+                manager.role_name = 'Nhân viên'
+
+        # Bước 2: Xóa chi nhánh
+        db.session.delete(branch)
+        db.session.commit()
+        return True, "Xóa chi nhánh thành công."
+
+    except Exception as e:
+        db.session.rollback()
+        # Lỗi thường gặp: Chi nhánh vẫn còn nhân viên hoặc đơn hàng liên quan
+        return False, "Không thể xóa chi nhánh này vì vẫn còn nhân viên hoặc dữ liệu đơn hàng liên quan."
+
+def get_branch_detail_service(branch_id):
+    # Lấy thông tin chi tiết chi nhánh theo ID
+    branch = Branch.query.get(branch_id)
+    if not branch:
+        return None
+
+    return {
+        "branch_id": branch.branch_id,
+        "name": branch.name,
+        "address": branch.address,
+        "phone": branch.phone,
+        "email": branch.email,
+        "mapSrc": branch.mapSrc,
+        "lat": float(branch.lat) if branch.lat else None,
+        "lng": float(branch.lng) if branch.lng else None,
+        "manager_id": branch.manager_id
+    }
+
+def get_branch_manager_info_service(branch_id):
+    result = db.session.query(
+        Branch.name.label('branch_name'),
+        Employee.employee_id,
+        Employee.employee_name,
+        Employee.email,
+        Employee.role_name,
+        Employee.status
+    ).join(Employee, Branch.manager_id == Employee.employee_id)\
+     .filter(Branch.branch_id == branch_id).first()
+
+    if not result:
+        return None
+
+    return {
+        "branch_name": result.branch_name,
+        "manager_id": result.employee_id,
+        "manager_name": result.employee_name,
+        "email": result.email,
+        "role": result.role_name,
+        "status": result.status
+    }
+
+#=============================EMPOLYEE====================================
 def create_employee_service(data):
     # Khởi tạo theo đúng __init__ của model Employee
     new_emp = Employee(
@@ -114,6 +182,53 @@ def update_employee_service(emp_id, data):
     db.session.commit()
     return emp
 
+def delete_employee_service(employee_id):
+    employee = Employee.query.get(employee_id)
+    if not employee:
+        return False, "Không tìm thấy nhân viên"
+
+    try:
+        from hus_bakery_app.models.branches import Branch
+
+        # 1. Tìm tất cả chi nhánh mà nhân viên này đang quản lý
+        managed_branches = Branch.query.filter_by(manager_id=employee_id).all()
+
+        if managed_branches:
+            for branch in managed_branches:
+                # Gỡ bỏ quyền quản lý (để có thể xóa nhân viên mà không vi phạm ràng buộc dữ liệu)
+                branch.manager_id = None
+
+            # Cập nhật thay đổi cho các chi nhánh trước khi xóa nhân viên
+            db.session.flush()
+
+            # 2. Xóa vĩnh viễn nhân viên
+        db.session.delete(employee)
+        db.session.commit()
+        return True, "Đã gỡ quyền quản lý và xóa nhân viên thành công"
+
+    except Exception as e:
+        db.session.rollback()
+        # Thường là lỗi IntegrityError do nhân viên đã có trong lịch sử đơn hàng/shipper
+        return False, f"Lỗi hệ thống: {str(e)}. Nếu nhân viên đã có lịch sử đơn hàng, hãy dùng tính năng 'Nghỉ việc' thay vì xóa."
+
+#=============================PRODUCT==============================================
+
+def get_all_products_service():
+    products = Product.query.order_by(Product.product_id.desc()).all()
+
+    result = []
+    for product in products:
+        result.append({
+            "product_id": product.product_id,
+            "name": product.name,
+            "description": product.description,
+            "image_url": product.image_url,
+            "unit_price": float(product.unit_price) if product.unit_price else 0,
+            "category_id": product.category_id,
+            "created_at": product.created_at.strftime('%Y-%m-%d %H:%M:%S') if product.created_at else None,
+            "updated_at": product.updated_at.isoformat() if product.updated_at else None
+        })
+    return result
 
 def add_product_service(data):
     new_product = Product(
@@ -158,6 +273,8 @@ def delete_product_service(product_id):
         print(f"Lỗi khi xóa sản phẩm: {str(e)}")
         return False
 
+#=================================COUPONS===========================================
+
 def create_coupon_service(data):
     new_coupon = Coupon()
     new_coupon.description = data.get('description')
@@ -196,66 +313,6 @@ def update_coupon_service(coupon_id, data):
     db.session.commit()
     return coupon
 
-
-def get_branch_detail_service(branch_id):
-    # Lấy thông tin chi tiết chi nhánh theo ID
-    branch = Branch.query.get(branch_id)
-    if not branch:
-        return None
-
-    return {
-        "branch_id": branch.branch_id,
-        "name": branch.name,
-        "address": branch.address,
-        "phone": branch.phone,
-        "email": branch.email,
-        "mapSrc": branch.mapSrc,
-        "lat": float(branch.lat) if branch.lat else None,
-        "lng": float(branch.lng) if branch.lng else None,
-        "manager_id": branch.manager_id
-    }
-
-def get_branch_manager_info_service(branch_id):
-    result = db.session.query(
-        Branch.name.label('branch_name'),
-        Employee.employee_id,
-        Employee.employee_name,
-        Employee.email,
-        Employee.role_name,
-        Employee.status
-    ).join(Employee, Branch.manager_id == Employee.employee_id)\
-     .filter(Branch.branch_id == branch_id).first()
-
-    if not result:
-        return None
-
-    return {
-        "branch_name": result.branch_name,
-        "manager_id": result.employee_id,
-        "manager_name": result.employee_name,
-        "email": result.email,
-        "role": result.role_name,
-        "status": result.status
-    }
-
-
-def get_all_products_service():
-    products = Product.query.order_by(Product.product_id.desc()).all()
-
-    result = []
-    for product in products:
-        result.append({
-            "product_id": product.product_id,
-            "name": product.name,
-            "description": product.description,
-            "image_url": product.image_url,
-            "unit_price": float(product.unit_price) if product.unit_price else 0,
-            "category_id": product.category_id,
-            "created_at": product.created_at.strftime('%Y-%m-%d %H:%M:%S') if product.created_at else None,
-            "updated_at": product.updated_at.isoformat() if product.updated_at else None
-        })
-    return result
-
 def delete_coupon_service(coupon_id):
     coupon = Coupon.query.get(coupon_id)
     if not coupon:
@@ -273,54 +330,3 @@ def delete_coupon_service(coupon_id):
         return False
 
 
-def delete_employee_service(employee_id):
-    employee = Employee.query.get(employee_id)
-    if not employee:
-        return False, "Không tìm thấy nhân viên"
-
-    try:
-        from hus_bakery_app.models.branches import Branch
-
-        # 1. Tìm tất cả chi nhánh mà nhân viên này đang quản lý
-        managed_branches = Branch.query.filter_by(manager_id=employee_id).all()
-
-        if managed_branches:
-            for branch in managed_branches:
-                # Gỡ bỏ quyền quản lý (để có thể xóa nhân viên mà không vi phạm ràng buộc dữ liệu)
-                branch.manager_id = None
-
-            # Cập nhật thay đổi cho các chi nhánh trước khi xóa nhân viên
-            db.session.flush()
-
-            # 2. Xóa vĩnh viễn nhân viên
-        db.session.delete(employee)
-        db.session.commit()
-        return True, "Đã gỡ quyền quản lý và xóa nhân viên thành công"
-
-    except Exception as e:
-        db.session.rollback()
-        # Thường là lỗi IntegrityError do nhân viên đã có trong lịch sử đơn hàng/shipper
-        return False, f"Lỗi hệ thống: {str(e)}. Nếu nhân viên đã có lịch sử đơn hàng, hãy dùng tính năng 'Nghỉ việc' thay vì xóa."
-
-def delete_branch_service(branch_id):
-    branch = Branch.query.get(branch_id)
-    if not branch:
-        return False, "Không tìm thấy chi nhánh."
-
-    try:
-        # Bước 1: Trước khi xóa chi nhánh, cần xử lý quản lý chi nhánh đó
-        # (Chuyển quản lý đó về lại làm nhân viên bình thường)
-        if branch.manager_id:
-            manager = Employee.query.get(branch.manager_id)
-            if manager:
-                manager.role_name = 'Nhân viên'
-
-        # Bước 2: Xóa chi nhánh
-        db.session.delete(branch)
-        db.session.commit()
-        return True, "Xóa chi nhánh thành công."
-
-    except Exception as e:
-        db.session.rollback()
-        # Lỗi thường gặp: Chi nhánh vẫn còn nhân viên hoặc đơn hàng liên quan
-        return False, "Không thể xóa chi nhánh này vì vẫn còn nhân viên hoặc dữ liệu đơn hàng liên quan."

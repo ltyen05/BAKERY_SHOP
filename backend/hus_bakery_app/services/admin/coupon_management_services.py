@@ -21,7 +21,7 @@ def add_coupon_service(data):
         end_date=data.get('end_date'),
         status=data.get("status"),
         used_count=data.get("used_count"),
-        created_at=data.get("created_at"),
+        created_at=datetime.now(),
         updated_at=datetime.now()
     )
     # Trạng thái mặc định là 'active' nếu không truyền vào

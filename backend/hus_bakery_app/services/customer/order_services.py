@@ -135,7 +135,6 @@ def get_order_detail_service(order_id):
         })
     getBranch = Branch.query.filter_by(branch_id=order.branch_id).first()
     shipper = Shipper.query.filter_by(shipper_id=order.shipper_id).first()
-
     return {
         "order_id": order.order_id,
         "recipient_name": order.recipient_name,
@@ -148,7 +147,7 @@ def get_order_detail_service(order_id):
         "branch_name": getBranch.name,
         "created_at": order.created_at,
         "shipper_id": order.shipper_id,
-        "shipper_name": order.shipper_name
+        "shipper_name": shipper.name
     }, None
 
 

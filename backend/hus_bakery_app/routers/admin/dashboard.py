@@ -102,11 +102,17 @@ def api_order_status_distribution():
 
 @dashboard_bp.route('/top-products', methods=['GET'])
 def api_top_products():
-    data = get_top_selling_products()
-    return jsonify({
-        "success": True,
-        "data": data
-    }), 200
+    try:
+        data = get_top_selling_products()
+        return jsonify({
+            "success": True,
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
 
 
 @dashboard_bp.route('/customer-growth', methods=['GET'])

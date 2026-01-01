@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.models.customer_notifications import CustomerNotification
 from hus_bakery_app.services.customer.notification_services import (
     check_pending_reviews_for_customer,
     mark_customer_notification_read,
     get_new_success_order_notification,
     get_all_success_order_notifications
 )
+from hus_bakery_app.models.customer_notifications import CustomerNotification
 
 customer_noti_bp = Blueprint("customer_noti", __name__)
 
@@ -39,26 +39,8 @@ def mark_as_read(order_id):
     return jsonify({"success": False, "message": "Không tìm thấy thông báo"}), 404
 
 
-@customer_noti_bp.route("/check-latest-success", methods=["GET"])
+@customer_noti_bp.route('/all_notifications', methods=['GET'])
 @jwt_required()
-def check_latest_success():
-    identity = json.loads(get_jwt_identity())
-    customer_id = identity["id"]
-
-    order_notification = get_new_success_order_notification(customer_id)
-
-    if order_notification:
-        return jsonify({
-            "success": True,
-            "data": order_notification
-        }), 200
-
-    return jsonify({
-        "success": False,
-        "message": "Không có đơn hàng mới hoàn thành"
-    }), 200
-
-@customer_noti_bp.route('/all_notifications/<int:customer_id>', methods=['GET'])
 def get_notifications():
     # 1. Lấy tham số page và per_page từ query string (mặc định page=1, per_page=10)
     identity = json.loads(get_jwt_identity())
@@ -130,3 +112,23 @@ def check_notification_status():
             "success": False,
             "message": str(e)
         }), 500
+
+
+@customer_noti_bp.route("/check-latest-success", methods=["GET"])
+@jwt_required()
+def check_latest_success():
+    identity = json.loads(get_jwt_identity())
+    customer_id = identity["customer_id"]
+
+    order_notification = get_new_success_order_notification(customer_id)
+
+    if order_notification:
+        return jsonify({
+            "success": True,
+            "data": order_notification
+        }), 200
+
+    return jsonify({
+        "success": False,
+        "message": "Không có đơn hàng mới hoàn thành"
+    }), 200

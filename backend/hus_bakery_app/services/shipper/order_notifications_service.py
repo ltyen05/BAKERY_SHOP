@@ -4,7 +4,6 @@ from sqlalchemy import desc, exists, func, and_
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from sqlalchemy import desc
-
 from hus_bakery_app.models.shipper_notifications import ShipperNotification
 
 
@@ -39,6 +38,31 @@ def check_new_order_for_shipper(shipper_id):
         })
 
     return notifications
+
+
+def get_all_notifications_service(shipper_id, page=1, per_page=10):
+    # Sử dụng paginate thay vì .all()
+    # error_out=False giúp trả về danh sách rỗng nếu page vượt quá giới hạn thay vì lỗi 404
+    pagination_obj = ShipperNotification.query.filter_by(shipper_id=shipper_id) \
+        .order_by(ShipperNotification.created_at.desc()) \
+        .paginate(page=page, per_page=per_page, error_out=False)
+
+    result = []
+    # pagination_obj.items chứa danh sách các bản ghi của trang hiện tại
+    for noti in pagination_obj.items:
+        result.append({
+            "id": noti.id,
+            "order_id": noti.order_id,
+            "is_read": noti.is_read,
+            "created_at": noti.created_at if noti.created_at else None
+        })
+
+    return {
+        "notifications": result,
+        "total": pagination_obj.total,  # Tổng số bản ghi trong DB
+        "pages": pagination_obj.pages,  # Tổng số trang có thể có
+        "current_page": pagination_obj.page  # Trang hiện tại
+    }
 
 
 def get_current_order(shipper_id):
@@ -85,26 +109,4 @@ def get_current_order(shipper_id):
         return None, "Lỗi hệ thống"
 
 
-def get_all_notifications_service(shipper_id, page=1, per_page=10):
-    # Sử dụng paginate thay vì .all()
-    # error_out=False giúp trả về danh sách rỗng nếu page vượt quá giới hạn thay vì lỗi 404
-    pagination_obj = ShipperNotification.query.filter_by(shipper_id=shipper_id) \
-        .order_by(ShipperNotification.created_at.desc()) \
-        .paginate(page=page, per_page=per_page, error_out=False)
 
-    result = []
-    # pagination_obj.items chứa danh sách các bản ghi của trang hiện tại
-    for noti in pagination_obj.items:
-        result.append({
-            "id": noti.id,
-            "order_id": noti.order_id,
-            "is_read": noti.is_read,
-            "created_at": noti.created_at if noti.created_at else None
-        })
-
-    return {
-        "notifications": result,
-        "total": pagination_obj.total,       # Tổng số bản ghi trong DB
-        "pages": pagination_obj.pages,       # Tổng số trang có thể có
-        "current_page": pagination_obj.page  # Trang hiện tại
-    }

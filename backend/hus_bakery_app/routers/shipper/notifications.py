@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.shipper.order_notifications_service import check_new_order_for_shipper, get_current_order, \
-    get_all_notifications_service
+from hus_bakery_app.services.shipper.order_notifications import check_new_order_for_shipper, get_current_order
 from hus_bakery_app.models.shipper_notifications import ShipperNotification
 from hus_bakery_app.services.shipper.update_status_order import update_status_order
 from hus_bakery_app import db
@@ -81,63 +80,3 @@ def current_order():
     }
 
     return jsonify(result), 200
-
-@shipper_notifications_bp.route("/all-notifications", methods=["GET"])
-@jwt_required()
-def get_all_notifications():
-    try:
-        # Giải mã ID shipper từ JWT Token
-        identity = json.loads(get_jwt_identity())
-        shipper_id = identity["id"]
-        page = request.args.get('page', default=1, type=int)
-        per_page = 10
-
-        # 2. Gọi service với tham số phân trang
-        data = get_all_notifications_service(shipper_id, page, per_page)
-
-        # 3. Trả về kết quả kèm thông tin phân trang
-        return jsonify({
-            "success": True,
-            "current_page": data["current_page"],
-            "total_pages": data["pages"],
-            "total_notifications": data["total"],
-            "notifications": data["notifications"]  # Đây là mảng 10 phần tử
-        }), 200
-
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
-
-
-@shipper_notifications_bp.route("/check-status", methods=["GET"])
-@jwt_required()
-def check_notification_status():
-    """
-    API CỰC NHẸ để polling mỗi 5s
-    Chỉ trả về: tổng số thông báo + latest_id
-    Frontend dùng để detect có thông báo mới không
-    """
-    try:
-        identity = json.loads(get_jwt_identity())
-        shipper_id = identity["id"]
-
-        # Đếm TỔNG SỐ thông báo (tất cả, không phân biệt đã đọc)
-        total_count = ShipperNotification.query.filter_by(
-            shipper_id=shipper_id
-        ).count()
-
-        # Lấy ID của notification mới nhất
-        latest = ShipperNotification.query.filter_by(
-            shipper_id=shipper_id
-        ).order_by(ShipperNotification.created_at.desc()).first()
-
-        return jsonify({
-            "success": True,
-            "total_count": total_count,
-            "latest_id": latest.id if latest else None
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": str(e)
-        }), 500

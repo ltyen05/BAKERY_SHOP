@@ -46,6 +46,7 @@ def profile_api():
             "name": user.name,
             "email": user.email,
             "phone": user.phone,
+            "address": user.address,
             "avatar": f"/static/avatars/{user.avatar}" if user.avatar else None
         })
 
@@ -88,12 +89,13 @@ def change_password_api():
     success, msg = change_password(
         role=current_role,
         id=current_user_id,
-        old_pass=data.get("old_password"),
-        new_pass=data.get("new_password"),
-        confirm_pass=data.get("confirm_password"),
+        old_password=data.get("old_password"),
+        new_password=data.get("new_password"),
+        confirm_password=data.get("confirm_password"),
     )
 
-    return jsonify({"message": msg}), (200 if success else 400)
+    return jsonify({"success": success, "message": msg}), (200 if success else 400)
+
 
 @account_bp.route("/order_history", methods=["GET"])
 @jwt_required()
@@ -169,11 +171,12 @@ def api_get_bought_products():
             "message": f"Đã xảy ra lỗi: {str(e)}"
         }), 500
 
+
 @account_bp.route("/branch_detail", methods=["GET"])
 def api_get_branch_info():
     details = get_branch_detail()
 
     return jsonify({
         "status": "success",
-        "branch_details": details
+        "details": details
     }), 200

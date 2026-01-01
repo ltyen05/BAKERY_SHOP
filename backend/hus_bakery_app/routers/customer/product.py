@@ -17,7 +17,6 @@ def get_product_details(product_id):
         return jsonify({"error": "Sản phẩm không tồn tại"}), 404
 
     product, category_name = data
-
     avg_star = get_rating_star_service(product_id)
     # Trả về dữ liệu chi tiết dưới dạng JSON
     return jsonify({

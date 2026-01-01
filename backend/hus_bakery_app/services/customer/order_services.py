@@ -14,7 +14,30 @@ from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
-from hus_bakery_app.models.shipper_notifications import ShipperNotification
+from hus_bakery_app.models.shipper_notificationss import ShipperNotification
+
+
+# --- SECTION A: UTILS & HELPERS ---
+def geocode_address(address):
+    try:
+        url = "https://nominatim.openstreetmap.org/search"
+        params = {"q": address, "format": "json", "limit": 1}
+        res = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
+        data = res.json()
+        if not data: return None, None
+        return float(data[0]["lat"]), float(data[0]["lon"])
+    except:
+        return None, None
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371  # km
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) ** 2 +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2) ** 2)
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 # --- SECTION B: CLIENT ORDER CREATION ---
@@ -32,10 +55,10 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
 
     shipper = Shipper.query.filter_by(branch_id=branch_id, status="Đang hoạt động").first()
     if shipper:
-        shipper.status = "Bận"
+        shipper.status = "busy"
     elif not shipper:
-        return {"message": "Không có shipper nào đang sẵn sàng!"}, 400
-
+        return None, "Không có shipper nào đang sẵn sàng!"
+    # 7. Lưu Order
     try:
         new_order = Order(
             customer_id=customer_id,
@@ -133,8 +156,8 @@ def get_order_detail_service(order_id):
             "price": float(p.unit_price),
             "image": p.image_url
         })
-    getBranch = Branch.query.filter_by(branch_id=order.branch_id).first()
     shipper = Shipper.query.filter_by(shipper_id=order.shipper_id).first()
+    getBranch = Branch.query.filter_by(branch_id=order.branch_id).first()
     return {
         "order_id": order.order_id,
         "recipient_name": order.recipient_name,
@@ -147,7 +170,7 @@ def get_order_detail_service(order_id):
         "branch_name": getBranch.name,
         "created_at": order.created_at,
         "shipper_id": order.shipper_id,
-        "shipper_name": shipper.name
+        "shipper_name": shipper.name,
     }, None
 
 

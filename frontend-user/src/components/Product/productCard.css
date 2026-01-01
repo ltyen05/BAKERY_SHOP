@@ -1,0 +1,60 @@
+.list {
+  width: 100%;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 36px 0 rgba(86, 86, 86, 0.05);
+}
+.img-course {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  background: lightgray 50% / cover no-repeat;
+  height: 250px;
+  object-fit: cover;
+}
+
+.info {
+  padding: 16px 20px 20px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.info-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-foot .price {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 30px; /* 166.667% */
+}
+
+.h3-level {
+  color: #171100;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+
+  line-height: 30px; /* 166.667% */
+}
+/* styles.css */
+.box {
+  width: 300px;
+  margin: 30px;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.box:hover {
+  transform: scale(1.05); /* phóng to 5% */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* optional: bóng mượt hơn */
+  border-radius: 15px;
+}

@@ -1,0 +1,61 @@
+.notification-bell {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.notification-bell:hover {
+  transform: scale(1.1);
+}
+.notification-item {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.notification-item:hover {
+  background-color: #fef3c7 !important;
+}
+.notification-item.unread {
+  background-color: #fffbeb;
+}
+.delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+.notification-item:hover .delete-btn {
+  opacity: 1;
+}
+.unread-badge {
+  width: 8px;
+  height: 8px;
+  background-color: #92400e;
+  border-radius: 50%;
+  display: inline-block;
+}
+.notification-avatar-review {
+  background-color: #fef3c7;
+  color: #a16207;
+}
+.notification-avatar-order {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+.notification-avatar-like {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+.notification-avatar-promo {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.ant-dropdown-menu {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}

@@ -2,12 +2,14 @@ import { React, useEffect, useState } from "react";
 import { Row, Col, Carousel } from "antd";
 import aboutUs1 from "../../../assets/aboutUs1.jpg";
 import aboutUs2 from "../../../assets/aboutUs2.jpg";
+import aboutUs3 from "../../../assets/aboutUs3.jpg";
+import aboutUs4 from "../../../assets/aboutUs4.jpg";
 import "./aboutUs.css";
 const carousel = [
   {
     head: "Tận tâm",
     p: "Nỗ lực hết mình trên hành trình sáng tạo sản phẩm, chu đáo và tận tuỵ trong từng dịch vụ gửi đến khách hàng.",
-    img: aboutUs2,
+    img: "https://i.pinimg.com/1200x/ea/63/e3/ea63e36c1d4d7ee8ca0a2040fc80964b.jpg",
   },
   {
     head: "Sáng tạo",
@@ -17,12 +19,12 @@ const carousel = [
   {
     head: "Trách nhiệm",
     p: "Dốc lòng mang đến những giá trị tốt nhất cho khách hàng thông qua tinh thần trách nhiệm cao độ.",
-    img: aboutUs2,
+    img: aboutUs3,
   },
   {
     head: "Đáng tin cậy",
     p: "Chú trọng nâng cao chất lượng sản phẩm, dịch vụ để tạo dựng uy tín thương hiệu và vun đắp sự yêu mến của khách hàng.",
-    img: aboutUs2,
+    img: aboutUs4,
   },
 ];
 function AboutUs() {
@@ -157,7 +159,7 @@ function AboutUs() {
                       minHeight: "500px",
                     }}
                   >
-                    <Col xs={12} xl={6} className="fl-center">
+                    <Col xs={24} md={12} xl={6} className="fl-center">
                       <div
                         style={{
                           transition: "opacity 0.5s ease, transform 0.5s ease",
@@ -169,8 +171,10 @@ function AboutUs() {
                       >
                         {" "}
                         {/* chiếm full height Col */}
-                        <h3 className="text-32 mb-3">{item.head}</h3>
-                        <p className="text-16">{item.p}</p>
+                        <h3 className="carousel-head text-32 mb-3">
+                          {item.head}
+                        </h3>
+                        <p className="carousel-text text-16">{item.p}</p>
                       </div>
                     </Col>
                   </Row>
@@ -197,7 +201,7 @@ function AboutUs() {
               }}
             >
               <img
-                src={aboutUs1}
+                src="https://i.pinimg.com/1200x/d3/ab/43/d3ab43d7e87eaa33a9b4a8438338f2ba.jpg"
                 alt="About HUS Bakery"
                 style={{
                   objectFit: "cover",
@@ -270,10 +274,12 @@ function AboutUs() {
               }}
             >
               <img
-                src={aboutUs1}
+                src="https://i.pinimg.com/1200x/84/ec/46/84ec46b86bdc48a07a9e1af6ff8b1dac.jpg"
                 alt="About HUS Bakery"
                 style={{
                   objectFit: "cover",
+                  width: "100%",
+                  aspectRatio: "1 / 1",
                   display: "block",
                 }}
                 className="w100"

@@ -28,7 +28,7 @@ function getRoutesByPosition(routesByPosition) {
           key: child.path,
           label: <Link to={`${route.path}/${child.path}`}>{child.name}</Link>,
         }));
-
+        const defaultPath = route.path === "/menu" ? "/menu/bread" : route.path;
         return (
           <Dropdown
             key={route.path}
@@ -38,7 +38,7 @@ function getRoutesByPosition(routesByPosition) {
             <span onClick={(e) => e.preventDefault()}>
               <Space>
                 <Link
-                  to={route.path}
+                  to={defaultPath}
                   className="text-main-color text-16"
                   style={{ fontWeight: "200" }}
                 >
@@ -348,6 +348,7 @@ function NavBar({ user, onLogout, productInCart }) {
                             width: "40px",
                             height: "40px",
                             borderRadius: "50%",
+                            position: "relative",
                           }}
                         >
                           {hasUnread && (

@@ -52,6 +52,12 @@
   .mission {
     margin-top: -80px;
   }
+  .carousel-text {
+    font-size: 16px;
+  }
+  .carousel-head {
+    font-size: 36px;
+  }
 }
 @media (min-width: 1050px) and (max-width: 1099px) {
   .section {
@@ -62,6 +68,12 @@
   }
   .mission {
     margin-top: -120px;
+  }
+  .carousel-text {
+    font-size: 16px;
+  }
+  .carousel-head {
+    font-size: 36px;
   }
 }
 @media (min-width: 1100px) and (max-width: 1199px) {
@@ -74,6 +86,12 @@
   .mission {
     margin-top: -150px;
   }
+  .carousel-text {
+    font-size: 18px;
+  }
+  .carousel-head {
+    font-size: 38px;
+  }
 }
 /* Desktop lớn: từ 1200px trở lên */
 @media (min-width: 1200px) {
@@ -82,5 +100,11 @@
   }
   .mission {
     margin-top: -200px;
+  }
+  .carousel-text {
+    font-size: 20px;
+  }
+  .carousel-head {
+    font-size: 40px;
   }
 }

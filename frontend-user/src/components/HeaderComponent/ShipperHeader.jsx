@@ -211,7 +211,7 @@ function NavBar({ user, onLogout }) {
       },
       {
         key: "3",
-        label: "Đổi mật khẩu",
+        label: <Link to="/logInResetPassword">Đổi mật khẩu</Link>,
         icon: <LockOutlined />,
       },
       {
@@ -228,7 +228,7 @@ function NavBar({ user, onLogout }) {
   const dropdownContent = (
     <div
       style={{
-        width: "420px",
+        width: "380px",
         maxWidth: "100vw",
         backgroundColor: "white",
         borderRadius: "8px",
@@ -371,7 +371,7 @@ function NavBar({ user, onLogout }) {
                 onOpenChange={setDropdownOpen}
                 popupRender={() => dropdownContent}
                 trigger={["click"]}
-                placement="bottomRight"
+                placement="bottom"
               >
                 <div
                   className="fl-center hover-grey"
@@ -379,6 +379,7 @@ function NavBar({ user, onLogout }) {
                     width: "40px",
                     height: "40px",
                     borderRadius: "50%",
+                    position: "relative",
                   }}
                 >
                   {/* Dấu chấm đỏ thay vì Badge count */}

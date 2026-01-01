@@ -41,8 +41,8 @@ export const routes = [
     name: "Trang chủ",
     position: "middle",
     isShowHeader: true,
-    roles: ["customer", "admin", "guest", "shipper"],
   },
+
   {
     path: "/menu",
     page: Menu, // Dùng 'Menu' (lazy)
@@ -50,7 +50,6 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest", "shipper"],
     children: [
       {
         path: "",
@@ -88,7 +87,6 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/productDetails/:productId",
@@ -96,14 +94,12 @@ export const routes = [
     name: "Chi tiết sản phẩm",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/productDetails",
     page: () => <Navigate to="/menu/bread" replace />, // Dùng 'ProductDetails' (lazy)
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/facilities",
@@ -112,7 +108,6 @@ export const routes = [
     position: "middle",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "admin", "guest", "shipper"],
   },
   {
     path: "/signUp",

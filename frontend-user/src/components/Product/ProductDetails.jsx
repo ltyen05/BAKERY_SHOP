@@ -5,11 +5,72 @@ import Product from "./Product";
 import Review from "../reviewComments/review";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Pagination, Rate } from "antd";
+import { Pagination, Rate, Skeleton, Space, Card } from "antd";
 import { useProduct } from "../../context/ProductContext";
 import { useOrder } from "../../context/OrderContext";
 import { useAuth } from "../../context/AuthContext";
+const ProductDetailSkeleton = () => {
+  return (
+    <Row
+      style={{
+        maxWidth: "1150px",
+        width: "90%",
+        margin: "auto",
+        minHeight: "530px",
+      }}
+      justify="space-between"
+      align="middle"
+      className="mt-6 mb-24"
+    >
+      {/* IMAGE */}
+      <Col xs={24} lg={11} className="mb-3">
+        <Skeleton.Image
+          active
+          style={{
+            width: "100%",
+            maxWidth: "530px",
+
+            aspectRatio: "1 / 1",
+            borderRadius: "16px",
+          }}
+        />
+      </Col>
+
+      {/* INFO */}
+      <Col xs={24} lg={11}>
+        <Skeleton.Input
+          active
+          size="large"
+          style={{ width: "80%", height: 48 }}
+          className="mb-3"
+        />
+
+        <Skeleton
+          active
+          paragraph={{ rows: 4 }}
+          title={false}
+          className="mt-6 mb-6"
+        />
+
+        {/* QUANTITY */}
+        <div className="fl-center mb-6" style={{ gap: "10px" }}>
+          <Skeleton.Input active style={{ width: 80 }} />
+          <Skeleton.Input active style={{ width: 120 }} />
+        </div>
+
+        {/* BUTTONS */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Skeleton.Button active style={{ width: "50%", height: 48 }} />
+          <Skeleton.Button active style={{ width: "50%", height: 48 }} />
+        </div>
+      </Col>
+    </Row>
+  );
+};
+
 export default function ProductDetail() {
+  const [loading, setLoading] = useState(true);
+  const [minDelayDone, setMinDelayDone] = useState(false);
   const { productId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -18,18 +79,34 @@ export default function ProductDetail() {
   const { setCurrentProduct } = useProduct();
   const [product, setProduct] = useState(null);
   const { topProducts } = useProduct();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinDelayDone(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!productId) return;
+<<<<<<< HEAD
 
     fetch(`http://localhost:5001/api/product/${productId}`)
+=======
+    setLoading(true);
+    fetch(`http://localhost:5000/api/product/${productId}`)
+>>>>>>> frontend-user
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
         setCurrentProduct(data);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => {
+        setLoading(false);
+      });
   }, [productId]);
+
   const handleAddToCart = async (product, quantity = 1) => {
     // Kiểm tra user
     if (!user) {
@@ -50,8 +127,8 @@ export default function ProductDetail() {
     }
   };
 
-  if (!product) {
-    return <div style={{ textAlign: "center" }}>Đang tải sản phẩm...</div>;
+  if (loading || !minDelayDone) {
+    return <ProductDetailSkeleton />;
   }
 
   return (

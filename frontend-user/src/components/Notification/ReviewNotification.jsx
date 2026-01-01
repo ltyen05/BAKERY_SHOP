@@ -39,7 +39,7 @@ function ReviewNotification({
         title={
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <p strong style={{ fontSize: "14px" }}>
-              {notification.title}
+              Đánh giá sản phẩm
             </p>
             {notification.unread && <span className="unread-badge" />}
           </Space>
@@ -55,7 +55,7 @@ function ReviewNotification({
               }}
             >
               Cảm ơn bạn vì đã mua sản phẩm của chúng tôi. Chúng tôi rất mong
-              nhận được đánh giá cho đơn hàng id#{notification.id} từ bạn
+              nhận được đánh giá cho đơn hàng id#{notification.orderId} từ bạn
             </p>
             <Space
               style={{

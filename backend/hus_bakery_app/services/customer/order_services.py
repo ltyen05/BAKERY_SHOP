@@ -147,7 +147,7 @@ def get_order_detail_service(order_id):
         "branch_name": getBranch.name,
         "created_at": order.created_at,
         "shipper_id": order.shipper_id,
-        "shipper_name": order.shipper_name
+        "shipper_name": shipper.name
     }, None
 
 

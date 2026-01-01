@@ -76,9 +76,9 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
     from hus_bakery_app.routers.shipper.shipper_notifications import shipper_notifications_bp
-    app.register_blueprint(shipper_notifications_bp, url_prefix='/shipper/notifications')
+    app.register_blueprint(shipper_notifications_bp, url_prefix='/api/shipper/notifications')
     from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
-    app.register_blueprint(shipper_stats_bp, url_prefix='/shipper/statistics')
+    app.register_blueprint(shipper_stats_bp, url_prefix='/api/shipper/statistics')
 
     from hus_bakery_app.routers.superadmin.superadmin_dashboard import superadmin_dashboard_bp
     app.register_blueprint(superadmin_dashboard_bp, url_prefix='/superadmin/dashboard')

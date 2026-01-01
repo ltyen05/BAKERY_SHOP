@@ -51,7 +51,7 @@ function NavBar({ user, onLogout }) {
     if (!isShipper) return;
     try {
       const res = await fetchWithAuth(
-        "http://localhost:5000/api/shipper/notifications/check-status",
+        "http://localhost:5001/api/shipper/notifications/check-status",
         { method: "GET" }
       );
 
@@ -88,7 +88,7 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/shipper/notifications/all-notifications?page=${page}`,
+        `http://localhost:5001/api/shipper/notifications/all-notifications?page=${page}`,
         { method: "GET" }
       );
 
@@ -147,7 +147,7 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/shipper/notifications/mark-read/${id}`,
+        `http://localhost:5001/api/shipper/notifications/mark-read/${id}`,
         { method: "POST" }
       );
 
@@ -224,89 +224,6 @@ function NavBar({ user, onLogout }) {
     ],
   };
   const routes_Shipper = routes.filter((route) => route.onlyShipper);
-<<<<<<< HEAD
-  const [notifications, setNotifications] = useState([
-    {
-      id: 2,
-
-      time: "Mon Dec 29 2025 22:42:30 GMT+0700",
-      unread: true,
-      actionText: "Xem đơn hàng",
-    },
-  ]);
-  const fetchNotification = async () => {
-    try {
-      const res = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/check-notification",
-        { method: "GET" }
-      );
-
-      if (!res.ok) return;
-
-      const data = await res.json();
-
-      if (data.is_read) return;
-
-      setNotifications((prev) => {
-        if (prev.some((n) => n.id === data.id)) return prev;
-
-        return [
-          {
-            id: data.id,
-            type: "order",
-            time: data.created_at, // frontdend kiểm soát time
-            unread: true,
-            actionText: "Xem đơn hàng",
-            orderId: data.order_id,
-            address: data.address,
-          },
-          ...prev,
-        ];
-      });
-    } catch (err) {
-      console.error("Fetch notification error:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotification(); // gọi ngay khi load
-
-    const interval = setInterval(() => {
-      // ❗ chỉ poll khi tab đang active
-      if (document.visibilityState === "visible") {
-        fetchNotification();
-      }
-    }, 10000); // ⏱ 15s (rất ổn)
-
-    return () => clearInterval(interval);
-  }, []);
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
-  const handleMarkRead = (id) => {
-    // ❗ Xoá ngay khỏi UI (UX mượt)
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-
-    // // Gọi API nền
-    // try {
-    //   await fetchWithAuth(
-    //     `http://localhost:5000/api/shipper/notifications/mark-read/${id}`,
-    //     { method: "POST" }
-    //   );
-    // } catch (err) {
-    //   console.error("Mark read error:", err);
-    // }
-  };
-
-  const renderNotification = (notification) => {
-    const props = {
-      notification,
-      onMarkRead: handleMarkRead,
-    };
-
-    return <OrderNotification key={notification.id} now={now} {...props} />;
-  };
-=======
->>>>>>> frontend-user
 
   const dropdownContent = (
     <div

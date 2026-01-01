@@ -1,11 +1,11 @@
 // ===============================================
-// src/pages/Customers/CustomersView.jsx 
+// src/pages/Customers/CustomersView.jsx
 // ===============================================
 import React, { useState, useEffect, useMemo } from 'react';
 import { Tag, Space, Button, Modal, message } from 'antd';
-import { 
-  FiEdit2, FiTrash2, FiDownload, FiSearch, FiPlus, 
-  FiUsers, FiAward, FiMail, FiPhone, FiUser
+import {
+  FiEdit2, FiTrash2, FiDownload, FiSearch, FiPlus,
+  FiUsers, FiMail, FiPhone, FiUser
 } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { customerApi } from '../../api/customerApi';
@@ -30,7 +30,6 @@ const customerFields = [
     type: 'input',
     inputType: 'text',
     icon: FiUser,
-    placeholder: 'Nguyễn Văn A',
     required: true
   },
   {
@@ -39,7 +38,6 @@ const customerFields = [
     type: 'input',
     inputType: 'tel',
     icon: FiPhone,
-    placeholder: '0901234567',
     required: true
   },
   {
@@ -48,7 +46,6 @@ const customerFields = [
     type: 'input',
     inputType: 'email',
     icon: FiMail,
-    placeholder: 'customer@email.com',
     required: true,
     fullWidth: true
   },
@@ -58,20 +55,19 @@ const customerFields = [
     type: 'input',
     inputType: 'password',
     icon: FiUser,
-    placeholder: 'Nhập mật khẩu',
-    required: true,
+    required: false,
     fullWidth: true,
-    helperText: 'Bắt buộc khi thêm mới, tùy chọn khi chỉnh sửa (để reset mật khẩu)'
+    helperText: 'Bắt buộc khi thêm mới, bỏ trống khi chỉnh sửa'
   }
 ];
 
-export default function Customer() {
+export default function CustomersView() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeRank, setActiveRank] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -86,624 +82,159 @@ export default function Customer() {
     try {
       setLoading(true);
       const result = await customerApi.getAllCustomers();
-      
+
       if (!result.success) {
-        message.error(result.message || 'Không thể tải dữ liệu khách hàng');
+        message.error(result.message || 'Không thể tải khách hàng');
         setCustomers([]);
         return;
       }
-      
-      const customerArray = Array.isArray(result.data) ? result.data : [];
-      
-      const mappedCustomers = customerArray.map(c => {
-        const rank = c.rank 
+
+      const rawData = result.data?.data || result.data || [];
+      const customerArray = Array.isArray(rawData) ? rawData : [];
+
+      const mapped = customerArray.map(c => {
+        const rank = c.rank
           ? c.rank.charAt(0).toUpperCase() + c.rank.slice(1).toLowerCase()
           : 'Bronze';
-        
+
         return {
-          key: c.id || c.customer_id,
           id: c.id || c.customer_id,
+          key: c.id || c.customer_id,
           customerId: `KH${String(c.id || c.customer_id).padStart(3, '0')}`,
           name: c.name || 'N/A',
           email: c.email || 'N/A',
           phone: c.phone || 'N/A',
           total_amount: c.total_amount || 0,
-          rank: rank
+          rank
         };
       });
-      
-      setCustomers(mappedCustomers);
-      message.success(`Tải ${mappedCustomers.length} khách hàng thành công!`);
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      message.error('Không thể tải dữ liệu khách hàng');
-      setCustomers([]);
+
+      setCustomers(mapped);
+    } catch (err) {
+      console.error(err);
+      message.error('Lỗi tải khách hàng');
     } finally {
       setLoading(false);
     }
   };
 
-  // Stats
-  const stats = useMemo(() => {
-    const total = customers.length;
-    const bronze = customers.filter(c => c.rank === 'Bronze').length;
-    const silver = customers.filter(c => c.rank === 'Silver').length;
-    const gold = customers.filter(c => c.rank === 'Gold').length;
-    const platinum = customers.filter(c => c.rank === 'Platinum').length;
-    return { total, bronze, silver, gold, platinum };
-  }, [customers]);
-
-  const handleAddCustomer = async (data) => {
-    try {
-      if (!data.password || !data.password.trim()) {
-        message.error('Mật khẩu không được để trống khi thêm khách hàng mới');
-        throw new Error('Password required');
-      }
-      
-      const result = await customerApi.addCustomer(data);
-      
-      if (!result.success) {
-        message.error(result.message || 'Không thể thêm khách hàng');
-        throw new Error(result.message);
-      }
-      
-      await fetchCustomers();
-      setIsAddModalOpen(false);
-      message.success('Thêm khách hàng thành công!');
-    } catch (err) {
-      console.error('Error adding customer:', err);
-      throw err;
-    }
-  };
-
-  const handleUpdateCustomer = async (customerId, data) => {
-    try {
-      const updateData = { ...data };
-      // Chỉ gửi password nếu có thay đổi
-      if (!updateData.password || !updateData.password.trim()) {
-        delete updateData.password;
-      }
-      
-      const result = await customerApi.updateCustomer(customerId, updateData);
-      
-      if (!result.success) {
-        message.error(result.message || 'Không thể cập nhật khách hàng');
-        throw new Error(result.message);
-      }
-      
-      await fetchCustomers();
-      setIsEditModalOpen(false);
-      setSelectedCustomer(null);
-      message.success('Cập nhật khách hàng thành công!');
-    } catch (err) {
-      console.error('Error updating customer:', err);
-      throw err;
-    }
-  };
-
-  const handleDelete = (customer) => {
-    confirm({
-      title: 'Xác nhận xóa khách hàng',
-      icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc muốn xóa khách hàng "${customer.name}"?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      centered: true,
-      async onOk() {
-        try {
-          const result = await customerApi.deleteCustomer(customer.id);
-          
-          if (!result.success) {
-            message.error(result.message || 'Không thể xóa khách hàng');
-            return;
-          }
-          
-          await fetchCustomers();
-          message.success('Xóa khách hàng thành công!');
-        } catch (err) {
-          console.error('Error deleting customer:', err);
-          message.error('Không thể xóa khách hàng');
-        }
-      }
-    });
-  };
-
-  const handleExportCSV = () => {
-    const headers = ['ID', 'Mã KH', 'Họ và tên', 'Email', 'Số điện thoại', 'Tổng chi tiêu', 'Hạng'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredData.map(c => 
-        [c.id, c.customerId, c.name, c.email, c.phone, c.total_amount, c.rank].join(',')
-      )
-    ].join('\n');
-    
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    message.success('Xuất file CSV thành công!');
-  };
-
   const filteredData = useMemo(() => {
-    return customers.filter(customer => {
-      const currentTab = RANK_TABS.find(t => t.id === activeRank);
-      const matchRank = !currentTab?.rank || customer.rank === currentTab.rank;
-      
-      const query = searchQuery.toLowerCase().trim();
-      const matchSearch = query === '' ||
-        customer.name.toLowerCase().includes(query) ||
-        customer.email.toLowerCase().includes(query) ||
-        customer.phone.includes(query) ||
-        customer.customerId.toLowerCase().includes(query);
-      
+    return customers.filter(c => {
+      const tab = RANK_TABS.find(t => t.id === activeRank);
+      const matchRank = !tab?.rank || c.rank === tab.rank;
+
+      const q = searchQuery.toLowerCase();
+      const matchSearch =
+        !q ||
+        c.name.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.phone.includes(q) ||
+        c.customerId.toLowerCase().includes(q);
+
       return matchRank && matchSearch;
     });
   }, [customers, activeRank, searchQuery]);
 
-  const rankCount = (rankId) => {
-    const tab = RANK_TABS.find(t => t.id === rankId);
-    if (!tab?.rank) return customers.length;
-    return customers.filter(c => c.rank === tab.rank).length;
+  const handleAddCustomer = async (data) => {
+    if (!data.password) {
+      message.error('Mật khẩu bắt buộc khi thêm mới');
+      return;
+    }
+    await customerApi.addCustomer(data);
+    await fetchCustomers();
+    setIsAddModalOpen(false);
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
+  const handleUpdateCustomer = async (id, data) => {
+    await customerApi.updateCustomer(id, data);
+    await fetchCustomers();
+    setIsEditModalOpen(false);
+    setSelectedCustomer(null);
   };
 
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  const handleDelete = (record) => {
+    confirm({
+      title: 'Xóa khách hàng?',
+      icon: <ExclamationCircleOutlined />,
+      content: record.name,
+      okType: 'danger',
+      onOk: async () => {
+        await customerApi.deleteCustomer(record.id);
+        await fetchCustomers();
+      }
+    });
   };
 
   const columns = [
     {
       title: 'Mã KH',
       dataIndex: 'customerId',
-      key: 'customerId',
+      align: 'center',
       width: 100,
-      align: 'center',
       fixed: 'left',
-      render: (text) => (
-        <Tag color="blue" style={{ fontWeight: 700, fontSize: '12px', fontFamily: 'monospace' }}>
-          {text}
-        </Tag>
-      ),
+      render: text => <Tag color="blue">{text}</Tag>
     },
-    {
-      title: 'Họ và tên',
-      dataIndex: 'name',
-      key: 'name',
-      width: 200,
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '13px',
-            fontWeight: 600
-          }}>
-            {getInitials(text)}
-          </div>
-          <span style={{ fontWeight: 600, color: '#1e293b' }}>{text}</span>
-        </div>
-      ),
-    },
-    {
-      title: 'Số điện thoại',
-      dataIndex: 'phone',
-      key: 'phone',
-      width: 130,
-      align: 'center',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      width: 220,
-      ellipsis: true,
-    },
+    { title: 'Họ và tên', dataIndex: 'name', width: 200 },
+    { title: 'SĐT', dataIndex: 'phone', align: 'center', width: 130 },
+    { title: 'Email', dataIndex: 'email', width: 220 },
     {
       title: 'Tổng chi tiêu',
       dataIndex: 'total_amount',
-      key: 'total_amount',
-      width: 150,
       align: 'center',
-      sorter: (a, b) => a.total_amount - b.total_amount,
-      render: (amount) => (
-        <span style={{ fontWeight: 700, color: '#10b981', fontSize: '14px' }}>
-          {formatCurrency(amount)}
-        </span>
-      ),
+      width: 150,
+      render: v => `${v.toLocaleString('vi-VN')} ₫`
     },
     {
       title: 'Hạng',
       dataIndex: 'rank',
-      key: 'rank',
-      width: 120,
       align: 'center',
-      render: (rank) => {
-        const colorMap = {
-          'Bronze': { color: '#92400e', bg: '#fef3c7', border: '#fde68a' },
-          'Silver': { color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' },
-          'Gold': { color: '#b45309', bg: '#fef3c7', border: '#fcd34d' },
-          'Platinum': { color: '#4338ca', bg: '#e0e7ff', border: '#c7d2fe' }
-        };
-        const style = colorMap[rank] || colorMap['Bronze'];
-        
-        return (
-          <Tag 
-            style={{ 
-              color: style.color,
-              background: style.bg,
-              border: `1px solid ${style.border}`,
-              fontWeight: 600,
-              fontSize: '12px',
-              borderRadius: '999px',
-              padding: '4px 12px'
-            }}
-          >
-            {rank}
-          </Tag>
-        );
-      },
+      width: 120,
+      render: r => <Tag>{r}</Tag>
     },
     {
       title: 'Thao tác',
-      key: 'actions',
-      width: 100,
       align: 'center',
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="text"
-            icon={<FiEdit2 style={{ color: '#3b82f6' }} />}
-            onClick={() => {
-              setSelectedCustomer(record);
-              setIsEditModalOpen(true);
-            }}
-            title="Chỉnh sửa"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          />
-          <Button
-            type="text"
-            icon={<FiTrash2 style={{ color: '#ef4444' }} />}
-            onClick={() => handleDelete(record)}
-            title="Xóa"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          />
+      width: 100,
+      render: (_, r) => (
+        <Space>
+          <Button icon={<FiEdit2 />} onClick={() => { setSelectedCustomer(r); setIsEditModalOpen(true); }} />
+          <Button icon={<FiTrash2 />} danger onClick={() => handleDelete(r)} />
         </Space>
-      ),
-    },
+      )
+    }
   ];
-
-  const paginationConfig = {
-    current: currentPage,
-    pageSize: rowsPerPage,
-    total: filteredData.length,
-    onChange: (page) => setCurrentPage(page),
-    showSizeChanger: false,
-  };
 
   return (
     <div className="customer-container">
-      {/* Header */}
-      <div className="customer-header">
-        <h2 className="customer-title">Customer Management</h2>
-        <p className="customer-subtitle">Quản lý thông tin khách hàng</p>
-      </div>
-
-      {/* Tabs + Actions */}
-      <div className="tabs-action-bar">
-        <div className="rank-tabs">
-          {RANK_TABS.map(tab => (
-            <div
-              key={tab.id}
-              onClick={() => { 
-                setActiveRank(tab.id); 
-                setCurrentPage(1); 
-              }}
-              className={`rank-tab ${activeRank === tab.id ? 'active' : ''}`}
-            >
-              {tab.label} <span className="tab-count">({rankCount(tab.id)})</span>
-            </div>
-          ))}
-        </div>
-        
-        <div className="right-actions">
-          <div className="search-box">
-            <FiSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Tìm theo tên, email, SĐT..."
-              value={searchQuery}
-              onChange={(e) => { 
-                setSearchQuery(e.target.value); 
-                setCurrentPage(1); 
-              }}
-              className="search-input"
-            />
-          </div>
-
-          <button onClick={handleExportCSV} className="export-btn">
-            <FiDownload /> Export
-          </button>
-
-          <button onClick={() => setIsAddModalOpen(true)} className="add-customer-btn">
-            <FiPlus /> Thêm khách hàng
-          </button>
-        </div>
-      </div>
-
-      {/* Table */}
       <DataTable
         columns={columns}
         dataSource={filteredData}
         loading={loading}
-        pagination={paginationConfig}
+        pagination={{
+          current: currentPage,
+          pageSize: rowsPerPage,
+          total: filteredData.length,
+          onChange: setCurrentPage
+        }}
         rowKey="id"
-        scroll={{ x: 1200 }}
-        emptyText="Không tìm thấy khách hàng nào"
       />
 
-      {/* Add Modal */}
-      <FormModal 
+      <FormModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddCustomer}
-        title={{ 
-          add: 'Thêm khách hàng mới',
-          addDesc: 'Điền thông tin khách hàng mới'
-        }}
-        icon={FiUsers}
         fields={customerFields}
         mode="add"
       />
 
-      {/* Edit Modal */}
-      <FormModal 
+      <FormModal
         isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedCustomer(null);
-        }}
+        onClose={() => setIsEditModalOpen(false)}
         onSubmit={handleUpdateCustomer}
         data={selectedCustomer}
-        title={{ 
-          edit: 'Chỉnh sửa khách hàng',
-          editDesc: 'Cập nhật thông tin khách hàng (hạng tự động cập nhật theo tổng chi tiêu)'
-        }}
-        icon={FiUsers}
         fields={customerFields}
         mode="edit"
       />
     </div>
   );
-}import api from './axiosConfig';
-
-const BASE_PATH = '/admin/customer_management';
-
-export const customerApi = {
-  // ========== LẤY DANH SÁCH KHÁCH HÀNG ==========
-  // Hỗ trợ lọc theo branch_id
-  getAllCustomers: async (branchId = null) => {
-    try {
-      const params = {};
-      if (branchId) {
-        params.branch_id = branchId;
-      }
-      
-      const response = await api.get(`${BASE_PATH}/customer`, { params });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message,
-        data: []
-      };
-    }
-  },
-
-  // ========== LẤY KHÁCH HÀNG THEO CHI NHÁNH ==========
-  getCustomersByBranch: async (branchId) => {
-    try {
-      const response = await api.get(`${BASE_PATH}/customer`, {
-        params: { branch_id: branchId }
-      });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error fetching customers by branch:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message,
-        data: []
-      };
-    }
-  },
-
-  // ========== THÊM KHÁCH HÀNG MỚI ==========
-  addCustomer: async (customerData) => {
-    try {
-      const response = await api.post(`${BASE_PATH}/customer`, {
-        name: customerData.name,
-        email: customerData.email.toLowerCase(),
-        phone: customerData.phone,
-        password: customerData.password,
-        branch_id: customerData.branch_id // ✅ Thêm branch_id
-      });
-      return {
-        success: true,
-        message: response.data.message || 'Thêm khách hàng thành công',
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error adding customer:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message
-      };
-    }
-  },
-
-  // ========== CẬP NHẬT THÔNG TIN KHÁCH HÀNG ==========
-  updateCustomer: async (customerId, customerData) => {
-    try {
-      const payload = {
-        name: customerData.name,
-        email: customerData.email.toLowerCase(),
-        phone: customerData.phone
-      };
-      
-      // Thêm branch_id nếu có
-      if (customerData.branch_id) {
-        payload.branch_id = customerData.branch_id;
-      }
-      
-      // Chỉ gửi password nếu có thay đổi
-      if (customerData.password && customerData.password.trim()) {
-        payload.password = customerData.password;
-      }
-      
-      const response = await api.put(`${BASE_PATH}/customer/${customerId}`, payload);
-      return {
-        success: true,
-        message: response.data.message || 'Cập nhật khách hàng thành công',
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error updating customer:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message
-      };
-    }
-  },
-
-  // ========== XÓA KHÁCH HÀNG ==========
-  deleteCustomer: async (customerId) => {
-    try {
-      const response = await api.delete(`${BASE_PATH}/customer/${customerId}`);
-      return {
-        success: true,
-        message: response.data.message || 'Đã xóa khách hàng thành công',
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error deleting customer:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message
-      };
-    }
-  },
-
-  // ========== LỌC KHÁCH HÀNG THEO HẠNG ==========
-  getCustomersByRank: async (rank, branchId = null) => {
-    try {
-      const params = { rank };
-      if (branchId) {
-        params.branch_id = branchId;
-      }
-      
-      const response = await api.get(`${BASE_PATH}/customer`, { params });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error filtering customers by rank:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message,
-        data: []
-      };
-    }
-  },
-
-  // ========== TÌM KIẾM KHÁCH HÀNG ==========
-  searchCustomers: async (keyword, branchId = null) => {
-    try {
-      const params = {};
-      if (branchId) {
-        params.branch_id = branchId;
-      }
-      
-      const response = await api.get(`${BASE_PATH}/customer`, { params });
-      
-      if (!response.data || !Array.isArray(response.data)) {
-        return {
-          success: false,
-          message: 'Invalid data format',
-          data: []
-        };
-      }
-
-      const filtered = response.data.filter(customer => {
-        const searchTerm = keyword.toLowerCase();
-        return (
-          customer.name?.toLowerCase().includes(searchTerm) ||
-          customer.email?.toLowerCase().includes(searchTerm) ||
-          customer.phone?.includes(searchTerm)
-        );
-      });
-
-      return {
-        success: true,
-        data: filtered
-      };
-    } catch (error) {
-      console.error('Error searching customers:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message,
-        data: []
-      };
-    }
-  },
-
-  // ========== LẤY DANH SÁCH CHI NHÁNH ==========
-  // API helper để lấy thông tin các chi nhánh
-  getBranches: async () => {
-    try {
-      const response = await api.get('/admin/branch_management/branches');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error fetching branches:', error);
-      return {
-        success: false,
-        message: error.response?.data?.error || error.message,
-        data: []
-      };
-    }
-  }
-};
-
-export default customerApi;
+}

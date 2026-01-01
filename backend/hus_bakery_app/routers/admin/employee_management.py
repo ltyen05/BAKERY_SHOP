@@ -16,8 +16,9 @@ def get_employees():
     if identity.get("role") != 'employee':
         return jsonify({"error": "Bạn không có quyền xem danh sách nhân viên"}), 403
 
+    branch_id = request.args.get('branch_id')
     status_filter = request.args.get('status')
-    raw_employees = get_all_employees_service()
+    raw_employees = get_all_employees_service(branch_id)
 
     employee_list = []
     for e in raw_employees:

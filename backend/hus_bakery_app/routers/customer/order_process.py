@@ -133,7 +133,7 @@ def api_create_order():
     # File: /app/hus_bakery_app/routers/customer/order_process.py - Dòng 153
     return jsonify({
         "message": msg,
-        "order_id": order['order_id']  # Đổi từ order.shipper_id thành order['order_id']
+        "order_id": order.order_id  # Đổi từ order.shipper_id thành order['order_id']
     }), 200
 
 

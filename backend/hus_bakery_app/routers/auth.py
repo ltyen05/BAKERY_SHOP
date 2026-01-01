@@ -28,20 +28,20 @@ def api_get_me():
         customer_data = get_current_customer_service(current_user_id)
         if not customer_data:
             return jsonify({"error": "Customer not found"}), 404
-        current_user_data = json.dumps(customer_data)
+        # current_user_data = json.dumps(customer_data)
     elif current_role == 'shipper':
         current_user_id = indetity["id"]
         shipper_data = get_current_shipper_service(current_user_id)
         if not shipper_data:
             return jsonify({"error": "Customer not found"}), 404
-        current_user_data = json.dumps(shipper_data)
+        # current_user_data = json.dumps(shipper_data)
 
     elif current_role == 'employee':
         current_user_id = indetity["id"]
         e_data = get_current_admin_service(current_user_id)
         if not e_data:
             return jsonify({"error": "Customer not found"}), 404
-        current_user_data = json.dumps(e_data)
+        # current_user_data = json.dumps(e_data)
     return jsonify(current_user_data,), 200
 
 @auth_bp.route('/signup', methods=['POST'])

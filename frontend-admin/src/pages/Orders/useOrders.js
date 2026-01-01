@@ -1,5 +1,5 @@
 // ===============================================
-// Location: src/pages/Orders/useOrders.js - FIXED
+// Location: src/pages/Orders/useOrders.js
 // ===============================================
 
 import { useState, useEffect, useMemo } from 'react';
@@ -11,7 +11,6 @@ import { STATUS_TABS } from './orderConstants';
 export const useOrders = () => {
   const { user, getCurrentBranch } = useAuth();
   
-  // ✅ Lấy branch_id đúng cách
   const currentBranch = getCurrentBranch();
   const branchId = currentBranch?.id;
 
@@ -32,42 +31,42 @@ export const useOrders = () => {
 
     try {
       setLoading(true);
-      console.log('📞 Fetching orders for branch:', branchId);
+      console.log('Fetching orders for branch:', branchId);
       
       const response = await orderApi.getAllOrders(branchId);
       
-      console.log('📦 API response:', response);
+      console.log('API response:', response);
       
       if (response.success && response.data) {
-        // ✅ Transform data từ backend
+        // Transform data tu backend
         const transformedOrders = response.data.map(order => ({
           order_id: order.order_id,
           customer_id: order.customer_id,
           branch_id: order.branch_id,
           shipper_id: order.shipper_id,
           coupon_id: order.coupon_id,
-          total_amount: order.total_amount,
-          payment_method: order.payment_method,
-          phone: order.phone,
-          note: order.note,
+          total_amount: order.total_amount || 0,
+          payment_method: order.payment_method || 'COD',
+          phone: order.phone || 'N/A',
+          note: order.note || '',
           created_at: order.created_at,
           
-          // ✅ Mapping fields
-          order_address: order.shipping_address || 'N/A',
-          customer_name: order.recipient_name || 'Khách hàng',
+          // Support ca recipient_name va customer_name
+          recipient_name: order.recipient_name || order.customer_name || 'Khách hàng',
+          customer_name: order.customer_name || order.recipient_name || 'Khách hàng',
           
-          // ⚠️ Backend chưa trả status - dùng default
+          // Default status neu khong co
           status: order.status || 'Pending'
         }));
 
-        console.log('✅ Transformed orders:', transformedOrders);
+        console.log('Transformed orders success:', transformedOrders);
         setOrders(transformedOrders);
       } else {
-        console.warn('⚠️ No data in response');
+        console.warn('No data in response');
         setOrders([]);
       }
     } catch (error) {
-      console.error('❌ Error fetching orders:', error);
+      console.error('Error fetching orders:', error);
       message.error('Không thể tải danh sách đơn hàng');
       setOrders([]);
     } finally {
@@ -77,7 +76,7 @@ export const useOrders = () => {
 
   // ============= INITIAL LOAD =============
   useEffect(() => {
-    console.log('🔄 useOrders effect, branchId:', branchId);
+    console.log('useOrders effect, branchId:', branchId);
     if (branchId) {
       fetchOrders();
     }
@@ -101,12 +100,12 @@ export const useOrders = () => {
       result = result.filter(order => {
         const orderId = String(order.order_id).toLowerCase();
         const customerName = (order.customer_name || '').toLowerCase();
-        const address = (order.order_address || '').toLowerCase();
+        const recipientName = (order.recipient_name || '').toLowerCase();
         const phone = (order.phone || '').toLowerCase();
         
         return orderId.includes(query) || 
                customerName.includes(query) || 
-               address.includes(query) ||
+               recipientName.includes(query) ||
                phone.includes(query);
       });
     }
@@ -132,8 +131,7 @@ export const useOrders = () => {
     };
   }, [orders]);
 
-  // ============= CRUD OPERATIONS =============
-  
+  // ============= DELETE OPERATION =============
   const deleteOrder = async (orderId) => {
     try {
       await orderApi.deleteOrder(orderId);
@@ -147,29 +145,16 @@ export const useOrders = () => {
     }
   };
 
-  // ⚠️ UPDATE STATUS - Backend chưa có API
-  const updateOrderStatus = async (orderId, newStatus) => {
-    try {
-      console.warn('⚠️ Backend chưa có API update status');
-      await orderApi.updateOrderStatus(orderId, newStatus);
-      message.success('Cập nhật trạng thái thành công (mock)');
-      return true;
-    } catch (error) {
-      console.error('Error updating status:', error);
-      message.error('Không thể cập nhật trạng thái');
-      return false;
-    }
-  };
-
+  // ============= FETCH ORDER DETAILS =============
   const fetchOrderDetails = async (orderId) => {
     try {
-      console.warn('⚠️ Backend chưa có API get order details');
+      console.log('Fetching details for order:', orderId);
       const details = await orderApi.getOrderDetail(orderId);
+      console.log('Order details response:', details);
       return details;
     } catch (error) {
       console.error('Error fetching details:', error);
-      message.error('Không thể tải chi tiết đơn hàng');
-      return { items: [] };
+      throw error;
     }
   };
 
@@ -207,8 +192,7 @@ export const useOrders = () => {
   };
 
   // ============= PERMISSION CHECKS =============
-  const canUpdateStatus = user?.role === 'super_admin'; // ✅ Chỉ super admin mới được update status
-  const canDeleteOrder = true; // Admin được xóa order
+  const canDeleteOrder = true;
 
   return {
     // Data
@@ -222,14 +206,12 @@ export const useOrders = () => {
     searchQuery,
     currentPage,
     
-    // CRUD
+    // Operations
     deleteOrder,
-    updateOrderStatus,
     fetchOrderDetails,
     refetchOrders: fetchOrders,
     
     // Permissions
-    canUpdateStatus,
     canDeleteOrder,
     
     // Helpers

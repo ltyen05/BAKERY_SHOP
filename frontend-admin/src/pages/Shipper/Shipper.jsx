@@ -1,19 +1,20 @@
 // ===============================================
-// src/pages/Shipper/Shipper.jsx - COMPLETE FIXED
+// src/pages/Shipper/Shipper.jsx - FIXED
+// ✅ Logic render rating đã chuyển vào đây
 // ===============================================
-import React, { useState } from 'react';
-import { Tag, Space, Button, Tooltip, Modal } from 'antd';
-import { FiSearch, FiDownload, FiPlus, FiTruck, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { Tag, Space, Button, Tooltip, Modal, Alert } from 'antd';
+import { FiSearch, FiDownload, FiPlus, FiTruck, FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import StatsCard from '../../components/StatsCard/StatsCard';
 import DataTable from '../../components/Table/Table';
 import FormModal from '../../components/FormModal/FormModal';
 import { useShipper } from './useShipper';
+import branchApi from '../../api/branchApi';
 import { 
-  SHIPPER_FIELDS, 
+  SHIPPER_FIELDS,
   SHIPPER_EDIT_FIELDS,
-  STATS_CONFIG,
   getInitials,
+  getStatusColor,
   getBranchName
 } from './shipperConstants';
 import './Shipper.css';
@@ -23,10 +24,10 @@ const { confirm } = Modal;
 const Shipper = () => {
   const {
     filteredShippers,
-    stats,
     loading,
     searchQuery,
     currentPage,
+    currentBranchId,
     addShipper,
     updateShipper,
     deleteShipper,
@@ -34,16 +35,63 @@ const Shipper = () => {
     getHeaderSubtitle,
     setCurrentPage,
     handleSearchChange,
-    isSuperAdmin,
-    isBranchAdmin,
-    currentBranchId
   } = useShipper();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedShipper, setSelectedShipper] = useState(null);
+  const [branches, setBranches] = useState([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [branchError, setBranchError] = useState(null);
 
+  // ========================================
+  // FETCH BRANCHES
+  // ========================================
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const fetchBranches = async () => {
+    setLoadingBranches(true);
+    setBranchError(null);
+    
+    const result = await branchApi.getAllBranches();
+    
+    if (result.success && result.data) {
+      const branchOptions = result.data.map(branch => ({
+        value: String(branch.branch_id),
+        label: `[${branch.branch_id}] ${branch.name || branch.branch_name}`
+      }));
+      
+      setBranches(branchOptions);
+      console.log(' Đã load branches cho shipper:', branchOptions);
+    } else {
+      const errorMsg = 'Không thể tải danh sách chi nhánh. Vui lòng thử lại.';
+      setBranchError(errorMsg);
+      console.error(' Lỗi load branches:', result.message);
+      Modal.error({
+        title: 'Lỗi tải dữ liệu',
+        content: errorMsg,
+        centered: true
+      });
+    }
+    
+    setLoadingBranches(false);
+  };
+
+  // ========================================
+  // HANDLERS
+  // ========================================
   const handleAddClick = () => {
+    if (branchError || branches.length === 0) {
+      Modal.warning({
+        title: 'Chưa thể thêm shipper',
+        content: 'Vui lòng đợi tải xong danh sách chi nhánh hoặc thử làm mới trang.',
+        centered: true
+      });
+      return;
+    }
+    
     setModalMode('add');
     setSelectedShipper(null);
     setIsModalOpen(true);
@@ -75,10 +123,31 @@ const Shipper = () => {
     let result;
     
     if (modalMode === 'add') {
+      // THÊM MỚI
+      if (!shipperData.branch_id && currentBranchId) {
+        shipperData.branch_id = currentBranchId;
+        console.log(' Tự động điền branch_id từ context:', currentBranchId);
+      }
+      
+      if (!shipperData.branch_id) {
+        Modal.error({
+          title: 'Thiếu thông tin',
+          content: 'Không xác định được chi nhánh. Vui lòng chọn chi nhánh.',
+          centered: true
+        });
+        return;
+      }
+      
       result = await addShipper(shipperData);
     } else {
+      // EDIT
       const shipperId = selectedShipper.shipper_id;
-      result = await updateShipper(shipperId, shipperData);
+      const updateData = {
+        ...shipperData,
+        branch_id: selectedShipper.branch_id
+      };
+      
+      result = await updateShipper(shipperId, updateData);
     }
     
     if (result?.success) {
@@ -101,41 +170,40 @@ const Shipper = () => {
     });
   };
 
-  // ✅ FIX: Ẩn hoàn toàn field branch_id cho Branch Admin
   const getFormFields = () => {
     const baseFields = modalMode === 'edit' ? SHIPPER_EDIT_FIELDS : SHIPPER_FIELDS;
     
-    // ✅ Lọc bỏ field branch_id nếu là Branch Admin
-    const filteredFields = baseFields.filter(field => {
-      if (field.name === 'branch_id' && isBranchAdmin) {
-        return false; // ✅ Không thêm field này vào array
-      }
-      return true;
-    });
+    if (modalMode === 'add') {
+      return baseFields.map(field => {
+        if (field.name === 'branch_id') {
+          return {
+            ...field,
+            options: branches,
+            disabled: loadingBranches || branchError !== null,
+            placeholder: loadingBranches ? 'Đang tải...' : 'Chọn chi nhánh',
+            defaultValue: currentBranchId ? String(currentBranchId) : ''
+          };
+        }
+        return field;
+      });
+    }
     
-    // Với Super Admin, set default value nếu có currentBranchId
-    return filteredFields.map(field => {
-      if (field.name === 'branch_id' && isSuperAdmin && currentBranchId) {
-        return {
-          ...field,
-          defaultValue: currentBranchId.toString()
-        };
-      }
-      return field;
-    });
+    return baseFields;
   };
 
   const handleExport = () => {
     if (filteredShippers.length === 0) return;
     
-    const headers = ['ID', 'Ten', 'Email', 'So dien thoai', 'Trang thai', 'Chi nhanh'];
+    const headers = ['ID', 'Tên', 'Email', 'Số điện thoại', 'Chi nhánh', 'Trạng thái', 'Rating', 'Thành công'];
     const rows = filteredShippers.map(s => [
       s.shipper_id,
       s.name,
       s.email,
       s.phone,
+      getBranchName(s.branch_id, branches),
       s.status,
-      getBranchName(s.branch_id)
+      s.rating || 0,
+      s.total_success || 0
     ]);
     
     const csv = [
@@ -150,6 +218,9 @@ const Shipper = () => {
     link.click();
   };
 
+  // ========================================
+  // TABLE COLUMNS
+  // ========================================
   const columns = [
     {
       title: 'ID',
@@ -167,7 +238,7 @@ const Shipper = () => {
     {
       title: 'Shipper',
       key: 'shipper',
-      width: 240,
+      width: 220,
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
@@ -198,7 +269,7 @@ const Shipper = () => {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      width: 240,
+      width: 220,
       render: (email) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
       )
@@ -207,9 +278,67 @@ const Shipper = () => {
       title: 'Số điện thoại',
       dataIndex: 'phone',
       key: 'phone',
-      width: 140,
+      width: 130,
       render: (phone) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>{phone}</span>
+      )
+    },
+    {
+      title: 'Chi nhánh',
+      dataIndex: 'branch_id',
+      key: 'branch_id',
+      width: 180,
+      render: (branchId) => (
+        <span style={{ color: '#64748b', fontSize: '13px' }}>
+          {getBranchName(branchId, branches)}
+        </span>
+      )
+    },
+    {
+      title: 'Rating',
+      dataIndex: 'rating',
+      key: 'rating',
+      width: 150,
+      align: 'center',
+      render: (rating) => {
+        // ✅ Logic render rating ở đây
+        const stars = [];
+        const fullStars = Math.floor(rating || 0);
+        
+        for (let i = 0; i < 5; i++) {
+          stars.push(
+            <FiStar
+              key={i}
+              style={{
+                color: i < fullStars ? '#FFA500' : '#e2e8f0',
+                fill: i < fullStars ? '#FFA500' : 'none',
+                width: '16px',
+                height: '16px'
+              }}
+            />
+          );
+        }
+        
+        return (
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            {stars}
+            <span style={{ marginLeft: '8px', color: '#64748b', fontSize: '13px' }}>
+              {(rating || 0).toFixed(1)}
+            </span>
+          </div>
+        );
+      }
+    },
+    {
+      title: 'Thành công',
+      dataIndex: 'total_success',
+      key: 'total_success',
+      width: 110,
+      align: 'center',
+      render: (total) => (
+        <span style={{ fontWeight: '600', color: '#059669', fontSize: '14px' }}>
+          {total || 0}
+        </span>
       )
     },
     {
@@ -219,23 +348,11 @@ const Shipper = () => {
       width: 140,
       align: 'center',
       render: (status) => (
-        <Tag color={status === 'Đang hoạt động' ? 'success' : status === 'Đang giao' ? 'warning' : 'default'}>
+        <Tag color={getStatusColor(status)} style={{ fontSize: '13px' }}>
           {status}
         </Tag>
       )
     },
-    // ✅ Chỉ hiển thị cột Chi nhánh cho Super Admin
-    ...(isSuperAdmin ? [{
-      title: 'Chi nhánh',
-      dataIndex: 'branch_id',
-      key: 'branch_id',
-      width: 220,
-      render: (branchId) => (
-        <span style={{ color: '#64748b', fontSize: '13px' }}>
-          {getBranchName(branchId)}
-        </span>
-      )
-    }] : []),
     {
       title: 'Thao tác',
       key: 'action',
@@ -276,14 +393,9 @@ const Shipper = () => {
     setCurrentPage(pagination.current);
   };
 
-  console.log('🔍 Debug getFormFields:', {
-    isBranchAdmin,
-    isSuperAdmin,
-    currentBranchId,
-    fieldsCount: getFormFields().length,
-    fields: getFormFields().map(f => f.name)
-  });
-
+  // ========================================
+  // RENDER
+  // ========================================
   return (
     <div className="shipper-container">
       <div className="shipper-header">
@@ -291,22 +403,25 @@ const Shipper = () => {
         <p className="shipper-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
-      <div className="stats-grid">
-        {STATS_CONFIG.map(stat => (
-          <StatsCard
-            key={stat.key}
-            title={stat.title}
-            value={stats[stat.key]}
-            icon={stat.icon}
-            color={stat.color}
-            trend={null}
-          />
-        ))}
-      </div>
+      {branchError && (
+        <Alert
+          message="Lỗi tải dữ liệu"
+          description={branchError}
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: '16px' }}
+          action={
+            <Button size="small" onClick={fetchBranches}>
+              Thử lại
+            </Button>
+          }
+        />
+      )}
 
       <div className="tabs-action-bar">
         <div className="vehicle-tabs">
-          {/* Empty */}
+          {/* Empty - có thể thêm tabs nếu cần */}
         </div>
 
         <div className="right-actions">
@@ -315,7 +430,7 @@ const Shipper = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Tìm theo tên, email, ID..."
+              placeholder="Tìm theo tên, email, SĐT..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
             />
@@ -333,7 +448,7 @@ const Shipper = () => {
           <button
             className="add-btn"
             onClick={handleAddClick}
-            disabled={loading}
+            disabled={loading || loadingBranches || branchError !== null}
           >
             <FiPlus />
             Thêm shipper
@@ -348,7 +463,7 @@ const Shipper = () => {
         pagination={paginationConfig}
         onChange={handleTableChange}
         rowKey="shipper_id"
-        scroll={{ x: isSuperAdmin ? 1100 : 900 }}
+        scroll={{ x: 1400 }}
         emptyText="Không có shipper nào"
       />
 

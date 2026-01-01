@@ -1,16 +1,14 @@
 import { useState } from "react";
-import { Button, Table, Space, Tooltip } from "antd";
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined,
-  EnvironmentOutlined 
-} from "@ant-design/icons";
-import { FiMapPin, FiPhone, FiMail, FiHome, FiSearch } from 'react-icons/fi';
+import { Space, Button, Tooltip, Modal } from "antd";
+import { FiMapPin, FiPhone, FiMail, FiHome, FiSearch, FiDownload, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { EnvironmentOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import DataTable from "../../components/Table/Table";
 import FormModal from "../../components/FormModal/FormModal";
 import { useBranch } from "./useBranch";
 import { BRANCH_FIELDS } from "./branchConstants";
 import "./BranchView.css";
+
+const { confirm } = Modal;
 
 const BranchView = () => {
   const {
@@ -27,6 +25,7 @@ const BranchView = () => {
   const [modalMode, setModalMode] = useState('add');
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredBranches = branches.filter(branch => {
     if (!searchQuery.trim()) return true;
@@ -37,7 +36,7 @@ const BranchView = () => {
     const phone = branch.phone?.toLowerCase() || '';
     const email = branch.email?.toLowerCase() || '';
     const manager = branch.manager_name?.toLowerCase() || '';
-    const id = branch.branch_id?.toString() || '';
+    const id = String(branch.branch_id || '');
     
     return (
       name.includes(query) ||
@@ -61,8 +60,19 @@ const BranchView = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = async (branch) => {
-    await deleteBranch(branch.branch_id, branch.name);
+  const handleDeleteClick = (branch) => {
+    confirm({
+      title: 'Xác nhận xóa chi nhánh',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa chi nhánh "${branch.name}"? \n\nHành động này không thể hoàn tác!`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteBranch(branch.branch_id, branch.name);
+      }
+    });
   };
 
   const handleCloseModal = () => {
@@ -84,12 +94,35 @@ const BranchView = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Tên chi nhánh', 'Địa chỉ', 'Số điện thoại', 'Email', 'Quản lý'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredBranches.map(branch => 
+        [
+          branch.branch_id,
+          `"${branch.name}"`,
+          `"${branch.address}"`,
+          branch.phone,
+          branch.email || '',
+          `"${branch.manager_name || 'Chưa có'}"`
+        ].join(',')
+      )
+    ].join('\n');
+    
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `branches_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   const columns = [
     {
       title: 'ID',
       dataIndex: 'branch_id',
       key: 'branch_id',
-      width: 80,
+      width: 70,
       align: 'center',
       fixed: 'left',
       render: (id, record) => (
@@ -117,83 +150,14 @@ const BranchView = () => {
       )
     },
     {
-      title: 'Quản lý',
-      dataIndex: 'manager_name',
-      key: 'manager',
-      width: 180,
-      render: (managerName, record) => {
-        if (!record.manager_id || !managerName) {
-          return (
-            <span style={{ 
-              color: '#cbd5e1', 
-              fontSize: '13px',
-              fontStyle: 'italic'
-            }}>
-              Chưa có quản lý
-            </span>
-          );
-        }
-
-        return (
-          <div>
-            <div style={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '14px',
-              marginBottom: '4px'
-            }}>
-              {managerName}
-            </div>
-            {record.manager_role && (
-              <div style={{ 
-                fontSize: '12px', 
-                color: '#64748b'
-              }}>
-                {record.manager_role}
-              </div>
-            )}
-          </div>
-        );
-      }
-    },
-    {
-      title: 'Email quản lý',
-      dataIndex: 'manager_email',
-      key: 'manager_email',
-      width: 220,
-      render: (email) => {
-        if (!email) {
-          return (
-            <span style={{ 
-              color: '#cbd5e1', 
-              fontSize: '13px',
-              fontStyle: 'italic'
-            }}>
-              Chưa có email
-            </span>
-          );
-        }
-
-        return (
-          <span style={{ 
-            color: '#475569',
-            fontSize: '13px'
-          }}>
-            {email}
-          </span>
-        );
-      }
-    },
-    {
       title: 'Địa chỉ',
       dataIndex: 'address',
       key: 'address',
-      width: 300,
+      width: 280,
       render: (address) => (
-        <div className="branch-address-text">
-          <FiMapPin style={{ marginRight: 6, color: '#3b82f6' }} />
+        <span style={{ color: '#64748b', fontSize: '13px', lineHeight: '1.5' }}>
           {address}
-        </div>
+        </span>
       )
     },
     {
@@ -202,28 +166,55 @@ const BranchView = () => {
       key: 'phone',
       width: 140,
       render: (phone) => (
-        <div className="contact-item-text">
-          <FiPhone />
-          <span>{phone}</span>
-        </div>
+        <span style={{ color: '#475569', fontSize: '13px', fontWeight: '500' }}>
+          {phone}
+        </span>
       )
     },
     {
-      title: 'Email chi nhánh',
+      title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      width: 220,
+      width: 200,
       render: (email) => (
-        <div className="contact-item-text">
-          <FiMail />
-          <span>{email}</span>
-        </div>
+        <span style={{ color: '#475569', fontSize: '13px' }}>
+          {email || '—'}
+        </span>
       )
+    },
+    {
+      title: 'Quản lý',
+      dataIndex: 'manager_name',
+      key: 'manager',
+      width: 180,
+      render: (managerName) => {
+        if (!managerName) {
+          return (
+            <span style={{ 
+              color: '#cbd5e1', 
+              fontSize: '13px',
+              fontStyle: 'italic'
+            }}>
+              Chưa có
+            </span>
+          );
+        }
+
+        return (
+          <span style={{ 
+            fontWeight: 600, 
+            color: '#1e293b',
+            fontSize: '13px'
+          }}>
+            {managerName}
+          </span>
+        );
+      }
     },
     {
       title: 'Bản đồ',
       key: 'map',
-      width: 300,
+      width: 280,
       render: (_, record) => {
         if (!record.mapSrc) {
           return (
@@ -244,7 +235,7 @@ const BranchView = () => {
         return (
           <div style={{ 
             width: '100%',
-            height: '120px',
+            height: '100px',
             borderRadius: '8px',
             overflow: 'hidden',
             border: '1px solid #e2e8f0'
@@ -275,7 +266,7 @@ const BranchView = () => {
               <Tooltip title="Chỉnh sửa">
                 <Button
                   type="text"
-                  icon={<EditOutlined />}
+                  icon={<FiEdit2 />}
                   onClick={() => handleEditClick(record)}
                   style={{ color: '#3b82f6' }}
                 />
@@ -283,7 +274,7 @@ const BranchView = () => {
               <Tooltip title="Xóa">
                 <Button
                   type="text"
-                  icon={<DeleteOutlined />}
+                  icon={<FiTrash2 />}
                   onClick={() => handleDeleteClick(record)}
                   danger
                 />
@@ -295,52 +286,65 @@ const BranchView = () => {
     }
   ];
 
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredBranches.length,
+    showSizeChanger: false,
+    showTotal: (total) => `Tổng ${total} chi nhánh`
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+  };
+
   return (
     <div className="branch-container">
-      <div className="branch-page-header">
-        <div>
-          <h1 className="branch-page-title">Quản lý Chi nhánh</h1>
-          <p className="branch-page-subtitle">
-            Quản lý thông tin các chi nhánh của hệ thống
-          </p>
-        </div>
-
-        <div className="branch-header-actions">
-          <div className="search-box">
-            <FiSearch className="search-icon" />
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Tìm theo tên, địa chỉ, SĐT..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {canManageBranches() && (
-            <button className="branch-add-btn" onClick={handleAddClick}>
-              <PlusOutlined />
-              Thêm chi nhánh
-            </button>
-          )}
-        </div>
+      <div className="branch-header">
+        <h1 className="branch-page-title">Quản lý Chi nhánh</h1>
+        <p className="branch-page-subtitle">
+          Quản lý thông tin các chi nhánh của hệ thống
+        </p>
       </div>
 
-      <Table
+      <div className="branch-action-bar">
+        <div className="search-box">
+          <FiSearch className="search-icon" />
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Tìm theo ID, tên, địa chỉ..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <button
+          className="branch-export-btn"
+          onClick={handleExportCSV}
+          disabled={filteredBranches.length === 0 || loading}
+        >
+          <FiDownload />
+          Export
+        </button>
+
+        {canManageBranches() && (
+          <button className="branch-add-btn" onClick={handleAddClick}>
+            <FiPlus />
+            Thêm chi nhánh
+          </button>
+        )}
+      </div>
+
+      <DataTable
         columns={columns}
         dataSource={filteredBranches}
         loading={loading}
+        pagination={paginationConfig}
+        onChange={handleTableChange}
         rowKey="branch_id"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} chi nhánh`,
-          position: ['bottomCenter'],
-          pageSizeOptions: ['10', '20', '50']
-        }}
-        scroll={{ 
-          x: 2000
-        }}
+        scroll={{ x: 1500 }}
+        emptyText="Không có chi nhánh nào"
       />
 
       <FormModal

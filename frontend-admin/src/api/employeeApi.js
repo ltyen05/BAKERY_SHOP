@@ -1,5 +1,5 @@
 // ===============================================
-// src/api/employeeApi.js - FULL COMPLETE FILE
+// src/api/employeeApi.js - THÊM PASSWORD
 // ===============================================
 import api from './axiosConfig';
 
@@ -20,18 +20,10 @@ const mapEmployeeFromBackend = (employee) => {
 // ============= API FUNCTIONS =============
 export const employeeApi = {
   // ============= GET ALL EMPLOYEES =============
-  /**
-   * Lấy danh sách nhân viên
-   * @param {Object} options - Filter options
-   * @param {number} options.branchId - Lọc theo chi nhánh
-   * @param {string} options.status - Lọc theo trạng thái
-   * @returns {Promise<{success: boolean, data: Array, message?: string}>}
-   */
   getAllEmployees: async (options = {}) => {
     try {
       const params = {};
 
-      // Add filters if provided
       if (options.branchId) {
         params.branch_id = options.branchId;
       }
@@ -40,25 +32,24 @@ export const employeeApi = {
         params.status = options.status;
       }
 
-      console.log('Fetching employees with params:', params);
+      console.log('📥 Fetching employees with params:', params);
 
-      // Call API
       const response = await api.get(`${BASE_PATH}/employee`, { params });
 
-      console.log('Backend raw response:', response.data);
+      console.log('📥 Backend raw response:', response.data);
 
       const mappedData = Array.isArray(response.data)
         ? response.data.map(mapEmployeeFromBackend)
         : [];
 
-      console.log('Mapped data for frontend:', mappedData);
+      console.log('✅ Mapped data for frontend:', mappedData);
 
       return {
         success: true,
         data: mappedData,
       };
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('❌ Error fetching employees:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
@@ -77,38 +68,68 @@ export const employeeApi = {
   },
 
   // ============= ADD EMPLOYEE =============
-  /**
-   * Thêm nhân viên mới
-   * @param {Object} employeeData - Dữ liệu nhân viên
-   * @param {string} employeeData.name - Tên nhân viên
-   * @param {string} employeeData.role - Vai trò
-   * @param {string} employeeData.email - Email
-   * @param {string} employeeData.password - Mật khẩu
-   * @param {number} employeeData.salary - Lương
-   * @param {string} employeeData.status - Trạng thái
-   * @param {number} employeeData.branch_id - ID chi nhánh
-   * @returns {Promise<{success: boolean, message: string, data?: Object}>}
-   */
   addEmployee: async (employeeData) => {
     try {
+      console.group('📤 ADD EMPLOYEE API CALL');
+      console.log('1. employeeData nhận được:', employeeData);
+      
+      // ✅ VALIDATE branch_id
+      let branchId;
+      
+      if (!employeeData.branch_id || employeeData.branch_id === '') {
+        throw new Error('Branch ID bị thiếu trong employeeData');
+      }
+
+      branchId = parseInt(String(employeeData.branch_id).trim());
+      
+      if (isNaN(branchId) || branchId <= 0) {
+        throw new Error(`Branch ID không hợp lệ: "${employeeData.branch_id}". Vui lòng nhập số từ 1-5`);
+      }
+
+      console.log('✅ branchId sau khi parse:', branchId, typeof branchId);
+
+      // ✅ VALIDATE password (BẮT BUỘC)
+      if (!employeeData.password || employeeData.password.trim() === '') {
+        throw new Error('Mật khẩu không được để trống');
+      }
+
       // Map frontend format to backend format
       const payload = {
         employee_id: null,
-        employee_name: employeeData.name,
-        role_name: employeeData.role,
-        email: employeeData.email,
-        password: employeeData.password,
+        employee_name: employeeData.name || '',
+        role_name: employeeData.role || '',
+        email: employeeData.email || '',
+        password: employeeData.password, // ✅ THÊM PASSWORD
         salary: parseFloat(employeeData.salary) || 9000000,
         status: employeeData.status || 'Đang làm việc',
-        branch_id: parseInt(employeeData.branch_id),
+        branch_id: branchId,
       };
 
-      console.log('Adding employee with payload:', payload);
+      // ✅ DOUBLE CHECK tất cả field
+      if (!payload.employee_name || payload.employee_name.trim() === '') {
+        throw new Error('Tên nhân viên không được để trống');
+      }
+      if (!payload.email || payload.email.trim() === '') {
+        throw new Error('Email không được để trống');
+      }
+      if (!payload.role_name || payload.role_name === '') {
+        throw new Error('Vai trò không được để trống');
+      }
+      if (!payload.password || payload.password.trim() === '') {
+        throw new Error('Mật khẩu không được để trống');
+      }
+      if (!payload.branch_id || isNaN(payload.branch_id)) {
+        throw new Error('Branch ID không hợp lệ');
+      }
+
+      console.log('5. 🚀 Gọi API POST...');
+      console.log('6. 📋 Final payload:', JSON.stringify(payload, null, 2));
 
       // Call API
       const response = await api.post(`${BASE_PATH}/add_employee`, payload);
 
-      console.log('Employee added successfully:', response.data);
+      console.log('6. ✅ API Response:', response.data);
+      console.groupEnd();
 
       return {
         success: true,
@@ -116,12 +137,13 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('Error adding employee:', error);
+      console.error('❌ Error adding employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
       });
+      console.groupEnd();
 
       return {
         success: false,
@@ -134,29 +156,34 @@ export const employeeApi = {
   },
 
   // ============= UPDATE EMPLOYEE =============
-  /**
-   * Cập nhật thông tin nhân viên
-   * @param {number} employeeId - ID nhân viên
-   * @param {Object} employeeData - Dữ liệu cập nhật
-   * @returns {Promise<{success: boolean, message: string, data?: Object}>}
-   */
   updateEmployee: async (employeeId, employeeData) => {
     try {
+      console.group('📤 UPDATE EMPLOYEE API CALL');
+      console.log('1. employeeId:', employeeId);
+      console.log('2. employeeData:', employeeData);
+
+      // ✅ VALIDATE branch_id
+      if (!employeeData.branch_id) {
+        throw new Error('Branch ID bị thiếu trong employeeData');
+      }
+
+      const branchId = parseInt(employeeData.branch_id);
+      
+      if (isNaN(branchId)) {
+        throw new Error(`Branch ID không hợp lệ: ${employeeData.branch_id}`);
+      }
+
+      // ✅ UPDATE KHÔNG CẦN PASSWORD
       const payload = {
         employee_name: employeeData.name,
         role_name: employeeData.role,
         email: employeeData.email,
         salary: parseFloat(employeeData.salary),
         status: employeeData.status,
-        branch_id: parseInt(employeeData.branch_id),
+        branch_id: branchId,
       };
 
-      // Chỉ gửi password nếu user nhập mật khẩu mới
-      if (employeeData.password && employeeData.password.trim()) {
-        payload.password = employeeData.password;
-      }
-
-      console.log('Updating employee:', employeeId, payload);
+      console.log('3. ✅ Payload chuẩn bị gửi:', payload);
 
       // Call API
       const response = await api.put(
@@ -164,7 +191,8 @@ export const employeeApi = {
         payload
       );
 
-      console.log('Employee updated successfully:', response.data);
+      console.log('4. ✅ API Response:', response.data);
+      console.groupEnd();
 
       return {
         success: true,
@@ -172,12 +200,13 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('Error updating employee:', error);
+      console.error('❌ Error updating employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
       });
+      console.groupEnd();
 
       return {
         success: false,
@@ -190,21 +219,16 @@ export const employeeApi = {
   },
 
   // ============= DELETE EMPLOYEE =============
-  /**
-   * Xóa nhân viên
-   * @param {number} employeeId - ID nhân viên cần xóa
-   * @returns {Promise<{success: boolean, message: string, data?: Object}>}
-   */
   deleteEmployee: async (employeeId) => {
     try {
-      console.log('Deleting employee:', employeeId);
+      console.log('🗑️ Deleting employee:', employeeId);
 
       // Call API
       const response = await api.delete(
         `${BASE_PATH}/delete_employee/${employeeId}`
       );
 
-      console.log('Employee deleted successfully:', response.data);
+      console.log('✅ Employee deleted successfully:', response.data);
 
       return {
         success: true,
@@ -212,7 +236,7 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      console.error('❌ Error deleting employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,

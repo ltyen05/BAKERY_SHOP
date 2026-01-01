@@ -1,6 +1,6 @@
 // ===============================================
-// FILE: src/App.jsx
-// FIX: Tối ưu để tránh re-render và flickering
+// Location: src/App.jsx
+// FIX: Branch Admin automatic redirect to Dashboard
 // ===============================================
 import { Suspense, useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -10,7 +10,7 @@ import { getRoutesForUser } from "./routes";
 import { Spin } from 'antd';
 import 'antd/dist/reset.css';
 
-// Loading fallback cho lazy loading
+// Loading fallback for lazy loading
 function LoadingFallback() {
   return (
     <div style={{
@@ -21,12 +21,13 @@ function LoadingFallback() {
       fontSize: "18px",
       color: "#666"
     }}>
-      Đang tải trang...
+      <Spin size="large" />
+      <p style={{ marginLeft: 16 }}>Đang tải trang...</p>
     </div>
   );
 }
 
-// Loading screen khi đang fetch user info
+// Loading screen during fetch user info
 function AuthLoading() {
   return (
     <div style={{
@@ -62,22 +63,28 @@ function App() {
   );
 }
 
-// Component để render routes dựa trên user
+// Component to render routes based on user session
 function AppContent() {
   const { user, loading } = useAuth();
 
-  // Dùng useMemo để tránh re-calculate routes
+  // Use useMemo to prevent unnecessary route recalculations
   const routes = useMemo(() => {
     if (!user) return [];
     return getRoutesForUser(user);
-  }, [user?.role, user?.viewing_branch]); // Chỉ re-calculate khi role hoặc viewing_branch thay đổi
+  }, [user?.role, user?.viewing_branch]);
 
-  // Nếu đang loading, hiển thị loading screen
+  console.log('Debug: Routing update', {
+    user: user?.name,
+    role: user?.role,
+    viewing_branch: user?.viewing_branch,
+    routes_count: routes.length,
+    loading
+  });
+
   if (loading) {
     return <AuthLoading />;
   }
 
-  // Nếu không có user, hiển thị mock login
   if (!user) {
     return (
       <div style={{
@@ -88,11 +95,11 @@ function AppContent() {
         height: '100vh',
         background: '#f8f9fa'
       }}>
-        <h2>Bạn chưa đăng nhập</h2>
-        <p>Vui lòng đăng nhập để tiếp tục</p>
+        <h2 style={{ marginBottom: 8 }}>Bạn chưa đăng nhập</h2>
+        <p style={{ color: '#666', marginBottom: 24 }}>Vui lòng đăng nhập để tiếp tục</p>
+        
         <button 
           onClick={() => {
-            // Mock Super Admin
             const mockSuperAdmin = {
               id: 'SA001',
               name: 'Helen Walter',
@@ -111,23 +118,23 @@ function AppContent() {
             window.location.reload();
           }}
           style={{
-            marginTop: 20,
-            padding: '10px 24px',
+            marginBottom: 12,
+            padding: '12px 32px',
             background: '#667eea',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             cursor: 'pointer',
             fontSize: 14,
-            fontWeight: 600
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
           }}
         >
-          Mock Login (Super Admin)
+          Login as Super Admin
         </button>
         
         <button 
           onClick={() => {
-            // Mock Branch Admin
             const mockBranchAdmin = {
               id: 'BA001',
               name: 'Nguyễn Bảo Thạch',
@@ -146,24 +153,23 @@ function AppContent() {
             window.location.reload();
           }}
           style={{
-            marginTop: 12,
-            padding: '10px 24px',
+            padding: '12px 32px',
             background: '#f59e0b',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             cursor: 'pointer',
             fontSize: 14,
-            fontWeight: 600
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
           }}
         >
-          Mock Login (Branch Admin)
+          Login as Branch Admin
         </button>
       </div>
     );
   }
 
-  // Render các routes hợp lệ
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

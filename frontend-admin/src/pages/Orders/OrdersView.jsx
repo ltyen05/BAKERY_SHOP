@@ -1,5 +1,6 @@
 // ===============================================
-// Location: src/pages/Orders/OrdersView.jsx - FIXED PERMISSIONS
+// Location: src/pages/Orders/OrdersView.jsx
+// FIXED: Address column and removed sharp from order ID
 // ===============================================
 
 import React, { useState } from 'react';
@@ -8,19 +9,15 @@ import {
   FiSearch, 
   FiDownload, 
   FiEye, 
-  FiEdit3, 
-  FiTrash2,
-  FiCheckCircle
+  FiTrash2
 } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import DataTable from '../../components/Table/Table';
 import OrderDetailModal from './OrderDetailModal';
-import FormModal from '../../components/FormModal/FormModal';
 import { useOrders } from './useOrders';
 import { 
   STATUS_TABS, 
   STATUS_INFO,
-  STATUS_OPTIONS,
   formatCurrency,
   formatDate,
   getStatusColor
@@ -32,13 +29,11 @@ const { confirm } = Modal;
 const OrdersView = () => {
   const {
     filteredOrders,
-    stats,
     loading,
     activeStatus,
     searchQuery,
     currentPage,
     deleteOrder,
-    updateOrderStatus,
     fetchOrderDetails,
     statusCount,
     getHeaderTitle,
@@ -46,7 +41,6 @@ const OrdersView = () => {
     setCurrentPage,
     handleStatusChange,
     handleSearchChange,
-    canUpdateStatus, 
     canDeleteOrder   
   } = useOrders();
 
@@ -55,8 +49,6 @@ const OrdersView = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedOrderForUpdate, setSelectedOrderForUpdate] = useState(null);
 
   // ============= VIEW DETAIL =============
   const handleViewDetail = async (order) => {
@@ -69,6 +61,7 @@ const OrdersView = () => {
       setOrderDetails(details);
     } catch (error) {
       console.error('Error fetching details:', error);
+      message.error('Không thể tải chi tiết đơn hàng');
     } finally {
       setLoadingDetails(false);
     }
@@ -78,32 +71,6 @@ const OrdersView = () => {
     setIsDetailModalOpen(false);
     setSelectedOrder(null);
     setOrderDetails(null);
-  };
-
-  // ============= UPDATE STATUS =============
-  const handleOpenStatusModal = (order) => {
-    if (!canUpdateStatus) {
-      message.warning('Bạn không có quyền cập nhật trạng thái đơn hàng');
-      return;
-    }
-    setSelectedOrderForUpdate(order);
-    setIsStatusModalOpen(true);
-  };
-
-  const handleCloseStatusModal = () => {
-    setIsStatusModalOpen(false);
-    setSelectedOrderForUpdate(null);
-  };
-
-  const handleStatusUpdate = async (formData) => {
-    const success = await updateOrderStatus(
-      selectedOrderForUpdate.order_id, 
-      formData.status
-    );
-    
-    if (success) {
-      handleCloseStatusModal();
-    }
   };
 
   // ============= DELETE =============
@@ -116,7 +83,7 @@ const OrdersView = () => {
     confirm({
       title: 'Xác nhận xóa đơn hàng',
       icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc chắn muốn xóa đơn hàng #${order.order_id}?`,
+      content: `Bạn có chắc chắn muốn xóa đơn hàng ${order.order_id}?`,
       okText: 'Xóa',
       okType: 'danger',
       cancelText: 'Hủy',
@@ -137,7 +104,7 @@ const OrdersView = () => {
     const headers = ['Mã đơn', 'Khách hàng', 'Tổng tiền', 'Trạng thái', 'Ngày đặt'];
     const rows = filteredOrders.map(order => [
       order.order_id,
-      order.customer_name || 'N/A',
+      order.recipient_name || order.customer_name || 'N/A',
       order.total_amount,
       STATUS_INFO[order.status]?.label || order.status,
       formatDate(order.created_at)
@@ -168,7 +135,7 @@ const OrdersView = () => {
       fixed: 'left',
       render: (id) => (
         <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
-          #{id}
+          {id}
         </span>
       ),
       sorter: (a, b) => a.order_id - b.order_id
@@ -184,7 +151,7 @@ const OrdersView = () => {
               width: '40px',
               height: '40px',
               borderRadius: '10px',
-              background: '#667eea',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -193,38 +160,19 @@ const OrdersView = () => {
               fontSize: '14px'
             }}
           >
-            {record.customer_name?.charAt(0)?.toUpperCase() || 'K'}
+            {(record.recipient_name || record.customer_name || 'K').charAt(0).toUpperCase()}
           </div>
           <div>
             <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
-              {record.customer_name || 'N/A'}
+              {record.recipient_name || record.customer_name || 'N/A'}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>
-              {record.phone || 'N/A'}
-            </div>
+            {record.phone && record.phone !== 'N/A' && (
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                {record.phone}
+              </div>
+            )}
           </div>
         </div>
-      )
-    },
-    {
-      title: 'Địa chỉ',
-      dataIndex: 'order_address',
-      key: 'order_address',
-      width: 250,
-      render: (address) => (
-        <Tooltip title={address}>
-          <span style={{ 
-            color: '#475569', 
-            fontSize: '13px',
-            display: 'block',
-            maxWidth: '100%',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}>
-            {address || 'N/A'}
-          </span>
-        </Tooltip>
       )
     },
     {
@@ -271,9 +219,9 @@ const OrdersView = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      width: canUpdateStatus ? 140 : 100, 
+      width: 100,
       align: 'center',
-      fixed: 'right',
+      
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Xem chi tiết">
@@ -284,17 +232,6 @@ const OrdersView = () => {
               style={{ color: '#3b82f6' }}
             />
           </Tooltip>
-          
-          {canUpdateStatus && (
-            <Tooltip title="Cập nhật trạng thái">
-              <Button
-                type="text"
-                icon={<FiEdit3 />}
-                onClick={() => handleOpenStatusModal(record)}
-                style={{ color: '#8b5cf6' }}
-              />
-            </Tooltip>
-          )}
           
           {canDeleteOrder && (
             <Tooltip title="Xóa">
@@ -308,42 +245,6 @@ const OrdersView = () => {
           )}
         </Space>
       )
-    }
-  ];
-
-  // ============= STATUS UPDATE FORM =============
-  const statusFormFields = [
-    {
-      name: 'order_id',
-      label: 'Mã đơn hàng',
-      type: 'text',
-      icon: FiCheckCircle,
-      disabled: true,
-      defaultValue: selectedOrderForUpdate?.order_id || '',
-      fullWidth: false
-    },
-    {
-      name: 'customer_name',
-      label: 'Khách hàng',
-      type: 'text',
-      icon: FiCheckCircle,
-      disabled: true,
-      defaultValue: selectedOrderForUpdate?.customer_name || '',
-      fullWidth: false
-    },
-    {
-      name: 'status',
-      label: 'Trạng thái mới',
-      type: 'select',
-      icon: FiCheckCircle,
-      required: true,
-      defaultValue: selectedOrderForUpdate?.status || '',
-      options: STATUS_OPTIONS.map(opt => ({
-        value: opt.value,
-        label: opt.label
-      })),
-      fullWidth: true,
-      helperText: 'Chọn trạng thái mới cho đơn hàng'
     }
   ];
 
@@ -414,7 +315,7 @@ const OrdersView = () => {
         pagination={paginationConfig}
         onChange={handleTableChange}
         rowKey="order_id"
-        scroll={{ x: 1400 }}
+        scroll={{ x: 1200 }}
         emptyText="Không có đơn hàng nào"
       />
 
@@ -426,22 +327,6 @@ const OrdersView = () => {
         orderDetails={orderDetails}
         loadingDetails={loadingDetails}
       />
-
-      {/* STATUS UPDATE MODAL */}
-      {canUpdateStatus && (
-        <FormModal
-          isOpen={isStatusModalOpen}
-          onClose={handleCloseStatusModal}
-          onSubmit={handleStatusUpdate}
-          title={{
-            edit: 'Cập nhật trạng thái',
-            editDesc: 'Thay đổi trạng thái đơn hàng'
-          }}
-          icon={FiEdit3}
-          data={selectedOrderForUpdate}
-          fields={statusFormFields}
-        />
-      )}
     </div>
   );
 };

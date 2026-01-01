@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Products/productConstants.js
-// ✅ FIXED: Import icon từ thư viện, fix category mapping
 // ===============================================
 import { 
   FiPackage, 
@@ -28,14 +27,14 @@ export const STATS_CONFIG = [
     title: 'Bread',
     icon: FiCoffee,
     color: 'gold',
-    categoryId: 2  // ✅ Backend trả category: 2
+    categoryId: 2  
   },
   {
     key: 'cookie',
     title: 'Cookie',
     icon: FiShoppingBag,
     color: 'orange',
-    categoryId: 1  // ✅ Điều chỉnh theo backend
+    categoryId: 1  
   },
   {
     key: 'pastry',
@@ -47,7 +46,7 @@ export const STATS_CONFIG = [
 ];
 
 // ============= CATEGORIES =============
-// ✅ Map theo đúng backend response
+
 export const CATEGORIES = {
   1: 'Cookie',
   2: 'Bread', 
@@ -60,9 +59,9 @@ export const getCategoryName = (categoryId) => {
 
 export const getCategoryColor = (categoryId) => {
   const colors = { 
-    1: 'orange',   // Cookie
-    2: 'gold',     // Bread
-    3: 'volcano'   // Pastry
+    1: 'orange',   
+    2: 'gold',     
+    3: 'volcano'   
   };
   return colors[categoryId] || 'blue';
 };

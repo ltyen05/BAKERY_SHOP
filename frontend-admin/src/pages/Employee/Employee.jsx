@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { Tag, Space, Button, Tooltip, Modal } from 'antd';
+// ===============================================
+// Location: src/pages/Employee/Employee.jsx
+// ===============================================
+import React, { useState, useEffect } from 'react';
+import { Tag, Space, Button, Tooltip, Modal, Alert } from 'antd';
 import { FiSearch, FiDownload, FiPlus, FiUser, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import StatsCard from '../../components/StatsCard/StatsCard';
 import DataTable from '../../components/Table/Table';
 import FormModal from '../../components/FormModal/FormModal';
 import { useEmployee } from './useEmployee';
+import branchApi from '../../api/branchApi';
 import { 
   ROLE_TABS, 
   EMPLOYEE_FIELDS, 
@@ -26,9 +30,9 @@ const Employee = () => {
     stats,
     loading,
     activeRole,
-    statusFilter,
     searchQuery,
     currentPage,
+    currentBranchId, // Lay tu useEmployee
     addEmployee,
     updateEmployee,
     deleteEmployee,
@@ -37,18 +41,60 @@ const Employee = () => {
     getHeaderSubtitle,
     setCurrentPage,
     handleRoleChange,
-    handleStatusChange,
     handleSearchChange,
-    isSuperAdmin,
-    isBranchAdmin,
-    currentBranchId
   } = useEmployee();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [branches, setBranches] = useState([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [branchError, setBranchError] = useState(null);
+
+  // FETCH BRANCHES - Only for add mode
+  useEffect(() => {
+    console.log('Action: Fetching branches...');
+    fetchBranches();
+  }, []);
+
+  const fetchBranches = async () => {
+    setLoadingBranches(true);
+    setBranchError(null);
+    
+    const result = await branchApi.getAllBranches();
+    
+    if (result.success && result.data) {
+      const branchOptions = result.data.map(branch => ({
+        value: String(branch.branch_id),
+        label: `[${branch.branch_id}] ${branch.name || branch.branch_name}`
+      }));
+      
+      setBranches(branchOptions);
+      console.log('Success: Branches loaded:', branchOptions);
+    } else {
+      const errorMsg = 'Không thể tải danh sách chi nhánh. Vui lòng thử lại.';
+      setBranchError(errorMsg);
+      console.error('Error: Failed to load branches:', result.message);
+      Modal.error({
+        title: 'Lỗi tải dữ liệu',
+        content: errorMsg,
+        centered: true
+      });
+    }
+    
+    setLoadingBranches(false);
+  };
 
   const handleAddClick = () => {
+    if (branchError || branches.length === 0) {
+      Modal.warning({
+        title: 'Chưa thể thêm nhân viên',
+        content: 'Vui lòng đợi tải xong danh sách chi nhánh hoặc thử làm mới trang.',
+        centered: true
+      });
+      return;
+    }
+    
     setModalMode('add');
     setSelectedEmployee(null);
     setIsModalOpen(true);
@@ -69,11 +115,31 @@ const Employee = () => {
     let result;
     
     if (modalMode === 'add') {
+      // Auto-fill branch_id from context if missing
+      if (!employeeData.branch_id && currentBranchId) {
+        employeeData.branch_id = currentBranchId;
+        console.log('Auto-fill: branch_id from context:', currentBranchId);
+      }
+      
+      if (!employeeData.branch_id) {
+        Modal.error({
+          title: 'Thiếu thông tin',
+          content: 'Không xác định được chi nhánh. Vui lòng chọn chi nhánh.',
+          centered: true
+        });
+        return;
+      }
+      
       result = await addEmployee(employeeData);
     } else {
+      // Keep existing branch_id in edit mode
       const employeeId = selectedEmployee.employee_id || selectedEmployee.id;
-      console.log('Editing employee ID:', employeeId, 'Data:', selectedEmployee);
-      result = await updateEmployee(employeeId, employeeData);
+      const updateData = {
+        ...employeeData,
+        branch_id: selectedEmployee.branch_id
+      };
+      
+      result = await updateEmployee(employeeId, updateData);
     }
     
     if (result?.success) {
@@ -99,24 +165,22 @@ const Employee = () => {
   const getFormFields = () => {
     const baseFields = modalMode === 'edit' ? EMPLOYEE_EDIT_FIELDS : EMPLOYEE_FIELDS;
     
-    return baseFields.map(field => {
-      if (field.name === 'branch_id' && isBranchAdmin) {
-        return {
-          ...field,
-          defaultValue: currentBranchId?.toString() || '1',
-          disabled: true
-        };
-      }
-      
-      if (field.name === 'branch_id' && currentBranchId) {
-        return {
-          ...field,
-          defaultValue: currentBranchId.toString()
-        };
-      }
-      
-      return field;
-    });
+    if (modalMode === 'add') {
+      return baseFields.map(field => {
+        if (field.name === 'branch_id') {
+          return {
+            ...field,
+            options: branches,
+            disabled: loadingBranches || branchError !== null,
+            placeholder: loadingBranches ? 'Đang tải...' : 'Chọn chi nhánh',
+            defaultValue: currentBranchId ? String(currentBranchId) : ''
+          };
+        }
+        return field;
+      });
+    }
+    
+    return baseFields;
   };
 
   const handleExport = () => {
@@ -129,7 +193,7 @@ const Employee = () => {
       emp.email,
       emp.role,
       emp.salary,
-      getBranchName(emp.branch_id),
+      getBranchName(emp.branch_id, branches),
       emp.status
     ]);
     
@@ -193,7 +257,7 @@ const Employee = () => {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      width: 220,
+      width: 250,
       render: (email) => (
         <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
       )
@@ -229,7 +293,7 @@ const Employee = () => {
       width: 200,
       render: (branchId) => (
         <span style={{ color: '#64748b', fontSize: '13px' }}>
-          {getBranchName(branchId)}
+          {getBranchName(branchId, branches)}
         </span>
       )
     },
@@ -291,6 +355,22 @@ const Employee = () => {
         <p className="employee-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
+      {branchError && (
+        <Alert
+          message="Lỗi tải dữ liệu"
+          description={branchError}
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: '16px' }}
+          action={
+            <Button size="small" onClick={fetchBranches}>
+              Thử lại
+            </Button>
+          }
+        />
+      )}
+
       <div className="stats-grid">
         {STATS_CONFIG.map(stat => (
           <StatsCard
@@ -341,7 +421,7 @@ const Employee = () => {
           <button
             className="add-btn"
             onClick={handleAddClick}
-            disabled={loading}
+            disabled={loading || loadingBranches || branchError !== null}
           >
             <FiPlus />
             Thêm nhân viên

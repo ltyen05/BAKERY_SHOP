@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Products/useProduct.js
-// ✅ FIXED: Thêm logic canManage và header helpers
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
@@ -110,7 +109,7 @@ export const useProduct = () => {
   
   const addProduct = async (formData) => {
     try {
-      console.log('➕ [useProduct] Adding product:', formData);
+      console.log(' [useProduct] Adding product:', formData);
       
       const result = await productApi.addProduct(formData);
       
@@ -132,7 +131,7 @@ export const useProduct = () => {
 
   const updateProduct = async (productId, formData) => {
     try {
-      console.log('✏️ [useProduct] Updating product:', productId, formData);
+      console.log(' [useProduct] Updating product:', productId, formData);
       
       const result = await productApi.updateProduct(productId, formData);
       

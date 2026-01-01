@@ -1,3 +1,7 @@
+// ===============================================
+// Location: src/pages/Employees/useEmployee.js
+// ===============================================
+
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 import { employeeApi } from '../../api/employeeApi';
@@ -26,7 +30,7 @@ export const useEmployee = () => {
     const branch = getCurrentBranch();
     const branchId = branch?.id ? parseInt(branch.id, 10) : null;
 
-    console.log('Current viewing branch:', {
+    console.log('Current viewing branch details:', {
       isSuperAdmin,
       isBranchAdmin,
       isViewingBranch,
@@ -65,13 +69,13 @@ export const useEmployee = () => {
       const result = await employeeApi.getAllEmployees(options);
 
       if (result.success) {
-        console.log('Employees fetched:', result.data.length);
+        console.log('Employees fetched count:', result.data.length);
         if (result.data.length > 0) {
-          console.log('Sample data:', result.data[0]);
+          console.log('Sample data record:', result.data[0]);
         }
         setEmployees(result.data);
       } else {
-        console.error('Failed to fetch:', result.message);
+        console.error('Failed to fetch employees:', result.message);
         message.error(result.message || 'Không thể tải danh sách nhân viên');
         setEmployees([]);
       }
@@ -139,7 +143,7 @@ export const useEmployee = () => {
   // CRUD
   const addEmployee = async (employeeData) => {
     try {
-      console.log('Adding employee:', employeeData);
+      console.log('Adding employee process:', employeeData);
 
       const dataToSubmit = {
         ...employeeData,
@@ -167,7 +171,7 @@ export const useEmployee = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Add error:', error);
+      console.error('Add employee error:', error);
       message.error('Đã xảy ra lỗi khi thêm nhân viên');
       return { success: false };
     }
@@ -175,7 +179,7 @@ export const useEmployee = () => {
 
   const updateEmployee = async (employeeId, employeeData) => {
     try {
-      console.log('Updating employee:', employeeId, employeeData);
+      console.log('Updating employee process:', employeeId, employeeData);
 
       const dataToSubmit = {
         ...employeeData,
@@ -196,7 +200,7 @@ export const useEmployee = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Update error:', error);
+      console.error('Update employee error:', error);
       message.error('Đã xảy ra lỗi khi cập nhật nhân viên');
       return { success: false };
     }
@@ -204,7 +208,7 @@ export const useEmployee = () => {
 
   const deleteEmployee = async (employeeId, employeeName) => {
     try {
-      console.log('Deleting employee:', employeeId);
+      console.log('Deleting employee ID:', employeeId);
 
       const result = await employeeApi.deleteEmployee(employeeId);
 
@@ -217,7 +221,7 @@ export const useEmployee = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Delete employee error:', error);
       message.error('Đã xảy ra lỗi khi xóa nhân viên');
       return { success: false };
     }

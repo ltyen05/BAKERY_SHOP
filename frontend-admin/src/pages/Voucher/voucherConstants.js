@@ -1,21 +1,23 @@
+// ===============================================
+// FILE: src/pages/Voucher/voucherConstants.js
+// ✅ UPDATED: Thêm đầy đủ fields theo backend
+// ===============================================
 import { 
   FiTag, 
-  FiPercent,
+  FiPercent, 
   FiDollarSign,
   FiCalendar,
+  FiFileText,
   FiShoppingCart,
-  FiTrendingDown,
-  FiPackage,
   FiCheckCircle,
-  FiXCircle,
-  FiTrendingUp
+  FiTarget
 } from 'react-icons/fi';
 
 export const STATS_CONFIG = [
   {
     key: 'total',
     title: 'Tổng voucher',
-    icon: FiPackage,
+    icon: FiTag,
     color: 'blue'
   },
   {
@@ -26,119 +28,185 @@ export const STATS_CONFIG = [
   },
   {
     key: 'expired',
-    title: 'Đã hết hạn',
-    icon: FiXCircle,
-    color: 'red'
+    title: 'Hết hạn',
+    icon: FiTarget,
+    color: 'orange'
   },
   {
     key: 'totalUsed',
-    title: 'Đã sử dụng',
-    icon: FiTrendingUp,
-    color: 'orange'
+    title: 'Lượt sử dụng',
+    icon: FiShoppingCart,
+    color: 'purple'
   }
 ];
 
-export const DISCOUNT_TYPE_OPTIONS = [
-  { value: 'percent', label: 'Phần trăm (%)' },
-  { value: 'fixed', label: 'Số tiền cố định (đ)' }
-];
-
+// ✅ VOUCHER FIELDS - ĐẦY ĐỦ THEO BACKEND
 export const VOUCHER_FIELDS = [
   {
-    name: 'name',
-    label: 'Tên voucher',
+    name: 'description',
+    label: 'Mô tả voucher',
     type: 'text',
-    icon: FiTag,
-    placeholder: 'VD: Giảm 20% cho đơn hàng đầu tiên',
+    icon: FiFileText,
+    placeholder: 'VD: Giảm 30% cho đơn hàng từ 500k',
     required: true,
-    fullWidth: true,
-    helperText: 'Tên mô tả cho voucher'
+    helperText: 'Mô tả ngắn gọn về voucher'
   },
   {
-    name: 'type',
+    name: 'discount_type',
     label: 'Loại giảm giá',
     type: 'select',
-    icon: FiPercent,
+    icon: FiTag,
     required: true,
-    defaultValue: 'percent',
     options: [
       { value: '', label: 'Chọn loại giảm giá' },
-      ...DISCOUNT_TYPE_OPTIONS
-    ],
-    helperText: 'Chọn loại giảm giá'
+      { value: 'percent', label: 'Giảm theo phần trăm (%)' },
+      { value: 'value', label: 'Giảm theo số tiền (VNĐ)' }
+    ]
   },
   {
-    name: 'discount',
+    name: 'discount_value',
     label: 'Giá trị giảm',
     type: 'text',
     inputType: 'number',
-    icon: FiDollarSign,
-    placeholder: 'VD: 20 hoặc 50000',
+    icon: FiPercent,
+    placeholder: 'VD: 30 hoặc 50000',
     required: true,
-    helperText: 'Nhập số % hoặc số tiền',
-    transform: (value) => parseFloat(value || 0)   // ✅ fix NaN khi nhập rỗng
+    helperText: 'Nhập % hoặc số tiền tùy theo loại'
   },
   {
-    name: 'minOrder',
-    label: 'Đơn hàng tối thiểu',
+    name: 'discount_percent',
+    label: 'Phần trăm giảm (nếu có)',
+    type: 'text',
+    inputType: 'number',
+    icon: FiPercent,
+    placeholder: '0-100',
+    required: false,
+    helperText: 'Để trống nếu dùng discount_value'
+  },
+  {
+    name: 'min_purchase',
+    label: 'Giá trị đơn hàng tối thiểu (VNĐ)',
     type: 'text',
     inputType: 'number',
     icon: FiShoppingCart,
-    placeholder: 'VD: 200000',
-    required: false,
+    placeholder: 'VD: 300000',
+    required: true,
     defaultValue: '0',
-    helperText: 'Giá trị đơn hàng tối thiểu (đ)',
-    transform: (value) => parseFloat(value || 0)
+    helperText: 'Đơn hàng tối thiểu để áp dụng voucher'
   },
   {
-    name: 'maxDiscount',
-    label: 'Giảm tối đa',
+    name: 'max_discount',
+    label: 'Giảm tối đa (VNĐ)',
     type: 'text',
     inputType: 'number',
-    icon: FiTrendingDown,
-    placeholder: 'VD: 50000',
+    icon: FiDollarSign,
+    placeholder: 'VD: 100000',
     required: false,
     defaultValue: '0',
-    helperText: 'Số tiền giảm tối đa (đ), 0 = không giới hạn',
-    transform: (value) => parseFloat(value || 0)
+    helperText: 'Giới hạn số tiền giảm tối đa (nếu có)'
   },
   {
-    name: 'startDate',
+    name: 'begin_date',
     label: 'Ngày bắt đầu',
-    type: 'text',
-    inputType: 'date',
+    type: 'date',
     icon: FiCalendar,
     required: true,
-    helperText: 'Ngày voucher có hiệu lực'
+    helperText: 'Chọn ngày bắt đầu (định dạng: dd/mm/yyyy)'
   },
   {
-    name: 'endDate',
+    name: 'end_date',
     label: 'Ngày kết thúc',
-    type: 'text',
-    inputType: 'date',
+    type: 'date',
     icon: FiCalendar,
     required: true,
-    helperText: 'Ngày voucher hết hạn'
+    helperText: 'Chọn ngày kết thúc (định dạng: dd/mm/yyyy)'
+  },
+  {
+    name: 'status',
+    label: 'Trạng thái',
+    type: 'select',
+    icon: FiCheckCircle,
+    required: false,
+    defaultValue: 'active',
+    options: [
+      { value: 'active', label: 'Hoạt động' },
+      { value: 'inactive', label: 'Ngừng hoạt động' }
+    ]
   }
 ];
 
+// ✅ FORMAT HELPERS
 export const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN');
+  if (!dateString) return '—';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  } catch {
+    return '—';
+  }
+};
+
+export const formatCurrency = (amount) => {
+  if (!amount && amount !== 0) return '—';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount);
 };
 
 export const formatDiscount = (voucher) => {
-  if (voucher.type === 'percent') {
-    return `${voucher.discount ?? 0}%`;   // ✅ fix undefined
+  if (!voucher) return '—';
+  
+  const value = voucher.discount_value || 0;
+  const isPercent = voucher.discount_type === 'percent';
+  
+  if (isPercent) {
+    return `${value}%`;
+  } else {
+    return `${value.toLocaleString('vi-VN')}đ`;
   }
-  return `${(voucher.discount ?? 0).toLocaleString('vi-VN')}đ`;  // ✅ fix undefined
 };
 
-export const getStatusColor = (status) => {
-  return status === 'Active' ? 'success' : 'error';
+// ✅ Helper: Convert date từ backend sang input format
+export const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+  try {
+    console.log('🔄 Converting date:', dateString);
+    
+    // "Wed, 31 Dec 2025 00:00:00 GMT" -> "2025-12-31"
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      console.error('❌ Invalid date:', dateString);
+      return '';
+    }
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    const result = `${year}-${month}-${day}`;
+    console.log('✅ Converted to:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Error converting date:', error);
+    return '';
+  }
 };
 
-export const getStatusText = (status) => {
-  return status === 'Active' ? 'Hoạt động' : 'Hết hạn';
+// ✅ Helper: Convert input date sang ISO string cho backend
+export const formatDateForBackend = (dateString) => {
+  if (!dateString) return '';
+  try {
+    // "2025-12-31" -> ISO string
+    const date = new Date(dateString);
+    return date.toISOString();
+  } catch {
+    return '';
+  }
 };

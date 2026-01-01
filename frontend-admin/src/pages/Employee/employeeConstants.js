@@ -1,17 +1,19 @@
+// ===============================================
+// Location: src/pages/Employee/employeeConstants.js
+// ===============================================
 import { 
   FiUser, 
   FiMail, 
-  FiHash, 
   FiShield, 
   FiDollarSign, 
-  FiMapPin, 
+  FiMapPin,
   FiCheckCircle,
-  FiLock,
   FiUsers,
   FiUserCheck,
   FiUserX
 } from 'react-icons/fi';
 
+// ================= STATS CONFIG =================
 export const STATS_CONFIG = [
   {
     key: 'total',
@@ -33,6 +35,7 @@ export const STATS_CONFIG = [
   }
 ];
 
+// ================= ROLE TABS =================
 export const ROLE_TABS = [
   { id: 'all', label: 'Tất cả', role: null },
   { id: 'manager', label: 'Quản lý', role: 'Quản lý' },
@@ -40,19 +43,13 @@ export const ROLE_TABS = [
   { id: 'sales', label: 'Bán hàng', role: 'Bán hàng' }
 ];
 
-export const BRANCHES = [
-  { value: '1', label: 'HUS Bakery - Hoàn Kiếm', code: 'CN001' },
-  { value: '2', label: 'HUS Bakery - Cầu Giấy', code: 'CN002' },
-  { value: '3', label: 'HUS Bakery - Đống Đa', code: 'CN003' },
-  { value: '4', label: 'HUS Bakery - Hà Đông', code: 'CN004' },
-  { value: '5', label: 'HUS Bakery - Thanh Xuân', code: 'CN005' }
-];
-
-export const getBranchName = (branchId) => {
-  const branch = BRANCHES.find(b => b.value === String(branchId));
+// ================= BRANCHES =================
+export const getBranchName = (branchId, branches = []) => {
+  const branch = branches.find(b => b.value === String(branchId));
   return branch ? branch.label : `Chi nhánh ${branchId}`;
 };
 
+// ================= EMPLOYEE FIELDS - ADD NEW =================
 export const EMPLOYEE_FIELDS = [
   {
     name: 'name',
@@ -74,12 +71,12 @@ export const EMPLOYEE_FIELDS = [
   {
     name: 'password',
     label: 'Mật khẩu',
-    type: 'password',
-    icon: FiLock,
-    placeholder: '••••••••',
+    type: 'text',
+    inputType: 'password',
+    icon: FiShield,
+    placeholder: 'Mật khẩu đăng nhập',
     required: true,
-    helperText: 'Tối thiểu 6 ký tự',
-    showOnEdit: false
+    helpText: 'Mật khẩu để nhân viên đăng nhập vào hệ thống'
   },
   {
     name: 'role',
@@ -105,6 +102,14 @@ export const EMPLOYEE_FIELDS = [
     defaultValue: '9000000'
   },
   {
+    name: 'branch_id',
+    label: 'Chi nhánh',
+    type: 'select',
+    icon: FiMapPin,
+    required: true,
+    options: [] // Injected from Employee.jsx
+  },
+  {
     name: 'status',
     label: 'Trạng thái',
     type: 'select',
@@ -115,34 +120,65 @@ export const EMPLOYEE_FIELDS = [
       { value: 'Đang làm việc', label: 'Đang làm việc' },
       { value: 'Nghỉ việc', label: 'Nghỉ việc' }
     ]
-  },
-  {
-    name: 'branch_id',
-    label: 'Chi nhánh',
-    type: 'select',
-    icon: FiMapPin,
-    required: true,
-    defaultValue: '1',
-    fullWidth: true,
-    options: [
-      { value: '', label: 'Chọn chi nhánh' },
-      ...BRANCHES
-    ],
-    transform: (value) => parseInt(value)
   }
 ];
 
-export const EMPLOYEE_EDIT_FIELDS = EMPLOYEE_FIELDS.map(field => {
-  if (field.name === 'password') {
-    return {
-      ...field,
-      required: false,
-      helperText: 'Để trống nếu không muốn đổi mật khẩu'
-    };
+// ================= EMPLOYEE EDIT FIELDS - REMOVED BRANCH_ID =================
+export const EMPLOYEE_EDIT_FIELDS = [
+  {
+    name: 'name',
+    label: 'Họ và tên',
+    type: 'text',
+    icon: FiUser,
+    placeholder: 'Nguyễn Văn A',
+    required: true
+  },
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'text',
+    inputType: 'email',
+    icon: FiMail,
+    placeholder: 'example@husbakery.vn',
+    required: true
+  },
+  {
+    name: 'role',
+    label: 'Vai trò',
+    type: 'select',
+    icon: FiShield,
+    required: true,
+    options: [
+      { value: '', label: 'Chọn vai trò' },
+      { value: 'Quản lý', label: 'Quản lý' },
+      { value: 'Thợ làm bánh', label: 'Thợ làm bánh' },
+      { value: 'Bán hàng', label: 'Bán hàng' }
+    ]
+  },
+  {
+    name: 'salary',
+    label: 'Lương (VNĐ)',
+    type: 'text',
+    inputType: 'number',
+    icon: FiDollarSign,
+    placeholder: '9000000',
+    required: true
+  },
+  {
+    name: 'status',
+    label: 'Trạng thái',
+    type: 'select',
+    icon: FiCheckCircle,
+    required: false,
+    options: [
+      { value: 'Đang làm việc', label: 'Đang làm việc' },
+      { value: 'Nghỉ việc', label: 'Nghỉ việc' }
+    ]
   }
-  return field;
-});
+  // No branch_id in Edit mode to prevent branch modification
+];
 
+// ================= HELPER FUNCTIONS =================
 export const getInitials = (name) => {
   if (!name) return 'NA';
   return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();

@@ -1,8 +1,7 @@
 // ===============================================
-// FILE: src/pages/Branch/branchConstants.js
-// Constants for Branch Management - FIXED
+// Location: src/pages/Branch/branchConstants.js
 // ===============================================
-import { FiMapPin, FiPhone, FiMail, FiHome } from 'react-icons/fi';
+import { FiMapPin, FiPhone, FiMail, FiHome, FiUser } from 'react-icons/fi';
 
 export const BRANCH_FIELDS = [
   {
@@ -31,22 +30,33 @@ export const BRANCH_FIELDS = [
     required: true
   },
   {
+    name: 'manager_id',
+    label: 'ID Quản lý',
+    type: 'text',
+    inputType: 'number',
+    icon: FiUser,
+    placeholder: 'VD: 2',
+    required: true, // Required: mandatory for backend processing
+    helpText: 'Nhập ID của người quản lý chi nhánh'
+  },
+  {
     name: 'email',
     label: 'Email',
     type: 'text',
     inputType: 'email',
     icon: FiMail,
     placeholder: 'VD: hoankiem@husbakery.vn',
-    required: true
+    required: false
   },
   {
     name: 'mapSrc',
-    label: 'Link Google Maps',
+    label: 'Link Google Maps Embed',
     type: 'text',
     icon: FiMapPin,
     placeholder: 'https://www.google.com/maps/embed?...',
     required: false,
-    fullWidth: true
+    fullWidth: true,
+    helpText: 'Link iframe embed từ Google Maps'
   },
   {
     name: 'lat',
@@ -64,14 +74,6 @@ export const BRANCH_FIELDS = [
     inputType: 'number',
     icon: FiMapPin,
     placeholder: '105.8542',
-    required: false
-  },
-  {
-    name: 'manager_id',
-    label: 'ID Quản lý',
-    type: 'text',
-    inputType: 'number',
-    placeholder: 'VD: 1',
     required: false
   }
 ];

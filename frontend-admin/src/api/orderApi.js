@@ -1,5 +1,5 @@
 // ===============================================
-// Location: src/api/orderApi.js - HANDLE EMPTY ITEMS
+// FILE: src/api/orderApi.js - FINAL FIXED
 // ===============================================
 
 const BASE_URL = '/admin/order_management';
@@ -36,10 +36,9 @@ export const orderApi = {
     }
   },
 
-  // GET DETAIL - Handle 404 và empty items
   getOrderDetail: async (orderId) => {
     try {
-      console.log('Fetching order detail for ID:', orderId);
+      console.log('[orderApi] Fetching order detail for ID:', orderId);
 
       const response = await fetch(
         `${BASE_URL}/order_detail?order_id=${orderId}`,
@@ -51,12 +50,13 @@ export const orderApi = {
         }
       );
 
-      // Handle 404 - order không có items
       if (response.status === 404) {
-        console.warn('Order has no items (404)');
+        console.warn('[orderApi] Order has no items (404)');
         return {
           success: true,
           items: [],
+          shipping_address: null,
+          total_amount: 0
         };
       }
 
@@ -64,28 +64,25 @@ export const orderApi = {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const items = await response.json();
+      const data = await response.json();
 
-      console.log('Order items:', items);
+      console.log('[orderApi] Raw response:', data);
 
-      // Handle empty response
-      if (!items || (Array.isArray(items) && items.length === 0)) {
-        console.warn('Order has no items (empty array)');
-        return {
-          success: true,
-          items: [],
-        };
-      }
+      const items = data.order_items || [];
+      const shipping_address = data.shipping_address || null;
+      const total_amount = data.total_amount || 0;
 
-      // Backend trả về array items trực tiếp
+      console.log('[orderApi] Parsed items:', items);
+
       return {
         success: true,
-        items: Array.isArray(items) ? items : [items],
+        items: items,
+        shipping_address: shipping_address,
+        total_amount: total_amount
       };
     } catch (error) {
-      console.error('Error fetching order details:', error);
+      console.error('[orderApi] Error fetching order details:', error);
 
-      // Trả về empty items thay vì throw error
       return {
         success: false,
         items: [],
@@ -97,7 +94,7 @@ export const orderApi = {
   // DELETE - Xóa order
   deleteOrder: async (orderId) => {
     try {
-      const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+      const response = await fetch(`${BASE_URL}/delete_order/${orderId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

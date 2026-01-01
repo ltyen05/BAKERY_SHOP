@@ -1,6 +1,5 @@
 /* =============================================== */
 /* Location: src/pages/Products/ProductsView.css */
-/* ✅ Đồng bộ với Shipper.css - chỉnh tabs cuộn ngang */
 /* =============================================== */
 
 /* ================= CONTAINER ================= */
@@ -48,13 +47,12 @@
   margin-bottom: 20px;
   border-bottom: 2px solid #e2e8f0;
   gap: 24px;
-  /* ❌ bỏ flex-wrap để tabs cuộn ngang */
 }
 
 .category-tabs {
   display: flex;
   gap: 32px;
-  overflow-x: auto;              /* ✅ Cho phép cuộn ngang */
+  overflow-x: auto;              
   -webkit-overflow-scrolling: touch;
   flex: 0 1 auto;
 }

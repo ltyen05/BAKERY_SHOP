@@ -1,11 +1,11 @@
 // ===============================================
-// FILE: src/routes/index.jsx
-// FIX: Super Admin có menu Sản phẩm và Voucher
+// Location: src/routes/index.jsx
+// UPDATED: Fixed redirect logic for Branch Admin
 // ===============================================
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
 
-// Lazy load các trang
+// Lazy loading pages for better performance
 const DashboardView = lazy(() => import("../pages/Dashboard/DashboardView"));
 const ProductsView = lazy(() => import("../pages/Products/ProductsView"));
 const CustomersView = lazy(() => import("../pages/Customers/CustomersView"));
@@ -16,13 +16,17 @@ const Voucher = lazy(() => import("../pages/Voucher/Voucher"));
 const BranchView = lazy(() => import("../pages/Branch/BranchView"));
 const AdminView = lazy(() => import("../pages/Admin/AdminView"));
 
+// Individual Redirect Component
+const DashboardRedirect = () => <Navigate to="/dashboard" replace />;
+
 // ========================================
-// ROUTE CHO SUPER ADMIN (chưa xem chi nhánh)
+// SUPER ADMIN ROUTES (Global Scope)
 // ========================================
 export const superAdminRoutes = [
   {
     path: "/",
-    element: () => <Navigate to="/dashboard" replace />,
+    element: DashboardRedirect,
+    hideInMenu: true 
   },
   {
     path: "dashboard",
@@ -38,7 +42,6 @@ export const superAdminRoutes = [
     icon: "store",
     roles: ["super_admin"],
   },
-  // Sản phẩm cho Super Admin
   {
     path: "products",
     element: ProductsView,
@@ -46,7 +49,6 @@ export const superAdminRoutes = [
     icon: "inventory",
     roles: ["super_admin"],
   },
-  // Voucher cho Super Admin
   {
     path: "voucher",
     element: Voucher,
@@ -69,16 +71,19 @@ export const superAdminRoutes = [
         <p>The page you are looking for does not exist.</p>
       </div>
     ),
+    hideInMenu: true
   },
 ];
 
 // ========================================
-// ROUTE CHO BRANCH ADMIN hoặc SUPER ADMIN đang xem chi nhánh
+// BRANCH ROUTES (Branch Scope)
+// For Branch Admin or Super Admin viewing a specific branch
 // ========================================
 export const branchRoutes = [
   {
     path: "/",
-    element: () => <Navigate to="/dashboard" replace />,
+    element: DashboardRedirect,
+    hideInMenu: true
   },
   {
     path: "dashboard",
@@ -137,26 +142,28 @@ export const branchRoutes = [
         <p>The page you are looking for does not exist.</p>
       </div>
     ),
+    hideInMenu: true
   },
 ];
 
 // ========================================
-// Hàm helper để lấy routes phù hợp
+// Helper: Get routes based on User Role & Context
 // ========================================
 export const getRoutesForUser = (user) => {
+  if (!user) return [];
+  
   const isSuperAdmin = user?.role === 'super_admin';
   const isViewingBranch = isSuperAdmin && user?.viewing_branch !== null;
   
-  // Super Admin đang xem chi nhánh -> dùng branch routes
-  if (isViewingBranch) {
+  // Return Branch Routes if user is Branch Admin or Super Admin focusing on a branch
+  if (isViewingBranch || user?.role === 'admin') {
     return branchRoutes;
   }
   
-  // Super Admin chưa xem chi nhánh -> dùng super admin routes
+  // Return Super Admin Routes for global management
   if (isSuperAdmin) {
     return superAdminRoutes;
   }
   
-  // Branch Admin -> dùng branch routes
-  return branchRoutes;
+  return [];
 };

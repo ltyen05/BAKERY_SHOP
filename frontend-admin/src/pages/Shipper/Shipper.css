@@ -1,5 +1,5 @@
 /* =============================================== */
-/* Location: src/pages/Shipper/Shipper.css - SYNCED WITH EMPLOYEE */
+/* Location: src/pages/Shipper/Shipper.css         */
 /* =============================================== */
 
 /* ================= CONTAINER ================= */
@@ -143,28 +143,7 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* ================= SELECT & BUTTONS ================= */
-.status-select {
-  height: 40px;
-  padding: 0 36px 0 14px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s;
-  color: #1e293b;
-  appearance: none;
-  position: relative;
-}
-
-.status-select:hover,
-.status-select:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
+/* ================= BUTTONS ================= */
 .export-btn,
 .add-btn {
   height: 40px;
@@ -201,7 +180,7 @@
 
 .add-btn {
   background: linear-gradient(135deg, #FFBD71 0%, #FFDCA2 100%);
-  color: rgb(93, 12, 12);
+  color: #5D0C0C;
   box-shadow: 0 4px 12px rgba(255, 189, 113, 0.3);
 }
 
@@ -212,12 +191,6 @@
 
 .add-btn:active:not(:disabled) {
   transform: translateY(0);
-}
-
-.export-btn svg,
-.add-btn svg {
-  width: 16px;
-  height: 16px;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -238,7 +211,6 @@
   .right-actions {
     width: 100%;
     justify-content: flex-start;
-    padding-bottom: 0;
     padding-top: 12px;
     border-top: 1px solid #f1f5f9;
   }
@@ -253,32 +225,10 @@
     font-size: 24px;
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .vehicle-tabs {
-    gap: 20px;
-  }
-  
-  .right-actions {
-    gap: 8px;
-  }
-
   .search-input {
     width: 100%;
   }
 
-  .search-input:focus {
-    width: 100%;
-  }
-
-  .status-select {
-    flex: 1;
-    min-width: 140px;
-  }
-  
   .export-btn,
   .add-btn {
     flex: 1;
@@ -287,37 +237,14 @@
 }
 
 @media (max-width: 480px) {
-  .shipper-title {
-    font-size: 20px;
-  }
-
-  .shipper-subtitle {
-    font-size: 13px;
-  }
-
-  .vehicle-tab {
-    font-size: 14px;
-    padding: 10px 4px;
-  }
-
-  .tab-count {
-    font-size: 12px;
-  }
-
   .right-actions {
     flex-direction: column;
     width: 100%;
   }
 
   .search-box,
-  .status-select,
   .export-btn,
   .add-btn {
     width: 100%;
-  }
-
-  .export-btn,
-  .add-btn {
-    justify-content: center;
   }
 }

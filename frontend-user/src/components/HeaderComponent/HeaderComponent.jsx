@@ -176,7 +176,7 @@ function NavBar({ user, onLogout, productInCart }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/notification/mark-read/${id}`,
+        `http://localhost:5001/api/notification/mark-read/${id}`,
         { method: "POST" }
       );
 

@@ -46,7 +46,7 @@ const OrderHistory = () => {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/shipper/statistics/history?page=${page}&limit=${limit}`,
+        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }

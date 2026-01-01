@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = "http://localhost:5000/api";
+const API = "http://localhost:5001/api";
 
 export const authApi = {
   login(data) {

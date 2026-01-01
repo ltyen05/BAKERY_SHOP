@@ -22,7 +22,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!productId) return;
 
-    fetch(`http://localhost:5000/api/product/${productId}`)
+    fetch(`http://localhost:5001/api/product/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);

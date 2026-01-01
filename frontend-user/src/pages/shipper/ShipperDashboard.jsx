@@ -9,8 +9,6 @@ import {
   Button,
   Tag,
   Typography,
-  Card,
-  Modal,
   Spin,
   Pagination,
 } from "antd";

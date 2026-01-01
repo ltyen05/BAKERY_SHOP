@@ -201,13 +201,6 @@ const UserProfile = () => {
     setIsEditing(false);
   };
 
-  if (loading) {
-    return (
-      <div style={{ padding: 50 }}>
-        <Skeleton avatar paragraph={{ rows: 4 }} active />
-      </div>
-    );
-  }
   // ----------------------Order details  --------------------------
   const handleShowOrderDetails = async (order_id) => {
     try {

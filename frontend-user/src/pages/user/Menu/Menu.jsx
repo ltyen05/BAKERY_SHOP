@@ -51,7 +51,7 @@ export default function Menu() {
 
   return (
     <div style={{ width: "100%", maxWidth: 1400, margin: "0 auto" }}>
-      <h2>Menu</h2>
+      <h1 className="mb-6">Menu</h1>
       <Tabs
         centered
         activeKey={activeKey}

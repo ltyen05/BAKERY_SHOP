@@ -3,6 +3,7 @@ import Product from "../../../components/Product/Product";
 import { Link } from "react-router-dom";
 import "./homePage.css";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   DoubleRightOutlined,
   HeartOutlined,
@@ -15,6 +16,7 @@ import { useOrder } from "../../../context/OrderContext";
 import { useAuth } from "../../../context/AuthContext";
 import { useProduct } from "../../../context/ProductContext";
 function HomePage() {
+  const navigate = useNavigate();
   const { topProducts } = useProduct();
   const { user } = useAuth();
   const { addToCart, addingToCart } = useOrder(); // ⭐ Dùng addToCart từ context
@@ -83,7 +85,8 @@ function HomePage() {
             <Button
               size="large"
               className="btn-primary"
-              style={{ border: "2px solid  #ff8c00" }}
+              style={{ border: "2px solid  #61432b" }}
+              onClick={() => navigate("/menu/bread")}
             >
               <DoubleRightOutlined /> Xem Menu
             </Button>
@@ -189,7 +192,7 @@ function HomePage() {
             </Row>
           </Col>
           <Col xs={24} xl={10} className="fl-center">
-            <div className="animate-on-scroll fade-right">
+            <div className="animate-on-scroll fade-right text-story">
               <p
                 style={{
                   fontSize: "58px",
@@ -248,7 +251,7 @@ function HomePage() {
       >
         <div className="fl-center">
           <Row style={{ width: "100%" }} justify="space-between">
-            <Col xs={24} md={10} xl={5} className="feature-card">
+            <Col xs={24} md={10} xl={5} className="feature-card mb-6">
               <div className="icon-wrapper fl-center icon-wrapper-1">
                 <img src={chef} alt="chefhat" style={{ width: "35px" }} />
               </div>
@@ -259,7 +262,7 @@ function HomePage() {
               </p>
             </Col>
 
-            <Col xs={24} md={10} xl={5} className="feature-card">
+            <Col xs={24} md={10} xl={5} className="feature-card mb-6">
               <div className="icon-wrapper fl-center icon-wrapper-2">
                 <HeartOutlined
                   style={{ fontSize: "33px", color: " rgba(46, 33, 0, 1)" }}
@@ -271,7 +274,7 @@ function HomePage() {
               </p>
             </Col>
 
-            <Col xs={24} md={10} xl={5} className="feature-card">
+            <Col xs={24} md={10} xl={5} className="feature-card mb-6">
               <div className="icon-wrapper fl-center icon-wrapper-3">
                 <img src={award} alt="award" style={{ width: "40px" }} />
               </div>
@@ -298,12 +301,7 @@ function HomePage() {
 
         <div className="fl-center mt-36">
           <Row style={{ width: "100%" }} justify="space-around" align="middle">
-            <Col
-              md={22}
-              xl={11}
-              className="text-content"
-              style={{ textAlign: "center" }}
-            >
+            <Col md={22} xl={11} className="text-content mb-12">
               <div className="content-badge">VỀ CHÚNG TÔI</div>
               <h3 className="content-title">
                 Được Nặn Từ Tình Yêu & Tâm Huyết
@@ -327,13 +325,12 @@ function HomePage() {
             <Col md={22} xl={11} className="image-container">
               <div className="image-wrapper">
                 <img
-                  src="https://images.unsplash.com/photo-1610963812725-3945efe1009f?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  src="https://i.pinimg.com/1200x/f4/bd/11/f4bd1101b5df1568316065cbda35c647.jpg"
                   alt="Tiệm bánh"
                   className="about-image"
                 />
                 <div className="image-overlay">
-                  <p className="overlay-number">15+</p>
-                  <p className="overlay-text">NĂM KINH NGHIỆM</p>
+                  <p className="overlay-text">NHIỀU NĂM KINH NGHIỆM</p>
                 </div>
               </div>
             </Col>

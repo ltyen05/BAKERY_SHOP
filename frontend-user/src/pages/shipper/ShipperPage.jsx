@@ -99,24 +99,6 @@ const OrderDetailPage = () => {
   useEffect(() => {
     fetchCurrentOrder();
   }, []);
-  const order = {
-    orderId: "231",
-    branch: "Hoa Bakery Cơ sở 1",
-    status: "delivering",
-    customer: {
-      name: "Phan Diệu Liễu",
-      phone: "+84 912 345 678",
-      address: "234 Nguyễn Trãi, Thanh Xuân, Hà Nội",
-      avatar: "https://i.pravatar.cc/150?img=5",
-    },
-    distance: "3 km",
-    totalAmount: "424.000 đ",
-    deliveryTime: "25 phút",
-  };
-
-  /* =========================
-     STATE
-  ========================= */
 
   /* =========================
      STEPS
@@ -164,7 +146,7 @@ const OrderDetailPage = () => {
 
       if (nextStep >= steps.length - 1) {
         // Nếu đã đến trạng thái cuối, xoá đơn
-        setCurrentOrder([]);
+        setCurrentOrder(null);
         setCurrentStep(0);
         setCurrentStatus(null);
       } else {
@@ -234,8 +216,13 @@ const OrderDetailPage = () => {
           </div>
 
           {/* CUSTOMER */}
-          <div style={{ display: "flex", marginBottom: 24 }}>
-            <Avatar size={64} src={order.customer.avatar} />
+          <div
+            style={{ display: "flex", marginBottom: 24, textAlign: "start" }}
+          >
+            <Avatar
+              size={64}
+              src="https://i.pinimg.com/originals/24/bd/d9/24bdd9ec59a9f8966722063fe7791183.jpg"
+            />
             <div style={{ marginLeft: 16 }}>
               <h3 style={{ marginBottom: 4 }}>{currentOrder.recipient_name}</h3>
               <div>
@@ -257,23 +244,9 @@ const OrderDetailPage = () => {
           >
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <span>
-                <EnvironmentOutlined /> Khoảng cách
-              </span>
-              <b>{order.distance}</b>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>
                 <DollarOutlined /> Tổng tiền
               </span>
               <b style={{ color: "#ff6b35" }}>{currentOrder.total_money}</b>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>
-                <ClockCircleOutlined /> Thời gian dự kiến
-              </span>
-              <b>{order.deliveryTime}</b>
             </div>
           </div>
 
@@ -373,7 +346,7 @@ const OrderDetailPage = () => {
                     }
 
                     // Xoá đơn khỏi UI vì đã thất bại
-                    setCurrentOrder([]);
+                    setCurrentOrder(null);
                     setCurrentStep(0);
                     setCurrentStatus(null);
 

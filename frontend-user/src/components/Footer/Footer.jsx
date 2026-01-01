@@ -6,6 +6,7 @@ import ig from "../../assets/ig.svg";
 import x from "../../assets/x.svg";
 import linkedin from "../../assets/linkedin.svg";
 import { Row, Col } from "antd";
+import { Link } from "react-router-dom";
 function Footer() {
   return (
     <div className="main-foot fl-center" style={{ textAlign: "start" }}>
@@ -49,51 +50,18 @@ function Footer() {
           <div className="part">
             <ul>
               <li>
-                <a href="#!" className="foot-para-text">
-                  About Us
-                </a>
+                <Link to="/aboutUs" className="foot-para-text">
+                  Về chúng tôi
+                </Link>
               </li>
               <li>
-                <a href="#!" className="foot-para-text">
-                  Features
-                </a>
+                <Link to="/facilities" className="foot-para-text">
+                  Các cơ sở
+                </Link>
               </li>
               <li>
-                <a href="#!" className="foot-para-text">
-                  Our Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#!" className="foot-para-text">
-                  Latest News
-                </a>
-              </li>
-            </ul>
-          </div>
-        </Col>
-
-        <Col xs={10} md={7} xl={5} className="mb-3">
-          <h4 className="h4-level">Support</h4>
-          <div className="part">
-            <ul>
-              <li>
-                <a href="#!" className="foot-para-text">
-                  FAQ’s
-                </a>
-              </li>
-              <li>
-                <a href="#!" className="foot-para-text">
-                  Terms & Conditions
-                </a>
-              </li>
-              <li>
-                <a href="#!" className="foot-para-text">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#!" className="foot-para-text">
-                  Contact Us
+                <a href="/menu" className="foot-para-text">
+                  Menu
                 </a>
               </li>
             </ul>
@@ -133,10 +101,6 @@ function Footer() {
           Lê Thị Yến
         </p>
       </Row>
-
-      {/* <p className="copyright">
-        Copyright ©2022 webdesign.gdn All rights reserved
-      </p> */}
     </div>
   );
 }

@@ -33,7 +33,6 @@ export default function ProductList() {
   const { addToCart, addingToCart } = useOrder();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showFeedback, setShowFeedback] = useState(false);
   const location = useLocation();
   const category = location.pathname.split("/").pop();
   const { products_bought } = useAccount();
@@ -96,8 +95,8 @@ export default function ProductList() {
   return (
     <>
       {contextHolder}
-      <div style={{ border: "1px solid" }}>
-        <Row justify="center" align="top" style={{ border: "1px solid red" }}>
+      <div>
+        <Row justify="center" align="top">
           {loading ? (
             // Hiện 8 skeleton giả khi đang load
             Array(8)
@@ -134,50 +133,6 @@ export default function ProductList() {
             ))
           )}
         </Row>
-
-        <button onClick={() => setShowFeedback(true)}>Đánh giá ngay</button>
-
-        {showFeedback && (
-          <div className="fl-center showUp">
-            <div
-              style={{
-                width: "95%",
-                maxWidth: "500px",
-                backgroundColor: " #fdfbf5",
-                maxHeight: "90%",
-                borderRadius: "8px",
-                flexDirection: "column",
-                position: "relative",
-              }}
-              className="fl-center"
-            >
-              <div
-                className="scrollbar w100"
-                style={{
-                  maxHeight: "100%",
-                  maxWidth: "450px",
-                  overflowY: "auto",
-                  padding: "20px",
-                }}
-              >
-                <button
-                  onClick={() => setShowFeedback(false)}
-                  style={{
-                    position: "absolute",
-                    top: "15px",
-                    right: "15px",
-                    fontSize: "15px",
-                  }}
-                  className="out-line"
-                >
-                  <CloseOutlined />
-                </button>
-
-                <FeedbackComponent />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

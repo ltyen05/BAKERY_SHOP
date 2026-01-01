@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Voucher/voucherConstants.js
-// ✅ UPDATED: Thêm đầy đủ fields theo backend
 // ===============================================
 import { 
   FiTag, 
@@ -40,7 +39,7 @@ export const STATS_CONFIG = [
   }
 ];
 
-// ✅ VOUCHER FIELDS - ĐẦY ĐỦ THEO BACKEND
+//  VOUCHER FIELDS - ĐẦY ĐỦ THEO BACKEND
 export const VOUCHER_FIELDS = [
   {
     name: 'description',
@@ -135,7 +134,7 @@ export const VOUCHER_FIELDS = [
   }
 ];
 
-// ✅ FORMAT HELPERS
+//  FORMAT HELPERS
 export const formatDate = (dateString) => {
   if (!dateString) return '—';
   try {
@@ -171,17 +170,17 @@ export const formatDiscount = (voucher) => {
   }
 };
 
-// ✅ Helper: Convert date từ backend sang input format
+//  Helper: Convert date từ backend sang input format
 export const formatDateForInput = (dateString) => {
   if (!dateString) return '';
   try {
-    console.log('🔄 Converting date:', dateString);
+    console.log(' Converting date:', dateString);
     
     // "Wed, 31 Dec 2025 00:00:00 GMT" -> "2025-12-31"
     const date = new Date(dateString);
     
     if (isNaN(date.getTime())) {
-      console.error('❌ Invalid date:', dateString);
+      console.error(' Invalid date:', dateString);
       return '';
     }
     
@@ -190,16 +189,16 @@ export const formatDateForInput = (dateString) => {
     const day = String(date.getDate()).padStart(2, '0');
     
     const result = `${year}-${month}-${day}`;
-    console.log('✅ Converted to:', result);
+    console.log(' Converted to:', result);
     
     return result;
   } catch (error) {
-    console.error('❌ Error converting date:', error);
+    console.error(' Error converting date:', error);
     return '';
   }
 };
 
-// ✅ Helper: Convert input date sang ISO string cho backend
+// Helper: Convert input date sang ISO string cho backend
 export const formatDateForBackend = (dateString) => {
   if (!dateString) return '';
   try {

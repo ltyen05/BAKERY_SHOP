@@ -1,16 +1,13 @@
 /* =============================================== */
 /* FILE: src/pages/Dashboard/DashboardView.css */
-/* REDESIGNED - With Chart Styling */
 /* =============================================== */
 
-/* Container */
 .dashboard-container {
   padding: 24px;
   background: #f8f9fa;
   min-height: 100vh;
 }
 
-/* Header */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -35,7 +32,6 @@
   font-weight: 500;
 }
 
-/* Controls */
 .dashboard-controls {
   display: flex;
   gap: 12px;
@@ -43,7 +39,6 @@
   flex-wrap: wrap;
 }
 
-/* Card customization */
 .dashboard-container .ant-card {
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -66,7 +61,6 @@
   padding: 20px;
 }
 
-/* Chart Cards */
 .chart-card {
   height: 100%;
 }
@@ -78,7 +72,6 @@
   min-height: 300px;
 }
 
-/* No Data State */
 .no-data {
   display: flex;
   align-items: center;
@@ -89,7 +82,6 @@
   font-weight: 500;
 }
 
-/* Recharts Customization */
 .recharts-wrapper {
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
@@ -108,7 +100,6 @@
   outline: none !important;
 }
 
-/* Custom Tooltip */
 .recharts-default-tooltip {
   background: white !important;
   border: 1px solid #e5e7eb !important;
@@ -128,7 +119,6 @@
   font-size: 13px !important;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   .dashboard-header {
     flex-direction: column;

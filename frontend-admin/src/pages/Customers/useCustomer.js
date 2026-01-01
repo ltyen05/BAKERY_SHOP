@@ -1,13 +1,16 @@
 // ===============================================
 // FILE: src/pages/Customers/useCustomer.js
-// ✅ Custom hook cho Customer logic
+// ✅ FIXED: Hiển thị TẤT CẢ khách hàng (không phân biệt chi nhánh)
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 import { customerApi } from '../../api/customerApi';
+import { useAuth } from '../../context/AuthContext';  
 import { RANK_TABS } from './customerConstants';
 
 export const useCustomer = () => {
+  const { isSuperAdmin, isBranchAdmin } = useAuth();
+
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeRank, setActiveRank] = useState('all');
@@ -23,6 +26,7 @@ export const useCustomer = () => {
     try {
       setLoading(true);
       
+      // ✅ KHÔNG GỬI branchId - Lấy TẤT CẢ khách hàng
       const data = await customerApi.getAllCustomers();
       
       if (!Array.isArray(data)) {
@@ -61,20 +65,41 @@ export const useCustomer = () => {
 
   // ============= FILTERED DATA =============
   const filteredCustomers = useMemo(() => {
-    return customers.filter(customer => {
-      const currentTab = RANK_TABS.find(t => t.id === activeRank);
-      const matchRank = !currentTab?.rank || 
-        customer.rank.toLowerCase() === currentTab.rank.toLowerCase();
-      
-      const query = searchQuery.toLowerCase().trim();
-      const matchSearch = query === '' ||
-        customer.name.toLowerCase().includes(query) ||
-        customer.email.toLowerCase().includes(query) ||
-        customer.phone.includes(query) ||
-        customer.customerId.toLowerCase().includes(query);
-      
-      return matchRank && matchSearch;
-    });
+    try {
+      return customers.filter(customer => {
+        if (!customer) return false;
+        
+        // Filter by rank
+        const currentTab = RANK_TABS.find(t => t.id === activeRank);
+        const customerRank = customer.rank?.toLowerCase() || 'bronze';
+        const matchRank = !currentTab?.rank || customerRank === currentTab.rank.toLowerCase();
+        
+        // Filter by search query
+        const query = searchQuery.toLowerCase().trim();
+        
+        if (query === '') {
+          return matchRank;
+        }
+        
+        const searchableId = customer.id ? String(customer.id) : '';
+        const searchableCustomerId = customer.customerId ? String(customer.customerId).toLowerCase() : '';
+        const searchableName = customer.name ? String(customer.name).toLowerCase() : '';
+        const searchableEmail = customer.email ? String(customer.email).toLowerCase() : '';
+        const searchablePhone = customer.phone ? String(customer.phone) : '';
+        
+        const matchSearch = 
+          searchableId.includes(query) ||
+          searchableCustomerId.includes(query) ||
+          searchableName.includes(query) ||
+          searchableEmail.includes(query) ||
+          searchablePhone.includes(query);
+        
+        return matchRank && matchSearch;
+      });
+    } catch (error) {
+      console.error('❌ [useCustomer] Filter error:', error);
+      return [];
+    }
   }, [customers, activeRank, searchQuery]);
 
   // ============= RANK COUNT =============
@@ -88,6 +113,12 @@ export const useCustomer = () => {
 
   // ============= DELETE CUSTOMER =============
   const deleteCustomer = async (customerId, customerName) => {
+    // ✅ Check permission
+    if (!isSuperAdmin && !isBranchAdmin) {
+      message.error('Bạn không có quyền xóa khách hàng');
+      return { success: false };
+    }
+
     try {
       const result = await customerApi.deleteCustomer(customerId);
       
@@ -136,6 +167,15 @@ export const useCustomer = () => {
     message.success('Xuất file CSV thành công!');
   };
 
+  // Permission checks
+  const canDeleteCustomer = () => {
+    return isSuperAdmin || isBranchAdmin;
+  };
+
+  const canExportData = () => {
+    return isSuperAdmin || isBranchAdmin;
+  };
+
   // ============= RETURN =============
   return {
     customers,
@@ -150,6 +190,11 @@ export const useCustomer = () => {
     setCurrentPage,
     handleRankChange,
     handleSearchChange,
-    handleExportCSV
+    handleExportCSV,
+    
+    canDeleteCustomer,
+    canExportData,
+    isSuperAdmin,
+    isBranchAdmin
   };
 };

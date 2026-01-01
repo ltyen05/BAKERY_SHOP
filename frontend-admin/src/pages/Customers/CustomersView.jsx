@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Customers/CustomersView.jsx
-// ✅ FIXED: Avatar màu vàng, bỏ nền xanh mã KH, bỏ icon header
 // ===============================================
 import React from 'react';
 import { Tag, Space, Button, Tooltip, Modal } from 'antd';
@@ -11,7 +10,6 @@ import { useCustomer } from './useCustomer';
 import { 
   RANK_TABS, 
   formatCurrency, 
-  getInitials, 
   getRankStyle 
 } from './customerConstants';
 import './CustomersView.css';
@@ -31,11 +29,18 @@ const CustomersView = () => {
     setCurrentPage,
     handleRankChange,
     handleSearchChange,
-    handleExportCSV
+    handleExportCSV,
+    
+    canDeleteCustomer,
+    canExportData
   } = useCustomer();
 
   // ============= DELETE HANDLER =============
   const handleDelete = (customer) => {
+    if (!canDeleteCustomer()) {
+      return;
+    }
+
     confirm({
       title: 'Xác nhận xóa khách hàng',
       icon: <ExclamationCircleOutlined />,
@@ -76,23 +81,9 @@ const CustomersView = () => {
       width: 200,
       sorter: (a, b) => a.name.localeCompare(b.name),
       render: (text) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #FFBD71 0%, #FFDCA2 100%)',
-            color: 'rgb(93, 12, 12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '13px',
-            fontWeight: 600
-          }}>
-            {getInitials(text)}
-          </div>
-          <span style={{ fontWeight: 600, color: '#1e293b' }}>{text}</span>
-        </div>
+        <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '14px' }}>
+          {text}
+        </span>
       ),
     },
     {
@@ -155,14 +146,16 @@ const CustomersView = () => {
       align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              icon={<FiTrash2 />}
-              onClick={() => handleDelete(record)}
-              danger
-            />
-          </Tooltip>
+          {canDeleteCustomer() && (
+            <Tooltip title="Xóa">
+              <Button
+                type="text"
+                icon={<FiTrash2 />}
+                onClick={() => handleDelete(record)}
+                danger
+              />
+            </Tooltip>
+          )}
         </Space>
       ),
     },
@@ -187,7 +180,7 @@ const CustomersView = () => {
       <div className="customer-header">
         <h1 className="customer-title">Quản lý Khách hàng</h1>
         <p className="customer-subtitle">
-          Quản lý thông tin khách hàng • Tổng: {stats.total} khách hàng
+          Tổng: {stats.total} khách hàng
         </p>
       </div>
 
@@ -218,13 +211,15 @@ const CustomersView = () => {
             />
           </div>
 
-          <button 
-            onClick={handleExportCSV} 
-            className="export-btn"
-            disabled={filteredCustomers.length === 0 || loading}
-          >
-            <FiDownload /> Export
-          </button>
+          {canExportData() && (
+            <button 
+              onClick={handleExportCSV} 
+              className="export-btn"
+              disabled={filteredCustomers.length === 0 || loading}
+            >
+              <FiDownload /> Export
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,11 +1,10 @@
 // ===============================================
 // FILE: src/pages/Admin/AdminView.jsx
-
 // ===============================================
 import { useState } from "react";
 import { Button, Space, Tooltip, Modal, Tag } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { FiSearch, FiUser, FiMail, FiHome, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiSearch, FiUser, FiMail, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DataTable from "../../components/Table/Table";
 import FormModal from "../../components/FormModal/FormModal";
 import { useAdmin } from "./useAdmin";
@@ -28,9 +27,6 @@ const AdminView = () => {
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ========================================
-  // FILTER
-  // ========================================
   const filteredAdmins = admins.filter(admin => {
     if (!searchQuery.trim()) return true;
     
@@ -48,9 +44,6 @@ const AdminView = () => {
     );
   });
 
-  // ========================================
-  // HANDLERS
-  // ========================================
   const handleEditClick = (admin) => {
     const formData = {
       manager_id: admin.manager_id,
@@ -60,11 +53,10 @@ const AdminView = () => {
       status: admin.status || 'Đang làm việc',
       branch_id: admin.branch_id,
       branch_name: admin.branch_name,
-      
       password: ''
     };
     
-    console.log('📝 Edit admin data:', formData);
+    console.log('Edit admin data:', formData);
     
     setSelectedAdmin(formData);
     setIsModalOpen(true);
@@ -91,7 +83,7 @@ const AdminView = () => {
   };
 
   const handleSaveAdmin = async (adminData) => {
-    console.log('💾 Saving admin:', adminData);
+    console.log('Saving admin:', adminData);
     
     const result = await updateAdmin(selectedAdmin.manager_id, adminData);
     
@@ -100,17 +92,11 @@ const AdminView = () => {
     }
   };
 
-  // ========================================
-  // RENDER HELPERS
-  // ========================================
   const renderStatus = (status) => {
     const config = STATUS_CONFIG[status] || { color: 'default' };
     return <Tag color={config.color}>{status}</Tag>;
   };
 
-  // ========================================
-  // TABLE COLUMNS
-  // ========================================
   const columns = [
     {
       title: 'ID',
@@ -174,13 +160,11 @@ const AdminView = () => {
         
         return (
           <div className="branch-info-text">
-            <FiHome style={{ marginRight: 6, color: '#FFBD71' }} />
             <span>{branchName}</span>
           </div>
         );
       }
     },
-   
     {
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -233,9 +217,6 @@ const AdminView = () => {
     setCurrentPage(pagination.current);
   };
 
-  // ========================================
-  // RENDER
-  // ========================================
   return (
     <div className="admin-container">
       <div className="admin-page-header">
@@ -257,8 +238,6 @@ const AdminView = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-
-        
         </div>
       </div>
 
@@ -273,7 +252,6 @@ const AdminView = () => {
         emptyText="Không có admin nào"
       />
 
-      {/*  MODAL CHỈ Ở CHẾ ĐỘ EDIT */}
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

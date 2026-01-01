@@ -108,13 +108,6 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
 
           {showSettingsMenu && (
             <div className="settings-dropdown">
-              <div className="dropdown-item-sidebar" onClick={() => {
-                navigate('/profile');
-                handleMenuClick();
-              }}>
-                <TbUser />
-                <span>Edit Profile</span>
-              </div>
               <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
                 <TbLogout />
                 <span>Log out</span>
@@ -186,13 +179,6 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
 
           {showSettingsMenu && (
             <div className="settings-dropdown">
-              <div className="dropdown-item-sidebar" onClick={() => {
-                navigate('/profile');
-                handleMenuClick();
-              }}>
-                <TbUser />
-                <span>Edit Profile</span>
-              </div>
               <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
                 <TbLogout />
                 <span>Log out</span>

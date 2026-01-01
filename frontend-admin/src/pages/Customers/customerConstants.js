@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Customers/customerConstants.js
-// ✅ Constants và configs cho Customer management
 // ===============================================
 import { FiUsers, FiAward } from 'react-icons/fi';
 

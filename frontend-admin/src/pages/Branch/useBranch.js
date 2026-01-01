@@ -42,7 +42,6 @@ export const useBranch = () => {
     fetchBranches();
   }, [fetchBranches]);
 
-  //  FIXED: VIEW BRANCH - Auto navigate to dashboard
   const handleViewBranch = useCallback(async (branch) => {
     try {
       const branchData = {
@@ -53,7 +52,6 @@ export const useBranch = () => {
       };
 
       viewBranch(branchData);
-      message.success(`Đang xem chi nhánh: ${branch.name}`);
       
       //  AUTO NAVIGATE TO DASHBOARD
       navigate('/dashboard');

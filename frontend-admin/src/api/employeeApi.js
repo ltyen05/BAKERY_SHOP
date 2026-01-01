@@ -32,24 +32,24 @@ export const employeeApi = {
         params.status = options.status;
       }
 
-      console.log('📥 Fetching employees with params:', params);
+      console.log(' Fetching employees with params:', params);
 
       const response = await api.get(`${BASE_PATH}/employee`, { params });
 
-      console.log('📥 Backend raw response:', response.data);
+      console.log(' Backend raw response:', response.data);
 
       const mappedData = Array.isArray(response.data)
         ? response.data.map(mapEmployeeFromBackend)
         : [];
 
-      console.log('✅ Mapped data for frontend:', mappedData);
+      console.log(' Mapped data for frontend:', mappedData);
 
       return {
         success: true,
         data: mappedData,
       };
     } catch (error) {
-      console.error('❌ Error fetching employees:', error);
+      console.error(' Error fetching employees:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
@@ -70,10 +70,9 @@ export const employeeApi = {
   // ============= ADD EMPLOYEE =============
   addEmployee: async (employeeData) => {
     try {
-      console.group('📤 ADD EMPLOYEE API CALL');
+      console.group(' ADD EMPLOYEE API CALL');
       console.log('1. employeeData nhận được:', employeeData);
       
-      // ✅ VALIDATE branch_id
       let branchId;
       
       if (!employeeData.branch_id || employeeData.branch_id === '') {
@@ -86,9 +85,8 @@ export const employeeApi = {
         throw new Error(`Branch ID không hợp lệ: "${employeeData.branch_id}". Vui lòng nhập số từ 1-5`);
       }
 
-      console.log('✅ branchId sau khi parse:', branchId, typeof branchId);
+      console.log('branchId sau khi parse:', branchId, typeof branchId);
 
-      // ✅ VALIDATE password (BẮT BUỘC)
       if (!employeeData.password || employeeData.password.trim() === '') {
         throw new Error('Mật khẩu không được để trống');
       }
@@ -99,13 +97,13 @@ export const employeeApi = {
         employee_name: employeeData.name || '',
         role_name: employeeData.role || '',
         email: employeeData.email || '',
-        password: employeeData.password, // ✅ THÊM PASSWORD
+        password: employeeData.password, //  THÊM PASSWORD
         salary: parseFloat(employeeData.salary) || 9000000,
         status: employeeData.status || 'Đang làm việc',
         branch_id: branchId,
       };
 
-      // ✅ DOUBLE CHECK tất cả field
+      //  DOUBLE CHECK tất cả field
       if (!payload.employee_name || payload.employee_name.trim() === '') {
         throw new Error('Tên nhân viên không được để trống');
       }
@@ -122,13 +120,13 @@ export const employeeApi = {
         throw new Error('Branch ID không hợp lệ');
       }
 
-      console.log('5. 🚀 Gọi API POST...');
-      console.log('6. 📋 Final payload:', JSON.stringify(payload, null, 2));
+      console.log('5.  Gọi API POST...');
+      console.log('6.  Final payload:', JSON.stringify(payload, null, 2));
 
       // Call API
       const response = await api.post(`${BASE_PATH}/add_employee`, payload);
 
-      console.log('6. ✅ API Response:', response.data);
+      console.log('6.  API Response:', response.data);
       console.groupEnd();
 
       return {
@@ -137,7 +135,7 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('❌ Error adding employee:', error);
+      console.error(' Error adding employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
@@ -158,11 +156,10 @@ export const employeeApi = {
   // ============= UPDATE EMPLOYEE =============
   updateEmployee: async (employeeId, employeeData) => {
     try {
-      console.group('📤 UPDATE EMPLOYEE API CALL');
+      console.group(' UPDATE EMPLOYEE API CALL');
       console.log('1. employeeId:', employeeId);
       console.log('2. employeeData:', employeeData);
 
-      // ✅ VALIDATE branch_id
       if (!employeeData.branch_id) {
         throw new Error('Branch ID bị thiếu trong employeeData');
       }
@@ -173,7 +170,6 @@ export const employeeApi = {
         throw new Error(`Branch ID không hợp lệ: ${employeeData.branch_id}`);
       }
 
-      // ✅ UPDATE KHÔNG CẦN PASSWORD
       const payload = {
         employee_name: employeeData.name,
         role_name: employeeData.role,
@@ -183,7 +179,7 @@ export const employeeApi = {
         branch_id: branchId,
       };
 
-      console.log('3. ✅ Payload chuẩn bị gửi:', payload);
+      console.log('3.  Payload chuẩn bị gửi:', payload);
 
       // Call API
       const response = await api.put(
@@ -191,7 +187,7 @@ export const employeeApi = {
         payload
       );
 
-      console.log('4. ✅ API Response:', response.data);
+      console.log('4.  API Response:', response.data);
       console.groupEnd();
 
       return {
@@ -200,7 +196,7 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('❌ Error updating employee:', error);
+      console.error(' Error updating employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
@@ -221,14 +217,14 @@ export const employeeApi = {
   // ============= DELETE EMPLOYEE =============
   deleteEmployee: async (employeeId) => {
     try {
-      console.log('🗑️ Deleting employee:', employeeId);
+      console.log(' Deleting employee:', employeeId);
 
       // Call API
       const response = await api.delete(
         `${BASE_PATH}/delete_employee/${employeeId}`
       );
 
-      console.log('✅ Employee deleted successfully:', response.data);
+      console.log(' Employee deleted successfully:', response.data);
 
       return {
         success: true,
@@ -236,7 +232,7 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error('❌ Error deleting employee:', error);
+      console.error(' Error deleting employee:', error);
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,

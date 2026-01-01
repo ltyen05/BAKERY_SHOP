@@ -1,6 +1,6 @@
 // ===============================================
 // Location: src/pages/Orders/OrdersView.jsx
-// FIXED: Address column and removed sharp from order ID
+// FIXED: Removed avatar from customer column
 // ===============================================
 
 import React, { useState } from 'react';
@@ -145,33 +145,15 @@ const OrdersView = () => {
       key: 'customer',
       width: 200,
       render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: '600',
-              fontSize: '14px'
-            }}
-          >
-            {(record.recipient_name || record.customer_name || 'K').charAt(0).toUpperCase()}
+        <div>
+          <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
+            {record.recipient_name || record.customer_name || 'N/A'}
           </div>
-          <div>
-            <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
-              {record.recipient_name || record.customer_name || 'N/A'}
+          {record.phone && record.phone !== 'N/A' && (
+            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+              {record.phone}
             </div>
-            {record.phone && record.phone !== 'N/A' && (
-              <div style={{ fontSize: '12px', color: '#64748b' }}>
-                {record.phone}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       )
     },

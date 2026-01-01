@@ -133,11 +133,11 @@ def get_all_branches():
         return jsonify({"error": str(e)}), 500
 #==============================EMPLOYEES=========================================
 @admin_mgmt_bp.route('/add_admin', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_employee():
-    identity = json.loads(get_jwt_identity())
-    if identity.get("role") != 'employee':
-        return jsonify({"error": "Bạn không có quyền thực hiện thao tác này"}), 403
+    # identity = json.loads(get_jwt_identity())
+    # if identity.get("role") != 'employee':
+    #     return jsonify({"error": "Bạn không có quyền thực hiện thao tác này"}), 403
     data = request.json
     emp = create_employee_service(data)
     return jsonify({"success": True, "message": "Thêm quản lí thành công", "id": emp.employee_id}), 201

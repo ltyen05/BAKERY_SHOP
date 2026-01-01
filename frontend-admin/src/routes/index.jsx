@@ -1,8 +1,6 @@
-
-
-
 // ===============================================
-// src/routes/index.jsx
+// FILE: src/routes/index.jsx
+// FIX: Super Admin có menu Sản phẩm và Voucher
 // ===============================================
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
@@ -18,7 +16,9 @@ const Voucher = lazy(() => import("../pages/Voucher/Voucher"));
 const BranchView = lazy(() => import("../pages/Branch/BranchView"));
 const AdminView = lazy(() => import("../pages/Admin/AdminView"));
 
-//  Route cho SUPER ADMIN (chưa xem chi nhánh cụ thể)
+// ========================================
+// ROUTE CHO SUPER ADMIN (chưa xem chi nhánh)
+// ========================================
 export const superAdminRoutes = [
   {
     path: "/",
@@ -36,6 +36,22 @@ export const superAdminRoutes = [
     element: BranchView,
     name: "Quản lý Chi nhánh",
     icon: "store",
+    roles: ["super_admin"],
+  },
+  // Sản phẩm cho Super Admin
+  {
+    path: "products",
+    element: ProductsView,
+    name: "Quản lý Sản phẩm",
+    icon: "inventory",
+    roles: ["super_admin"],
+  },
+  // Voucher cho Super Admin
+  {
+    path: "voucher",
+    element: Voucher,
+    name: "Quản lý Voucher",
+    icon: "confirmation_number",
     roles: ["super_admin"],
   },
   {
@@ -56,7 +72,9 @@ export const superAdminRoutes = [
   },
 ];
 
-// Route cho BRANCH ADMIN hoặc SUPER ADMIN đang xem chi nhánh
+// ========================================
+// ROUTE CHO BRANCH ADMIN hoặc SUPER ADMIN đang xem chi nhánh
+// ========================================
 export const branchRoutes = [
   {
     path: "/",
@@ -122,21 +140,23 @@ export const branchRoutes = [
   },
 ];
 
+// ========================================
 // Hàm helper để lấy routes phù hợp
+// ========================================
 export const getRoutesForUser = (user) => {
   const isSuperAdmin = user?.role === 'super_admin';
   const isViewingBranch = isSuperAdmin && user?.viewing_branch !== null;
   
-  // Super Admin đang xem chi nhánh → dùng branch routes
+  // Super Admin đang xem chi nhánh -> dùng branch routes
   if (isViewingBranch) {
     return branchRoutes;
   }
   
-  // Super Admin chưa xem chi nhánh → dùng super admin routes
+  // Super Admin chưa xem chi nhánh -> dùng super admin routes
   if (isSuperAdmin) {
     return superAdminRoutes;
   }
   
-  // Branch Admin → dùng branch routes
+  // Branch Admin -> dùng branch routes
   return branchRoutes;
 };

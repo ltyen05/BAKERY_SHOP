@@ -1,6 +1,3 @@
-// ===============================================
-// src/pages/Employee/Employee.jsx - SYNCED WITH CUSTOMER
-// ===============================================
 import React, { useState } from 'react';
 import { Tag, Space, Button, Tooltip, Modal } from 'antd';
 import { FiSearch, FiDownload, FiPlus, FiUser, FiEdit2, FiTrash2 } from 'react-icons/fi';
@@ -25,45 +22,32 @@ const { confirm } = Modal;
 
 const Employee = () => {
   const {
-    // Data
     filteredEmployees,
     stats,
-    
-    // State
     loading,
     activeRole,
     statusFilter,
     searchQuery,
     currentPage,
-    
-    // CRUD
     addEmployee,
     updateEmployee,
     deleteEmployee,
-    
-    // Helpers
     roleCount,
     getHeaderTitle,
     getHeaderSubtitle,
-    
-    // Handlers
     setCurrentPage,
     handleRoleChange,
     handleStatusChange,
     handleSearchChange,
-    
-    // Auth
     isSuperAdmin,
     isBranchAdmin,
     currentBranchId
   } = useEmployee();
 
-  // ============= MODAL STATE =============
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  // ============= MODAL HANDLERS =============
   const handleAddClick = () => {
     setModalMode('add');
     setSelectedEmployee(null);
@@ -88,7 +72,7 @@ const Employee = () => {
       result = await addEmployee(employeeData);
     } else {
       const employeeId = selectedEmployee.employee_id || selectedEmployee.id;
-      console.log('📝 Editing employee ID:', employeeId, 'Data:', selectedEmployee);
+      console.log('Editing employee ID:', employeeId, 'Data:', selectedEmployee);
       result = await updateEmployee(employeeId, employeeData);
     }
     
@@ -97,7 +81,6 @@ const Employee = () => {
     }
   };
 
-  // ============= DELETE HANDLER =============
   const handleDelete = (employee) => {
     confirm({
       title: 'Xác nhận xóa nhân viên',
@@ -113,12 +96,10 @@ const Employee = () => {
     });
   };
 
-  // ============= FIELDS CONFIG =============
   const getFormFields = () => {
     const baseFields = modalMode === 'edit' ? EMPLOYEE_EDIT_FIELDS : EMPLOYEE_FIELDS;
     
     return baseFields.map(field => {
-      // Nếu là Branch Admin, disable và set default branch_id
       if (field.name === 'branch_id' && isBranchAdmin) {
         return {
           ...field,
@@ -127,7 +108,6 @@ const Employee = () => {
         };
       }
       
-      // Nếu đang xem 1 chi nhánh cụ thể, set default đó
       if (field.name === 'branch_id' && currentBranchId) {
         return {
           ...field,
@@ -139,7 +119,6 @@ const Employee = () => {
     });
   };
 
-  // ============= EXPORT HANDLER =============
   const handleExport = () => {
     if (filteredEmployees.length === 0) return;
     
@@ -166,7 +145,6 @@ const Employee = () => {
     link.click();
   };
 
-  // ============= TABLE COLUMNS =============
   const columns = [
     {
       title: 'ID',
@@ -295,7 +273,6 @@ const Employee = () => {
     }
   ];
 
-  // ============= PAGINATION CONFIG =============
   const paginationConfig = {
     current: currentPage,
     pageSize: 10,
@@ -307,16 +284,13 @@ const Employee = () => {
     setCurrentPage(pagination.current);
   };
 
-  // ============= RENDER =============
   return (
     <div className="employee-container">
-      {/* HEADER */}
       <div className="employee-header">
         <h1 className="employee-title">{getHeaderTitle()}</h1>
         <p className="employee-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
-      {/* STATS CARDS */}
       <div className="stats-grid">
         {STATS_CONFIG.map(stat => (
           <StatsCard
@@ -330,9 +304,7 @@ const Employee = () => {
         ))}
       </div>
 
-      {/* TABS + ACTIONS  */}
       <div className="tabs-action-bar">
-        {/* Role Tabs */}
         <div className="role-tabs">
           {ROLE_TABS.map(tab => (
             <div
@@ -345,9 +317,7 @@ const Employee = () => {
           ))}
         </div>
 
-        {/* Right Actions */}
         <div className="right-actions">
-          {/* Search */}
           <div className="search-box">
             <FiSearch className="search-icon" />
             <input
@@ -359,7 +329,6 @@ const Employee = () => {
             />
           </div>
 
-          {/* Export Button */}
           <button
             className="export-btn"
             onClick={handleExport}
@@ -369,9 +338,8 @@ const Employee = () => {
             Export
           </button>
 
-          {/* Add Button  */}
           <button
-            className="add-customer-btn"
+            className="add-btn"
             onClick={handleAddClick}
             disabled={loading}
           >
@@ -381,7 +349,6 @@ const Employee = () => {
         </div>
       </div>
 
-      {/* DATA TABLE */}
       <DataTable
         columns={columns}
         dataSource={filteredEmployees}
@@ -393,7 +360,6 @@ const Employee = () => {
         emptyText="Không có nhân viên nào"
       />
 
-      {/* FORM MODAL */}
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

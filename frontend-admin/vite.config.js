@@ -1,4 +1,6 @@
-import { defineConfig } from 'vite'
+import {
+  defineConfig
+} from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -12,8 +14,12 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://localhost:5000', // ✅ SỬA Ở ĐÂY
+        target: 'http://localhost:5000',
         changeOrigin: true,
+      },
+      '/superadmin': {
+        target: 'http://localhost:5001',
+        changeOrigin: true
       }
     }
   }

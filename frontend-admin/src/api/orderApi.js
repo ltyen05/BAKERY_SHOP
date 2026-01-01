@@ -1,43 +1,141 @@
-import api from './axiosConfig';
+// ===============================================
+// Location: src/api/orderApi.js - HANDLE EMPTY ITEMS
+// ===============================================
 
-const BASE_PATH = '/admin/order_management';
+const BASE_URL = '/admin/order_management';
 
 export const orderApi = {
-  // Lấy danh sách tất cả đơn hàng
-  getAllOrders: async () => {
-    const response = await api.get(`${BASE_PATH}/orders`);
-    return response.data;
+  // GET - Lấy tất cả orders theo branch
+  getAllOrders: async (branchId) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/orders?branch_id=${branchId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      return {
+        success: result.success,
+        data: result.data || [],
+        count: result.count || 0,
+        branch_id: result.branch_id,
+      };
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      throw error;
+    }
   },
 
-  // Lấy chi tiết đơn hàng theo ID
+  // GET DETAIL - Handle 404 và empty items
   getOrderDetail: async (orderId) => {
-    const response = await api.get(`${BASE_PATH}/order_management`, {
-      params: { order_id: orderId }
-    });
-    return response.data;
+    try {
+      console.log('Fetching order detail for ID:', orderId);
+
+      const response = await fetch(
+        `${BASE_URL}/order_detail?order_id=${orderId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // Handle 404 - order không có items
+      if (response.status === 404) {
+        console.warn('Order has no items (404)');
+        return {
+          success: true,
+          items: [],
+        };
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const items = await response.json();
+
+      console.log('Order items:', items);
+
+      // Handle empty response
+      if (!items || (Array.isArray(items) && items.length === 0)) {
+        console.warn('Order has no items (empty array)');
+        return {
+          success: true,
+          items: [],
+        };
+      }
+
+      // Backend trả về array items trực tiếp
+      return {
+        success: true,
+        items: Array.isArray(items) ? items : [items],
+      };
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+
+      // Trả về empty items thay vì throw error
+      return {
+        success: false,
+        items: [],
+        error: error.message,
+      };
+    }
   },
 
-  // Xóa đơn hàng
+  // DELETE - Xóa order
   deleteOrder: async (orderId) => {
-    const response = await api.delete(`${BASE_PATH}/orders/${orderId}`);
-    return response.data;
+    try {
+      const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      throw error;
+    }
   },
 
-  // Tìm kiếm đơn hàng (nếu backend có)
-  searchOrders: async (keyword) => {
-    const response = await api.get(`${BASE_PATH}/orders/search`, {
-      params: { keyword }
-    });
-    return response.data;
-  },
+  // UPDATE STATUS
+  updateOrderStatus: async (orderId, newStatus) => {
+    try {
+      const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-  // Cập nhật trạng thái đơn hàng (nếu cần thêm)
-  updateOrderStatus: async (orderId, status) => {
-    const response = await api.put(`${BASE_PATH}/orders/${orderId}/status`, {
-      status
-    });
-    return response.data;
-  }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      throw error;
+    }
+  },
 };
 
 export default orderApi;

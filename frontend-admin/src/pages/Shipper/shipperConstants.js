@@ -5,13 +5,13 @@ import {
   FiUser, 
   FiMail, 
   FiPhone, 
-  FiTruck, 
   FiCheckCircle,
   FiLock,
   FiMapPin,
   FiUsers,
   FiUserCheck,
-  FiClock
+  FiClock,
+  FiUserX
 } from 'react-icons/fi';
 
 // ============= STATS CONFIG =============
@@ -33,14 +33,13 @@ export const STATS_CONFIG = [
     title: 'Đang giao',
     icon: FiClock,
     color: 'orange'
+  },
+  {
+    key: 'inactive',
+    title: 'Nghỉ việc',
+    icon: FiUserX,
+    color: 'red'
   }
-];
-
-// ============= VEHICLE TABS =============
-export const VEHICLE_TABS = [
-  { id: 'all', label: 'Tất cả', vehicle: null },
-  { id: 'bike', label: 'Xe máy', vehicle: 'Xe máy' },
-  { id: 'car', label: 'Ô tô', vehicle: 'Ô tô' }
 ];
 
 // ============= BRANCHES =============
@@ -64,13 +63,7 @@ export const STATUS_OPTIONS = [
   { value: 'Nghỉ việc', label: 'Nghỉ việc' }
 ];
 
-// ============= VEHICLE TYPE OPTIONS =============
-export const VEHICLE_TYPE_OPTIONS = [
-  { value: 'Xe máy', label: 'Xe máy' },
-  { value: 'Ô tô', label: 'Ô tô' }
-];
-
-// ============= FORM FIELDS =============
+// ============= FORM FIELDS (BỎ vehicle_type) =============
 export const SHIPPER_FIELDS = [
   {
     name: 'shipper_name',
@@ -108,18 +101,6 @@ export const SHIPPER_FIELDS = [
     showOnEdit: false
   },
   {
-    name: 'vehicle_type',
-    label: 'Loại phương tiện',
-    type: 'select',
-    icon: FiTruck,
-    required: true,
-    defaultValue: 'Xe máy',
-    options: [
-      { value: '', label: 'Chọn loại xe' },
-      ...VEHICLE_TYPE_OPTIONS.map(v => ({ value: v.value, label: v.label }))
-    ]
-  },
-  {
     name: 'status',
     label: 'Trạng thái',
     type: 'select',
@@ -138,7 +119,6 @@ export const SHIPPER_FIELDS = [
     icon: FiMapPin,
     required: true,
     defaultValue: '1',
-    // ✅ BỎ fullWidth để field nằm trong grid 2 cột
     options: [
       { value: '', label: 'Chọn chi nhánh' },
       ...BRANCHES
@@ -171,18 +151,4 @@ export const getStatusColor = (status) => {
     case 'Nghỉ việc': return 'default';
     default: return 'default';
   }
-};
-
-// ✅ THÊM HÀM NÀY
-export const getVehicleIcon = (vehicleType) => {
-  return vehicleType === 'Ô tô' ? '🚗' : '🏍️';
-};
-
-export const getVehicleColor = (vehicleType) => {
-  return vehicleType === 'Ô tô' ? 'vehicle-car' : 'vehicle-bike';
-};
-
-export const formatRating = (rating) => {
-  if (!rating || rating === 0) return '0.0';
-  return rating.toFixed(1);
 };

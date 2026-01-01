@@ -1,30 +1,81 @@
 // ===============================================
-// Location: src/pages/Products/productConstants.js
+// FILE: src/pages/Products/productConstants.js
+// ✅ FIXED: Import icon từ thư viện, fix category mapping
 // ===============================================
 import { 
   FiPackage, 
   FiTag, 
   FiImage,
-  FiFileText
+  FiFileText,
+  FiLayers,
+  FiCoffee,
+  FiShoppingBag,
+  FiGift
 } from 'react-icons/fi';
 import { PiMoney } from 'react-icons/pi';
 
+// ============= STATS CONFIG =============
+export const STATS_CONFIG = [
+  {
+    key: 'all',
+    title: 'Tất cả',
+    icon: FiLayers,
+    color: 'blue',
+    categoryId: null
+  },
+  {
+    key: 'bread',
+    title: 'Bread',
+    icon: FiCoffee,
+    color: 'gold',
+    categoryId: 2  // ✅ Backend trả category: 2
+  },
+  {
+    key: 'cookie',
+    title: 'Cookie',
+    icon: FiShoppingBag,
+    color: 'orange',
+    categoryId: 1  // ✅ Điều chỉnh theo backend
+  },
+  {
+    key: 'pastry',
+    title: 'Pastry',
+    icon: FiGift,
+    color: 'volcano',
+    categoryId: 3
+  }
+];
+
 // ============= CATEGORIES =============
+// ✅ Map theo đúng backend response
 export const CATEGORIES = {
-  1: 'Bread',
-  2: 'Cookie', 
+  1: 'Cookie',
+  2: 'Bread', 
   3: 'Pastry'
+};
+
+export const getCategoryName = (categoryId) => {
+  return CATEGORIES[categoryId] || `Unknown (ID: ${categoryId})`;
+};
+
+export const getCategoryColor = (categoryId) => {
+  const colors = { 
+    1: 'orange',   // Cookie
+    2: 'gold',     // Bread
+    3: 'volcano'   // Pastry
+  };
+  return colors[categoryId] || 'blue';
 };
 
 // ============= CATEGORY TABS =============
 export const CATEGORY_TABS = [
   { id: 'all', label: 'Tất cả', categoryId: null },
-  { id: 'bread', label: 'Bread', categoryId: 1 },
-  { id: 'cookie', label: 'Cookie', categoryId: 2 },
+  { id: 'bread', label: 'Bread', categoryId: 2 },
+  { id: 'cookie', label: 'Cookie', categoryId: 1 },
   { id: 'pastry', label: 'Pastry', categoryId: 3 }
 ];
 
-// ============= FORM FIELDS =============
+// ============= FORM FIELDS (ADD) =============
 export const PRODUCT_FIELDS = [
   {
     name: 'name',
@@ -32,8 +83,7 @@ export const PRODUCT_FIELDS = [
     type: 'text',
     icon: FiPackage,
     placeholder: 'Nhập tên sản phẩm',
-    required: true,
-    fullWidth: true
+    required: true
   },
   {
     name: 'category_id',
@@ -41,12 +91,14 @@ export const PRODUCT_FIELDS = [
     type: 'select',
     icon: FiTag,
     required: true,
-    defaultValue: 1,
+    defaultValue: '2',
     options: [
-      { value: 1, label: 'Bread' },
-      { value: 2, label: 'Cookie' },
-      { value: 3, label: 'Pastry' }
-    ]
+      { value: '', label: 'Chọn danh mục' },
+      { value: '1', label: 'Cookie' },
+      { value: '2', label: 'Bread' },
+      { value: '3', label: 'Pastry' }
+    ],
+    transform: (value) => parseInt(value)
   },
   {
     name: 'unit_price',
@@ -64,7 +116,7 @@ export const PRODUCT_FIELDS = [
     type: 'text',
     icon: FiImage,
     placeholder: 'https://example.com/image.jpg',
-    fullWidth: true
+    required: false
   },
   {
     name: 'description',
@@ -72,10 +124,13 @@ export const PRODUCT_FIELDS = [
     type: 'textarea',
     icon: FiFileText,
     placeholder: 'Nhập mô tả chi tiết về sản phẩm...',
-    fullWidth: true,
+    required: false,
     rows: 4
   }
 ];
+
+// ============= FORM FIELDS (EDIT) =============
+export const PRODUCT_EDIT_FIELDS = PRODUCT_FIELDS;
 
 // ============= HELPER FUNCTIONS =============
 export const formatCurrency = (amount) => {
@@ -83,13 +138,4 @@ export const formatCurrency = (amount) => {
     style: 'currency',
     currency: 'VND'
   }).format(amount);
-};
-
-export const getCategoryColor = (category) => {
-  switch(category) {
-    case 'Bread': return 'gold';
-    case 'Cookie': return 'orange';
-    case 'Pastry': return 'volcano';
-    default: return 'default';
-  }
 };

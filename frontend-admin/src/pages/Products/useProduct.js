@@ -1,12 +1,16 @@
 // ===============================================
-// Location: src/pages/Products/useProduct.js
+// FILE: src/pages/Products/useProduct.js
+// ✅ FIXED: Thêm logic canManage và header helpers
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 import { productApi } from '../../api/productApi';
+import { useAuth } from '../../context/AuthContext';
 import { CATEGORIES, CATEGORY_TABS } from './productConstants';
 
 export const useProduct = () => {
+  const { isSuperAdmin, isViewingBranch } = useAuth();
+  
   // ============= STATE =============
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +20,9 @@ export const useProduct = () => {
 
   const rowsPerPage = 10;
 
+  // ============= QUYỀN HẠN =============
+  const canManage = isSuperAdmin && !isViewingBranch;
+
   // ============= FETCH DATA =============
   useEffect(() => {
     fetchProducts();
@@ -24,32 +31,38 @@ export const useProduct = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await productApi.getAllProducts();
       
-      console.log('Backend response:', data);
+      console.log('🔍 [useProduct] Fetching products from API...');
       
-      // Backend trả về: { product_id, name, category, unit_price, image, description, rating }
-      const mappedProducts = data.map(p => ({
+      const productsArray = await productApi.getAllProducts();
+      
+      console.log(' [useProduct] Raw API response:', productsArray);
+      
+      // Transform để hiển thị UI
+      const mappedProducts = productsArray.map(p => ({
         key: p.product_id,
         id: p.product_id,
         name: p.name || 'Unnamed',
-        category: CATEGORIES[p.category] || 'Khác',
-        categoryId: p.category,
-        price: p.unit_price || 0,  // ← FIX: Backend gửi unit_price
-        image: p.image || 'https://via.placeholder.com/100',
+        category: CATEGORIES[p.category_id] || 'Khác',
+        categoryId: p.category_id,
+        price: p.unit_price || 0,
+        image: p.image_url || p.image || 'https://via.placeholder.com/100',
         description: p.description || '',
+        rating: p.rating || 0,
         
-        // Dữ liệu gốc để edit
+        // Raw data
         product_id: p.product_id,
-        category_id: p.category,
-        unit_price: p.unit_price,  // ← FIX: Đúng field name
-        image_url: p.image
+        category_id: p.category_id,
+        unit_price: p.unit_price,
+        image_url: p.image_url || p.image,
+        
       }));
       
+      console.log(' [useProduct] Mapped products:', mappedProducts);
       setProducts(mappedProducts);
-      console.log('Mapped products:', mappedProducts);
+      
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error(' [useProduct] Error:', err);
       message.error('Không thể tải dữ liệu sản phẩm');
       setProducts([]);
     } finally {
@@ -57,12 +70,24 @@ export const useProduct = () => {
     }
   };
 
+  // ============= STATS =============
+  const stats = useMemo(() => {
+    return {
+      total: products.length,
+      bread: products.filter(p => p.categoryId === 1).length,
+      cookie: products.filter(p => p.categoryId === 2).length,
+      pastry: products.filter(p => p.categoryId === 3).length
+    };
+  }, [products]);
+
   // ============= FILTERED DATA =============
-  const filteredData = useMemo(() => {
+  const filteredProducts = useMemo(() => {
     return products.filter(product => {
+      // Filter by category
       const currentTab = CATEGORY_TABS.find(t => t.id === activeCategory);
       const matchCategory = !currentTab?.categoryId || product.categoryId === currentTab.categoryId;
       
+      // Filter by search
       const query = searchQuery.toLowerCase().trim();
       const matchSearch = query === '' ||
         product.name.toLowerCase().includes(query) ||
@@ -82,15 +107,24 @@ export const useProduct = () => {
   };
 
   // ============= CRUD OPERATIONS =============
+  
   const addProduct = async (formData) => {
     try {
-      console.log('Form data from modal:', formData);
+      console.log('➕ [useProduct] Adding product:', formData);
+      
       const result = await productApi.addProduct(formData);
-      await fetchProducts();
-      message.success('Thêm sản phẩm thành công!');
-      return { success: true };
+      
+      if (result.success) {
+        message.success(' Thêm sản phẩm thành công!');
+        await fetchProducts();
+        return { success: true };
+      } else {
+        message.error(result.message || 'Không thể thêm sản phẩm');
+        return { success: false };
+      }
+      
     } catch (err) {
-      console.error('Add product error:', err);
+      console.error(' [useProduct] Add error:', err);
       message.error('Không thể thêm sản phẩm');
       return { success: false };
     }
@@ -98,13 +132,21 @@ export const useProduct = () => {
 
   const updateProduct = async (productId, formData) => {
     try {
-      console.log('Update form data:', formData);
+      console.log('✏️ [useProduct] Updating product:', productId, formData);
+      
       const result = await productApi.updateProduct(productId, formData);
-      await fetchProducts();
-      message.success('Cập nhật sản phẩm thành công!');
-      return { success: true };
+      
+      if (result.success) {
+        message.success(' Cập nhật sản phẩm thành công!');
+        await fetchProducts();
+        return { success: true };
+      } else {
+        message.error(result.message || 'Không thể cập nhật sản phẩm');
+        return { success: false };
+      }
+      
     } catch (err) {
-      console.error('Update product error:', err);
+      console.error(' [useProduct] Update error:', err);
       message.error('Không thể cập nhật sản phẩm');
       return { success: false };
     }
@@ -112,12 +154,21 @@ export const useProduct = () => {
 
   const deleteProduct = async (productId, productName) => {
     try {
-      await productApi.deleteProduct(productId);
-      await fetchProducts();
-      message.success(`Đã xóa sản phẩm "${productName}"`);
-      return { success: true };
+      console.log(' [useProduct] Deleting product:', productId);
+      
+      const result = await productApi.deleteProduct(productId);
+      
+      if (result.success) {
+        message.success(` Đã xóa sản phẩm "${productName}"`);
+        await fetchProducts();
+        return { success: true };
+      } else {
+        message.error(result.message || 'Không thể xóa sản phẩm');
+        return { success: false };
+      }
+      
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error(' [useProduct] Delete error:', err);
       message.error('Không thể xóa sản phẩm');
       return { success: false };
     }
@@ -134,13 +185,33 @@ export const useProduct = () => {
     setCurrentPage(1);
   };
 
-  // ============= EXPORT =============
+  // ============= HEADER HELPERS =============
+  const getHeaderTitle = () => {
+    if (canManage) {
+      return 'Quản lý Sản phẩm';
+    }
+    return 'Danh sách Sản phẩm';
+  };
+
+  const getHeaderSubtitle = () => {
+    if (canManage) {
+      return `Quản lý thông tin sản phẩm của cửa hàng`;
+    }
+  };
+
+  // ============= EXPORT CSV =============
   const handleExportCSV = () => {
     const headers = ['ID', 'Tên sản phẩm', 'Danh mục', 'Giá', 'Mô tả'];
     const csvContent = [
       headers.join(','),
-      ...filteredData.map(product => 
-        [product.id, product.name, product.category, product.price, product.description].join(',')
+      ...filteredProducts.map(product => 
+        [
+          product.id, 
+          `"${product.name}"`, 
+          product.category, 
+          product.price, 
+          `"${product.description}"`
+        ].join(',')
       )
     ].join('\n');
     
@@ -149,31 +220,26 @@ export const useProduct = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `products_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    message.success('Xuất file CSV thành công!');
+    message.success(' Xuất file CSV thành công!');
   };
 
   // ============= RETURN =============
   return {
-    // Data
     products,
-    filteredData,
-    
-    // State
+    filteredProducts,
+    stats,
     loading,
     activeCategory,
     searchQuery,
     currentPage,
     rowsPerPage,
-    
-    // CRUD
+    canManage,
     addProduct,
     updateProduct,
     deleteProduct,
-    
-    // Helpers
     categoryCount,
-    
-    // Handlers
+    getHeaderTitle,
+    getHeaderSubtitle,
     setCurrentPage,
     handleCategoryChange,
     handleSearchChange,

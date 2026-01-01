@@ -69,7 +69,7 @@ export default function ProductList() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/product/filter?category_id=${category_id}`
+          `http://localhost:5001/api/product/filter?category_id=${category_id}`
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();

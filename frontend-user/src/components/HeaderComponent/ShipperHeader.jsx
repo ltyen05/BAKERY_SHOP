@@ -73,7 +73,7 @@ function NavBar({ user, onLogout }) {
   const fetchNotification = async () => {
     try {
       const res = await fetchWithAuth(
-        "http://localhost:5000/api/shipper/notifications/check-notification",
+        "http://localhost:5001/api/shipper/notifications/check-notification",
         { method: "GET" }
       );
 

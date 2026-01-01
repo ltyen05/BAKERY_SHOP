@@ -23,7 +23,7 @@ function HomePage() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/product/top-selling"
+          "http://localhost:5001/api/product/top-selling"
         );
         const data = await res.json();
         if (Array.isArray(data)) {

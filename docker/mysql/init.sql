@@ -873,32 +873,32 @@ CREATE TABLE `shippers` (
 -- Đang đổ dữ liệu cho bảng `shippers`
 --
 
-INSERT INTO `shippers` (`shipper_id`, `name`, `phone`, `email`, `status`, `salary`, `branch_id`, `password`) VALUES
-(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@husbakery.vn', 'Đang hoạt động', 8100000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@husbakery.vn', 'Đang hoạt động', 8200000.00, 1, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@husbakery.vn', 'Đang hoạt động', 8100000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@husbakery.vn', 'Đang hoạt động', 8200000.00, 2, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(12, 'Lê Văn Duy', '0913000302', 'duy.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 3, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@husbakery.vn', 'Đang hoạt động', 8100000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(19, 'Lê Thị Diễm', '0914000404', 'diem.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 4, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.'),
-(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 5, '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.');
+INSERT INTO shippers (shipper_id, name, phone, email, status, salary, branch_id, password) VALUES
+(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@husbakery.vn', 'Đang hoạt động', 8100000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@husbakery.vn', 'Đang hoạt động', 8200000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@husbakery.vn', 'Đang hoạt động', 8100000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@husbakery.vn', 'Đang hoạt động', 8200000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(12, 'Lê Văn Duy', '0913000302', 'duy.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@husbakery.vn', 'Đang hoạt động', 8100000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(19, 'Lê Thị Diễm', '0914000404', 'diem.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69');
 
 -- --------------------------------------------------------
 

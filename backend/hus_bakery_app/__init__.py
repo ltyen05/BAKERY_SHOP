@@ -6,7 +6,7 @@ from sqlalchemy import text
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_mail import Mail
-
+from flask_cors import CORS
 load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -20,7 +20,7 @@ def create_app():
         supports_credentials=True,
         resources={
             r"/api/*": {
-                "origins": ["http://localhost:3000", "http://localhost:3001"],
+                "origins": "*",
                 "allow_headers": ["Content-Type", "Authorization"],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             }

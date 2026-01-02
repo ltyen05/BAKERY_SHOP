@@ -89,11 +89,8 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-<<<<<<< HEAD
         `${import.meta.env.VITE_API_URL}/shipper/notifications/all-notifications?page=${page}`,
-=======
-        `http://localhost:5001/api/shipper/notifications/all-notifications?page=${page}`,
->>>>>>> frontend-user
+
         { method: "GET" }
       );
 
@@ -152,12 +149,9 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-<<<<<<< HEAD
-        `${import.meta.env.VITE_API_URL}/shipper/notifications/mark-read/${id}`,        { method: "POST" }
-=======
-        `http://localhost:5001/api/shipper/notifications/mark-read/${id}`,
-        { method: "POST" }
->>>>>>> frontend-user
+        `${import.meta.env.VITE_API_URL}/shipper/notifications/mark-read/${id}`,
+                { method: "POST" }
+
       );
 
       if (!res.ok) {

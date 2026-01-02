@@ -70,11 +70,8 @@ export default function Dashboard() {
     // Fetch song song bằng fetch thuần
     Promise.all(
       urls.map((url) =>
-<<<<<<< HEAD
         fetchWithAuth(`${import.meta.env.VITE_API_URL}/shipper/statistics${url}`, {
-=======
-        fetchWithAuth(`http://localhost:5001/api/shipper/statistics${url}`, {
->>>>>>> frontend-user
+
           method: "GET",
         }).then((res) => res.json())
       )

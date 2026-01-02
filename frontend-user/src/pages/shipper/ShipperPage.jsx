@@ -70,11 +70,8 @@ const OrderDetailPage = () => {
     setLoading(true);
     try {
       const response = await fetchWithAuth(
-<<<<<<< HEAD
         `${import.meta.env.VITE_API_URL}/shipper/notifications/current-order`,
-=======
-        "http://localhost:5001/api/shipper/notifications/current-order",
->>>>>>> frontend-user
+
         {
           method: "GET",
         }

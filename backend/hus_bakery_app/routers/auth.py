@@ -9,14 +9,18 @@ from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
 from ..services.auth_services import login_user, generate_token, check_email_exist
-from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, check_email_exist, get_user_by_id_and_role, get_current_customer_service, get_current_shipper_service, get_current_admin_service
+from ..services.auth_services import request_password_reset, reset_password_with_token, login_user, generate_token, \
+    check_email_exist, get_user_by_id_and_role, get_current_customer_service, get_current_shipper_service, \
+    get_current_admin_service
 
 auth_bp = Blueprint('auth', __name__)
+
 
 @auth_bp.route('/', methods=['GET', 'POST'])
 @auth_bp.route('/index', methods=['GET', 'POST'])
 def index():
     return jsonify({"message": "Welcome to Hus Bakery API"})
+
 
 # @auth_bp.route("/me", methods=["GET"])
 # @jwt_required()
@@ -52,6 +56,7 @@ def api_get_me():
 
     return jsonify(user_data), 200
 
+
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -84,6 +89,7 @@ def signup():
         "errors": form.errors
     }), 400
 
+
 @auth_bp.route('/check-email', methods=['POST'])
 def check_email():
     try:
@@ -99,13 +105,14 @@ def check_email():
 
         return jsonify({
             "status": "success",
-            "exists": exists, # Frontend sẽ dựa vào biến này (True/False)
+            "exists": exists,  # Frontend sẽ dựa vào biến này (True/False)
             "message": "Email đã tồn tại" if exists else "Email chưa tồn tại"
         }), 200
 
     except Exception as e:
         print("Lỗi Check Email:", str(e))
         return jsonify({"status": "error", "message": "Lỗi Server"}), 500
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -127,7 +134,6 @@ def login():
 
         # Nếu không có lỗi -> Tạo token
         token = generate_token(user, role)
-
 
         return jsonify({
             "status": "success",
@@ -171,7 +177,7 @@ def forgot_password():
 def reset_password():
     # Phải đảm bảo lấy đúng JSON data
     data = request.get_json()
-    
+
     if not data:
         return jsonify({"message": "Dữ liệu yêu cầu không hợp lệ"}), 400
 
@@ -180,7 +186,7 @@ def reset_password():
 
     # Log ra terminal để kiểm tra chắc chắn server nhận được gì
     print(f"--- DEBUG RESET ---")
-    print(f"Token: {token[:20]}...") 
+    print(f"Token: {token[:20]}...")
     print(f"New Password: {new_password}")
     print(f"-------------------")
 

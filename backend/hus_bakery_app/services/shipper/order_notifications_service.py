@@ -4,7 +4,7 @@ from sqlalchemy import desc, exists, func, and_
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_status import OrderStatus
 from sqlalchemy import desc
-from hus_bakery_app.models.shipper_notificationss import ShipperNotification
+from hus_bakery_app.models.shipper_notifications import ShipperNotification
 
 
 def check_new_order_for_shipper(shipper_id):
@@ -38,6 +38,8 @@ def check_new_order_for_shipper(shipper_id):
         })
 
     return notifications
+
+
 def get_all_notifications_service(shipper_id, page=1, per_page=10):
     # Sử dụng paginate thay vì .all()
     # error_out=False giúp trả về danh sách rỗng nếu page vượt quá giới hạn thay vì lỗi 404
@@ -57,10 +59,12 @@ def get_all_notifications_service(shipper_id, page=1, per_page=10):
 
     return {
         "notifications": result,
-        "total": pagination_obj.total,       # Tổng số bản ghi trong DB
-        "pages": pagination_obj.pages,       # Tổng số trang có thể có
+        "total": pagination_obj.total,  # Tổng số bản ghi trong DB
+        "pages": pagination_obj.pages,  # Tổng số trang có thể có
         "current_page": pagination_obj.page  # Trang hiện tại
     }
+
+
 def get_current_order(shipper_id):
     try:
         latest_status_time = (
@@ -93,7 +97,7 @@ def get_current_order(shipper_id):
             .join(latest_status, Order.order_id == latest_status.c.order_id)
             .filter(Order.shipper_id == shipper_id)
             .filter(latest_status.c.status != "Đã giao")
-            .filter(latest_status.c.status !="Không thành công")
+            .filter(latest_status.c.status != "Không thành công")
             .order_by(Order.created_at.desc())
             .first()
         )
@@ -103,7 +107,5 @@ def get_current_order(shipper_id):
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Lỗi hệ thống"
-    
 
 
-    

@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from hus_bakery_app import db
 from hus_bakery_app.models.branches import Branch
+from hus_bakery_app.models.employee import Employee
 from hus_bakery_app.services.customer.product_services import get_rating_star_service
 from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.order import Order
@@ -12,6 +13,7 @@ from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.shipper import Shipper
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'static', 'avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -84,20 +86,20 @@ def update_avatar(customer_id, file):
     return False, "File không hợp lệ"
 
 
-def change_password(role , id, old_password, new_password, confirm_password):
-    
+def change_password(role, id, old_password, new_password, confirm_password):
     if role == "shipper":
         user = Shipper.query.get(id)
     elif role == "customer":
         user = Customer.query.get(id)
+    elif role == "employee":
+        user = Employee.query.get(id)
 
     if not user or not user.check_password(old_password):
         return False, "Mật khẩu cũ không chính xác"
     if new_password != confirm_password:
         return False, "Mật khẩu xác nhận không khớp"
-    
 
-    user.password= generate_password_hash(new_password)
+    user.password = generate_password_hash(new_password)
     db.session.commit()
     return True, "Đổi mật khẩu thành công"
 
@@ -108,7 +110,8 @@ def get_order_history_service(customer_id):
 
     for order in orders:
         # 1. Lấy trạng thái & Ngày cập nhật (dùng làm Ngày nhận hàng)
-        status_obj = ( OrderStatus.query.filter_by(order_id=order.order_id).order_by(OrderStatus.updated_at.desc()).first())
+        status_obj = (
+            OrderStatus.query.filter_by(order_id=order.order_id).order_by(OrderStatus.updated_at.desc()).first())
         status_text = status_obj.status if status_obj else "Đang xử lý"
         # Nếu đã hoàn thành thì lấy ngày update, chưa thì để trống hoặc lấy ngày tạo
         received_date = status_obj.updated_at.strftime("%d/%m/%Y") if status_obj and status_obj.updated_at else ""
@@ -149,7 +152,6 @@ def get_order_history_service(customer_id):
     return history_list
 
 def get_latest_active_order_id(customer_id):
-
     try:
         latest_status_time = (
             db.session.query(
@@ -181,7 +183,7 @@ def get_latest_active_order_id(customer_id):
             .join(latest_status, Order.order_id == latest_status.c.order_id)
             .filter(Order.customer_id == customer_id)
             .filter(latest_status.c.status != "Đã giao")
-            .filter(latest_status.c.status !="Không thành công")
+            .filter(latest_status.c.status != "Không thành công")
             .order_by(Order.created_at.desc())
             .all()
         )
@@ -191,17 +193,16 @@ def get_latest_active_order_id(customer_id):
     except SQLAlchemyError:
         db.session.rollback()
         return None, "Lỗi hệ thống"
-    
+
 def get_product_was_bought(customer_id):
     products = db.session.query(Product) \
         .join(OrderItem, Product.product_id == OrderItem.product_id) \
-        .join(Order, Order.order_id == OrderItem.order_id)\
+        .join(Order, Order.order_id == OrderItem.order_id) \
         .filter(Order.customer_id == customer_id) \
         .distinct().all()
 
     res = []
     for p in products:
-        
         details = {
             "product_id": p.product_id,
             "name": p.name,

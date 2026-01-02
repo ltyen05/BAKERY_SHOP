@@ -8,6 +8,7 @@ from hus_bakery_app.services.customer.notification_services import (
     get_all_success_order_notifications
 )
 from hus_bakery_app.models.customer_notifications import CustomerNotification
+
 customer_noti_bp = Blueprint("customer_noti", __name__)
 
 
@@ -37,6 +38,7 @@ def mark_as_read(order_id):
         return jsonify({"success": True, "message": "Đã đánh dấu đã đọc"}), 200
     return jsonify({"success": False, "message": "Không tìm thấy thông báo"}), 404
 
+
 @customer_noti_bp.route('/all_notifications', methods=['GET'])
 @jwt_required()
 def get_notifications():
@@ -44,8 +46,7 @@ def get_notifications():
     identity = json.loads(get_jwt_identity())
     customer_id = identity["id"]
 
-    
-    page = request.args.get('page', default= 1, type=int)
+    page = request.args.get('page', default=1, type=int)
     per_page = 10
 
     # 2. Gọi hàm xử lý logic với tham số phân trang
@@ -77,6 +78,7 @@ def get_notifications():
         }
     }), 200
 
+
 @customer_noti_bp.route("/check-status", methods=["GET"])
 @jwt_required()
 def check_notification_status():
@@ -88,26 +90,26 @@ def check_notification_status():
     try:
         identity = json.loads(get_jwt_identity())
         customer_id = identity["id"]
-        
+
         # Đếm TỔNG SỐ thông báo (tất cả, không phân biệt đã đọc)
         total_count = CustomerNotification.query.filter_by(
-            customer_id = customer_id
+            customer_id=customer_id
         ).count()
-        
+
         # Lấy ID của notification mới nhất
         latest = CustomerNotification.query.filter_by(
-            customer_id = customer_id
+            customer_id=customer_id
         ).order_by(CustomerNotification.created_at.desc()).first()
-        
+
         return jsonify({
             "success": True,
             "total_count": total_count,
             "latest_id": latest.id if latest else None
         }), 200
-        
+
     except Exception as e:
         return jsonify({
-            "success": False, 
+            "success": False,
             "message": str(e)
         }), 500
 

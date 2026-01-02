@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.shipper.order_notifications_service import check_new_order_for_shipper,get_current_order, get_all_notifications_service
-from hus_bakery_app.models.shipper_notificationss import ShipperNotification
+from hus_bakery_app.services.shipper.order_notifications_service import check_new_order_for_shipper, get_current_order, \
+    get_all_notifications_service
+from hus_bakery_app.models.shipper_notifications import ShipperNotification
 from hus_bakery_app.services.shipper.update_status_order import update_status_order
 from hus_bakery_app import db
 
@@ -59,20 +60,21 @@ def update_order_status():
         return jsonify({"success": True, "message": message}), 200
     else:
         return jsonify({"success": False, "message": message}), 500
-    
+
+
 @shipper_notifications_bp.route("/current-order", methods=["GET"])
 @jwt_required()
 def current_order():
     identity = json.loads(get_jwt_identity())
     shipper_id = identity["id"]
 
-    order , error = get_current_order(shipper_id)
+    order, error = get_current_order(shipper_id)
 
     if error:
         return jsonify({"message": error}), 500
     if not order:
         return "", 204
-        
+
     result = {
         "order_id": order[0],
         "status": order[1]
@@ -99,13 +101,13 @@ def get_all_notifications():
             "current_page": data["current_page"],
             "total_pages": data["pages"],
             "total_notifications": data["total"],
-            "notifications": data["notifications"] # Đây là mảng 10 phần tử
+            "notifications": data["notifications"]  # Đây là mảng 10 phần tử
         }), 200
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
-    
-    
+
+
 @shipper_notifications_bp.route("/check-status", methods=["GET"])
 @jwt_required()
 def check_notification_status():
@@ -117,25 +119,25 @@ def check_notification_status():
     try:
         identity = json.loads(get_jwt_identity())
         shipper_id = identity["id"]
-        
+
         # Đếm TỔNG SỐ thông báo (tất cả, không phân biệt đã đọc)
         total_count = ShipperNotification.query.filter_by(
             shipper_id=shipper_id
         ).count()
-        
+
         # Lấy ID của notification mới nhất
         latest = ShipperNotification.query.filter_by(
             shipper_id=shipper_id
         ).order_by(ShipperNotification.created_at.desc()).first()
-        
+
         return jsonify({
             "success": True,
             "total_count": total_count,
             "latest_id": latest.id if latest else None
         }), 200
-        
+
     except Exception as e:
         return jsonify({
-            "success": False, 
+            "success": False,
             "message": str(e)
         }), 500

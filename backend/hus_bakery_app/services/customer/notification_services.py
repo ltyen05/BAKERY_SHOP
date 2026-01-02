@@ -79,10 +79,7 @@ def get_all_success_order_notifications(customer_id, page=1, per_page=10):
             "order_id": notif.order_id,
             "is_read": notif.is_read,
             "created_at": notif.created_at,
-            # Nếu cần lấy thêm thông tin từ quan hệ 'order' đã định nghĩa ở relationship
-            # "order_status": notif.ordestatus if notif.order else None
         })
-
 
     return {
         "items": notifications,

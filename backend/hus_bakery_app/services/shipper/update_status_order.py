@@ -14,7 +14,6 @@ def update_status_order(order_id, status):
             updated_at=datetime.now()
         )
         db.session.add(new_status)
-      
 
         if status in ["Đã giao", "Không thành công"]:
             order = Order.query.get(order_id)
@@ -22,14 +21,14 @@ def update_status_order(order_id, status):
                 shipper = Shipper.query.get(order.shipper_id)
                 if shipper:
                     shipper.status = "Đang hoạt động"
-        if status == "Đã giao" :
+        if status == "Đã giao":
             new_customer_noti = CustomerNotification(
                 customer_id=order.customer_id,  # Lấy từ thông tin đơn hàng
                 order_id=order_id,
                 is_read=False,
                 created_at=datetime.now()
             )
-            db.session.add(new_customer_noti)    
+            db.session.add(new_customer_noti)
         db.session.commit()
         return True, "Cập nhật trạng thái đơn hàng thành công"
     except Exception as e:

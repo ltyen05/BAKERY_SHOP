@@ -11,6 +11,7 @@ import json
 # Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
 
+
 def get_current_customer_service(customer_id):
     # Chỉ tìm kiếm trong bảng Customer
     user = Customer.query.get(customer_id)
@@ -43,6 +44,7 @@ def get_current_shipper_service(shipper_id):
         "role": "shipper"
     }
 
+
 def get_current_admin_service(employee_id):
     employee = Employee.query.get(employee_id)
 
@@ -60,6 +62,7 @@ def get_current_admin_service(employee_id):
     }
     return info
 
+
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)
     if role == 'employee': return Employee.query.get(user_id)
@@ -73,7 +76,8 @@ def find_user_instance(email):
     if user: return user, 'customer'
 
     user = Employee.query.filter_by(email=email).first()
-    if user: return user, 'employee'
+    if user:
+        return user, 'employee'
 
     user = Shipper.query.filter_by(email=email).first()
     if user: return user, 'shipper'
@@ -117,11 +121,11 @@ def request_password_reset(email):
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
 
 
-
 import json
 import jwt
 from flask import current_app
 from werkzeug.security import generate_password_hash
+
 
 def reset_password_with_token(token, new_password):
     try:
@@ -129,7 +133,7 @@ def reset_password_with_token(token, new_password):
         secret_key = current_app.config['JWT_SECRET_KEY']
         # Không dùng decode_token của flask-jwt-extended ở đây
         decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
-        
+
         # 2. Lấy dữ liệu identity từ trường 'sub'
         identity_raw = decoded.get('sub')
 
@@ -150,7 +154,7 @@ def reset_password_with_token(token, new_password):
         else:
             # Trường hợp identity chỉ chứa ID đơn thuần
             user_id = identity
-            role = 'customer' # Mặc định hoặc xử lý thêm
+            role = 'customer'  # Mặc định hoặc xử lý thêm
             token_type = 'reset'
 
         # Kiểm tra an toàn
@@ -173,7 +177,7 @@ def reset_password_with_token(token, new_password):
         # 6. Cập nhật mật khẩu
         user.password_hash = generate_password_hash(new_password)
         db.session.commit()
-        
+
         return True, "Đặt lại mật khẩu thành công!"
 
     except jwt.ExpiredSignatureError:

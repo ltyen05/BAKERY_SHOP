@@ -90,6 +90,24 @@ def api_update_selected():
 
 
 # ==========================
+# 3. UPDATE SELECTED ITEM
+# ==========================
+@order_bp.route("/cart/select", methods=["PUT"])
+def api_update_selected():
+    data = request.json
+    customer_id = data.get("customer_id")
+    product_id = data.get("product_id")
+    selected = data.get("selected")
+
+    item = update_selected(customer_id, product_id, selected)
+
+    if not item:
+        return jsonify({"error": "Item not found"}), 404
+
+    return jsonify({"message": "Selection updated"}), 200
+
+
+# ==========================
 # 4. GET COUPONS OF CUSTOMER
 # ==========================
 @order_bp.route("/my-coupons", methods=["GET"])
@@ -100,6 +118,7 @@ def my_coupons():
     customer_id = identity["id"]
     coupons = coupon_of_customer(customer_id)
     return jsonify(coupons), 200
+
 
 # ==========================
 # 5. GET COUPON INFO
@@ -112,6 +131,7 @@ def api_coupon_info(coupon_id):
 
     return jsonify(info), 200
 
+
 # ==========================
 # 6. CREATE ORDER
 # ==========================
@@ -122,13 +142,6 @@ def api_create_order():
     customer_id = identity["id"]
     data = request.json
 
-    shipping_address = data.get("shipping_address")
-    recipient_name = data.get("recipient_name")
-    phone = data.get("phone")
-    branch_id = data.get("branch_id")
-    coupon_id = data.get("coupon_id")
-    total_amount = data.get("total_amount")
-    payment_method = data.get("payment_method")
     order, msg = create_order(
         customer_id=customer_id,
         recipient_name=data.get("recipient_name"),
@@ -137,6 +150,7 @@ def api_create_order():
         phone=data.get("phone"),
         branch_id=data.get("branch_id"),
         shipping_address=data.get("shipping_address"),
+        note=data.get("note"),
         coupon_id=data.get("coupon_id"),
     )
 

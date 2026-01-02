@@ -77,8 +77,6 @@ def find_user_instance(email):
 
     user = Employee.query.filter_by(email=email).first()
     if user:
-        if user.role_name == 'superadmin':
-            return user, 'superadmin'
         return user, 'employee'
 
     user = Shipper.query.filter_by(email=email).first()
@@ -166,7 +164,7 @@ def reset_password_with_token(token, new_password):
         # 5. Truy vấn Database
         if role == 'customer':
             user = Customer.query.get(user_id)
-        elif role == 'employee' or role == 'superadmin':
+        elif role == 'employee':
             user = Employee.query.get(user_id)
         elif role == 'shipper':
             user = Shipper.query.get(user_id)
@@ -225,9 +223,7 @@ def login_user(email, password):
     # Try Employee
     user = Employee.query.filter_by(email=email).first()
     if user:
-        if user.check_password(password) & user.role_name == 'superadmin':
-            return user, "superadmin", None
-        elif user.check_password(password):
+        if user.check_password(password):
             return user, "employee", None
         else:
             return None, None, "Mật khẩu nhân viên không đúng!"

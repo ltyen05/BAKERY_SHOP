@@ -46,7 +46,7 @@ def api_get_me():
         user_data = get_current_customer_service(user_id)
     elif role == "shipper":
         user_data = get_current_shipper_service(user_id)
-    elif role == "employee" or role == "superadmin":
+    elif role == "employee":
         user_data = get_current_admin_service(user_id)
     else:
         return jsonify({"error": "Invalid role"}), 403

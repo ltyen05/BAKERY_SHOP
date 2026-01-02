@@ -9,7 +9,7 @@ export const ProductProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/product/top-selling"
+          `${import.meta.env.VITE_API_URL}/product/top-selling`
         );
         const data = await res.json();
         if (Array.isArray(data)) {

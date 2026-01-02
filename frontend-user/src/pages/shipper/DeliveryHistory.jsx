@@ -9,6 +9,7 @@ import {
   Modal,
   Spin,
   Pagination,
+  message,
 } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
@@ -46,7 +47,7 @@ const OrderHistory = () => {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
+        `${import.meta.env.VITE_API_URL}/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }

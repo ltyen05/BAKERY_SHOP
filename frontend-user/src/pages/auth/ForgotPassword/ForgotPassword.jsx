@@ -1,13 +1,13 @@
 import { Form, Button, Input } from "antd";
 import { Link } from "react-router-dom";
-import bakesLogo from "../../../assets/bakes.svg";
+import bakesLogo from "../../../assets/logo/bakes.png";
 import React, { useState } from "react";
 import { message } from "antd";
 
 export default function ForgotPassword() {
   const handleSendEmail = async (values) => {
     try {
-      const res = await fetch("http://localhost:5001/api/forgot-password", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/forgot-password`, {        
         method: "POST",
         headers: {
           "Content-Type": "application/json",

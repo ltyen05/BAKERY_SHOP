@@ -1,7 +1,7 @@
 import { Form, Input, Button, message } from "antd";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import bakesLogo from "../../../assets/bakes.svg";
-
+import { useSearchParams, useNavigate } from "react-router-dom";
+import bakesLogo from "../../../assets/logo/bakes.png";
+import { message } from "antd";
 const ResetPassword = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (values) => {
     try {
-      const res = await fetch("http://localhost:5001/api/reset-password", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/reset-password`, {        
         method: "POST",
         headers: {
           "Content-Type": "application/json",

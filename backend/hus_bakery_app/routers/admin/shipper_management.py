@@ -4,8 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.admin.shipper_management_services import (
     get_all_shippers_service, add_shipper_service,
     edit_shipper_service, delete_shipper_service,
-    total_successful_order_of_shipper, star_of_shipper_service
+    total_successful_order_of_shipper
 )
+from hus_bakery_app.services.shipper.shipper_statistics_services import calculate_avg_rating
 
 shipper_admin_bp = Blueprint('shipper_admin_bp', __name__)
 
@@ -27,7 +28,7 @@ def get_shippers():
             continue
 
         success_count = total_successful_order_of_shipper(s.shipper_id)
-        average_star = star_of_shipper_service(s.shipper_id)
+        average_star = calculate_avg_rating(s.shipper_id)
 
         shipper_list.append({
             'shipper_id': s.shipper_id,

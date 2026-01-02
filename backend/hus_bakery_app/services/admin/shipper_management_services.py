@@ -64,9 +64,3 @@ def total_successful_order_of_shipper(shipper_id):
              .scalar())
 
     return total if total else 0
-
-def star_of_shipper_service(shipper_id):
-    star = db.session.query(func.avg(ShipperReview.rating)) \
-        .filter(ShipperReview.shipper_id == shipper_id) \
-        .scalar()
-    return round(float(star), 1) if star else 0

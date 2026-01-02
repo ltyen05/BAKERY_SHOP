@@ -3,6 +3,7 @@ from sqlalchemy import desc
 from hus_bakery_app import db
 from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
+from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
 from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.shipper_notifications import ShipperNotification
@@ -64,6 +65,7 @@ def get_all_orders_service(branch_id):
             .join(Product, OrderItem.product_id == Product.product_id) \
             .filter(OrderItem.order_id == order.order_id).all()
 
+        status = OrderStatus.query.get(order.order_id)
         # 3. Danh sách sản phẩm của đơn hàng này
         products_in_order = []
         for item_obj, product_obj in items:
@@ -82,6 +84,7 @@ def get_all_orders_service(branch_id):
             "recipient_name": order.recipient_name,
             "total_amount": float(order.total_amount) if order.total_amount else 0,
             "created_at": order.created_at,
+            "status": status.status,
             "items": products_in_order  # Đây là danh sách sản phẩm đã lấy ở trên
         })
 

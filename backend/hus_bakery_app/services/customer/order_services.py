@@ -14,7 +14,7 @@ from hus_bakery_app.models.shipper import Shipper
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.coupon import Coupon
 from hus_bakery_app.models.coupon_custom import CouponCustomer
-from hus_bakery_app.models.shipper_notificationss import ShipperNotification
+from hus_bakery_app.models.shipper_notifications import ShipperNotification
 
 
 # --- SECTION A: UTILS & HELPERS ---

@@ -15,3 +15,4 @@ pymongo
 flask-pymongo
 email-validator
 Flask-Mail
+Flask-APScheduler

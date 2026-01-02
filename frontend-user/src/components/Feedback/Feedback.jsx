@@ -26,7 +26,7 @@ const FeedbackComponent = ({order_id}) => {
     try {
       // hoặc từ context/state nếu bạn dùng
       const res = await fetchWithAuth(
-        "http://localhost:5001/api/feedback/add",
+        `${import.meta.env.VITE_API_URL}/feedback/add`,
         {
           method: "POST",
           body: JSON.stringify({

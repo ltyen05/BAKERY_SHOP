@@ -78,7 +78,7 @@ services:
       - /app/dist
     environment:
       # SỬA: Cập nhật API URL trỏ về port 5001
-      VITE_API_URL: http://localhost:5001/api
+      VITE_API_URL: http://husbakery.duckdns.org:5001/api
       VITE_APP_NAME: "Bakery Shop"
     depends_on:
       - backend
@@ -102,7 +102,7 @@ services:
       - /app/dist
     environment:
       # SỬA: Cập nhật API URL trỏ về port 5001
-      VITE_API_URL: http://localhost:5001/api
+      VITE_API_URL: http://husbakery.duckdns.org:5001/api
       VITE_APP_NAME: "Bakery Admin"
     depends_on:
       - backend

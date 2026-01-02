@@ -1,26 +1,11 @@
-import {
-  defineConfig
-} from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
-    port: 5173,
-    proxy: {
-      '/admin': {
-        target: 'http://localhost:5001',
-        changeOrigin: true,
-      },
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-      '/superadmin': {
-        target: 'http://localhost:5001',
-        changeOrigin: true
-      }
-    }
+    host: '0.0.0.0', // Bắt buộc để chạy được trong Docker
+    port: 5173,      // Cổng mặc định của Vite
+    // Xóa sạch phần proxy đi để tránh xung đột đường dẫn
   }
 })

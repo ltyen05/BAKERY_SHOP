@@ -42,7 +42,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 # --- SECTION B: CLIENT ORDER CREATION ---
 def create_order(customer_id, recipient_name, payment_method, total_amount, phone, branch_id, shipping_address,
-                 coupon_id=None):
+                 note=None, coupon_id=None):
     selected_items = CartItem.query.filter_by(customer_id=customer_id, selected=True).all()
     if not selected_items:
         return None, "Giỏ hàng rỗng hoặc chưa chọn sản phẩm"
@@ -53,6 +53,9 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             cc.status = "used"
             cc.used_at = datetime.now()
 
+    # 5. Tính phí ship (Tìm branch gần nhất)
+
+    # 6. Tìm Shipper (Optional)
     shipper = Shipper.query.filter_by(branch_id=branch_id, status="Đang hoạt động").first()
     if shipper:
         shipper.status = "busy"
@@ -69,7 +72,8 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             phone=phone,
             payment_method=payment_method,
             recipient_name=recipient_name,
-            total_amount=total_amount,  # Lưu ý: check lại tên cột trong DB là total_money hay total_amount
+            total_amount=total_amount,
+            note=note,  # Lưu ý: check lại tên cột trong DB là total_money hay total_amount
             created_at=datetime.now(),
         )
         db.session.add(new_order)
@@ -80,6 +84,7 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
             updated_at=datetime.now(),
         )
         db.session.add(statusForOrder)
+
         new_notification = ShipperNotification(
             shipper_id=shipper.shipper_id,
             order_id=new_order.order_id,
@@ -88,6 +93,7 @@ def create_order(customer_id, recipient_name, payment_method, total_amount, phon
         )
 
         db.session.add(new_notification)
+
         # 8. Lưu Order Items và Xóa Cart
         for item in selected_items:
             product = Product.query.get(item.product_id)

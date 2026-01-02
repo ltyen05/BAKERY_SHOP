@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = "http://localhost:5000/api/notification";
+const API = "http://localhost:5001/api/notification";
 
 export const notificationApi = {
   mark_read(order_id) {

@@ -1,5 +1,5 @@
 import { Form, Input, Button, message } from "antd";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import bakesLogo from "../../../assets/bakes.svg";
 
 const ResetPassword = () => {
@@ -42,7 +42,7 @@ const ResetPassword = () => {
   return (
     <div className="bound">
       <div className="fl-center bg-color pb-6 pt-3">
-        <Link to={"/"} className="mb-6">
+        <Link to="/" className="mb-6">
           <img
             src={bakesLogo}
             alt="Stylized bakery logo"

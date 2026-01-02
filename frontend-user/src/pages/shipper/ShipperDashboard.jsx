@@ -67,7 +67,7 @@ export default function Dashboard() {
     // Fetch song song bằng fetch thuần
     Promise.all(
       urls.map((url) =>
-        fetchWithAuth(`http://localhost:5000/api/shipper/statistics${url}`, {
+        fetchWithAuth(`http://localhost:5001/api/shipper/statistics${url}`, {
           method: "GET",
         }).then((res) => res.json())
       )
@@ -89,7 +89,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/shipper/statistics/history?page=${page}&limit=${limit}`,
+        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }
@@ -327,7 +327,7 @@ export default function Dashboard() {
                 }}
                 className="out-line"
               >
-                <CloseOutlined />
+                <CloseOutlined className="close-icon" />
               </button>
             </div>
           </div>

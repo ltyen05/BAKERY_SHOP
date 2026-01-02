@@ -26,12 +26,13 @@ import Voucher from "../../../components/Voucher/Voucher";
 import cod from "../../../assets/cod.svg";
 import qrCodeImg from "../../../assets/QR.svg";
 import { useOrder } from "../../../context/OrderContext";
-
+import { useAccount } from "../../../context/AccountContext";
 const { TextArea } = Input;
 const { Option } = Select;
 const BASE_TIME = 30; // phút
 const PER_KM_TIME = 5;
 export default function ShippingAddressForm() {
+  const { branches } = useAccount();
   const [messageApi, contextHolder] = message.useMessage();
   const [note, setNote] = useState("");
   const location = useLocation();
@@ -96,49 +97,16 @@ export default function ShippingAddressForm() {
 
   const discount = selectedVoucher
     ? selectedVoucher.discount_type === "percent"
-      ? totalPrice * (selectedVoucher.discount_percent / 100)
+      ? Math.min(
+          Number(totalPrice) * (Number(selectedVoucher.discount_percent) / 100),
+          Number(selectedVoucher.max_discount)
+        )
       : Number(selectedVoucher.discount_value)
     : 0;
 
   const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
   // Danh sách cửa hàng mẫu
-  const stores = [
-    {
-      id: 1,
-      name: "HUS Bakery - Hoàn Kiếm",
-      address: "15 Hàng Bạc, Hoàn Kiếm, Hà Nội",
-      lat: 21.033425,
-      lon: 105.852317,
-    },
-    {
-      id: 2,
-      name: "HUS Bakery - Cầu Giấy",
-      address: "89 Trần Duy Hưng, Cầu Giấy, Hà Nội",
-      lat: 21.009123,
-      lon: 105.798952,
-    },
-    {
-      id: 3,
-      name: "HUS Bakery - Đống Đa",
-      address: "120 Tây Sơn, Đống Đa, Hà Nội",
-      lat: 21.011681,
-      lon: 105.823412,
-    },
-    {
-      id: 4,
-      name: "HUS Bakery - Hà Đông",
-      address: "65 Quang Trung, Hà Đông, Hà Nội",
-      lat: 20.972235,
-      lon: 105.776123,
-    },
-    {
-      id: 5,
-      name: "HUS Bakery - Thanh Xuân",
-      address: "334 Nguyễn Trãi, Thanh Xuân, Hà Nội",
-      lat: 20.9958722,
-      lon: 105.8079772,
-    },
-  ];
+  const stores = branches;
 
   // Tính khoảng cách giữa 2 tọa độ (công thức Haversine)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -329,6 +297,7 @@ export default function ShippingAddressForm() {
         branch_id: selectedStore,
         shipping_address: address,
         payment_method: paymentMethod.toUpperCase(),
+        note: note || null,
         coupon_id: selectedVoucher?.coupon_id || null,
       });
       messageApi.success("Đặt hàng thành công!");

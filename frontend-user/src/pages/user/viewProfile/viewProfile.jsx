@@ -16,7 +16,6 @@ import {
   UserOutlined,
   EditOutlined,
   CarOutlined,
-  FileDoneOutlined,
   InboxOutlined,
   CheckCircleOutlined,
   SaveOutlined,
@@ -414,7 +413,7 @@ const UserProfile = () => {
                 }}
                 className="out-line"
               >
-                <CloseOutlined />
+                <CloseOutlined className="close-icon" />
               </button>
 
               {coupons.map((voucher) => (
@@ -459,7 +458,7 @@ const UserProfile = () => {
               style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
               className="out-line"
             >
-              <CloseOutlined />
+              <CloseOutlined className="close-icon" />
             </button>
           </div>
         </div>
@@ -484,7 +483,7 @@ const UserProfile = () => {
               style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
               className="out-line"
             >
-              <CloseOutlined />
+              <CloseOutlined className="close-icon" />
             </button>
           </div>
         </div>

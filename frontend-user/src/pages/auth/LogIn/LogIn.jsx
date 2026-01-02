@@ -1,6 +1,7 @@
 import { Form, Button, Input, Checkbox } from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import bakesLogo from "../../../assets/bakes.svg";
@@ -18,12 +19,12 @@ export default function Login() {
       const user = await login(values.email, values.password);
 
       // điều hướng theo role
-      if (user.role === "admin") {
-        navigate("/admin");
+      if (user.role === "employee") {
+        window.location.href = `http://localhost:3001?token=${token}`;
       } else if (user.role == "shipper") {
-        navigate("/shipperDashBoard");
+        navigate("/shipperDashBoard", { replace: true });
       } else {
-        navigate("/");
+        navigate("/", { replace: true });
       }
     } catch (err) {
       alert(err.message || "Đăng nhập thất bại");

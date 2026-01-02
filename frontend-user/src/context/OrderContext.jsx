@@ -144,6 +144,7 @@ export function OrderProvider({ children }) {
         branch_id,
         shipping_address,
         payment_method,
+        note,
         coupon_id,
       } = data;
 
@@ -154,6 +155,7 @@ export function OrderProvider({ children }) {
         branch_id,
         shipping_address,
         payment_method,
+        note,
         coupon_id,
       };
 

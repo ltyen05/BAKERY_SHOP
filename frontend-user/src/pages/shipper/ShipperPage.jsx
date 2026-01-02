@@ -20,6 +20,7 @@ import {
   CheckCircleOutlined,
   CarOutlined,
   InboxOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import { useOrder } from "../../context/OrderContext";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
@@ -69,7 +70,7 @@ const OrderDetailPage = () => {
     setLoading(true);
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/shipper/notifications/current-order",
+        "http://localhost:5001/api/shipper/notifications/current-order",
         {
           method: "GET",
         }
@@ -123,7 +124,7 @@ const OrderDetailPage = () => {
 
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/shipper/notifications/update_order_status",
+        "http://localhost:5001/api/shipper/notifications/update_order_status",
         {
           method: "POST",
           headers: {
@@ -248,6 +249,12 @@ const OrderDetailPage = () => {
               </span>
               <b style={{ color: "#ff6b35" }}>{currentOrder.total_money}</b>
             </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>
+                <FormOutlined /> Ghi chú
+              </span>
+              <b style={{ color: "#ff6b35" }}>{currentOrder.note}</b>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
@@ -327,7 +334,7 @@ const OrderDetailPage = () => {
 
                   try {
                     const response = await fetchWithAuth(
-                      "http://localhost:5000/api/shipper/notifications/update_order_status",
+                      "http://localhost:5001/api/shipper/notifications/update_order_status",
                       {
                         method: "POST",
                         headers: {
@@ -387,7 +394,7 @@ const OrderDetailPage = () => {
               style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
               className="out-line"
             >
-              <CloseOutlined />
+              <CloseOutlined className="close-icon" />
             </button>
           </div>
         </div>

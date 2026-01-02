@@ -17,7 +17,9 @@ import ReviewNotification from "../Notification/ReviewNotification";
 import Cart from "../Cart/Cart";
 import bell from "../../assets/bell.svg";
 import cart from "../../assets/cart.svg";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import { useNotification } from "../../context/Notifications";
+import { tokenStorage } from "../../utils/token";
 function getRoutesByPosition(routesByPosition) {
   return routesByPosition
     .map((route) => {
@@ -79,6 +81,7 @@ function NavBar({ user, onLogout, productInCart }) {
     setNotifications,
     fetchAllNotifications,
   } = useNotification();
+  const token = tokenStorage.get();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const handleOpenFeedback = (notification) => {
@@ -129,6 +132,18 @@ function NavBar({ user, onLogout, productInCart }) {
             },
           ]
         : []),
+      ...(user?.role === "Quản lý" || user?.role === "Siêu quản lý"
+        ? [
+            {
+              key: "account",
+              label: "Tài khoản",
+              icon: <UserOutlined />,
+              onClick: () => {
+                window.location.href = `http://localhost:3001?token=${token}`;
+              },
+            },
+          ]
+        : []),
       {
         key: "3",
         label: <Link to="/logInResetPassword">Đổi mật khẩu</Link>,
@@ -171,7 +186,7 @@ function NavBar({ user, onLogout, productInCart }) {
     // Optimistic update
 
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+      prev.map((n) => (n.orderId === id ? { ...n, unread: false } : n))
     );
 
     try {

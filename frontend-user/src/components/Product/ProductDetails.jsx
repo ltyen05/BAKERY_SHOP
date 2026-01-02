@@ -253,8 +253,7 @@ export default function ProductDetail() {
                   flex: 1,
                   padding: "14px 0",
                   border: "2px solid  #61432b",
-                  borderTopLeftRadius: "18px",
-                  borderBottomLeftRadius: "18px",
+                  borderRadius: "18px",
                   background: "transparent",
                   fontSize: "13px",
                   fontWeight: 500,
@@ -265,33 +264,6 @@ export default function ProductDetail() {
                 disabled={addingToCart}
               >
                 THÊM VÀO GIỎ HÀNG
-              </button>
-
-              <button
-                style={{
-                  flex: 1,
-                  padding: "14px 0",
-                  border: "2px solid  #61432b",
-                  borderTopRightRadius: "18px",
-                  borderBottomRightRadius: "18px",
-                  background: "transparent",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                }}
-                className="btn-primary "
-                onClick={() => {
-                  const products = [{ ...product, quantity }];
-                  const totalPrice = product?.price * quantity;
-                  navigate("/payment", {
-                    state: {
-                      products,
-                      totalPrice,
-                    },
-                  });
-                }}
-              >
-                MUA NGAY
               </button>
             </div>
           </div>

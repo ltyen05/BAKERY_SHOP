@@ -26,8 +26,11 @@ body,
   height: 100%;
   scroll-behavior: smooth;
 }
+.close-icon {
+  color: #2e2100 !important;
+}
 .w100 {
-  width: 100%;
+  width: 100% !important;
 }
 .text-main-color {
   color: #4e423d;

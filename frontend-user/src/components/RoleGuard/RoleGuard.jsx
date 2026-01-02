@@ -2,6 +2,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { tokenStorage } from "../../utils/token";
 /**
  * Component bảo vệ route dựa trên vai trò người dùng.
  * @param {object} user - Đối tượng người dùng (chứa role) hoặc null.
@@ -16,16 +17,22 @@ const RoleGuard = ({ roles, children }) => {
     return children;
   }
   const isGuestOnly = roles.length === 1 && roles[0] === "guest";
-
+  const token = tokenStorage.get();
   // 2. Nếu route không định nghĩa roles, cho phép truy cập
   if (user && isGuestOnly) {
     console.warn(
       `User role "${currentRole}" tried to access restricted route.`
     );
+
     if (currentRole === "shipper") {
       return <Navigate to="/shipperDashBoard" replace />;
     }
-    return <Navigate to="/" replace />;
+    if (currentRole === "customer") {
+      return <Navigate to="/" replace />;
+    }
+    if (currentRole === "Quản lý" || currentRole === "Siêu quản lý") {
+      return (window.location.href = `http://localhost:3001?token=${token}`);
+    }
   }
 
   // 3. Kiểm tra quyền truy cập

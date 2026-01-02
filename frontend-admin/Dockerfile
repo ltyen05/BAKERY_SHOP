@@ -9,8 +9,9 @@ COPY package*.json ./
 
 # Cài đặt dependency
 # Tùy chọn: Dùng npm install hoặc yarn install
+RUN npm config set registry https://registry.npmjs.org/ 
+RUN npm config set fetch-retry-maxtimeout 1200000
 RUN npm install
-
 # Copy toàn bộ source code
 COPY . .
 

@@ -185,15 +185,28 @@ const UserProfile = () => {
 
   /* ========================== SAVE PROFILE ========================== */
   const handleSave = async (values) => {
-    try {
-      const data = await update_profile(values.email, values.phone); // đã trả data
-      setUser((prev) => ({ ...prev, ...data }));
-      message.success("Cập nhật thành công!");
-      setIsEditing(false);
-    } catch (err) {
-      message.error(err.message || "Cập nhật thất bại");
-    }
-  };
+  try {
+    // 1. Gọi API cập nhật
+    await update_profile(values.email, values.phone); 
+
+    // 2. Cập nhật State User bằng chính dữ liệu từ Form (values)
+    // ❌ CŨ (SAI): setUser((prev) => ({ ...prev, ...data }));
+    // ✅ MỚI (ĐÚNG):
+    setUser((prev) => ({ 
+        ...prev, 
+        email: values.email, 
+        phone: values.phone 
+    }));
+
+    // 3. Thông báo
+    message.success("Cập nhật thành công! 🎉");
+    setIsEditing(false);
+
+  } catch (err) {
+    console.error(err);
+    message.error(err.message || "Cập nhật thất bại");
+  }
+};
 
   const handleCancel = () => {
     form.resetFields();

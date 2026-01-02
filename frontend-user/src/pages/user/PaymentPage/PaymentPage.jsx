@@ -23,7 +23,7 @@ import logo from "../../../assets/logo-noText.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import ProductItem from "../../../components/Product/ProductItem";
 import Voucher from "../../../components/Voucher/Voucher";
-import cod from "../../../assets/cod.svg";
+import cod from "../../../assets/COD.svg";
 import qrCodeImg from "../../../assets/QR.svg";
 import { useOrder } from "../../../context/OrderContext";
 

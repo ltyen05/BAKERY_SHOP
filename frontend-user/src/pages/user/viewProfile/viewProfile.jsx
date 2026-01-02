@@ -91,7 +91,7 @@ const STATUS_STEP_MAP = {
 
 const UserProfile = () => {
   const { user, setUser } = useAuth();
-
+  const [messageApi, contextHolder] = message.useMessage();
   const { update_profile, get_rank, get_active_order } = useAccount();
   const [loadingOrder, setLoadingOrder] = useState(false);
   const { coupons, refetchCoupons, setSelectedVoucher, orderDetails } =
@@ -199,14 +199,13 @@ const UserProfile = () => {
     }));
 
     // 3. Thông báo
-    message.success("Cập nhật thành công! 🎉");
+    messageApi.success("Cập nhật thành công!");
     setIsEditing(false);
 
   } catch (err) {
-    console.error(err);
-    message.error(err.message || "Cập nhật thất bại");
-  }
-};
+      // 2️⃣ SỬA DÒNG NÀY: Dùng messageApi
+      messageApi.error(err.message || "Cập nhật thất bại");
+    }};
 
   const handleCancel = () => {
     form.resetFields();

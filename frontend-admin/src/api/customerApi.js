@@ -1,5 +1,5 @@
 // ===============================================
-// FILE: src/api/customerApi.js
+// FILE: src/api/customerApi.js - FINAL CLEAN
 // ===============================================
 import api from "./axiosConfig";
 
@@ -20,7 +20,7 @@ export const customerApi = {
       const response = await api.get(`${BASE_PATH}/customer`, { params });
 
       if (!Array.isArray(response.data)) {
-        console.warn(" Response is not an array:", response.data);
+        console.warn("Response is not an array:", response.data);
         return [];
       }
 
@@ -38,7 +38,7 @@ export const customerApi = {
 
       return mappedCustomers;
     } catch (error) {
-      console.error(" [customerApi] Error fetching customers:", error);
+      console.error("[customerApi] Error fetching customers:", error);
       throw new Error(
         error.response?.data?.error ||
           error.message ||
@@ -53,13 +53,9 @@ export const customerApi = {
    */
   deleteCustomer: async (customerId) => {
     try {
-      console.log(" [customerApi] Deleting customer:", customerId);
-
       const response = await api.delete(
         `${BASE_PATH}/delete_customer/${customerId}`
       );
-
-      console.log(" [customerApi] Delete response:", response.data);
 
       return {
         success: true,
@@ -67,7 +63,7 @@ export const customerApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error(" [customerApi] Error deleting customer:", error);
+      console.error("[customerApi] Error deleting customer:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -110,7 +106,7 @@ export const customerApi = {
         key: c.id,
       }));
     } catch (error) {
-      console.error(" [customerApi] Error searching:", error);
+      console.error("[customerApi] Error searching:", error);
       throw new Error(error.response?.data?.error || "Không thể tìm kiếm");
     }
   },

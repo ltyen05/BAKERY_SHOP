@@ -1,18 +1,20 @@
 // ===============================================
-// src/api/shipperApi.js - FIXED
+// src/api/shipperApi.js - FINAL CLEAN
 // ===============================================
 import api from "./axiosConfig";
 
 const BASE_PATH = "http://localhost:5001/api/admin/shipper_management";
 
 const mapShipperFromBackend = (shipper) => {
+  if (!shipper) return null;
+  
   return {
-    shipper_id: shipper.shipper_id,
-    name: shipper.shipper_name,
-    email: shipper.email,
-    phone: shipper.phone,
-    status: shipper.status,
-    branch_id: shipper.branch_id,
+    shipper_id: shipper.shipper_id || 0,
+    name: shipper.shipper_name || shipper.name || 'N/A',
+    email: shipper.email || '',
+    phone: shipper.phone || '',
+    status: shipper.status || 'Đang hoạt động',
+    branch_id: shipper.branch_id || null,
     rating: shipper.rating || 0,
     total_success: shipper.total_success || 0,
     salary: shipper.salary || 8000000,
@@ -29,24 +31,18 @@ export const shipperApi = {
         ? `${BASE_PATH}/infomation?branch_id=${branchId}`
         : `${BASE_PATH}/infomation`;
 
-      console.log(" Fetching shippers from:", url);
-
       const response = await api.get(url);
-
-      console.log(" Backend response:", response.data);
 
       const mappedData = Array.isArray(response.data)
         ? response.data.map(mapShipperFromBackend)
         : [];
-
-      console.log(" Mapped shippers:", mappedData);
 
       return {
         success: true,
         data: mappedData,
       };
     } catch (error) {
-      console.error(" Error fetching shippers:", error);
+      console.error("Error fetching shippers:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -56,14 +52,10 @@ export const shipperApi = {
   },
 
   /**
-   * Thêm shipper - GỬI name
+   * Thêm shipper
    */
   addShipper: async (shipperData) => {
     try {
-      console.group(" ADD SHIPPER API CALL");
-      console.log("1. shipperData nhận được:", shipperData);
-
-      //  VALIDATE branch_id
       let branchId;
 
       if (!shipperData.branch_id || shipperData.branch_id === "") {
@@ -76,7 +68,6 @@ export const shipperApi = {
         throw new Error(`Branch ID không hợp lệ: "${shipperData.branch_id}"`);
       }
 
-      //  VALIDATE password (BẮT BUỘC)
       if (!shipperData.password || shipperData.password.trim() === "") {
         throw new Error("Mật khẩu không được để trống");
       }
@@ -92,7 +83,6 @@ export const shipperApi = {
         salary: parseFloat(shipperData.salary) || 8000000,
       };
 
-      // DOUBLE CHECK tất cả field
       if (!payload.name || payload.name.trim() === "") {
         throw new Error("Tên shipper không được để trống");
       }
@@ -109,12 +99,7 @@ export const shipperApi = {
         throw new Error("Branch ID không hợp lệ");
       }
 
-      console.log(" Final payload:", JSON.stringify(payload, null, 2));
-
       const response = await api.post(`${BASE_PATH}/add_shipper`, payload);
-
-      console.log(" Add response:", response.data);
-      console.groupEnd();
 
       return {
         success: true,
@@ -122,9 +107,7 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error(" Error adding shipper:", error);
-      console.error(" Response:", error.response?.data);
-      console.groupEnd();
+      console.error("Error adding shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -133,15 +116,10 @@ export const shipperApi = {
   },
 
   /**
-   *  Cập nhật shipper - GỬI 'name'
+   * Cập nhật shipper
    */
   updateShipper: async (shipperId, shipperData) => {
     try {
-      console.group(" UPDATE SHIPPER API CALL");
-      console.log("1. shipperId:", shipperId);
-      console.log("2. shipperData:", shipperData);
-
-      //  VALIDATE branch_id
       if (!shipperData.branch_id) {
         throw new Error("Branch ID bị thiếu trong shipperData");
       }
@@ -161,15 +139,10 @@ export const shipperApi = {
         salary: parseFloat(shipperData.salary) || 8000000,
       };
 
-      console.log(" Payload chuẩn bị gửi:", payload);
-
       const response = await api.put(
         `${BASE_PATH}/update_shipper/${shipperId}`,
         payload
       );
-
-      console.log(" Update response:", response.data);
-      console.groupEnd();
 
       return {
         success: true,
@@ -177,9 +150,7 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error(" Error updating shipper:", error);
-      console.error(" Response:", error.response?.data);
-      console.groupEnd();
+      console.error("Error updating shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -189,8 +160,6 @@ export const shipperApi = {
 
   deleteShipper: async (shipperId) => {
     try {
-      console.log(" Deleting shipper:", shipperId);
-
       const response = await api.delete(
         `${BASE_PATH}/delete_shipper/${shipperId}`
       );
@@ -201,7 +170,7 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error(" Error deleting shipper:", error);
+      console.error("Error deleting shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,

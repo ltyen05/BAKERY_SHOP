@@ -1,6 +1,5 @@
 // ===============================================
-// FILE: src/api/superAdminApi.js
-// Quản lý TOÀN BỘ HỆ THỐNG (employees, coupons)
+// FILE: src/api/superAdminApi.js -
 // ===============================================
 import api from "./axiosConfig";
 
@@ -17,8 +16,6 @@ export const superAdminApi = {
    */
   addEmployee: async (employeeData) => {
     try {
-      console.log(" [SUPER ADMIN] Adding employee:", employeeData);
-
       const payload = {
         employee_id: null,
         employee_name: employeeData.employee_name,
@@ -38,12 +35,12 @@ export const superAdminApi = {
         id: response.data.id,
       };
     } catch (error) {
-      console.error(" Error adding employee:", error);
+      console.error("Error adding employee:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Chỉ Super Admin mới có quyền thêm nhân viên",
+          message: "Chỉ Super Admin mới có quyền thêm nhân viên",
         };
       }
 
@@ -60,8 +57,6 @@ export const superAdminApi = {
    */
   updateEmployee: async (employeeId, employeeData) => {
     try {
-      console.log(" [SUPER ADMIN] Updating employee:", employeeId);
-
       const payload = {
         employee_name: employeeData.employee_name,
         role_name: employeeData.role_name,
@@ -85,12 +80,12 @@ export const superAdminApi = {
         message: response.data.message || "Cập nhật nhân viên thành công",
       };
     } catch (error) {
-      console.error(" Error updating employee:", error);
+      console.error("Error updating employee:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Chỉ Super Admin mới có quyền cập nhật nhân viên",
+          message: "Chỉ Super Admin mới có quyền cập nhật nhân viên",
         };
       }
 
@@ -111,8 +106,6 @@ export const superAdminApi = {
    */
   createVoucher: async (voucherData) => {
     try {
-      console.log(" [SUPER ADMIN] Creating voucher:", voucherData);
-
       const payload = {
         description: voucherData.description,
         discount_percent:
@@ -139,12 +132,12 @@ export const superAdminApi = {
         id: response.data.id,
       };
     } catch (error) {
-      console.error(" Error creating voucher:", error);
+      console.error("Error creating voucher:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Chỉ Super Admin mới có quyền tạo voucher",
+          message: "Chỉ Super Admin mới có quyền tạo voucher",
         };
       }
 
@@ -161,8 +154,6 @@ export const superAdminApi = {
    */
   updateVoucher: async (voucherId, voucherData) => {
     try {
-      console.log("[SUPER ADMIN] Updating voucher:", voucherId);
-
       const payload = {
         description: voucherData.description,
         discount_percent:
@@ -191,12 +182,12 @@ export const superAdminApi = {
         message: response.data.message || "Cập nhật voucher thành công",
       };
     } catch (error) {
-      console.error(" Error updating voucher:", error);
+      console.error("Error updating voucher:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Chỉ Super Admin mới có quyền cập nhật voucher",
+          message: "Chỉ Super Admin mới có quyền cập nhật voucher",
         };
       }
 

@@ -1,9 +1,10 @@
 // ===============================================
-// FILE: src/api/orderApi.js - WITH TOKEN
+// FILE: src/api/orderApi.js - CLEAN VERSION
 // ===============================================
 
 const BASE_URL = "http://localhost:5001/api/admin/order_management";
 import { tokenStorage } from "../utils/token";
+
 const getAuthHeaders = () => {
   const token = tokenStorage.get();
 
@@ -39,7 +40,6 @@ export const orderApi = {
         branch_id: result.branch_id,
       };
     } catch (error) {
-      console.error("Error fetching orders:", error);
       throw error;
     }
   },
@@ -76,7 +76,6 @@ export const orderApi = {
         total_amount: data.total_amount || 0,
       };
     } catch (error) {
-      console.error("[orderApi] Error:", error);
       return {
         success: false,
         items: [],

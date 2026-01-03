@@ -189,7 +189,6 @@ def reset_password_with_token(token, new_password):
 
 
 def generate_token(user, role):
-    # Chuyển Dictionary thành chuỗi String để tránh lỗi "Subject must be a string"
     identity_data = json.dumps({"id": user.get_id(), "role": role})
 
     return create_access_token(

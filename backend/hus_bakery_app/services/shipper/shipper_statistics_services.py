@@ -63,8 +63,11 @@ def get_shipper_all_order_history(shipper_id, page, per_page):
             .filter(OrderItem.order_id == order.order_id).scalar() or 0
 
         # ✅ SỬA TẠI ĐÂY: Mặc định là None (hoặc 0) để Frontend hiện "--"
-        rating_val = None 
-        
+        rating_val = None
+        review = ShipperReview.query.filter_by(order_id=order.order_id).first()
+        if review:
+            rating_val = review.rating
+
         # Vì bảng shipper_reviews của bạn không có order_id, 
         # chúng ta chỉ nên lấy rating nếu đơn hàng này thực sự đã hoàn thành 
         # và tồn tại bản ghi đánh giá tương ứng.

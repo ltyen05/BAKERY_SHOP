@@ -73,7 +73,7 @@ export default function Facilities() {
             <Col xs={24} md={24} xl={12}>
               <iframe
                 title={`map_${branch.branch_id || index}`}
-                src={branch.map_link} // Lưu ý: Kiểm tra lại tên field này trong log (có thể là mapSrc hoặc map_link)
+                src={branch.mapSrc} // Lưu ý: Kiểm tra lại tên field này trong log (có thể là mapSrc hoặc map_link)
                 style={{
                   border: 0,
                   height: "450px",

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
-from hus_bakery_app.services.shipper.shipper_statistics_services import (
+from hus_bakery_app.services.shipper.shipper_statistics_service import (
     count_total_orders,
     count_successful_orders,
     count_failed_orders,

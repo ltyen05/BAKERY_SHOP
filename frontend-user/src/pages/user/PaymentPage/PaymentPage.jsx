@@ -122,78 +122,176 @@ export default function ShippingAddressForm() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
     return distance;
+import React, { useState, useEffect } from "react";
+import {
+  Input,
+  Button,
+  Card,
+  message,
+  Spin,
+  Radio,
+  Space,
+  List,
+  Select,
+  Row,
+} from "antd";
+import {
+  EnvironmentOutlined,
+  CheckCircleOutlined,
+  ShopOutlined,
+  PhoneOutlined,
+  UserOutlined,
+  TagOutlined,
+} from "@ant-design/icons";
+import logo from "../../../assets/logo-noText.svg";
+import { useLocation, useNavigate } from "react-router-dom";
+import ProductItem from "../../../components/Product/ProductItem";
+import Voucher from "../../../components/Voucher/Voucher";
+import cod from "../../../assets/COD.svg";
+import qrCodeImg from "../../../assets/QR.svg";
+import { useOrder } from "../../../context/OrderContext";
+import { useAccount } from "../../../context/AccountContext";
+
+const { TextArea } = Input;
+const { Option } = Select;
+const BASE_TIME = 30;
+const PER_KM_TIME = 5;
+
+export default function ShippingAddressForm() {
+  const { branches } = useAccount();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [note, setNote] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { totalPrice = 0 } = location.state || {};
+  const { coupons, create_order, loadingCreateOrder } = useOrder();
+  const [receiverName, setReceiverName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchingHints, setSearchingHints] = useState(false);
+  const [selectedStore, setSelectedStore] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const { selectedVoucher, setSelectedVoucher, productInCart } = useOrder();
+
+  const getEstimatedDeliveryTime = (distance) => {
+    if (!distance) return null;
+    const roundedKm = Math.ceil(distance);
+    const totalMinutes = BASE_TIME + roundedKm * PER_KM_TIME;
+    return { roundedKm, totalMinutes };
   };
 
-  // Tính khoảng cách khi có địa chỉ và cửa hàng
+  const estimatedDelivery = getEstimatedDeliveryTime(distance);
+
   useEffect(() => {
-    if (verificationResult && verificationResult.valid && selectedStore) {
+    if (!selectedVoucher) return;
+    if (totalPrice < selectedVoucher.min_purchase) {
+      setSelectedVoucher(null);
+      messageApi.warning(
+        `Voucher yêu cầu đơn hàng tối thiểu ${selectedVoucher.min_purchase.toLocaleString()}đ. Voucher đã bị hủy.`
+      );
+      return;
+    }
+    setSelectedVoucher(selectedVoucher);
+    message.success("Đã áp dụng voucher!");
+  }, [totalPrice]);
+
+  const getShippingFee = (distance) => {
+    if (distance < 2) return 10000;
+    if (distance < 4) return 16000;
+    if (distance < 8) return 25000;
+    return 35000;
+  };
+
+  const shippingFee = getShippingFee(distance);
+
+  const discount = selectedVoucher
+    ? selectedVoucher.discount_type === "percent"
+      ? Math.min(
+          Number(totalPrice) *
+            (Number(selectedVoucher.discount_percent) / 100),
+          Number(selectedVoucher.max_discount)
+        )
+      : Number(selectedVoucher.discount_value)
+    : 0;
+
+  const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
+
+  const stores = Array.isArray(branches)
+    ? branches
+    : branches?.details || [];
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  useEffect(() => {
+    if (verificationResult?.valid && selectedStore) {
       const store = stores.find((s) => s.branch_id === selectedStore);
-      console.log("Danh sách stores sau khi sửa:", stores);
       if (store) {
-        const dist = calculateDistance(
-          parseFloat(verificationResult.lat),
-          parseFloat(verificationResult.lon),
-          store.lat,
-          store.lng
+        setDistance(
+          calculateDistance(
+            parseFloat(verificationResult.lat),
+            parseFloat(verificationResult.lon),
+            store.lat,
+            store.lng
+          )
         );
-        setDistance(dist);
       }
     } else {
       setDistance(null);
     }
   }, [verificationResult, selectedStore]);
 
-  // Debounce để không gọi API liên tục khi gõ
   useEffect(() => {
     if (address.trim().length < 3) {
       setSuggestions([]);
       return;
     }
-
     const timeoutId = setTimeout(() => {
       searchAddressSuggestions(address);
     }, 500);
-
     return () => clearTimeout(timeoutId);
   }, [address]);
 
-  // Tìm kiếm gợi ý địa chỉ
   const searchAddressSuggestions = async (query) => {
     if (query.trim().length < 3) return;
-
     setSearchingHints(true);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
           query + ", Vietnam"
         )}&format=json&addressdetails=1&limit=5`,
-        {
-          headers: {
-            "User-Agent": "ShippingAddressVerification/1.0",
-          },
-        }
+        { headers: { "User-Agent": "ShippingAddressVerification/1.0" } }
       );
       const data = await response.json();
-      if (data && data.length > 0) {
-        setSuggestions(
-          data.map((item) => ({
-            displayName: item.display_name,
-            lat: item.lat,
-            lon: item.lon,
-            address: item.address,
-          }))
-        );
-      } else {
-        setSuggestions([]);
-      }
-    } catch (error) {
-      console.error("Lỗi khi tìm gợi ý:", error);
+      setSuggestions(
+        data.map((item) => ({
+          displayName: item.display_name,
+          lat: item.lat,
+          lon: item.lon,
+          address: item.address,
+        }))
+      );
     } finally {
       setSearchingHints(false);
     }
   };
 
-  // Chọn địa chỉ từ gợi ý
   const selectSuggestion = (suggestion) => {
     setAddress(suggestion.displayName);
     setVerificationResult({
@@ -207,30 +305,22 @@ export default function ShippingAddressForm() {
     message.success("Đã chọn địa chỉ!");
   };
 
-  // Xác thực địa chỉ thủ công
   const verifyAddress = async () => {
     if (!address.trim()) {
       message.error("Vui lòng nhập địa chỉ!");
       return;
     }
-
     setVerifying(true);
     setVerificationResult(null);
-
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
           address + ", Vietnam"
         )}&format=json&addressdetails=1&limit=1`,
-        {
-          headers: {
-            "User-Agent": "ShippingAddressVerification/1.0",
-          },
-        }
+        { headers: { "User-Agent": "ShippingAddressVerification/1.0" } }
       );
       const data = await response.json();
-
-      if (data && data.length > 0) {
+      if (data.length > 0) {
         const result = data[0];
         setVerificationResult({
           valid: true,
@@ -241,80 +331,36 @@ export default function ShippingAddressForm() {
         });
         message.success("Địa chỉ hợp lệ!");
       } else {
-        setVerificationResult({
-          valid: false,
-          message: "Không tìm thấy địa chỉ này. Vui lòng kiểm tra lại!",
-        });
         messageApi.warning("Không tìm thấy địa chỉ này!");
       }
-    } catch (error) {
-      messageApi.error("Không thể xác thực địa chỉ. Vui lòng thử lại!");
     } finally {
       setVerifying(false);
     }
   };
 
   const handleSubmit = async () => {
-    if (!receiverName.trim()) {
-      messageApi.error("Vui lòng nhập tên người nhận!");
-      return;
-    }
-    if (!phoneNumber.trim()) {
-      messageApi.error("Vui lòng nhập số điện thoại!");
-      return;
-    }
-    if (!/^[0-9]{10,11}$/.test(phoneNumber.trim())) {
-      messageApi.error("Số điện thoại không hợp lệ (10-11 chữ số)!");
-      return;
-    }
-    if (!address.trim()) {
-      messageApi.error("Vui lòng nhập địa chỉ nhận hàng!");
-      return;
-    }
-    if (!verificationResult || !verificationResult.valid) {
-      messageApi.warning("Vui lòng xác thực địa chỉ trước khi đặt hàng!");
-      return;
-    }
-    if (!selectedStore) {
-      messageApi.warning("Vui lòng chọn cửa hàng giao hàng!");
-      return;
-    }
-
-    // Kiểm tra voucher trước khi submit
-    if (selectedVoucher && totalPrice < selectedVoucher.min_purchase) {
-      messageApi.error("Voucher không còn đủ điều kiện áp dụng!");
-      setSelectedVoucher(null);
-      return;
-    }
+    if (!receiverName.trim() || !phoneNumber.trim() || !address.trim()) return;
+    if (!verificationResult?.valid || !selectedStore) return;
     setLoading(true);
-  try {
-    // Gọi API tạo đơn hàng
-    const res = await create_order({
-      recipient_name: receiverName,
-      phone: phoneNumber,
-      total_amount: finalPrice,
-      branch_id: selectedStore,
-      shipping_address: address,
-      payment_method: paymentMethod.toUpperCase(),
-      note: note || null,
-      coupon_id: selectedVoucher?.coupon_id || null,
-    });
+    try {
+      await create_order({
+        recipient_name: receiverName,
+        phone: phoneNumber,
+        total_amount: finalPrice,
+        branch_id: selectedStore,
+        shipping_address: address,
+        payment_method: paymentMethod.toUpperCase(),
+        note: note || null,
+        coupon_id: selectedVoucher?.coupon_id || null,
+      });
+      messageApi.success("Đặt hàng thành công!");
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Nếu thành công
-    messageApi.success("Đặt hàng thành công!");
-    navigate("/");
-  } catch (err) {
-    // XỬ LÝ LỖI TẠI ĐÂY
-    console.error("Chi tiết lỗi:", err);
-    
-    // Hiển thị thông báo lỗi từ server (Ví dụ: "Không có shipper...") 
-    // lên màn hình cho người dùng thấy
-    messageApi.error(err.message || "Đặt hàng thất bại, vui lòng thử lại sau!");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const handleVoucherChange = (voucherId) => {
     const voucher = coupons.find((v) => v.coupon_id === voucherId);
     if (totalPrice < voucher.min_purchase) {
       messageApi.warning(
@@ -324,7 +370,8 @@ export default function ShippingAddressForm() {
     }
     setSelectedVoucher(voucher);
   };
-
+}
+}
   return (
     <>
       {contextHolder}

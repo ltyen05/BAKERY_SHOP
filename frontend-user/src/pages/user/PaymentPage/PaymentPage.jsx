@@ -131,7 +131,7 @@ export default function ShippingAddressForm() {
   useEffect(() => {
     // Chỉ tính khi verificationResult hợp lệ VÀ stores là mảng hợp lệ
     if (verificationResult && verificationResult.valid && selectedStore && Array.isArray(stores)) {
-      const store = stores.find((s) => s.id === selectedStore);
+      const store = stores.find((s) => s.branch_id === selectedStore);
       if (store) {
         const dist = calculateDistance(
           parseFloat(verificationResult.lat),
@@ -497,12 +497,13 @@ export default function ShippingAddressForm() {
                       parseFloat(verificationResult.lat),
                       parseFloat(verificationResult.lon),
                       store.lat,
-                      store.lon
+                      store.lng
+
                     );
                     distanceText = ` - ${dist.toFixed(2)} km`;
                   }
                   return (
-                    <Option key={store.id} value={store.id}>
+                  <Option key={store.branch_id} value={store.branch_id}>
                       <div>
                         <div
                           className="fl-center"

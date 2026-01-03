@@ -13,7 +13,6 @@ class Coupon(db.Model):
     begin_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     status = db.Column(db.String(50))
-    used_count = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
     rank = db.Column(db.String(20))

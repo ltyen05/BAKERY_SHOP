@@ -23,7 +23,6 @@ def add_coupon_service(data):
     new_coupon.end_date = data.get('end_date')
     new_coupon.status = data.get('status', 'Active')
     new_coupon.rank = data.get('rank', 'Đồng')  # Gán rank từ data truyền vào
-    new_coupon.used_count = 0
     new_coupon.created_at = datetime.now()
     new_coupon.updated_at = datetime.now()
 

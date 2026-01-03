@@ -175,7 +175,7 @@ def reset_password_with_token(token, new_password):
             return False, "Người dùng không tồn tại."
 
         # 6. Cập nhật mật khẩu
-        user.password_hash = generate_password_hash(new_password)
+        user.password = generate_password_hash(new_password)
         db.session.commit()
 
         return True, "Đặt lại mật khẩu thành công!"

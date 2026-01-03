@@ -5,8 +5,6 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from hus_bakery_app import db
 from hus_bakery_app.models.branches import Branch
-from hus_bakery_app.models.employee import Employee
-from hus_bakery_app.models.feedback import Feedback
 from hus_bakery_app.services.customer.product_services import get_rating_star_service
 from hus_bakery_app.models.customer import Customer
 from hus_bakery_app.models.order import Order
@@ -92,8 +90,6 @@ def change_password(role, id, old_password, new_password, confirm_password):
         user = Shipper.query.get(id)
     elif role == "customer":
         user = Customer.query.get(id)
-    elif role == "employee":
-        user = Employee.query.get(id)
 
     if not user or not user.check_password(old_password):
         return False, "Mật khẩu cũ không chính xác"
@@ -216,10 +212,6 @@ def get_product_was_bought(customer_id):
 
     return res
 
-def get_rating_star_branch_service(branch_id):
-    average = db.session.query(func.avg(Feedback.rating))\
-        .filter(Feedback.branch_id == branch_id).scalar()
-    return round(float(average), 1) if average else 0
 
 def get_branch_detail():
     branches = Branch.query.all()
@@ -236,7 +228,6 @@ def get_branch_detail():
             "mapSrc": branch.mapSrc,
             "lat": branch.lat,
             "lon": branch.lng,
-            "rating": get_rating_star_branch_service(branch.branch_id)
         }
         branches_list.append(details)
 

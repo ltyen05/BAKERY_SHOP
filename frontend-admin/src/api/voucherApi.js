@@ -1,127 +1,124 @@
 // ===============================================
 // FILE: src/api/voucherApi.js
-// ✅ API khớp với backend coupon_admin_bp
 // ===============================================
-import api from './axiosConfig';
+import api from "./axiosConfig";
 
-const BASE_PATH = '/admin/coupon_management';
+// Định nghĩa endpoint gốc để dễ quản lý nếu backend thay đổi đường dẫn
+const ENDPOINT = "/admin/coupon_management";
 
-export const voucherApi = {
+const voucherApi = {
   /**
-   * Lấy danh sách voucher
-   * GET /admin/coupon_management/coupon?status=Active (optional)
+   * GET: Lấy tất cả vouchers
    */
-  getAllVouchers: async (status = null) => {
+  getAllVouchers: async () => {
     try {
-      console.log('🔍 [voucherApi] Fetching vouchers...');
-
-      const params = status ? { status } : {};
-      const response = await api.get(`${BASE_PATH}/coupon`, { params });
-
-      console.log('✅ [voucherApi] Vouchers:', response.data);
+      // Chỉ dùng đường dẫn tương đối, axiosConfig sẽ tự ghép với baseURL
+      const response = await api.get(`${ENDPOINT}/coupon`);
 
       return {
         success: true,
-        data: response.data,
-        count: response.data.length
+        data: Array.isArray(response.data) ? response.data : [],
       };
     } catch (error) {
-      console.error('❌ [voucherApi] Error:', error);
-
+      console.error("[voucherApi] GET error:", error);
       return {
         success: false,
-        message: error.response?.data?.error || 
-                 error.message || 
-                 'Không thể lấy danh sách voucher',
-        data: []
+        data: [],
+        message: error.response?.data?.error || "Không thể tải danh sách voucher",
       };
     }
   },
 
   /**
-   * Thêm voucher mới
-   * POST /admin/coupon_management/add_coupon
+   * POST: Thêm voucher mới
    */
   addVoucher: async (voucherData) => {
     try {
-      console.log('➕ [voucherApi] Adding voucher:', voucherData);
+      const payload = {
+        description: voucherData.description || `VOUCHER${Date.now()}`,
+        discount_value: parseFloat(voucherData.discount_value) || 0,
+        discount_type: voucherData.discount_type || "percent",
+        min_purchase: parseFloat(voucherData.min_purchase) || 0,
+        max_discount: parseFloat(voucherData.max_discount) || 0,
+        begin_date: voucherData.begin_date,
+        end_date: voucherData.end_date,
+        status: voucherData.status || "active",
+      };
 
-      const response = await api.post(`${BASE_PATH}/add_coupon`, voucherData);
-
-      console.log('✅ [voucherApi] Voucher added:', response.data);
+      const response = await api.post(`${ENDPOINT}/add_coupon`, payload);
 
       return {
         success: true,
-        message: response.data.message,
-        id: response.data.id
+        message: response.data.message || "Thêm voucher thành công",
+        data: response.data,
       };
     } catch (error) {
-      console.error('❌ [voucherApi] Error:', error);
-
+      console.error("[voucherApi] POST error:", error);
       return {
         success: false,
-        message: error.response?.data?.error || 
-                 error.message || 
-                 'Không thể thêm voucher'
+        message: error.response?.data?.error || "Không thể thêm voucher",
       };
     }
   },
 
   /**
-   * Cập nhật voucher
-   * PUT /admin/coupon_management/update_coupon/:id
+   * PUT: Cập nhật voucher
    */
   updateVoucher: async (couponId, voucherData) => {
     try {
-      console.log('✏️ [voucherApi] Updating voucher:', couponId, voucherData);
+      const payload = {
+        description: voucherData.description,
+        discount_value: parseFloat(voucherData.discount_value) || 0,
+        discount_type: voucherData.discount_type || "percent",
+        min_purchase: parseFloat(voucherData.min_purchase) || 0,
+        max_discount: parseFloat(voucherData.max_discount) || 0,
+        begin_date: voucherData.begin_date,
+        end_date: voucherData.end_date,
+        status: voucherData.status,
+      };
 
-      const response = await api.put(`${BASE_PATH}/update_coupon/${couponId}`, voucherData);
-
-      console.log('✅ [voucherApi] Voucher updated:', response.data);
+      const response = await api.put(
+        `${ENDPOINT}/update_coupon/${couponId}`,
+        payload
+      );
 
       return {
         success: true,
-        message: response.data.message
+        message: response.data.message || "Cập nhật voucher thành công",
       };
     } catch (error) {
-      console.error('❌ [voucherApi] Error:', error);
-
+      console.error("[voucherApi] PUT error:", error);
       return {
         success: false,
-        message: error.response?.data?.error || 
-                 error.message || 
-                 'Không thể cập nhật voucher'
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Không thể cập nhật voucher",
       };
     }
   },
 
   /**
-   * Xóa voucher
-   * DELETE /admin/coupon_management/delete_coupon/:id
+   * DELETE: Xóa voucher
    */
   deleteVoucher: async (couponId) => {
     try {
-      console.log('🗑️ [voucherApi] Deleting voucher:', couponId);
-
-      const response = await api.delete(`${BASE_PATH}/delete_coupon/${couponId}`);
-
-      console.log('✅ [voucherApi] Voucher deleted:', response.data);
+      const response = await api.delete(
+        `${ENDPOINT}/delete_coupon/${couponId}`
+      );
 
       return {
         success: true,
-        message: response.data.message
+        message: response.data.message || "Xóa voucher thành công",
       };
     } catch (error) {
-      console.error('❌ [voucherApi] Error:', error);
-
+      console.error("[voucherApi] DELETE error:", error);
       return {
         success: false,
-        message: error.response?.data?.error || 
-                 error.message || 
-                 'Không thể xóa voucher'
+        message: error.response?.data?.error || "Không thể xóa voucher",
       };
     }
-  }
+  },
 };
 
 export default voucherApi;

@@ -1,70 +1,177 @@
 // ===============================================
-// FILE: src/api/adminApi.js
-// API để lấy thông tin admin đang đăng nhập
+// FILE: src/api/adminApi.js 
 // ===============================================
-import api from './axiosConfig';
-
-const BASE_PATH = '/admin';
+import api from "./axiosConfig";
 
 export const adminApi = {
-  /**
-   * Lấy thông tin admin hiện tại
-   * GET /admin/me?e_id=xxx
-   * 
-   * Backend response:
-   * {
-   *   "id": 1,
-   *   "name": "Nguyễn Bảo Thạch",
-   *   "role_name": "Quản lý" | "Super Admin",
-   *   "email": "admin@example.com",
-   *   "salary": 15000000,
-   *   "status": "Active",
-   *   "branch_id": 1 | null
-   * }
-   */
-  getAdminInfo: async (employeeId) => {
+  // ================= GET ALL BRANCHES =================
+  getAllBranches: async () => {
     try {
-      console.log('🔍 [adminApi] Fetching admin info for:', employeeId);
+      // Đã sửa: bỏ http://localhost:5001
+      const response = await api.get(
+        "/api/superadmin/api/branches"
+      );
 
-      const response = await api.get(`${BASE_PATH}/me`, {
-        params: { e_id: employeeId }
-      });
-
-      console.log('✅ [adminApi] Admin info:', response.data);
-
-      // Transform data để phù hợp với AuthContext
-      const adminData = {
-        id: response.data.id,
-        name: response.data.name,
-        email: response.data.email,
-        
-        // Chuyển đổi role_name thành role
-        role: response.data.role_name === 'Super Admin' ? 'super_admin' : 'admin',
-        role_name: response.data.role_name,
-        
-        salary: response.data.salary,
-        status: response.data.status,
-        branch_id: response.data.branch_id,
-        branch_name: null, // Sẽ fetch sau nếu cần
-        viewing_branch: null // Mặc định không xem chi nhánh nào
-      };
-
-      return {
-        success: true,
-        data: adminData
-      };
-    } catch (error) {
-      console.error('❌ [adminApi] Error:', error);
+      if (response.data && Array.isArray(response.data)) {
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
 
       return {
         success: false,
-        message: error.response?.data?.error || 
-                 error.message || 
-                 'Không thể lấy thông tin admin',
-        data: null
+        data: [],
+      };
+    } catch (error) {
+      console.error("[adminApi] Get branches error:", error);
+      return {
+        success: false,
+        data: [],
       };
     }
-  }
+  },
+
+  // ================= GET ALL ADMINS =================
+  getAllAdmins: async () => {
+    try {
+      const branchesResult = await adminApi.getAllBranches();
+
+      if (!branchesResult.success || branchesResult.data.length === 0) {
+        return {
+          success: true,
+          data: [],
+          count: 0,
+        };
+      }
+
+      const branches = branchesResult.data;
+
+      const adminPromises = branches.map(async (branch) => {
+        try {
+          // Đã sửa: bỏ http://localhost:5001
+          const managerResponse = await api.get(
+            `/api/superadmin/branch/${branch.branch_id}/manager`
+          );
+
+          if (managerResponse.data && managerResponse.data.data) {
+            const manager = managerResponse.data.data;
+            return {
+              manager_id: manager.manager_id || manager.employee_id,
+              manager_name: manager.manager_name || manager.employee_name,
+              email: manager.email,
+              phone: manager.phone,
+              salary: manager.salary,
+              status: manager.status || "Active",
+              role: manager.role || manager.role_name || "Quản lý",
+              branch_id: branch.branch_id,
+              branch_name: manager.branch_name || branch.name,
+            };
+          }
+          return null;
+        } catch (error) {
+          if (error.response?.status !== 404) {
+            console.error(`[adminApi] Branch ${branch.branch_id} error:`, error.message);
+          }
+          return null;
+        }
+      });
+
+      const admins = (await Promise.all(adminPromises)).filter(
+        (admin) => admin !== null
+      );
+
+      return {
+        success: true,
+        data: admins,
+        count: admins.length,
+      };
+    } catch (error) {
+      console.error("[adminApi] Error:", error);
+
+      return {
+        success: false,
+        message: error.message || "Không thể lấy danh sách admin",
+        data: [],
+      };
+    }
+  },
+
+  // ================= UPDATE ADMIN =================
+  updateAdmin: async (adminId, adminData) => {
+    try {
+      const payload = {
+        employee_name: adminData.username || adminData.manager_name,
+        email: adminData.email,
+      };
+
+      if (adminData.password && adminData.password.trim() !== "") {
+        payload.password = adminData.password;
+      }
+
+      if (adminData.status) {
+        const statusMap = {
+          "Đang làm việc": "Active",
+          "Đã nghỉ việc": "Inactive",
+        };
+        payload.status = statusMap[adminData.status] || "Active";
+      }
+
+      if (adminData.branch_id !== undefined) {
+        if (adminData.branch_id === "" || adminData.branch_id === null) {
+          payload.branch_id = null;
+        } else {
+          payload.branch_id = parseInt(adminData.branch_id);
+        }
+      }
+
+      // Đã sửa: bỏ http://localhost:5001
+      const response = await api.put(
+        `/api/superadmin/update_admin/${adminId}`,
+        payload
+      );
+
+      return {
+        success: response.data.success !== false,
+        message: response.data.message || "Cập nhật admin thành công",
+      };
+    } catch (error) {
+      console.error("[adminApi] Update Error:", error);
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Không thể cập nhật admin",
+      };
+    }
+  },
+
+  // ================= DELETE ADMIN =================
+  deleteAdmin: async (adminId) => {
+    try {
+      // Đã sửa: bỏ http://localhost:5001
+      const response = await api.delete(
+        `/api/superadmin/delete_admin/${adminId}`
+      );
+
+      return {
+        success: response.data.success !== false,
+        message: response.data.message || "Xóa admin thành công",
+      };
+    } catch (error) {
+      console.error("[adminApi] Delete Error:", error);
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Không thể xóa admin",
+      };
+    }
+  },
 };
 
 export default adminApi;

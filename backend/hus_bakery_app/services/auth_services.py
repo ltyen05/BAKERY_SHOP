@@ -175,7 +175,7 @@ def reset_password_with_token(token, new_password):
             return False, "Người dùng không tồn tại."
 
         # 6. Cập nhật mật khẩu
-        user.password_hash = generate_password_hash(new_password)
+        user.password = generate_password_hash(new_password)
         db.session.commit()
 
         return True, "Đặt lại mật khẩu thành công!"
@@ -189,7 +189,6 @@ def reset_password_with_token(token, new_password):
 
 
 def generate_token(user, role):
-    # Chuyển Dictionary thành chuỗi String để tránh lỗi "Subject must be a string"
     identity_data = json.dumps({"id": user.get_id(), "role": role})
 
     return create_access_token(

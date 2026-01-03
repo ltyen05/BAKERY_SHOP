@@ -1,28 +1,21 @@
 // ===============================================
-// Location: src/api/orderApi.js - HANDLE EMPTY ITEMS
+// FILE: src/api/orderApi.js - CLEAN VERSION
 // ===============================================
+import api from "./axiosConfig";
 
-const BASE_URL = '/admin/order_management';
+// Đã sửa: Dùng path tương đối, bỏ http://localhost:5001
+const BASE_PATH = "/api/admin/order_management";
 
 export const orderApi = {
   // GET - Lấy tất cả orders theo branch
   getAllOrders: async (branchId) => {
     try {
-      const response = await fetch(
-        `${BASE_URL}/orders?branch_id=${branchId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await api.get(`${BASE_PATH}/orders`, {
+        params: { branch_id: branchId },
+      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      // Axios trả về data nằm trong response.data
+      const result = response.data;
 
       return {
         success: result.success,
@@ -31,61 +24,37 @@ export const orderApi = {
         branch_id: result.branch_id,
       };
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("[orderApi] getAllOrders error:", error);
       throw error;
     }
   },
 
-  // GET DETAIL - Handle 404 và empty items
   getOrderDetail: async (orderId) => {
     try {
-      console.log('Fetching order detail for ID:', orderId);
+      const response = await api.get(`${BASE_PATH}/order_detail`, {
+        params: { order_id: orderId },
+      });
 
-      const response = await fetch(
-        `${BASE_URL}/order_detail?order_id=${orderId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const data = response.data;
 
-      // Handle 404 - order không có items
-      if (response.status === 404) {
-        console.warn('Order has no items (404)');
-        return {
-          success: true,
-          items: [],
-        };
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const items = await response.json();
-
-      console.log('Order items:', items);
-
-      // Handle empty response
-      if (!items || (Array.isArray(items) && items.length === 0)) {
-        console.warn('Order has no items (empty array)');
-        return {
-          success: true,
-          items: [],
-        };
-      }
-
-      // Backend trả về array items trực tiếp
       return {
         success: true,
-        items: Array.isArray(items) ? items : [items],
+        items: data.order_items || [],
+        shipping_address: data.shipping_address || null,
+        total_amount: data.total_amount || 0,
       };
     } catch (error) {
-      console.error('Error fetching order details:', error);
+      // Giữ nguyên logic cũ: Nếu lỗi 404 (không tìm thấy) thì trả về rỗng chứ không throw lỗi
+      if (error.response && error.response.status === 404) {
+        return {
+          success: true,
+          items: [],
+          shipping_address: null,
+          total_amount: 0,
+        };
+      }
 
-      // Trả về empty items thay vì throw error
+      console.error("[orderApi] getOrderDetail error:", error);
       return {
         success: false,
         items: [],
@@ -94,45 +63,24 @@ export const orderApi = {
     }
   },
 
-  // DELETE - Xóa order
   deleteOrder: async (orderId) => {
     try {
-      const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      const response = await api.delete(`${BASE_PATH}/delete_order/${orderId}`);
+      return response.data;
     } catch (error) {
-      console.error('Error deleting order:', error);
+      console.error("[orderApi] deleteOrder error:", error);
       throw error;
     }
   },
 
-  // UPDATE STATUS
   updateOrderStatus: async (orderId, newStatus) => {
     try {
-      const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
+      const response = await api.put(`${BASE_PATH}/orders/${orderId}`, {
+        status: newStatus,
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
+      return response.data;
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error("[orderApi] updateOrderStatus error:", error);
       throw error;
     }
   },

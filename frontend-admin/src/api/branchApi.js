@@ -1,213 +1,260 @@
-import api from './axiosConfig';
+// ===============================================
+// FILE: src/api/branchApi.js
+// ===============================================
+import api from "./axiosConfig";
 
-const BASE_PATH = '/superadmin/api';
+// Định nghĩa path gốc để code gọn hơn (tùy chọn)
+// Lưu ý: Đây là đường dẫn tương đối, không có http://localhost...
+const ROOT_PATH = "/api/superadmin";
 
 export const branchApi = {
+  // ================= GET ALL BRANCHES =================
   getAllBranches: async () => {
     try {
-      console.log('[branchApi] Fetching all branches...');
-
-      const response = await api.get(`${BASE_PATH}/branches`);
-
-      console.log('[branchApi] 📡 Raw response:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.get(`${ROOT_PATH}/api/branches`);
 
       let branches = [];
 
+      // Logic xử lý dữ liệu trả về (giữ nguyên như cũ)
       if (response.data) {
         if (response.data.success && response.data.data) {
           branches = response.data.data;
-        }
-        else if (response.data.data && Array.isArray(response.data.data)) {
+        } else if (response.data.data && Array.isArray(response.data.data)) {
           branches = response.data.data;
-        }
-        else if (Array.isArray(response.data)) {
+        } else if (Array.isArray(response.data)) {
           branches = response.data;
-        }
-        else if (response.data.branches && Array.isArray(response.data.branches)) {
+        } else if (
+          response.data.branches &&
+          Array.isArray(response.data.branches)
+        ) {
           branches = response.data.branches;
         }
       }
 
-      console.log('[branchApi] ✅ Branches loaded:', branches.length);
-
-      console.log('[branchApi] 🔍 Fetching manager info for each branch...');
-      
+      // Fetch manager info for each branch
       const branchesWithManager = await Promise.all(
         branches.map(async (branch) => {
           try {
             if (branch.manager_id) {
-              const managerRes = await api.get(`/superadmin/branch/${branch.branch_id}/manager`);
-              
-              if (managerRes.data && managerRes.data.success && managerRes.data.data) {
+              // Đã sửa: dùng đường dẫn tương đối
+              const managerRes = await api.get(
+                `${ROOT_PATH}/branch/${branch.branch_id}/manager`
+              );
+
+              if (managerRes.data?.success && managerRes.data?.data) {
                 return {
                   ...branch,
                   manager_name: managerRes.data.data.manager_name,
                   manager_email: managerRes.data.data.email,
                   manager_role: managerRes.data.data.role,
-                  manager_status: managerRes.data.data.status
+                  manager_status: managerRes.data.data.status,
                 };
               }
             }
-            
+
             return branch;
-            
           } catch (err) {
-            console.warn(`[branchApi] ⚠️ Cannot fetch manager for branch ${branch.branch_id}`);
+            // Silent fail for manager fetch - not critical
             return branch;
           }
         })
       );
 
-      console.log('[branchApi] ✅ Branches with manager info:', branchesWithManager.length);
-      if (branchesWithManager.length > 0) {
-        console.log('[branchApi] 📦 Sample branch:', branchesWithManager[0]);
-      }
-
       return {
         success: true,
         data: branchesWithManager,
-        count: branchesWithManager.length
+        count: branchesWithManager.length,
       };
-
     } catch (error) {
-      console.error('[branchApi] ❌ Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error(
+        "[branchApi] Error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
+        message:
+          error.response?.data?.message ||
           error.message ||
-          'Không thể lấy danh sách chi nhánh',
-        data: []
+          "Không thể lấy danh sách chi nhánh",
+        data: [],
       };
     }
   },
 
+  // ================= GET BRANCH DETAIL =================
   getBranchDetail: async (branchId) => {
     try {
-      console.log('[branchApi] Fetching branch detail:', branchId);
-
-      const response = await api.get(`/superadmin/branch/${branchId}`);
-
-      console.log('[branchApi] Branch detail:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.get(
+        `${ROOT_PATH}/branch/${branchId}`
+      );
 
       return {
         success: response.data.success,
-        data: response.data.data
+        data: response.data.data,
       };
     } catch (error) {
-      console.error('[branchApi] Error:', error);
+      console.error(
+        "[branchApi] getBranchDetail error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
-          error.message ||
-          'Không thể lấy thông tin chi nhánh',
-        data: null
+        message:
+          error.response?.data?.message || "Không thể lấy thông tin chi nhánh",
+        data: null,
       };
     }
   },
 
+  // ================= GET BRANCH MANAGER =================
   getBranchManager: async (branchId) => {
     try {
-      console.log('[branchApi] Fetching branch manager:', branchId);
-
-      const response = await api.get(`/superadmin/branch/${branchId}/manager`);
-
-      console.log('[branchApi] Manager info:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.get(
+        `${ROOT_PATH}/branch/${branchId}/manager`
+      );
 
       return {
         success: response.data.success,
-        data: response.data.data
+        data: response.data.data,
       };
     } catch (error) {
-      console.error('[branchApi] Error:', error);
+      console.error(
+        "[branchApi] getBranchManager error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
-          error.message ||
-          'Không thể lấy thông tin quản lý',
-        data: null
+        message:
+          error.response?.data?.message || "Không thể lấy thông tin quản lý",
+        data: null,
       };
     }
   },
 
+  // ================= ADD BRANCH =================
   addBranch: async (branchData) => {
     try {
-      console.log('[branchApi] 📤 Adding branch:', branchData);
+      // Chuẩn hóa dữ liệu
+      const payload = {
+        name: branchData.name,
+        address: branchData.address,
+        phone: branchData.phone,
+        email: branchData.email || null,
+        mapSrc: branchData.mapSrc || null,
+        lat: branchData.lat ? parseFloat(branchData.lat) : null,
+        lng: branchData.lng ? parseFloat(branchData.lng) : null,
+      };
 
-      const response = await api.post('/superadmin/add_branch', branchData);
+      // Chỉ thêm manager_id nếu có giá trị hợp lệ
+      if (
+        branchData.manager_id &&
+        branchData.manager_id !== "" &&
+        branchData.manager_id !== "0"
+      ) {
+        payload.manager_id = parseInt(branchData.manager_id);
+      }
 
-      console.log('[branchApi] ✅ Branch added:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.post(
+        `${ROOT_PATH}/add_branch`,
+        payload
+      );
 
       return {
-        success: response.data.success || true,
-        message: response.data.message || 'Thêm chi nhánh thành công',
-        id: response.data.id
+        success: response.data.success !== false,
+        message: response.data.message || "Thêm chi nhánh thành công",
+        id: response.data.id,
       };
     } catch (error) {
-      console.error('[branchApi] ❌ Add Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error(
+        "[branchApi] addBranch error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
-          error.message ||
-          'Không thể thêm chi nhánh'
+        message: error.response?.data?.message || "Không thể thêm chi nhánh",
       };
     }
   },
 
+  // ================= UPDATE BRANCH =================
   updateBranch: async (branchId, branchData) => {
     try {
-      console.log('[branchApi] 📤 Updating branch:', branchId, branchData);
+      // Chuẩn hóa dữ liệu
+      const payload = {
+        name: branchData.name,
+        address: branchData.address,
+        phone: branchData.phone,
+        email: branchData.email || null,
+        mapSrc: branchData.mapSrc || null,
+        lat: branchData.lat ? parseFloat(branchData.lat) : null,
+        lng: branchData.lng ? parseFloat(branchData.lng) : null,
+      };
 
-      const response = await api.put(`/superadmin/update_branch/${branchId}`, branchData);
+      // Chỉ thêm manager_id nếu có giá trị hợp lệ
+      if (
+        branchData.manager_id &&
+        branchData.manager_id !== "" &&
+        branchData.manager_id !== "0"
+      ) {
+        payload.manager_id = parseInt(branchData.manager_id);
+      }
 
-      console.log('[branchApi] ✅ Branch updated:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.put(
+        `${ROOT_PATH}/update_branch/${branchId}`,
+        payload
+      );
 
       return {
-        success: response.data.success || true,
-        message: response.data.message || 'Cập nhật chi nhánh thành công'
+        success: response.data.success !== false,
+        message: response.data.message || "Cập nhật chi nhánh thành công",
       };
     } catch (error) {
-      console.error('[branchApi] ❌ Update Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error(
+        "[branchApi] updateBranch error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
-          error.message ||
-          'Không thể cập nhật chi nhánh'
+        message:
+          error.response?.data?.message || "Không thể cập nhật chi nhánh",
       };
     }
   },
 
+  // ================= DELETE BRANCH =================
   deleteBranch: async (branchId) => {
     try {
-      console.log('[branchApi] 📤 Deleting branch:', branchId);
-
-      const response = await api.delete(`/superadmin/delete_branch/${branchId}`);
-
-      console.log('[branchApi] ✅ Branch deleted:', response.data);
+      // Đã sửa: dùng đường dẫn tương đối
+      const response = await api.delete(
+        `${ROOT_PATH}/delete_branch/${branchId}`
+      );
 
       return {
-        success: response.data.success || true,
-        message: response.data.message || 'Xóa chi nhánh thành công'
+        success: response.data.success !== false,
+        message: response.data.message || "Xóa chi nhánh thành công",
       };
     } catch (error) {
-      console.error('[branchApi] ❌ Delete Error:', error);
-      console.error('[branchApi] ❌ Response:', error.response?.data);
+      console.error(
+        "[branchApi] deleteBranch error:",
+        error.response?.data || error.message
+      );
 
       return {
         success: false,
-        message: error.response?.data?.message ||
-          error.message ||
-          'Không thể xóa chi nhánh'
+        message: error.response?.data?.message || "Không thể xóa chi nhánh",
       };
     }
-  }
+  },
 };
 
 export default branchApi;

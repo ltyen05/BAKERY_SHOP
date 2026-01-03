@@ -1,11 +1,12 @@
 // ===============================================
 // FILE: src/api/superAdminApi.js
-// Mục đích: API CHỈ DÀNH CHO SUPER ADMIN
-// Quản lý TOÀN BỘ HỆ THỐNG (employees, coupons)
 // ===============================================
-import api from './axiosConfig';
+import api from "./axiosConfig";
 
-const BASE_PATH = '/api';
+// LƯU Ý: Nếu axiosConfig của bạn đã set baseURL là ".../api"
+// thì ở đây chỉ cần để chuỗi rỗng hoặc prefix cụ thể của module (nếu có).
+// Code cũ của bạn là ".../api/api", tôi đoán đó là lỗi lặp, nên tôi sửa thành root "/"
+const BASE_PATH = ""; 
 
 export const superAdminApi = {
   // ==========================================
@@ -18,8 +19,6 @@ export const superAdminApi = {
    */
   addEmployee: async (employeeData) => {
     try {
-      console.log('➕ [SUPER ADMIN] Adding employee:', employeeData);
-
       const payload = {
         employee_id: null,
         employee_name: employeeData.employee_name,
@@ -27,30 +26,31 @@ export const superAdminApi = {
         email: employeeData.email,
         password: employeeData.password,
         salary: parseFloat(employeeData.salary) || 9000000,
-        status: employeeData.status || 'Active',
-        branch_id: parseInt(employeeData.branch_id)
+        status: employeeData.status || "Active",
+        branch_id: parseInt(employeeData.branch_id),
       };
 
+      // Gọi relative path: axios sẽ ghép thành {BASE_URL}/employees
       const response = await api.post(`${BASE_PATH}/employees`, payload);
 
       return {
         success: response.data.success || true,
-        message: response.data.message || 'Thêm nhân viên thành công',
-        id: response.data.id
+        message: response.data.message || "Thêm nhân viên thành công",
+        id: response.data.id,
       };
     } catch (error) {
-      console.error('❌ Error adding employee:', error);
+      console.error("Error adding employee:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: '❌ Chỉ Super Admin mới có quyền thêm nhân viên'
+          message: "Chỉ Super Admin mới có quyền thêm nhân viên",
         };
       }
 
       return {
         success: false,
-        message: error.response?.data?.message || 'Lỗi khi thêm nhân viên'
+        message: error.response?.data?.message || "Lỗi khi thêm nhân viên",
       };
     }
   },
@@ -61,40 +61,41 @@ export const superAdminApi = {
    */
   updateEmployee: async (employeeId, employeeData) => {
     try {
-      console.log('✏️ [SUPER ADMIN] Updating employee:', employeeId);
-
       const payload = {
         employee_name: employeeData.employee_name,
         role_name: employeeData.role_name,
         email: employeeData.email,
         salary: parseFloat(employeeData.salary),
         status: employeeData.status,
-        branch_id: parseInt(employeeData.branch_id)
+        branch_id: parseInt(employeeData.branch_id),
       };
 
       if (employeeData.password && employeeData.password.trim()) {
         payload.password = employeeData.password;
       }
 
-      const response = await api.put(`${BASE_PATH}/employees/${employeeId}`, payload);
+      const response = await api.put(
+        `${BASE_PATH}/employees/${employeeId}`,
+        payload
+      );
 
       return {
         success: response.data.success || true,
-        message: response.data.message || 'Cập nhật nhân viên thành công'
+        message: response.data.message || "Cập nhật nhân viên thành công",
       };
     } catch (error) {
-      console.error('❌ Error updating employee:', error);
+      console.error("Error updating employee:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: '❌ Chỉ Super Admin mới có quyền cập nhật nhân viên'
+          message: "Chỉ Super Admin mới có quyền cập nhật nhân viên",
         };
       }
 
       return {
         success: false,
-        message: error.response?.data?.message || 'Lỗi khi cập nhật nhân viên'
+        message: error.response?.data?.message || "Lỗi khi cập nhật nhân viên",
       };
     }
   },
@@ -109,44 +110,44 @@ export const superAdminApi = {
    */
   createVoucher: async (voucherData) => {
     try {
-      console.log('➕ [SUPER ADMIN] Creating voucher:', voucherData);
-
       const payload = {
         description: voucherData.description,
-        discount_percent: voucherData.discount_type === 'Percent' 
-          ? parseFloat(voucherData.discount_percent) 
-          : null,
-        discount_value: voucherData.discount_type === 'Fixed' 
-          ? parseFloat(voucherData.discount_value) 
-          : null,
+        discount_percent:
+          voucherData.discount_type === "Percent"
+            ? parseFloat(voucherData.discount_percent)
+            : null,
+        discount_value:
+          voucherData.discount_type === "Fixed"
+            ? parseFloat(voucherData.discount_value)
+            : null,
         discount_type: voucherData.discount_type,
         min_purchase: parseFloat(voucherData.min_purchase) || 0,
         max_discount: parseFloat(voucherData.max_discount) || null,
         begin_date: voucherData.begin_date,
         end_date: voucherData.end_date,
-        status: voucherData.status || 'Active'
+        status: voucherData.status || "Active",
       };
 
       const response = await api.post(`${BASE_PATH}/coupons`, payload);
 
       return {
         success: response.data.success || true,
-        message: response.data.message || 'Tạo voucher thành công',
-        id: response.data.id
+        message: response.data.message || "Tạo voucher thành công",
+        id: response.data.id,
       };
     } catch (error) {
-      console.error('❌ Error creating voucher:', error);
+      console.error("Error creating voucher:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: '❌ Chỉ Super Admin mới có quyền tạo voucher'
+          message: "Chỉ Super Admin mới có quyền tạo voucher",
         };
       }
 
       return {
         success: false,
-        message: error.response?.data?.message || 'Lỗi khi tạo voucher'
+        message: error.response?.data?.message || "Lỗi khi tạo voucher",
       };
     }
   },
@@ -157,46 +158,49 @@ export const superAdminApi = {
    */
   updateVoucher: async (voucherId, voucherData) => {
     try {
-      console.log('✏️ [SUPER ADMIN] Updating voucher:', voucherId);
-
       const payload = {
         description: voucherData.description,
-        discount_percent: voucherData.discount_type === 'Percent' 
-          ? parseFloat(voucherData.discount_percent) 
-          : null,
-        discount_value: voucherData.discount_type === 'Fixed' 
-          ? parseFloat(voucherData.discount_value) 
-          : null,
+        discount_percent:
+          voucherData.discount_type === "Percent"
+            ? parseFloat(voucherData.discount_percent)
+            : null,
+        discount_value:
+          voucherData.discount_type === "Fixed"
+            ? parseFloat(voucherData.discount_value)
+            : null,
         discount_type: voucherData.discount_type,
         min_purchase: parseFloat(voucherData.min_purchase) || 0,
         max_discount: parseFloat(voucherData.max_discount) || null,
         begin_date: voucherData.begin_date,
         end_date: voucherData.end_date,
-        status: voucherData.status
+        status: voucherData.status,
       };
 
-      const response = await api.put(`${BASE_PATH}/coupons/${voucherId}`, payload);
+      const response = await api.put(
+        `${BASE_PATH}/coupons/${voucherId}`,
+        payload
+      );
 
       return {
         success: response.data.success || true,
-        message: response.data.message || 'Cập nhật voucher thành công'
+        message: response.data.message || "Cập nhật voucher thành công",
       };
     } catch (error) {
-      console.error('❌ Error updating voucher:', error);
+      console.error("Error updating voucher:", error);
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: '❌ Chỉ Super Admin mới có quyền cập nhật voucher'
+          message: "Chỉ Super Admin mới có quyền cập nhật voucher",
         };
       }
 
       return {
         success: false,
-        message: error.response?.data?.message || 'Lỗi khi cập nhật voucher'
+        message: error.response?.data?.message || "Lỗi khi cập nhật voucher",
       };
     }
-  }
+  },
 };
 
 export default superAdminApi;

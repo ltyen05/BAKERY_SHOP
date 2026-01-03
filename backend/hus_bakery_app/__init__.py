@@ -6,7 +6,7 @@ from sqlalchemy import text
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_mail import Mail
-from flask_cors import CORS
+
 load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -20,7 +20,7 @@ def create_app():
         supports_credentials=True,
         resources={
             r"/api/*": {
-                "origins": "*",
+                "origins": ["http://localhost:3000", "http://localhost:3001"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             }
@@ -31,35 +31,53 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == "True"
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = ('Hus Bakery', os.environ.get('MAIL_USERNAME'))
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
 
-    from .routers.auth import auth_bp
-    from .routers.customer.order_process import order_bp
-    from .routers.customer.feedback import feedback_bp
-    from .routers.customer.account import account_bp
-    from .routers.customer.product import product_bp
-    app.register_blueprint(account_bp, url_prefix="/api/account")
-    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+    from hus_bakery_app.routers.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
+    from hus_bakery_app.routers.customer.order_process import order_bp
     app.register_blueprint(order_bp, url_prefix='/api')
-    app.register_blueprint(product_bp, url_prefix='/api/product')
+    from hus_bakery_app.routers.customer.feedback import feedback_bp
+    app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+    from hus_bakery_app.routers.customer.account import account_bp
+    app.register_blueprint(account_bp, url_prefix="/api/account")
+    from hus_bakery_app.routers.customer.product import product_bp
+    app.register_blueprint(product_bp, url_prefix="/api/product")
     from hus_bakery_app.routers.customer.customer_notification import customer_noti_bp
     app.register_blueprint(customer_noti_bp, url_prefix='/api/notification')
-    
+
+
+    from hus_bakery_app.routers.admin.dashboard import dashboard_bp
+    app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
+    from hus_bakery_app.routers.admin.order_management import order_admin_bp
+    app.register_blueprint(order_admin_bp, url_prefix='/admin/order_management')
+    from hus_bakery_app.routers.admin.product_management import product_admin_bp
+    app.register_blueprint(product_admin_bp, url_prefix='/admin/product_management')
+    from hus_bakery_app.routers.admin.customer_management import customer_admin_bp
+    app.register_blueprint(customer_admin_bp, url_prefix='/admin/customer_management')
+    from hus_bakery_app.routers.admin.employee_management import employee_admin_bp
+    app.register_blueprint(employee_admin_bp, url_prefix='/admin/employee_management')
+    from hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
+    app.register_blueprint(coupon_admin_bp, url_prefix='/admin/coupon_management')
+    from hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
+    app.register_blueprint(shipper_admin_bp, url_prefix='/admin/shipper_management')
+
+
     from hus_bakery_app.routers.shipper.shipper_notifications import shipper_notifications_bp
     app.register_blueprint(shipper_notifications_bp, url_prefix='/api/shipper/notifications')
     from hus_bakery_app.routers.shipper.statistics import shipper_stats_bp
     app.register_blueprint(shipper_stats_bp, url_prefix='/api/shipper/statistics')
-
 
     from hus_bakery_app.routers.superadmin.superadmin_dashboard import superadmin_dashboard_bp
     app.register_blueprint(superadmin_dashboard_bp, url_prefix='/superadmin/dashboard')

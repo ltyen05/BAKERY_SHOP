@@ -1,240 +1,241 @@
 // ===============================================
-// src/pages/Customers/CustomersView.jsx
+// FILE: src/pages/Customers/CustomersView.jsx
 // ===============================================
-import React, { useState, useEffect, useMemo } from 'react';
-import { Tag, Space, Button, Modal, message } from 'antd';
-import {
-  FiEdit2, FiTrash2, FiDownload, FiSearch, FiPlus,
-  FiUsers, FiMail, FiPhone, FiUser
-} from 'react-icons/fi';
+import React from 'react';
+import { Tag, Space, Button, Tooltip, Modal } from 'antd';
+import { FiSearch, FiDownload, FiTrash2 } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { customerApi } from '../../api/customerApi';
 import DataTable from '../../components/Table/Table';
-import FormModal from '../../components/FormModal/FormModal';
+import { useCustomer } from './useCustomer';
+import { 
+  RANK_TABS, 
+  formatCurrency, 
+  getRankStyle 
+} from './customerConstants';
 import './CustomersView.css';
 
 const { confirm } = Modal;
 
-const RANK_TABS = [
-  { id: 'all', label: 'Tất cả', rank: null },
-  { id: 'bronze', label: 'Bronze', rank: 'Bronze' },
-  { id: 'silver', label: 'Silver', rank: 'Silver' },
-  { id: 'gold', label: 'Gold', rank: 'Gold' },
-  { id: 'platinum', label: 'Platinum', rank: 'Platinum' }
-];
+const CustomersView = () => {
+  const {
+    filteredCustomers,
+    stats,
+    loading,
+    activeRank,
+    searchQuery,
+    currentPage,
+    deleteCustomer,
+    rankCount,
+    setCurrentPage,
+    handleRankChange,
+    handleSearchChange,
+    handleExportCSV,
+    
+    canDeleteCustomer,
+    canExportData
+  } = useCustomer();
 
-const customerFields = [
-  {
-    name: 'name',
-    label: 'Họ và tên',
-    type: 'input',
-    inputType: 'text',
-    icon: FiUser,
-    required: true
-  },
-  {
-    name: 'phone',
-    label: 'Số điện thoại',
-    type: 'input',
-    inputType: 'tel',
-    icon: FiPhone,
-    required: true
-  },
-  {
-    name: 'email',
-    label: 'Email',
-    type: 'input',
-    inputType: 'email',
-    icon: FiMail,
-    required: true,
-    fullWidth: true
-  },
-  {
-    name: 'password',
-    label: 'Mật khẩu',
-    type: 'input',
-    inputType: 'password',
-    icon: FiUser,
-    required: false,
-    fullWidth: true,
-    helperText: 'Bắt buộc khi thêm mới, bỏ trống khi chỉnh sửa'
-  }
-];
-
-export default function CustomersView() {
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeRank, setActiveRank] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-
-  const rowsPerPage = 10;
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
-    try {
-      setLoading(true);
-      const result = await customerApi.getAllCustomers();
-
-      if (!result.success) {
-        message.error(result.message || 'Không thể tải khách hàng');
-        setCustomers([]);
-        return;
-      }
-
-      const rawData = result.data?.data || result.data || [];
-      const customerArray = Array.isArray(rawData) ? rawData : [];
-
-      const mapped = customerArray.map(c => {
-        const rank = c.rank
-          ? c.rank.charAt(0).toUpperCase() + c.rank.slice(1).toLowerCase()
-          : 'Bronze';
-
-        return {
-          id: c.id || c.customer_id,
-          key: c.id || c.customer_id,
-          customerId: `KH${String(c.id || c.customer_id).padStart(3, '0')}`,
-          name: c.name || 'N/A',
-          email: c.email || 'N/A',
-          phone: c.phone || 'N/A',
-          total_amount: c.total_amount || 0,
-          rank
-        };
-      });
-
-      setCustomers(mapped);
-    } catch (err) {
-      console.error(err);
-      message.error('Lỗi tải khách hàng');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredData = useMemo(() => {
-    return customers.filter(c => {
-      const tab = RANK_TABS.find(t => t.id === activeRank);
-      const matchRank = !tab?.rank || c.rank === tab.rank;
-
-      const q = searchQuery.toLowerCase();
-      const matchSearch =
-        !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.phone.includes(q) ||
-        c.customerId.toLowerCase().includes(q);
-
-      return matchRank && matchSearch;
-    });
-  }, [customers, activeRank, searchQuery]);
-
-  const handleAddCustomer = async (data) => {
-    if (!data.password) {
-      message.error('Mật khẩu bắt buộc khi thêm mới');
+  // ============= DELETE HANDLER =============
+  const handleDelete = (customer) => {
+    if (!canDeleteCustomer()) {
       return;
     }
-    await customerApi.addCustomer(data);
-    await fetchCustomers();
-    setIsAddModalOpen(false);
-  };
 
-  const handleUpdateCustomer = async (id, data) => {
-    await customerApi.updateCustomer(id, data);
-    await fetchCustomers();
-    setIsEditModalOpen(false);
-    setSelectedCustomer(null);
-  };
-
-  const handleDelete = (record) => {
     confirm({
-      title: 'Xóa khách hàng?',
+      title: 'Xác nhận xóa khách hàng',
       icon: <ExclamationCircleOutlined />,
-      content: record.name,
+      content: `Bạn có chắc chắn muốn xóa khách hàng "${customer.name}"?`,
+      okText: 'Xóa',
       okType: 'danger',
-      onOk: async () => {
-        await customerApi.deleteCustomer(record.id);
-        await fetchCustomers();
+      cancelText: 'Hủy',
+      centered: true,
+      async onOk() {
+        await deleteCustomer(customer.id, customer.name);
       }
     });
   };
 
+  // ============= TABLE COLUMNS =============
   const columns = [
     {
       title: 'Mã KH',
       dataIndex: 'customerId',
-      align: 'center',
+      key: 'customerId',
       width: 100,
+      align: 'center',
       fixed: 'left',
-      render: text => <Tag color="blue">{text}</Tag>
+      render: (text) => (
+        <span style={{ 
+          fontWeight: 700, 
+          fontSize: '14px',
+          color: '#475569'
+        }}>
+          {text}
+        </span>
+      ),
     },
-    { title: 'Họ và tên', dataIndex: 'name', width: 200 },
-    { title: 'SĐT', dataIndex: 'phone', align: 'center', width: 130 },
-    { title: 'Email', dataIndex: 'email', width: 220 },
+    {
+      title: 'Họ và tên',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text) => (
+        <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '14px' }}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
+      width: 130,
+      align: 'center',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      width: 220,
+      ellipsis: true,
+    },
     {
       title: 'Tổng chi tiêu',
       dataIndex: 'total_amount',
-      align: 'center',
+      key: 'total_amount',
       width: 150,
-      render: v => `${v.toLocaleString('vi-VN')} ₫`
+      align: 'center',
+      sorter: (a, b) => a.total_amount - b.total_amount,
+      render: (amount) => (
+        <span style={{ fontWeight: 700, color: '#10b981', fontSize: '14px' }}>
+          {formatCurrency(amount)}
+        </span>
+      ),
     },
     {
       title: 'Hạng',
       dataIndex: 'rank',
-      align: 'center',
+      key: 'rank',
       width: 120,
-      render: r => <Tag>{r}</Tag>
+      align: 'center',
+      render: (rank) => {
+        const style = getRankStyle(rank);
+        
+        return (
+          <Tag 
+            style={{ 
+              color: style.color,
+              background: style.bg,
+              border: `1px solid ${style.border}`,
+              fontWeight: 600,
+              fontSize: '12px',
+              borderRadius: '999px',
+              padding: '4px 12px'
+            }}
+          >
+            {rank}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Thao tác',
+      key: 'actions',
+      width: 80,
       align: 'center',
-      width: 100,
-      render: (_, r) => (
-        <Space>
-          <Button icon={<FiEdit2 />} onClick={() => { setSelectedCustomer(r); setIsEditModalOpen(true); }} />
-          <Button icon={<FiTrash2 />} danger onClick={() => handleDelete(r)} />
+      render: (_, record) => (
+        <Space size="small">
+          {canDeleteCustomer() && (
+            <Tooltip title="Xóa">
+              <Button
+                type="text"
+                icon={<FiTrash2 />}
+                onClick={() => handleDelete(record)}
+                danger
+              />
+            </Tooltip>
+          )}
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: 10,
+    total: filteredCustomers.length,
+    showSizeChanger: false,
+    showTotal: (total) => `Tổng ${total} khách hàng`
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+  };
+
+  // ============= RENDER =============
   return (
     <div className="customer-container">
+      {/* Header */}
+      <div className="customer-header">
+        <h1 className="customer-title">Quản lý Khách hàng</h1>
+        <p className="customer-subtitle">
+          Tổng: {stats.total} khách hàng
+        </p>
+      </div>
+
+      {/* Tabs + Actions */}
+      <div className="tabs-action-bar">
+        <div className="rank-tabs">
+          {RANK_TABS.map(tab => (
+            <div
+              key={tab.id}
+              onClick={() => handleRankChange(tab.id)}
+              className={`rank-tab ${activeRank === tab.id ? 'active' : ''}`}
+            >
+              <span>{tab.label}</span>
+              <span className="tab-count">({rankCount(tab.id)})</span>
+            </div>
+          ))}
+        </div>
+        
+        <div className="right-actions">
+          <div className="search-box">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Tìm theo tên, email, SĐT..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+          </div>
+
+          {canExportData() && (
+            <button 
+              onClick={handleExportCSV} 
+              className="export-btn"
+              disabled={filteredCustomers.length === 0 || loading}
+            >
+              <FiDownload /> Export
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Table */}
       <DataTable
         columns={columns}
-        dataSource={filteredData}
+        dataSource={filteredCustomers}
         loading={loading}
-        pagination={{
-          current: currentPage,
-          pageSize: rowsPerPage,
-          total: filteredData.length,
-          onChange: setCurrentPage
-        }}
+        pagination={paginationConfig}
+        onChange={handleTableChange}
         rowKey="id"
-      />
-
-      <FormModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSubmit={handleAddCustomer}
-        fields={customerFields}
-        mode="add"
-      />
-
-      <FormModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSubmit={handleUpdateCustomer}
-        data={selectedCustomer}
-        fields={customerFields}
-        mode="edit"
+        scroll={{ x: 'max-content' }}
+        emptyText="Không tìm thấy khách hàng nào"
       />
     </div>
   );
-}
+};
+
+export default CustomersView;

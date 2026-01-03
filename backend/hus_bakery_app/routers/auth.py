@@ -134,6 +134,10 @@ def login():
 
         # Nếu không có lỗi -> Tạo token
         token = generate_token(user, role)
+        if role == "employee":
+            name = user.employee_name
+        else:
+            name = user.name
 
         return jsonify({
             "status": "success",
@@ -141,7 +145,7 @@ def login():
             "access_token": token,
             "data": {
                 "id": user.get_id(),
-                "name": user.name,
+                "name": name,
                 "role": role
             }
         }), 200

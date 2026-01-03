@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th12 31, 2025 lúc 05:15 AM
+-- Thời gian đã tạo: Th1 03, 2026 lúc 06:49 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.0.28
 
@@ -289,32 +289,47 @@ CREATE TABLE `coupons` (
   `begin_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `status` varchar(50) DEFAULT NULL,
-  `used_count` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `rank` varchar(20) DEFAULT 'Đồng'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-ALTER TABLE `coupons` ADD `rank` varchar(50) DEFAULT NULL;
 --
 -- Đang đổ dữ liệu cho bảng `coupons`
 --
 
-INSERT INTO `coupons` (`coupon_id`, `description`, `discount_percent`, `discount_value`, `discount_type`, `min_purchase`, `max_discount`, `begin_date`, `end_date`, `status`, `used_count`, `created_at`, `updated_at`) VALUES
-(1, 'Giảm 10% cho đơn từ 200k', 10, NULL, 'percent', 200000.00, 50000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(2, 'Giảm 50k cho đơn từ 300k', NULL, 50000.00, 'value', 300000.00, NULL, '2025-02-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(3, 'Giảm 15% cho bánh kem', 15, NULL, 'percent', 150000.00, 70000.00, '2025-01-15', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(4, 'Giảm 20% cho đơn trên 500k', 20, NULL, 'percent', 500000.00, 100000.00, '2025-03-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(5, 'Giảm 30k cho khách hàng mới', NULL, 30000.00, 'value', 100000.00, NULL, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(6, 'Voucher 100k cho sinh nhật', NULL, 100000.00, 'value', 200000.00, NULL, '2025-05-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(7, 'Giảm 25% cho bánh mì', 25, NULL, 'percent', 50000.00, 30000.00, '2025-02-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(8, 'Giảm 10% khi thanh toán online', 10, NULL, 'percent', 100000.00, 40000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(9, 'Giảm 20k cho đơn đầu tiên', NULL, 20000.00, 'value', 100000.00, NULL, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(10, 'Giảm 50% cho bánh quy', 50, NULL, 'percent', 20000.00, 20000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(11, 'Giảm 100k đơn trên 1tr', NULL, 100000.00, 'value', 1000000.00, NULL, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(12, 'Giảm 15% cho khách VIP', 15, NULL, 'percent', 300000.00, 80000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06'),
-(13, 'Giảm 10% toàn menu tháng 11', 10, NULL, 'percent', 0.00, 100000.00, '2025-11-01', '2025-11-30', 'Expired', 0, '2025-11-06 14:02:06', '2025-12-30 16:37:42'),
-(14, 'Giảm 20% Black Friday', 20, NULL, 'percent', 200000.00, 100000.00, '2025-11-20', '2025-11-30', 'Expired', 0, '2025-11-06 14:02:06', '2025-12-30 16:37:42'),
-(15, 'Giảm 5% mỗi thứ 2', 5, NULL, 'percent', 100000.00, 30000.00, '2025-01-01', '2025-12-31', 'active', 0, '2025-11-06 14:02:06', '2025-11-06 14:02:06');
+INSERT INTO `coupons` (`coupon_id`, `description`, `discount_percent`, `discount_value`, `discount_type`, `min_purchase`, `max_discount`, `begin_date`, `end_date`, `status`, `created_at`, `updated_at`, `rank`) VALUES
+(1, 'Giảm 10% cho đơn từ 200', 10, NULL, 'percent', 200000.00, 50000.00, '2025-01-01', '2025-12-31', 'Expired', '2025-11-06 14:02:06', '2026-01-02 19:09:29', 'Vàng'),
+(3, 'Giảm 15% cho bánh kem', 15, NULL, 'percent', 150000.00, 70000.00, '2025-01-15', '2025-12-31', 'Expired', '2025-11-06 14:02:06', '2026-01-02 19:09:29', 'Vàng'),
+(5, 'Giảm 30k cho khách hàng mới', NULL, 30000.00, 'value', 100000.00, NULL, '2025-01-01', '2025-12-31', 'Expired', '2025-11-06 14:02:06', '2026-01-02 19:09:29', 'Kim cương'),
+(12, 'Giảm 15% cho khách VIP', 15, NULL, 'percent', 300000.00, 80000.00, '2025-01-01', '2025-12-31', 'Expired', '2025-11-06 14:02:06', '2026-01-02 19:09:29', 'Kim cương'),
+(16, 'Tri ân Thượng khách 2026', 40, NULL, 'percent', 1000000.00, 500000.00, '2026-01-01', '2026-12-31', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Kim cương'),
+(17, 'Quà tặng Sinh nhật Kim cương', NULL, 200000.00, 'value', 0.00, NULL, '2025-12-01', '2026-06-30', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Kim cương'),
+(18, 'Đặc quyền Private Party 2026', 25, NULL, 'percent', 2000000.00, 1000000.00, '2026-01-02', '2026-01-31', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Kim cương'),
+(19, 'Ưu đãi Hội viên Vàng tháng 1', 20, NULL, 'percent', 400000.00, 150000.00, '2026-01-01', '2026-01-31', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Vàng'),
+(20, 'Voucher Mua sắm Tết 2026', NULL, 100000.00, 'value', 500000.00, NULL, '2026-01-01', '2026-02-10', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Vàng'),
+(21, 'Tiệc Trà Chiều 2026', 15, NULL, 'percent', 250000.00, 50000.00, '2025-11-15', '2026-03-15', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Vàng'),
+(22, 'Khuyến mãi Bạc thân thiết', 10, NULL, 'percent', 200000.00, 40000.00, '2026-01-01', '2026-04-30', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Bạc'),
+(23, 'Voucher Cuối tuần vui vẻ', NULL, 30000.00, 'value', 150000.00, NULL, '2026-01-03', '2026-01-04', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Bạc'),
+(24, 'Chào mừng trở lại 2026', 12, NULL, 'percent', 100000.00, 30000.00, '2025-12-25', '2026-02-28', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Bạc'),
+(25, 'Mã giảm giá Khách hàng mới', 50, NULL, 'percent', 50000.00, 25000.00, '2026-01-01', '2026-12-31', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Đồng'),
+(26, 'Lì xì may mắn đầu năm', NULL, 10000.00, 'value', 100000.00, NULL, '2026-01-01', '2026-01-05', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Đồng'),
+(27, 'Ưu đãi bánh mì sáng 2026', 5, NULL, 'percent', 20000.00, 5000.00, '2026-01-01', '2026-06-30', 'active', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Đồng'),
+(28, 'Xả kho cuối năm 2025', 70, NULL, 'percent', 100000.00, 100000.00, '2025-12-20', '2025-12-31', 'Expired', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Đồng'),
+(29, 'Flash Sale 1/1/2026', NULL, 50000.00, 'value', 200000.00, NULL, '2026-01-01', '2026-01-01', 'Expired', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Bạc'),
+(30, 'Sự kiện Countdown 2026', 20, NULL, 'percent', 300000.00, 100000.00, '2025-12-31', '2026-01-01', 'Expired', '2026-01-02 19:16:13', '2026-01-02 19:16:13', 'Kim cương');
+
+--
+-- Bẫy `coupons`
+--
+DELIMITER $$
+CREATE TRIGGER `update_status_before_select` BEFORE UPDATE ON `coupons` FOR EACH ROW BEGIN
+    IF NEW.end_date < NOW() AND NEW.status = 'active' THEN
+        SET NEW.status = 'Expired';
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -334,81 +349,70 @@ CREATE TABLE `coupons_customer` (
 --
 
 INSERT INTO `coupons_customer` (`coupon_id`, `customer_id`, `status`, `used_at`) VALUES
-(1, 3, 'unused', NULL),
-(1, 5, 'unused', NULL),
-(1, 10, 'unused', NULL),
-(1, 12, 'unused', NULL),
-(1, 14, 'unused', NULL),
-(2, 3, 'unused', NULL),
-(2, 5, 'unused', NULL),
-(2, 10, 'unused', NULL),
-(2, 12, 'unused', NULL),
-(2, 14, 'unused', NULL),
-(3, 3, 'unused', NULL),
-(3, 5, 'unused', NULL),
-(3, 10, 'unused', NULL),
-(3, 12, 'unused', NULL),
-(3, 14, 'unused', NULL),
-(4, 3, 'unused', NULL),
-(4, 5, 'unused', NULL),
-(4, 10, 'unused', NULL),
-(4, 12, 'unused', NULL),
-(4, 14, 'unused', NULL),
-(5, 3, 'unused', NULL),
-(5, 5, 'unused', NULL),
-(5, 10, 'unused', NULL),
-(5, 12, 'unused', NULL),
-(5, 14, 'unused', NULL),
-(6, 3, 'unused', NULL),
-(6, 5, 'unused', NULL),
-(6, 10, 'unused', NULL),
-(6, 12, 'unused', NULL),
-(6, 14, 'unused', NULL),
-(7, 3, 'unused', NULL),
-(7, 5, 'unused', NULL),
-(7, 10, 'unused', NULL),
-(7, 12, 'unused', NULL),
-(7, 14, 'unused', NULL),
-(8, 3, 'unused', NULL),
-(8, 5, 'unused', NULL),
-(8, 10, 'unused', NULL),
-(8, 12, 'unused', NULL),
-(8, 14, 'unused', NULL),
-(9, 3, 'unused', NULL),
-(9, 5, 'unused', NULL),
-(9, 10, 'unused', NULL),
-(9, 12, 'unused', NULL),
-(9, 14, 'unused', NULL),
-(10, 3, 'unused', NULL),
-(10, 5, 'unused', NULL),
-(10, 10, 'unused', NULL),
-(10, 12, 'unused', NULL),
-(10, 14, 'unused', NULL),
-(11, 3, 'unused', NULL),
-(11, 5, 'unused', NULL),
-(11, 10, 'unused', NULL),
-(11, 12, 'unused', NULL),
-(11, 14, 'unused', NULL),
-(12, 3, 'unused', NULL),
-(12, 5, 'unused', NULL),
-(12, 10, 'unused', NULL),
-(12, 12, 'unused', NULL),
-(12, 14, 'unused', NULL),
-(13, 3, 'unused', NULL),
-(13, 5, 'unused', NULL),
-(13, 10, 'unused', NULL),
-(13, 12, 'unused', NULL),
-(13, 14, 'unused', NULL),
-(14, 3, 'unused', NULL),
-(14, 5, 'unused', NULL),
-(14, 10, 'unused', NULL),
-(14, 12, 'unused', NULL),
-(14, 14, 'unused', NULL),
-(15, 3, 'unused', NULL),
-(15, 5, 'unused', NULL),
-(15, 10, 'unused', NULL),
-(15, 12, 'unused', NULL),
-(15, 14, 'unused', NULL);
+(25, 1, 'unused', NULL),
+(25, 2, 'unused', NULL),
+(25, 3, 'unused', NULL),
+(25, 4, 'unused', NULL),
+(25, 5, 'unused', NULL),
+(25, 6, 'unused', NULL),
+(25, 7, 'unused', NULL),
+(25, 8, 'unused', NULL),
+(25, 9, 'unused', NULL),
+(25, 10, 'unused', NULL),
+(25, 11, 'unused', NULL),
+(25, 12, 'unused', NULL),
+(25, 13, 'unused', NULL),
+(25, 14, 'unused', NULL),
+(25, 15, 'unused', NULL),
+(25, 16, 'unused', NULL),
+(26, 1, 'unused', NULL),
+(26, 2, 'unused', NULL),
+(26, 3, 'unused', NULL),
+(26, 4, 'unused', NULL),
+(26, 5, 'unused', NULL),
+(26, 6, 'unused', NULL),
+(26, 7, 'unused', NULL),
+(26, 8, 'unused', NULL),
+(26, 9, 'unused', NULL),
+(26, 10, 'unused', NULL),
+(26, 11, 'unused', NULL),
+(26, 12, 'unused', NULL),
+(26, 13, 'unused', NULL),
+(26, 14, 'unused', NULL),
+(26, 15, 'unused', NULL),
+(26, 16, 'unused', NULL),
+(27, 1, 'unused', NULL),
+(27, 2, 'unused', NULL),
+(27, 3, 'unused', NULL),
+(27, 4, 'unused', NULL),
+(27, 5, 'unused', NULL),
+(27, 6, 'unused', NULL),
+(27, 7, 'unused', NULL),
+(27, 8, 'unused', NULL),
+(27, 9, 'unused', NULL),
+(27, 10, 'unused', NULL),
+(27, 11, 'unused', NULL),
+(27, 12, 'unused', NULL),
+(27, 13, 'unused', NULL),
+(27, 14, 'unused', NULL),
+(27, 15, 'unused', NULL),
+(27, 16, 'unused', NULL),
+(28, 1, 'unused', NULL),
+(28, 2, 'unused', NULL),
+(28, 3, 'unused', NULL),
+(28, 4, 'unused', NULL),
+(28, 5, 'unused', NULL),
+(28, 6, 'unused', NULL),
+(28, 7, 'unused', NULL),
+(28, 8, 'unused', NULL),
+(28, 9, 'unused', NULL),
+(28, 10, 'unused', NULL),
+(28, 11, 'unused', NULL),
+(28, 12, 'unused', NULL),
+(28, 13, 'unused', NULL),
+(28, 14, 'unused', NULL),
+(28, 15, 'unused', NULL),
+(28, 16, 'unused', NULL);
 
 -- --------------------------------------------------------
 
@@ -431,21 +435,21 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `email`, `phone`, `avatar`, `password`, `created_at`) VALUES
-(1, 'Nguyễn Thu Trang', 'trang.nguyen@gmail.com', '0978123456', 'avatar1.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(2, 'Trần Văn Minh', 'minh.tran@gmail.com', '0978234567', 'avatar2.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(3, 'Lê Thị Hòa', 'hoa.le@gmail.com', '0978345678', 'avatar3.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(4, 'Phạm Quang Huy', 'huy.pham@gmail.com', '0978456789', 'avatar4.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(5, 'Vũ Thị Hạnh', 'hanh.vu@gmail.com', '0978567890', 'avatar5.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(6, 'Hoàng Anh Tuấn', 'tuan.hoang@gmail.com', '0978678901', 'avatar6.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(7, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0978789012', 'avatar7.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(8, 'Đỗ Đức Nam', 'nam.do@gmail.com', '0978890123', 'avatar8.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(9, 'Trần Thị Lan', 'lan.tran@gmail.com', '0978901234', 'avatar9.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(10, 'Lê Văn Bình', 'binh.le@gmail.com', '0978012345', 'avatar10.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(11, 'Phan Thị Hường', 'huong.phan@gmail.com', '0978123012', 'avatar11.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(12, 'Nguyễn Hữu Dũng', 'dung.nguyen@gmail.com', '0978230123', 'avatar12.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(13, 'Đào Minh Tuấn', 'tuan.dao@gmail.com', '0978340123', 'avatar13.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(14, 'Bùi Quỳnh Chi', 'chi.bui@gmail.com', '0978450123', 'avatar14.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
-(15, 'Trần Thị Vân', 'van.tran@gmail.com', '0978560123', 'avatar15.jpg', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', '2025-11-06 14:02:06'),
+(1, 'Nguyễn Thu Trang', 'trang.nguyen@gmail.com', '0978123456', 'avatar1.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(2, 'Trần Văn Minh', 'minh.tran@gmail.com', '0978234567', 'avatar2.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(3, 'Lê Thị Hòa', 'hoa.le@gmail.com', '0978345678', 'avatar3.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(4, 'Phạm Quang Huy', 'huy.pham@gmail.com', '0978456789', 'avatar4.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(5, 'Vũ Thị Hạnh', 'hanh.vu@gmail.com', '0978567890', 'avatar5.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(6, 'Hoàng Anh Tuấn', 'tuan.hoang@gmail.com', '0978678901', 'avatar6.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(7, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0978789012', 'avatar7.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(8, 'Đỗ Đức Nam', 'nam.do@gmail.com', '0978890123', 'avatar8.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(9, 'Trần Thị Lan', 'lan.tran@gmail.com', '0978901234', 'avatar9.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(10, 'Lê Văn Bình', 'binh.le@gmail.com', '0978012345', 'avatar10.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(11, 'Phan Thị Hường', 'huong.phan@gmail.com', '0978123012', 'avatar11.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(12, 'Nguyễn Hữu Dũng', 'dung.nguyen@gmail.com', '0978230123', 'avatar12.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(13, 'Đào Minh Tuấn', 'tuan.dao@gmail.com', '0978340123', 'avatar13.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(14, 'Bùi Quỳnh Chi', 'chi.bui@gmail.com', '0978450123', 'avatar14.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
+(15, 'Trần Thị Vân', 'van.tran@gmail.com', '0978560123', 'avatar15.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-06 14:02:06'),
 (16, 'thach', '23001559@hus.edu.vn', '0778322905', 'default.jpg', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', '2025-11-25 02:31:14');
 
 -- --------------------------------------------------------
@@ -508,46 +512,46 @@ CREATE TABLE `employees` (
 --
 
 INSERT INTO `employees` (`employee_id`, `employee_name`, `role_name`, `email`, `password`, `salary`, `status`, `branch_id`) VALUES
-(1, 'Nguyễn Bảo Thạch', 'Quản lý', 'thach.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 18000000.00, 'Đang làm việc', 1),
-(2, 'Lê Văn Hùng', 'Thợ làm bánh', 'hung.le@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11000000.00, 'Đang làm việc', 1),
-(3, 'Trần Thị Mai', 'Thợ làm bánh', 'mai.tran@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11200000.00, 'Đang làm việc', 1),
-(4, 'Nguyễn Văn An', 'Bán hàng', 'an.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 1),
-(5, 'Bùi Thị Chi', 'Bán hàng', 'chi.bui@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 1),
-(6, 'Đỗ Hữu Dũng', 'Bán hàng', 'dung.do@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9100000.00, 'Đang làm việc', 1),
-(7, 'Phạm Thu Hà', 'Bán hàng', 'ha.pham@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 1),
-(8, 'Hoàng Văn Em', 'Bán hàng', 'em.hoang@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9200000.00, 'Đang làm việc', 1),
-(9, 'Nguyễn Tiến Lưỡng', 'Quản lý', 'luong.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 18000000.00, 'Đang làm việc', 2),
-(10, 'Phạm Văn Giang', 'Thợ làm bánh', 'giang.pham@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11000000.00, 'Đang làm việc', 2),
-(11, 'Nguyễn Thị Lệ', 'Thợ làm bánh', 'le.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11300000.00, 'Đang làm việc', 2),
-(12, 'Trần Văn Nam', 'Bán hàng', 'nam.tran@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 2),
-(13, 'Lê Thị Hoa', 'Bán hàng', 'hoa.le@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 2),
-(14, 'Phạm Đức Huy', 'Bán hàng', 'huy.pham@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9100000.00, 'Đang làm việc', 2),
-(15, 'Vũ Thị Trang', 'Bán hàng', 'trang.vu@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 2),
-(16, 'Đặng Văn Long', 'Bán hàng', 'long.dang@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9200000.00, 'Đang làm việc', 2),
-(17, 'Lê Thị Yến', 'Quản lý', 'yen.le@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 18000000.00, 'Đang làm việc', 3),
-(18, 'Ngô Văn Khánh', 'Thợ làm bánh', 'khanh.ngo@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11000000.00, 'Đang làm việc', 3),
-(19, 'Đào Thị Hương', 'Thợ làm bánh', 'huong.dao@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11200000.00, 'Đang làm việc', 3),
-(20, 'Đinh Văn Hùng', 'Bán hàng', 'hung.dinh@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 3),
-(21, 'Vũ Ngọc Ánh', 'Bán hàng', 'anh.vu@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 3),
-(22, 'Phan Văn Đức', 'Bán hàng', 'duc.phan@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9100000.00, 'Đang làm việc', 3),
-(23, 'Hoàng Thị Thu', 'Bán hàng', 'thu.hoang@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 3),
-(24, 'Trần Văn Trung', 'Bán hàng', 'trung.tran@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9200000.00, 'Đang làm việc', 3),
-(25, 'Lê Nguyễn Tố Uyên', 'Quản lý', 'uyen.le@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 18000000.00, 'Đang làm việc', 4),
-(26, 'Võ Văn Kiệt', 'Thợ làm bánh', 'kiet.vo@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11000000.00, 'Đang làm việc', 4),
-(27, 'Trần Ngọc Anh', 'Thợ làm bánh', 'anh.tran@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11200000.00, 'Đang làm việc', 4),
-(28, 'Nguyễn Hữu Thắng', 'Bán hàng', 'thang.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 4),
-(29, 'Đặng Thị Lan', 'Bán hàng', 'lan.dang@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 4),
-(30, 'Lê Công Vinh', 'Bán hàng', 'vinh.le@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9100000.00, 'Đang làm việc', 4),
-(31, 'Nguyễn Thị Nga', 'Bán hàng', 'nga.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 4),
-(32, 'Bùi Tấn Trường', 'Bán hàng', 'truong.bui@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9200000.00, 'Đang làm việc', 4),
-(33, 'Nguyễn Văn Thụ', 'Quản lý', 'thu.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 18000000.00, 'Đang làm việc', 5),
-(34, 'Lương Xuân Trường', 'Thợ làm bánh', 'truong.luong@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11000000.00, 'Đang làm việc', 5),
-(35, 'Nguyễn Thị Hảo', 'Thợ làm bánh', 'hao.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 11200000.00, 'Đang làm việc', 5),
-(36, 'Nguyễn Công Phượng', 'Bán hàng', 'phuong.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 5),
-(37, 'Nguyễn Văn Toàn', 'Bán hàng', 'toan.nguyen@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 5),
-(38, 'Trần Minh Vương', 'Bán hàng', 'vuong.tran@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9100000.00, 'Đang làm việc', 5),
-(39, 'Phan Văn Đức', 'Bán hàng', 'duc.phan@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9000000.00, 'Đang làm việc', 5),
-(40, 'Đỗ Duy Mạnh', 'Bán hàng', 'manh.do@husbakery.vn', '$2a$10$N9qo8uLOickGcVz4tcW2g.gLdVD.sS.s/YdcDuPoXf.b.sHS.VLf.', 9200000.00, 'Đang làm việc', 5);
+(1, 'Nguyễn Bảo Thạch', 'Quản lý', 'thach.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 1),
+(2, 'Lê Văn Hùng', 'Siêu quản lý\r\n', 'hung.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 1),
+(3, 'Trần Thị Mai', 'Thợ làm bánh', 'mai.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11200000.00, 'Đang làm việc', 1),
+(4, 'Nguyễn Văn An', 'Bán hàng', 'an.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 1),
+(5, 'Bùi Thị Chi', 'Bán hàng', 'chi.bui@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 1),
+(6, 'Đỗ Hữu Dũng', 'Bán hàng', 'dung.do@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 1),
+(7, 'Phạm Thu Hà', 'Bán hàng', 'ha.pham@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 1),
+(8, 'Hoàng Văn Em', 'Bán hàng', 'em.hoang@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 1),
+(9, 'Nguyễn Tiến Lưỡng', 'Quản lý', 'luong.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 2),
+(10, 'Phạm Văn Giang', 'Thợ làm bánh', 'giang.pham@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 2),
+(11, 'Nguyễn Thị Lệ', 'Thợ làm bánh', 'le.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11300000.00, 'Đang làm việc', 2),
+(12, 'Trần Văn Nam', 'Bán hàng', 'nam.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 2),
+(13, 'Lê Thị Hoa', 'Bán hàng', 'hoa.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 2),
+(14, 'Phạm Đức Huy', 'Bán hàng', 'huy.pham@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 2),
+(15, 'Vũ Thị Trang', 'Bán hàng', 'trang.vu@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 2),
+(16, 'Đặng Văn Long', 'Bán hàng', 'long.dang@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 2),
+(17, 'Lê Thị Yến', 'Quản lý', 'yen.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 3),
+(18, 'Ngô Văn Khánh', 'Thợ làm bánh', 'khanh.ngo@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 3),
+(19, 'Đào Thị Hương', 'Thợ làm bánh', 'huong.dao@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11200000.00, 'Đang làm việc', 3),
+(20, 'Đinh Văn Hùng', 'Bán hàng', 'hung.dinh@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 3),
+(21, 'Vũ Ngọc Ánh', 'Bán hàng', 'anh.vu@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 3),
+(22, 'Phan Văn Đức', 'Bán hàng', 'duc.phan@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 3),
+(23, 'Hoàng Thị Thu', 'Bán hàng', 'thu.hoang@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 3),
+(24, 'Trần Văn Trung', 'Bán hàng', 'trung.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 3),
+(25, 'Lê Nguyễn Tố Uyên', 'Quản lý', 'uyen.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 4),
+(26, 'Võ Văn Kiệt', 'Thợ làm bánh', 'kiet.vo@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 4),
+(27, 'Trần Ngọc Anh', 'Thợ làm bánh', 'anh.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11200000.00, 'Đang làm việc', 4),
+(28, 'Nguyễn Hữu Thắng', 'Bán hàng', 'thang.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 4),
+(29, 'Đặng Thị Lan', 'Bán hàng', 'lan.dang@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 4),
+(30, 'Lê Công Vinh', 'Bán hàng', 'vinh.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 4),
+(31, 'Nguyễn Thị Nga', 'Bán hàng', 'nga.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 4),
+(32, 'Bùi Tấn Trường', 'Bán hàng', 'truong.bui@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 4),
+(33, 'Nguyễn Văn Thụ', 'Quản lý', 'thu.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 5),
+(34, 'Lương Xuân Trường', 'Thợ làm bánh', 'truong.luong@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 5),
+(35, 'Nguyễn Thị Hảo', 'Thợ làm bánh', 'hao.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11200000.00, 'Đang làm việc', 5),
+(36, 'Nguyễn Công Phượng', 'Bán hàng', 'phuong.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 5),
+(37, 'Nguyễn Văn Toàn', 'Bán hàng', 'toan.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 5),
+(38, 'Trần Minh Vương', 'Bán hàng', 'vuong.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 5),
+(39, 'Phan Văn Đức', 'Bán hàng', 'duc.phan@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 5),
+(40, 'Đỗ Duy Mạnh', 'Bán hàng', 'manh.do@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 5);
 
 -- --------------------------------------------------------
 
@@ -614,37 +618,23 @@ CREATE TABLE `orders` (
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `branch_id`, `shipper_id`, `coupon_id`, `total_amount`, `recipient_name`, `phone`, `shipping_address`, `payment_method`, `created_at`, `note`) VALUES
 (1, 1, 1, 1, 1, 300000.00, 'Nguyễn Thu Trang', '0912345678', '15 Hàng Bạc, Hoàn Kiếm, Hà Nội', 'COD', '2025-11-06 14:02:06', 'Sản phẩm rất ngon, phục vụ tốt!'),
-(2, 2, 2, 3, 2, 450000.00, 'Trần Văn Minh', '0987654321', '89 Trần Duy Hưng, Cầu Giấy', 'Online', '2025-11-06 14:02:06', 'Sản phẩm rất ngon, phục vụ tốt!'),
+(2, 2, 2, 3, NULL, 450000.00, 'Trần Văn Minh', '0987654321', '89 Trần Duy Hưng, Cầu Giấy', 'Online', '2025-11-06 14:02:06', 'Sản phẩm rất ngon, phục vụ tốt!'),
 (3, 3, 3, 5, 3, 250000.00, 'Lê Thị Hòa', '0901234567', '120 Tây Sơn, Đống Đa', 'COD', '2025-11-06 14:02:06', 'Sản phẩm rất ngon, phục vụ tốt!'),
-(4, 4, 4, 7, 4, 550000.00, 'Phạm Quang Huy', '0977888999', '65 Quang Trung, Hà Đông', 'Online', '2025-11-06 14:02:06', 'Không thành công'),
+(4, 4, 4, 7, NULL, 550000.00, 'Phạm Quang Huy', '0977888999', '65 Quang Trung, Hà Đông', 'Online', '2025-11-06 14:02:06', 'Không thành công'),
 (5, 5, 5, 9, 5, 200000.00, 'Vũ Thị Hạnh', '0944555666', '20 Nguyễn Văn Cừ, Long Biên', 'COD', '2025-11-06 14:02:06', 'Không thành công'),
 (6, 6, 1, 2, 1, 320000.00, 'Hoàng Anh Tuấn', '0966777888', '17 Lý Nam Đế, Hoàn Kiếm', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
-(7, 7, 2, 4, 6, 480000.00, 'Nguyễn Thị Mai', '0933222111', '21 Trung Kính, Cầu Giấy', 'Online', '2025-11-06 14:02:06', 'Hoàn thành'),
-(8, 8, 3, 6, 7, 220000.00, 'Đỗ Đức Nam', '0922111000', '50 Chùa Bộc, Đống Đa', 'Online', '2025-11-06 14:02:06', 'Hoàn thành\r\n'),
-(9, 9, 4, 8, 8, 310000.00, 'Trần Thị Lan', '0955444333', '65 Quang Trung, Hà Đông', 'Online', '2025-11-06 14:02:06', 'Đã hủy'),
-(10, 10, 5, 10, 9, 180000.00, 'Lê Văn Bình', '0911000999', '20 Nguyễn Văn Cừ, Long Biên', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
-(11, 11, 1, 11, 10, 600000.00, 'Phan Thị Hường', '0900000000', '12 Hàng Bè, Hoàn Kiếm', 'Online', '2025-11-06 14:02:06', 'Hoàn thành'),
-(12, 12, 2, 12, 11, 420000.00, 'Nguyễn Hữu Dũng', '0900000000', '55 Trần Duy Hưng, Cầu Giấy', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
+(7, 7, 2, 4, NULL, 480000.00, 'Nguyễn Thị Mai', '0933222111', '21 Trung Kính, Cầu Giấy', 'Online', '2025-11-06 14:02:06', 'Hoàn thành'),
+(8, 8, 3, 6, NULL, 220000.00, 'Đỗ Đức Nam', '0922111000', '50 Chùa Bộc, Đống Đa', 'Online', '2025-11-06 14:02:06', 'Hoàn thành\r\n'),
+(9, 9, 4, 8, NULL, 310000.00, 'Trần Thị Lan', '0955444333', '65 Quang Trung, Hà Đông', 'Online', '2025-11-06 14:02:06', 'Đã hủy'),
+(10, 10, 5, 10, NULL, 180000.00, 'Lê Văn Bình', '0911000999', '20 Nguyễn Văn Cừ, Long Biên', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
+(11, 11, 1, 11, NULL, 600000.00, 'Phan Thị Hường', '0900000000', '12 Hàng Bè, Hoàn Kiếm', 'Online', '2025-11-06 14:02:06', 'Hoàn thành'),
+(12, 12, 2, 12, NULL, 420000.00, 'Nguyễn Hữu Dũng', '0900000000', '55 Trần Duy Hưng, Cầu Giấy', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
 (13, 13, 3, 13, 12, 340000.00, 'Đào Minh Tuấn', '0900000000', '110 Tây Sơn, Đống Đa', 'Online', '2025-11-06 14:02:06', 'Hoàn thành'),
-(14, 14, 4, 14, 13, 275000.00, 'Bùi Quỳnh Chi', '0900000000', '72 Quang Trung, Hà Đông', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
-(15, 15, 5, 15, 14, 900000.00, 'Trần Thị Vân', '0900000000', '89 Nguyễn Văn Cừ, Long Biên', 'Online', '2025-11-06 14:02:06', 'Đã hủy\r\n'),
+(14, 14, 4, 14, NULL, 275000.00, 'Bùi Quỳnh Chi', '0900000000', '72 Quang Trung, Hà Đông', 'COD', '2025-11-06 14:02:06', 'Hoàn thành'),
+(15, 15, 5, 15, NULL, 900000.00, 'Trần Thị Vân', '0900000000', '89 Nguyễn Văn Cừ, Long Biên', 'Online', '2025-11-06 14:02:06', 'Đã hủy\r\n'),
 (101, 16, 5, 8, NULL, 120000.00, 'Nguyễn Bảo Thạch ', '0778322905', '120, Trường Chinh, Thanh Xuân, Hà Nội ', 'COD', '2025-12-23 17:08:17', ''),
 (102, 16, 5, 21, NULL, 300000.00, 'Nguyễn Bảo Thạch ', '0778322905', '120, Trường Chinh, Thanh Xuân, Hà Nội ', 'Online', '2025-12-23 17:08:17', ''),
 (103, 16, 5, 21, NULL, 400000.00, 'Đào Minh Tuấn', '0900000000', '120, Trường Chinh, Thanh Xuân, Hà Nội ', 'COD', '2025-12-23 17:08:17', ''),
-(104, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(105, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(106, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(107, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(108, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(109, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(110, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(111, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(112, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(113, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(114, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(115, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(116, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
-(117, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
 (118, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
 (119, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
 (120, NULL, NULL, NULL, NULL, 0.00, NULL, '0900000000', NULL, NULL, '2025-12-23 17:08:17', NULL),
@@ -684,23 +674,6 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `product_id`, `quantity`
 (4, 102, 23, 3, 180000.00),
 (5, 103, 1, 3, 600000.00),
 (6, 103, 5, 2, 100000.00),
-(7, 104, 12, 4, 260000.00),
-(8, 104, 1, 2, 400000.00),
-(9, 105, 23, 4, 240000.00),
-(10, 105, 12, 3, 195000.00),
-(11, 106, 1, 5, 1000000.00),
-(12, 106, 2, 2, 100000.00),
-(13, 107, 12, 5, 325000.00),
-(14, 108, 23, 5, 300000.00),
-(15, 109, 1, 4, 800000.00),
-(16, 110, 12, 3, 195000.00),
-(17, 111, 23, 2, 120000.00),
-(18, 112, 1, 3, 600000.00),
-(19, 113, 12, 2, 130000.00),
-(20, 114, 23, 1, 60000.00),
-(21, 115, 3, 2, 100000.00),
-(22, 116, 4, 3, 120000.00),
-(23, 117, 6, 1, 60000.00),
 (24, 118, 7, 2, 60000.00),
 (25, 119, 8, 1, 75000.00),
 (26, 120, 9, 2, 40000.00),
@@ -786,7 +759,7 @@ INSERT INTO `products` (`product_id`, `name`, `description`, `image_url`, `unit_
 (16, 'Danish vị Dâu', 'Lớp bánh Danish vàng ươm với nhân dâu tây tươi kết hợp lớp gel trái cây óng ánh.', 'https://i.pinimg.com/1200x/f4/41/f2/f441f29cf44cb77caa9ea6ca523fa84c.jpg', 45000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
 (17, 'Danish vị Socola', 'Món bánh Danish với lớp vỏ giòn xốp và nhân socola nguyên chất tan chảy.', 'https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400233880002.jpg.webp', 45000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
 (18, 'Croissant nguyên bản', 'Croissant truyền thống với lớp vỏ ngoài giòn tan, ruột bánh rỗng xốp và nhẹ.', 'https://i.pinimg.com/736x/ea/0b/c6/ea0bc6f4213d99c0b35dfac08b5bd7c1.jpg', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
-(19, 'Croissant Socola', 'Croissant nướng vàng ruộm với hai thanh socola đen nguyên chất bên trong.', 'https://www.pinterest.com/pin/23151385579418817/', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
+(19, 'Croissant Socola', 'Croissant nướng vàng ruộm với hai thanh socola đen nguyên chất bên trong.', 'https://i.pinimg.com/1200x/15/9b/59/159b596f833ecaa2d54d862ef04c6490.jpg', 55000.00, '2026-01-03 17:06:06', '2025-12-18', 3),
 (20, 'Croissant Matcha', 'Sự kết hợp giữa kỹ thuật Pháp và matcha Nhật Bản, vị trà xanh thanh mát.', 'https://odouceurs.com/img/client/shop/1727601201_croissant%20matrcha.jpg', 55000.00, '2025-12-18 01:22:43', '2025-12-18', 3),
 (21, 'Mille-feuille vị socola', 'Lớp bánh ngàn lớp giòn tan kết hợp cùng kem socola mịn màng và đậm vị.', 'https://i.pinimg.com/736x/ee/89/8f/ee898f6631acbce5be9c90304f611e68.jpg', 65000.00, '2025-12-23 00:52:16', NULL, 3),
 (22, 'Mille-feuille vị chanh', 'Vị chanh tươi mát cân bằng hoàn hảo độ béo của kem và lớp bánh giòn tan.', 'https://i.pinimg.com/1200x/bd/ff/cb/bdffcb7d5eda6eab2c5f957350803dfb.jpg', 65000.00, '2025-12-23 00:52:16', NULL, 3),
@@ -828,23 +801,6 @@ INSERT INTO `product_reviews` (`order_item_id`, `product_id`, `customer_id`, `ra
 (4, 23, 16, 5, '2025-12-29 06:52:11'),
 (5, 1, 16, 4, '2025-12-29 06:52:11'),
 (6, 5, 16, 5, '2025-12-29 06:52:11'),
-(7, 12, NULL, 4, '2025-12-29 06:52:11'),
-(8, 1, NULL, 5, '2025-12-29 06:52:11'),
-(9, 23, NULL, 5, '2025-12-29 06:52:11'),
-(10, 12, NULL, 4, '2025-12-29 06:52:11'),
-(11, 1, NULL, 4, '2025-12-29 06:52:11'),
-(12, 2, NULL, 5, '2025-12-29 06:52:11'),
-(13, 12, NULL, 5, '2025-12-29 06:52:11'),
-(14, 23, NULL, 4, '2025-12-29 06:52:11'),
-(15, 1, NULL, 4, '2025-12-29 06:52:11'),
-(16, 12, NULL, 5, '2025-12-29 06:52:11'),
-(17, 23, NULL, 5, '2025-12-29 06:52:11'),
-(18, 1, NULL, 4, '2025-12-29 06:52:11'),
-(19, 12, NULL, 5, '2025-12-29 06:52:11'),
-(20, 23, NULL, 5, '2025-12-29 06:52:11'),
-(21, 3, NULL, 5, '2025-12-29 06:52:11'),
-(22, 4, NULL, 4, '2025-12-29 06:52:11'),
-(23, 6, NULL, 4, '2025-12-29 06:52:11'),
 (24, 7, NULL, 4, '2025-12-29 06:52:11'),
 (25, 8, NULL, 4, '2025-12-29 06:52:11'),
 (26, 9, NULL, 4, '2025-12-29 06:52:11'),
@@ -874,32 +830,32 @@ CREATE TABLE `shippers` (
 -- Đang đổ dữ liệu cho bảng `shippers`
 --
 
-INSERT INTO shippers (shipper_id, name, phone, email, status, salary, branch_id, password) VALUES
-(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@husbakery.vn', 'Đang hoạt động', 8100000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@husbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@husbakery.vn', 'Đang hoạt động', 8200000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@husbakery.vn', 'Đang hoạt động', 8100000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@husbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@husbakery.vn', 'Đang hoạt động', 8200000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(12, 'Lê Văn Duy', '0913000302', 'duy.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@husbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@husbakery.vn', 'Đang hoạt động', 8100000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(19, 'Lê Thị Diễm', '0914000404', 'diem.le@husbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@husbakery.vn', 'Đang hoạt động', 8100000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@husbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
-(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@husbakery.vn', 'Đang hoạt động', 8200000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69');
+INSERT INTO `shippers` (`shipper_id`, `name`, `phone`, `email`, `status`, `salary`, `branch_id`, `password`) VALUES
+(1, 'Vũ Tiến Dũng', '0911000101', 'dung.vu@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(2, 'Lương Văn Phúc', '0911000102', 'phuc.luong@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(3, 'Mai Anh Tuấn', '0911000103', 'tuan.mai@shipperhusbakery.vn', 'Đang hoạt động', 8100000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(4, 'Ngô Thị Lan', '0911000104', 'lan.ngo@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(5, 'Hà Văn Kiên', '0911000105', 'kien.ha@shipperhusbakery.vn', 'Đang hoạt động', 8200000.00, 1, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(6, 'Hoàng Văn Minh', '0912000201', 'minh.hoang@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(7, 'Nguyễn Đức Thắng', '0912000202', 'thang.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(8, 'Bùi Văn Quân', '0912000203', 'quan.bui@shipperhusbakery.vn', 'Đang hoạt động', 8100000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(9, 'Lý Thị Phương', '0912000204', 'phuong.ly@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(10, 'Trịnh Văn Tài', '0912000205', 'tai.trinh@shipperhusbakery.vn', 'Đang hoạt động', 8200000.00, 2, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(11, 'Nguyễn Văn Bách', '0913000301', 'bach.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(12, 'Lê Văn Duy', '0913000302', 'duy.le@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(13, 'Phạm Văn Cường', '0913000303', 'cuong.pham@shipperhusbakery.vn', 'Đang hoạt động', 8100000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(14, 'Hồ Thị Thanh', '0913000304', 'thanh.ho@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(15, 'Nguyễn Đình Trọng', '0913000305', 'trong.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8200000.00, 3, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(16, 'Đoàn Văn Hậu', '0914000401', 'hau.doan@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(17, 'Vũ Văn Thanh', '0914000402', 'thanh.vu@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(18, 'Trần Đình Trọng', '0914000403', 'trong.tran@shipperhusbakery.vn', 'Đang hoạt động', 8100000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(19, 'Lê Thị Diễm', '0914000404', 'diem.le@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(20, 'Nguyễn Quang Hải', '0914000405', 'hai.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8200000.00, 4, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(21, 'Bùi Tiến Dũng', '0915000501', 'dung.bui@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(22, 'Nguyễn Phong Hồng Duy', '0915000502', 'duy.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(23, 'Phạm Đức Huy', '0915000503', 'huy.pham@shipperhusbakery.vn', 'Đang hoạt động', 8100000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(24, 'Trần Thị Thùy Trang', '0915000504', 'trang.tran@shipperhusbakery.vn', 'Đang hoạt động', 8000000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69'),
+(25, 'Nguyễn Trọng Hoàng', '0915000505', 'hoang.nguyen@shipperhusbakery.vn', 'Đang hoạt động', 8200000.00, 5, 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69');
 
 -- --------------------------------------------------------
 
@@ -1134,7 +1090,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT cho bảng `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `coupon_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `coupon_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT cho bảng `customers`
@@ -1146,7 +1102,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT cho bảng `customer_notifications`
 --
 ALTER TABLE `customer_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT cho bảng `employees`
@@ -1188,7 +1144,7 @@ ALTER TABLE `shippers`
 -- AUTO_INCREMENT cho bảng `shipper_notification`
 --
 ALTER TABLE `shipper_notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Các ràng buộc cho các bảng đã đổ

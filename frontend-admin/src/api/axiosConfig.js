@@ -1,40 +1,44 @@
 // ===============================================
-// Location: src/api/axiosConfig.js - CHECKED & FIXED
+// Location: src/api/axiosConfig.js
 // ===============================================
-import axios from 'axios';
+import axios from "axios";
+import { tokenStorage } from "../utils/token";
+
+// Lấy URL từ biến môi trường, nếu không có thì dùng localhost
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
 
 const api = axios.create({
-  //  KHÔNG CẦN baseURL vì Vite proxy đã handle
-  // Vite proxy sẽ chuyển:
-  // /admin/... -> http://localhost:5001/admin/...
-  // /api/...   -> http://localhost:5000/api/...
-  
+  baseURL: BASE_URL, // <--- QUAN TRỌNG: Phải có cái này
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  withCredentials: true, //  Gửi cookies
-  timeout: 10000, //  10s timeout
+  withCredentials: true, // Gửi cookies nếu cần
+  timeout: 10000, // 10s timeout
 });
 
 // ============= REQUEST INTERCEPTOR =============
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = tokenStorage.get();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    console.log(' Request:', {
-      method: config.method.toUpperCase(),
-      url: config.url,
-      params: config.params,
-      data: config.data
-    });
-    
+
+    // Vite dùng import.meta.env.DEV thay vì process.env.NODE_ENV
+    if (import.meta.env.DEV) {
+      console.log("🚀 Request:", {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        fullUrl: `${config.baseURL}${config.url}`, // Log full URL để dễ debug
+        params: config.params,
+        data: config.data,
+      });
+    }
+
     return config;
   },
   (error) => {
-    console.error(' Request error:', error);
+    console.error("❌ Request error:", error);
     return Promise.reject(error);
   }
 );
@@ -42,49 +46,48 @@ api.interceptors.request.use(
 // ============= RESPONSE INTERCEPTOR =============
 api.interceptors.response.use(
   (response) => {
-    console.log(' Response:', {
-      status: response.status,
-      url: response.config.url,
-      data: response.data
-    });
+    if (import.meta.env.DEV) {
+      console.log("✅ Response:", {
+        status: response.status,
+        url: response.config.url,
+        data: response.data,
+      });
+    }
     return response;
   },
   (error) => {
-    // Handle error responses
     if (error.response) {
       // Server responded with error
-      console.error(' API Error:', {
+      console.error("🔥 API Error:", {
         status: error.response.status,
         url: error.config?.url,
-        data: error.response.data
+        message: error.response.data?.message || error.message,
       });
 
       // Handle specific status codes
       switch (error.response.status) {
         case 401:
-          console.error(' Unauthorized - Token expired or invalid');
-          // Optional: Clear token and redirect to login
-          // localStorage.removeItem('token');
+          console.error("⛔ Unauthorized - Token invalid or expired");
+          // Có thể thêm logic tự động logout ở đây:
+          // tokenStorage.remove();
           // window.location.href = '/login';
           break;
         case 403:
-          console.error(' Forbidden - No permission');
+          console.error("🚫 Forbidden - No permission");
           break;
         case 404:
-          console.error(' Not Found');
+          console.error("❓ Not Found");
           break;
         case 500:
-          console.error(' Server Error');
+          console.error("💥 Server Error");
           break;
       }
     } else if (error.request) {
-      // Request was made but no response
-      console.error(' No response from server:', error.request);
+      console.error("⚠️ No response from server (Network Error?)");
     } else {
-      // Something else happened
-      console.error(' Error:', error.message);
+      console.error("⚠️ Error:", error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );

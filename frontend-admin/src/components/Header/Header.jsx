@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./Header.css";
 
 export default function Header({ onToggleSidebar, onToggleFullscreen }) {
-  const { getCurrentBranch } = useAuth();
+  const { getCurrentBranch, user } = useAuth();
   const currentBranch = getCurrentBranch();
 
   return (
@@ -34,11 +34,11 @@ export default function Header({ onToggleSidebar, onToggleFullscreen }) {
         <div className="profile">
           <Avatar
             size={40}
-            src="https://i.postimg.cc/4ykv8DXb/avatar1.png"
+            src="https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau.jpeg"
           />
           <div className="profile-info">
-            <span className="name">Helen Walter</span>
-            <span className="role">Admin</span>
+            <span className="name">{user.name}</span>
+            <span className="role">{user.role_name}</span>
           </div>
         </div>
       </div>

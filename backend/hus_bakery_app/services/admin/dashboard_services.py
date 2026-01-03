@@ -3,63 +3,61 @@ from hus_bakery_app.models.order import Order
 from hus_bakery_app.models.order_item import OrderItem
 from hus_bakery_app.models.order_status import OrderStatus
 from hus_bakery_app.models.products import Product
+from hus_bakery_app.models.customer import Customer
 from sqlalchemy import func, extract, desc
 from datetime import datetime, timedelta
 
 
-def total_order_of_moth(month, year):
-    orders_count = Order.query.filter(
-        extract('month', Order.created_at) == month,
-        extract('year', Order.created_at) == year,
-    ).count()
-    return orders_count
+def get_time_filters(year, month=None, day=None, branch_id=None):
+    """Hàm bổ trợ để tạo list các điều kiện lọc thời gian"""
+    filters = [extract('year', Order.created_at) == year]
+    if month:
+        filters.append(extract('month', Order.created_at) == month)
+    if day:
+        filters.append(extract('day', Order.created_at) == day)
+
+    return filters
 
 
-def total_amount_of_month(month, year):
-    result = db.session.query(func.sum(Order.total_amount)).filter(
-        extract('month', Order.created_at) == month,
-        extract('year', Order.created_at) == year
-    ).scalar()
+def get_total_orders(year, month=None, day=None, branch_id=None):
+    filters = get_time_filters(year, month, day, branch_id)
+    return Order.query.filter(*filters).count()
 
+
+def get_total_amount(year, month=None, day=None, branch_id=None):
+    filters = get_time_filters(year, month, day, branch_id)
+    result = db.session.query(func.sum(Order.total_amount)).filter(*filters).scalar()
     return float(result) if result else 0.0
 
 
-def total_customer_of_month(month, year):
-    res = db.session.query(func.count(Order.customer_id.distinct())).filter(
-        extract('month', Order.created_at) == month,
-        extract('year', Order.created_at) == year
-    ).scalar()
-
+def get_total_customers(year, month=None, day=None, branch_id=None):
+    filters = get_time_filters(year, month, day, branch_id)
+    res = db.session.query(func.count(Order.customer_id.distinct())).filter(*filters).scalar()
     return res if res else 0
 
 
-def total_product_of_month(month, year):
+def get_total_products(year, month=None, day=None, branch_id=None):
+    filters = get_time_filters(year, month, day, branch_id)
     res = db.session.query(func.sum(OrderItem.quantity)) \
         .join(Order, Order.order_id == OrderItem.order_id) \
-        .filter(
-        extract('month', Order.created_at) == month,
-        extract('year', Order.created_at) == year
-    ).scalar()
-
+        .filter(*filters).scalar()
     return int(res) if res else 0
 
 
 def get_weekly_revenue_overview():
-    # 1. Xác định ngày bắt đầu của tuần hiện tại (Thứ 2)
     today = datetime.now()
     start_of_week = today - timedelta(days=today.weekday())
     start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # 2. Truy vấn tổng doanh thu theo từng ngày trong tuần
-    # Lọc các đơn hàng từ start_of_week đến nay
-    weekly_data = db.session.query(
+    query = db.session.query(
         func.date(Order.created_at).label('date'),
         func.sum(Order.total_amount).label('daily_total')
-    ).filter(
-        Order.created_at >= start_of_week
-    ).group_by(
-        func.date(Order.created_at)
-    ).all()
+    ).filter(Order.created_at >= start_of_week)
+
+    if branch_id:
+        query = query.filter(Order.branch_id == branch_id)
+
+    weekly_data = query.group_by(func.date(Order.created_at)).all()
 
     # 3. Chuẩn bị danh sách nhãn (Thứ) và giá trị mặc định là 0
     days_map = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -88,20 +86,25 @@ def get_weekly_revenue_overview():
     }
 
 
-def get_order_status_distribution():
-    # 1. Tìm ID mới nhất cho mỗi đơn hàng để lấy trạng thái hiện tại
-    latest_status_ids = db.session.query(
+def get_order_status_distribution(branch_id=None):
+    # 1. Tìm ID mới nhất cho mỗi đơn hàng
+    latest_status_ids_query = db.session.query(
         func.max(OrderStatus.id)
     ).group_by(OrderStatus.order_id)
 
-    # 2. Thống kê số lượng theo từng nhóm trạng thái
-    # Lưu ý: Map các trạng thái từ DB sang các nhóm hiển thị trên biểu đồ
-    status_counts = db.session.query(
+    # 2. Thống kê và lọc theo branch_id
+    query = db.session.query(
         OrderStatus.status,
         func.count(OrderStatus.id)
-    ).filter(
-        OrderStatus.id.in_(latest_status_ids)
-    ).group_by(OrderStatus.status).all()
+    ).filter(OrderStatus.id.in_(latest_status_ids_query))
+
+    # LỌC THEO BRANCH_ID TẠI ĐÂY
+    if branch_id:
+        # Giả sử OrderStatus có quan hệ hoặc có thể join với Order thông qua order_id
+        query = query.join(Order, OrderStatus.order_id == Order.order_id) \
+            .filter(Order.branch_id == branch_id)
+
+    status_counts = query.group_by(OrderStatus.status).all()
 
     # 3. Chuẩn hóa dữ liệu theo format ảnh thiết kế
     # Định nghĩa các nhóm hiển thị
@@ -140,19 +143,26 @@ def get_order_status_distribution():
     }
 
 
-def get_top_selling_products(limit=5):
-    # Truy vấn join OrderItem với Product để lấy thông tin chi tiết
-    results = db.session.query(
+def get_top_selling_products(limit=5, branch_id=None):  # 1. Thêm tham số branch_id
+    # 2. Xây dựng Query cơ bản
+    query = db.session.query(
         Product.name,
         Product.image_url,
         func.sum(OrderItem.quantity).label('total_quantity'),
         func.sum(OrderItem.quantity * OrderItem.price).label('total_revenue')
-    ).join(Product, OrderItem.product_id == Product.product_id) \
-        .group_by(Product.product_id) \
+    ).join(Product, OrderItem.product_id == Product.product_id)
+
+    # 3. Join thêm bảng Order để lọc theo branch_id
+    if branch_id:
+        query = query.join(Order, OrderItem.order_id == Order.order_id) \
+            .filter(Order.branch_id == branch_id)
+
+    # 4. Gom nhóm và sắp xếp
+    results = query.group_by(Product.product_id) \
         .order_by(desc('total_quantity')) \
         .limit(limit).all()
 
-    # Tính toán % so với sản phẩm bán chạy nhất để hiển thị thanh progress bar
+    # --- Phần xử lý dữ liệu trả về giữ nguyên ---
     max_qty = results[0].total_quantity if results else 1
 
     top_products = []
@@ -167,36 +177,37 @@ def get_top_selling_products(limit=5):
     return top_products
 
 
-from sqlalchemy import func, extract
-from hus_bakery_app.models.customer import Customer
-from hus_bakery_app import db
-from datetime import datetime
-
-
-def get_customer_growth_service():
+def get_customer_growth_service(branch_id=None):  # Thêm tham số nhận branch_id
     # 1. Lấy năm hiện tại
     current_year = datetime.now().year
 
-    # 2. Truy vấn: Đếm số lượng tài khoản khách hàng được tạo theo từng tháng trong năm nay
-    growth_data = db.session.query(
+    # 2. Xây dựng Query
+    query = db.session.query(
         extract('month', Customer.created_at).label('month'),
         func.count(Customer.customer_id).label('count')
     ).filter(
         extract('year', Customer.created_at) == current_year
-    ).group_by('month').order_by('month').all()
+    )
 
-    # 3. Danh sách nhãn tháng (Khớp với biểu đồ Jan -> Jun)
+    # Lọc theo branch_id nếu có
+    if branch_id:
+        # Giả sử bạn muốn lọc khách hàng đã từng mua hàng tại chi nhánh này
+        # Customer -> Order (order.customer_id == customer.customer_id)
+        from hus_bakery_app.models.order import Order  # Import nếu cần
+        query = query.join(Order, Order.customer_id == Customer.customer_id) \
+            .filter(Order.branch_id == branch_id)
+
+    growth_data = query.group_by('month').order_by('month').all()
+
+    # 3. Các bước xử lý nhãn tháng và dictionary giữ nguyên như cũ
     month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-    # Khởi tạo dictionary với giá trị mặc định là 0 cho 12 tháng
     full_year_stats = {i: 0 for i in range(1, 13)}
 
-    # 4. Cập nhật dữ liệu từ Database vào dictionary
     for row in growth_data:
         full_year_stats[int(row.month)] = row.count
 
-    # 5. Định dạng dữ liệu trả về cho Frontend (Lấy 6 tháng đầu năm theo ảnh thiết kế)
     final_data = []
+    # Lấy 6 tháng đầu năm theo yêu cầu
     for month_num in range(1, 7):
         final_data.append({
             "month": month_labels[month_num - 1],

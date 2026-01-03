@@ -1,148 +1,187 @@
 // ===============================================
-// src/api/shipperApi.js - FIXED (BỎ vehicle_type, rating)
+// FILE: src/api/shipperApi.js - FINAL CLEAN
 // ===============================================
-import api from './axiosConfig';
+import api from "./axiosConfig";
 
-const BASE_PATH = '/admin/shipper_management';
+// Đã sửa: Dùng path tương đối, bỏ http://localhost:5001
+const BASE_PATH = "/api/admin/shipper_management";
 
 const mapShipperFromBackend = (shipper) => {
+  if (!shipper) return null;
+  
   return {
-    shipper_id: shipper.shipper_id,
-    name: shipper.shipper_name,
-    email: shipper.email,
-    phone: shipper.phone,
-    status: shipper.status,
-    branch_id: shipper.branch_id,
-    salary: shipper.salary || 8000000
+    shipper_id: shipper.shipper_id || 0,
+    name: shipper.shipper_name || shipper.name || 'N/A',
+    email: shipper.email || '',
+    phone: shipper.phone || '',
+    status: shipper.status || 'Đang hoạt động',
+    branch_id: shipper.branch_id || null,
+    rating: shipper.rating || 0,
+    total_success: shipper.total_success || 0,
+    salary: shipper.salary || 8000000,
   };
 };
 
 export const shipperApi = {
   /**
    * Lấy danh sách shipper theo branch
-   * @param {number} branchId - ID chi nhánh cần lọc
    */
   getAllShippers: async (branchId) => {
     try {
-      const url = branchId 
+      const url = branchId
         ? `${BASE_PATH}/infomation?branch_id=${branchId}`
         : `${BASE_PATH}/infomation`;
-      
-      console.log(' Fetching shippers from:', url);
-      
+
+      // Axios tự động ghép domain
       const response = await api.get(url);
-      
-      console.log(' Backend response:', response.data);
-      console.log(' Total:', response.data?.length || 0);
-      
-      const mappedData = Array.isArray(response.data) 
+
+      const mappedData = Array.isArray(response.data)
         ? response.data.map(mapShipperFromBackend)
         : [];
-      
+
       return {
         success: true,
-        data: mappedData
+        data: mappedData,
       };
     } catch (error) {
-      console.error(' Error fetching shippers:', error);
+      console.error("Error fetching shippers:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
-        data: []
+        data: [],
       };
     }
   },
 
+  /**
+   * Thêm shipper
+   */
   addShipper: async (shipperData) => {
     try {
+      let branchId;
+
+      if (!shipperData.branch_id || shipperData.branch_id === "") {
+        throw new Error("Branch ID bị thiếu trong shipperData");
+      }
+
+      branchId = parseInt(String(shipperData.branch_id).trim());
+
+      if (isNaN(branchId) || branchId <= 0) {
+        throw new Error(`Branch ID không hợp lệ: "${shipperData.branch_id}"`);
+      }
+
+      if (!shipperData.password || shipperData.password.trim() === "") {
+        throw new Error("Mật khẩu không được để trống");
+      }
+
       const payload = {
         shipper_id: null,
-        shipper_name: shipperData.shipper_name,
+        name: shipperData.shipper_name,
         email: shipperData.email,
         phone: shipperData.phone,
         password: shipperData.password,
-        status: shipperData.status || 'Đang hoạt động',
-        branch_id: parseInt(shipperData.branch_id),
-        salary: parseFloat(shipperData.salary) || 8000000
-        
+        status: shipperData.status || "Đang hoạt động",
+        branch_id: branchId,
+        salary: parseFloat(shipperData.salary) || 8000000,
       };
 
-      console.log(' Adding shipper:', payload);
-      
+      if (!payload.name || payload.name.trim() === "") {
+        throw new Error("Tên shipper không được để trống");
+      }
+      if (!payload.email || payload.email.trim() === "") {
+        throw new Error("Email không được để trống");
+      }
+      if (!payload.phone || payload.phone.trim() === "") {
+        throw new Error("Số điện thoại không được để trống");
+      }
+      if (!payload.password || payload.password.trim() === "") {
+        throw new Error("Mật khẩu không được để trống");
+      }
+      if (!payload.branch_id || isNaN(payload.branch_id)) {
+        throw new Error("Branch ID không hợp lệ");
+      }
+
       const response = await api.post(`${BASE_PATH}/add_shipper`, payload);
-      
+
       return {
         success: true,
-        message: response.data.message || 'Thêm shipper thành công',
-        data: response.data
+        message: response.data.message || "Thêm shipper thành công",
+        data: response.data,
       };
     } catch (error) {
-      console.error(' Error adding shipper:', error);
+      console.error("Error adding shipper:", error);
       return {
         success: false,
-        message: error.response?.data?.error || error.message
+        message: error.response?.data?.error || error.message,
       };
     }
   },
 
+  /**
+   * Cập nhật shipper
+   */
   updateShipper: async (shipperId, shipperData) => {
     try {
+      if (!shipperData.branch_id) {
+        throw new Error("Branch ID bị thiếu trong shipperData");
+      }
+
+      const branchId = parseInt(shipperData.branch_id);
+
+      if (isNaN(branchId)) {
+        throw new Error(`Branch ID không hợp lệ: ${shipperData.branch_id}`);
+      }
+
       const payload = {
-        shipper_name: shipperData.shipper_name,
+        name: shipperData.shipper_name,
         email: shipperData.email,
         phone: shipperData.phone,
         status: shipperData.status,
-        branch_id: parseInt(shipperData.branch_id),
-        salary: parseFloat(shipperData.salary) || 8000000
-        
+        branch_id: branchId,
+        salary: parseFloat(shipperData.salary) || 8000000,
       };
-      
-      if (shipperData.password && shipperData.password.trim()) {
-        payload.password = shipperData.password;
-      }
 
-      console.log(' Updating shipper:', shipperId, payload);
-      
       const response = await api.put(
-        `${BASE_PATH}/update_shipper/${shipperId}`, 
+        `${BASE_PATH}/update_shipper/${shipperId}`,
         payload
       );
-      
+
       return {
         success: true,
-        message: response.data.message || 'Cập nhật shipper thành công',
-        data: response.data
+        message: response.data.message || "Cập nhật shipper thành công",
+        data: response.data,
       };
     } catch (error) {
-      console.error(' Error updating shipper:', error);
+      console.error("Error updating shipper:", error);
       return {
         success: false,
-        message: error.response?.data?.error || error.message
+        message: error.response?.data?.error || error.message,
       };
     }
   },
 
+  /**
+   * Xóa shipper
+   */
   deleteShipper: async (shipperId) => {
     try {
-      console.log(' Deleting shipper:', shipperId);
-      
       const response = await api.delete(
         `${BASE_PATH}/delete_shipper/${shipperId}`
       );
-      
+
       return {
         success: true,
-        message: response.data.message || 'Xóa shipper thành công',
-        data: response.data
+        message: response.data.message || "Xóa shipper thành công",
+        data: response.data,
       };
     } catch (error) {
-      console.error(' Error deleting shipper:', error);
+      console.error("Error deleting shipper:", error);
       return {
         success: false,
-        message: error.response?.data?.error || error.message
+        message: error.response?.data?.error || error.message,
       };
     }
-  }
+  },
 };
 
 export default shipperApi;

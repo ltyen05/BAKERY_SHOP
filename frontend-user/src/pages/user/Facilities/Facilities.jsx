@@ -1,15 +1,35 @@
 import { HomeFilled, PhoneFilled } from "@ant-design/icons";
 import starIcon from "../../../assets/Star.svg";
-import { Row, Col } from "antd";
+import { Row, Col, Empty, Spin } from "antd"; // Thêm Empty và Spin để thông báo khi không có dữ liệu
 import phone from "../../../assets/phone.svg";
 import { useAccount } from "../../../context/AccountContext";
+
 export default function Facilities() {
   const { branches } = useAccount();
 
+  // 1. Hiển thị Loading khi đang chờ dữ liệu
+  if (!branches) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <Spin size="large" tip="Đang tải danh sách chi nhánh..." />
+      </div>
+    );
+  }
+
+  // 2. Hiển thị thông báo rỗng nếu mảng trả về không có phần tử nào
+  if (Array.isArray(branches) && branches.length === 0) {
+    return (
+      <div style={{ padding: "50px" }}>
+        <Empty description="Hiện chưa có thông tin chi nhánh" />
+      </div>
+    );
+  }
+
   return (
     <div>
-      {branches.map((branch) => (
-        <div className="fl-center" style={{ textAlign: "start" }}>
+      {/* 3. Sử dụng Optional Chaining ?. để map an toàn */}
+      {branches?.map((branch, index) => (
+        <div key={branch.branch_id || index} className="fl-center" style={{ textAlign: "start" }}>
           <Row
             className="mt-12 mb-12"
             style={{ width: "95%", maxWidth: "1200px" }}
@@ -47,7 +67,7 @@ export default function Facilities() {
             </Col>
             <Col xs={24} md={24} xl={12}>
               <iframe
-                title="map_Src"
+                title={`map_${branch.branch_id || index}`}
                 src={branch.mapSrc}
                 style={{
                   border: 0,

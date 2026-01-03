@@ -33,6 +33,7 @@ const BASE_TIME = 30; // phút
 const PER_KM_TIME = 5;
 export default function ShippingAddressForm() {
   const { branches } = useAccount();
+  console.log("branches:", branches);
   const [messageApi, contextHolder] = message.useMessage();
   const [note, setNote] = useState("");
   const location = useLocation();

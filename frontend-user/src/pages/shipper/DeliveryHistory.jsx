@@ -173,7 +173,7 @@ const OrderHistory = () => {
         return (
           <span style={{ color: "#fadb14", fontWeight: "bold" }}>
             ⭐ {score}
-          </div>
+          </span>
         );
       },
     },

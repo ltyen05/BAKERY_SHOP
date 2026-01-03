@@ -26,5 +26,3 @@ class Coupon(db.Model):
 
     def get_max_discount(self):
         return self.max_discount
-
-

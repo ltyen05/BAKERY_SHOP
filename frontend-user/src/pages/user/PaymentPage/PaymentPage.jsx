@@ -484,18 +484,24 @@ export default function ShippingAddressForm() {
               className="newHeight w100"
             >
               {stores.map((store) => {
-                let distanceText = "";
-                if (verificationResult && verificationResult.valid) {
-                  const dist = calculateDistance(
-                    parseFloat(verificationResult.lat),
-                    parseFloat(verificationResult.lon),
-                    store.lat,
-                    store.lng
-                  );
-                  distanceText = ` - ${dist.toFixed(2)} km`;
-                }
+                  let distanceText = "";
+                  if (verificationResult && verificationResult.valid) {
+                    // SỬA TẠI ĐÂY: Thêm kiểm tra tên biến lon/lng/longitude
+                    const storeLat = parseFloat(store.lat);
+                    const storeLng = parseFloat(store.lng || store.lon || store.longitude);
+
+                    if (!isNaN(storeLat) && !isNaN(storeLng)) {
+                      const dist = calculateDistance(
+                        parseFloat(verificationResult.lat),
+                        parseFloat(verificationResult.lon),
+                        storeLat,
+                        storeLng
+                      );
+                      distanceText = ` - ${dist.toFixed(2)} km`;
+                    }
+                  }
                 return (
-                  <Option key={store.branch_id} value={store.branch_id}>
+                  <Option key={store.branch_id || `store-${index}`} value={store.branch_id}>
                     <div>
                       <div
                         className="fl-center"

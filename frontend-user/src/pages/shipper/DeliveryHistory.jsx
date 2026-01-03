@@ -6,17 +6,15 @@ import {
   Tag,
   Typography,
   Card,
-  Modal,
   Spin,
   Pagination,
   message,
 } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
-import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import { CloseOutlined, SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import { useOrder } from "../../context/OrderContext";
-
 import OrderDetails from "../../components/Order/OrderDetails";
+
 const { Title } = Typography;
 
 const STATUS_COLOR = {
@@ -40,17 +38,12 @@ const OrderHistory = () => {
     total: 0,
   });
 
-  // =========================
-  // Fetch dữ liệu từ API
-  // =========================
   const fetchData = async (page = 1, limit = 5) => {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
         `${import.meta.env.VITE_API_URL}/shipper/statistics/history?page=${page}&limit=${limit}`,
-        {
-          method: "GET",
-        }
+        { method: "GET" }
       );
       const result = await res.json();
       if (result.status === "success") {
@@ -58,6 +51,8 @@ const OrderHistory = () => {
           result.data.map((item) => ({
             ...item,
             status: item.status === "Đã giao" ? "completed" : "failed",
+            // Đảm bảo rating được giữ nguyên từ API, nếu không có thì để null
+            rating: item.rating !== undefined ? item.rating : null 
           }))
         );
         setPagination({
@@ -77,14 +72,10 @@ const OrderHistory = () => {
     fetchData(pagination.current, pagination.pageSize);
   }, []);
 
-  // =========================
-  // Table Handlers
-  // =========================
   const handleChange = (_, sorter) => {
     setSortedInfo(sorter);
   };
 
-  // ----------------------Order details  --------------------------
   const handleShowOrderDetails = async (order_id) => {
     try {
       setLoadingOrder(true);
@@ -131,8 +122,7 @@ const OrderHistory = () => {
       align: "center",
       width: 140,
       sorter: (a, b) => a.total_amount - b.total_amount,
-      sortOrder:
-        sortedInfo.columnKey === "total_amount" ? sortedInfo.order : null,
+      sortOrder: sortedInfo.columnKey === "total_amount" ? sortedInfo.order : null,
       render: (total) => (
         <span className="text-lg font-bold text-orange-600">{total} VND</span>
       ),
@@ -170,26 +160,25 @@ const OrderHistory = () => {
     },
     {
       title: "Đánh giá",
-      dataIndex: "rating",
+      dataIndex: "rating", // ✅ Lấy trực tiếp trường rating từ API
       key: "rating",
       align: "center",
       width: 120,
       render: (rating) => {
-        // Kiểm tra: Nếu rating là null, undefined, hoặc bằng 0 thì hiện "--"
-        if (!rating || rating === 0 || rating === "0") {
+        // ✅ KIỂM TRA NGHIÊM NGẶT: Chỉ hiện sao nếu rating từ 1-5
+        const score = Number(rating);
+        if (isNaN(score) || score <= 0) {
           return <span style={{ color: "#bfbfbf" }}>--</span>;
         }
-
-        // Chỉ hiển thị sao khi có điểm đánh giá thực từ bảng feedback
         return (
           <span style={{ color: "#fadb14", fontWeight: "bold" }}>
-            ⭐ {rating}
-          </span>
+            ⭐ {score}
+          </div>
         );
       },
     },
-    // =============================
   ];
+
   return (
     <div style={{ width: "90%", margin: "0 auto" }}>
       <Card
@@ -213,7 +202,9 @@ const OrderHistory = () => {
           />
 
           {loading ? (
-            <Spin size="large" />
+            <div style={{ textAlign: "center", padding: "50px" }}>
+              <Spin size="large" tip="Đang tải dữ liệu..." />
+            </div>
           ) : (
             <>
               <Table
@@ -238,7 +229,11 @@ const OrderHistory = () => {
       </Card>
 
       {showDetail && (
-        <div className="fl-center showUp">
+        <div className="fl-center showUp" style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+            display: 'flex', justifyContent: 'center', alignItems: 'center'
+        }}>
           <div
             style={{
               width: "95%",
@@ -246,19 +241,22 @@ const OrderHistory = () => {
               backgroundColor: "#fdfbf5",
               height: "90%",
               borderRadius: "8px",
-              flexDirection: "column",
               position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              padding: "20px",
+              overflow: "hidden"
             }}
-            className="fl-center"
           >
-            <OrderDetails order={currentOrder} />
             <button
               onClick={() => setShowDetail(false)}
-              style={{ position: "absolute", top: 15, right: 15, fontSize: 15 }}
-              className="out-line"
+              style={{ position: "absolute", top: 15, right: 15, fontSize: 15, border: 'none', background: 'none', cursor: 'pointer' }}
             >
               <CloseOutlined />
             </button>
+            <div style={{ flex: 1, overflowY: "auto", marginTop: "20px" }}>
+              <OrderDetails order={currentOrder} />
+            </div>
           </div>
         </div>
       )}

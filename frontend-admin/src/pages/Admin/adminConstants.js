@@ -1,4 +1,3 @@
-
 // ===============================================
 // FILE: src/pages/Admin/adminConstants.js
 // ===============================================
@@ -51,9 +50,8 @@ export const ADMIN_FIELDS = [
     required: true,
     defaultValue: 'Đang làm việc',
     options: [
-      { value: 'Đang làm việc', label: 'Active' },
-     
-      { value: 'Nghỉ việc', label: 'Inactive' }
+      { value: 'Đang làm việc', label: 'Đang làm việc' },
+      { value: 'Nghỉ việc', label: 'Nghỉ việc' }
     ]
   }
 ];
@@ -67,7 +65,6 @@ export const STATUS_CONFIG = {
     color: 'success',
     label: 'Đang làm việc'
   },
-  
   'Inactive': {
     color: 'error',
     label: 'Nghỉ việc'

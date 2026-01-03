@@ -1,131 +1,114 @@
 // ===============================================
 // Location: src/pages/Employee/components/EmployeeTable.jsx
 // ===============================================
-import React from 'react';
-import { Tag, Space, Button, Tooltip } from 'antd';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import DataTable from '../../../components/Table/Table';
-import { 
-  formatCurrency, 
-  getRoleColor, 
-  getBranchName, 
-  getInitials 
-} from '../employeeConstants';
+import React from "react";
+import { Tag, Space, Button, Tooltip } from "antd";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import DataTable from "../../../components/Table/Table";
+import {
+  formatCurrency,
+  getRoleColor,
+  getBranchName,
+} from "../utils/employeeConstants";
 
-const EmployeeTable = ({ 
-  employees, 
-  loading, 
+const EmployeeTable = ({
+  employees,
+  loading,
   branches,
   pagination,
-  onEdit, 
+  onEdit,
   onDelete,
-  onPageChange 
+  onPageChange,
 }) => {
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'employee_id',
-      key: 'employee_id',
+      title: "ID",
+      dataIndex: "employee_id",
+      key: "employee_id",
       width: 80,
-      align: 'center',
-      fixed: 'left',
+      align: "center",
+      fixed: "left",
       render: (id) => (
-        <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#475569", fontSize: "14px" }}>
           {id}
         </span>
-      )
+      ),
     },
     {
-      title: 'Nhân viên',
-      key: 'employee',
+      title: "Nhân viên",
+      dataIndex: "name",
+      key: "name",
       width: 220,
-      render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: '#FFBD71',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#5D0C0C',
-              fontWeight: '600',
-              fontSize: '14px'
-            }}
-          >
-            {getInitials(record.name)}
-          </div>
-          <div>
-            <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
-              {record.name}
-            </div>
-          </div>
-        </div>
-      )
+      render: (name) => (
+        <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>
+          {name}
+        </span>
+      ),
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
       width: 250,
       render: (email) => (
-        <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
-      )
+        <span style={{ color: "#475569", fontSize: "13px" }}>{email}</span>
+      ),
     },
     {
-      title: 'Vai trò',
-      dataIndex: 'role',
-      key: 'role',
+      title: "Vai trò",
+      dataIndex: "role",
+      key: "role",
       width: 150,
-      align: 'center',
+      align: "center",
       render: (role) => (
-        <Tag color={getRoleColor(role)} style={{ fontWeight: '600', fontSize: '13px' }}>
+        <Tag
+          color={getRoleColor(role)}
+          style={{ fontWeight: "600", fontSize: "13px" }}
+        >
           {role}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Lương',
-      dataIndex: 'salary',
-      key: 'salary',
+      title: "Lương",
+      dataIndex: "salary",
+      key: "salary",
       width: 150,
-      align: 'right',
+      align: "right",
       render: (salary) => (
-        <span style={{ fontWeight: '600', color: '#059669', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#059669", fontSize: "14px" }}>
           {formatCurrency(salary)}
         </span>
-      )
+      ),
     },
     {
-      title: 'Chi nhánh',
-      dataIndex: 'branch_id',
-      key: 'branch_id',
+      title: "Chi nhánh",
+      dataIndex: "branch_id",
+      key: "branch_id",
       width: 200,
       render: (branchId) => (
-        <span style={{ color: '#64748b', fontSize: '13px' }}>
+        <span style={{ color: "#64748b", fontSize: "13px" }}>
           {getBranchName(branchId, branches)}
         </span>
-      )
+      ),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
       width: 140,
-      align: 'center',
+      align: "center",
       render: (status) => (
-        <Tag color={status === 'Đang làm việc' ? 'success' : 'default'}>
+        <Tag color={status === "Đang làm việc" ? "success" : "default"}>
           {status}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Thao tác',
-      key: 'action',
+      title: "Thao tác",
+      key: "action",
       width: 120,
-      align: 'center',
+      align: "center",
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Chỉnh sửa">
@@ -133,7 +116,7 @@ const EmployeeTable = ({
               type="text"
               icon={<FiEdit2 />}
               onClick={() => onEdit(record)}
-              style={{ color: '#3b82f6' }}
+              style={{ color: "#3b82f6" }}
             />
           </Tooltip>
           <Tooltip title="Xóa">
@@ -145,8 +128,8 @@ const EmployeeTable = ({
             />
           </Tooltip>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   return (

@@ -1,23 +1,30 @@
 // ===============================================
-// src/pages/Shipper/Shipper.jsx - FIXED
-// ✅ Logic render rating đã chuyển vào đây
+// src/pages/Shipper/Shipper.jsx - WITH DEBUG LOGS
 // ===============================================
-import React, { useState, useEffect } from 'react';
-import { Tag, Space, Button, Tooltip, Modal, Alert } from 'antd';
-import { FiSearch, FiDownload, FiPlus, FiTruck, FiEdit2, FiTrash2, FiStar } from 'react-icons/fi';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import DataTable from '../../components/Table/Table';
-import FormModal from '../../components/FormModal/FormModal';
-import { useShipper } from './useShipper';
-import branchApi from '../../api/branchApi';
-import { 
+import React, { useState, useEffect } from "react";
+import { Tag, Space, Button, Tooltip, Modal, Alert } from "antd";
+import {
+  FiSearch,
+  FiDownload,
+  FiPlus,
+  FiTruck,
+  FiEdit2,
+  FiTrash2,
+  FiStar,
+} from "react-icons/fi";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import DataTable from "../../components/Table/Table";
+import FormModal from "../../components/FormModal/FormModal";
+import { useShipper } from "./useShipper";
+import branchApi from "../../api/branchApi";
+import {
   SHIPPER_FIELDS,
   SHIPPER_EDIT_FIELDS,
   getInitials,
   getStatusColor,
-  getBranchName
-} from './shipperConstants';
-import './Shipper.css';
+  getBranchName,
+} from "./shipperConstants";
+import "./Shipper.css";
 
 const { confirm } = Modal;
 
@@ -38,7 +45,7 @@ const Shipper = () => {
   } = useShipper();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add');
+  const [modalMode, setModalMode] = useState("add");
   const [selectedShipper, setSelectedShipper] = useState(null);
   const [branches, setBranches] = useState([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
@@ -54,28 +61,28 @@ const Shipper = () => {
   const fetchBranches = async () => {
     setLoadingBranches(true);
     setBranchError(null);
-    
+
     const result = await branchApi.getAllBranches();
-    
+
     if (result.success && result.data) {
-      const branchOptions = result.data.map(branch => ({
+      const branchOptions = result.data.map((branch) => ({
         value: String(branch.branch_id),
-        label: `[${branch.branch_id}] ${branch.name || branch.branch_name}`
+        label: `[${branch.branch_id}] ${branch.name || branch.branch_name}`,
       }));
-      
+
       setBranches(branchOptions);
-      console.log(' Đã load branches cho shipper:', branchOptions);
+      console.log("✅ Đã load branches cho shipper:", branchOptions);
     } else {
-      const errorMsg = 'Không thể tải danh sách chi nhánh. Vui lòng thử lại.';
+      const errorMsg = "Không thể tải danh sách chi nhánh. Vui lòng thử lại.";
       setBranchError(errorMsg);
-      console.error(' Lỗi load branches:', result.message);
+      console.error("❌ Lỗi load branches:", result.message);
       Modal.error({
-        title: 'Lỗi tải dữ liệu',
+        title: "Lỗi tải dữ liệu",
         content: errorMsg,
-        centered: true
+        centered: true,
       });
     }
-    
+
     setLoadingBranches(false);
   };
 
@@ -85,21 +92,26 @@ const Shipper = () => {
   const handleAddClick = () => {
     if (branchError || branches.length === 0) {
       Modal.warning({
-        title: 'Chưa thể thêm shipper',
-        content: 'Vui lòng đợi tải xong danh sách chi nhánh hoặc thử làm mới trang.',
-        centered: true
+        title: "Chưa thể thêm shipper",
+        content:
+          "Vui lòng đợi tải xong danh sách chi nhánh hoặc thử làm mới trang.",
+        centered: true,
       });
       return;
     }
-    
-    setModalMode('add');
+
+    console.log("➕ Mở modal ADD");
+    setModalMode("add");
     setSelectedShipper(null);
     setIsModalOpen(true);
   };
 
   const handleEditClick = (shipper) => {
-    setModalMode('edit');
-    
+    console.group("✏️ EDIT CLICK");
+    console.log("1. Shipper record từ table:", shipper);
+
+    setModalMode("edit");
+
     const formData = {
       shipper_id: shipper.shipper_id,
       shipper_name: shipper.name,
@@ -107,49 +119,67 @@ const Shipper = () => {
       phone: shipper.phone,
       status: shipper.status,
       branch_id: shipper.branch_id,
-      salary: shipper.salary || 8000000
+      salary: shipper.salary || 8000000,
     };
-    
+
+    console.log("2. Form data chuẩn bị:", formData);
+    console.groupEnd();
+
     setSelectedShipper(formData);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
+    console.log("❌ Đóng modal");
     setIsModalOpen(false);
     setSelectedShipper(null);
   };
 
   const handleSaveShipper = async (shipperData) => {
+    console.group("💾 SAVE SHIPPER");
+    console.log("1. Mode:", modalMode);
+    console.log("2. Data từ form:", shipperData);
+    console.log("3. Selected shipper:", selectedShipper);
+
     let result;
-    
-    if (modalMode === 'add') {
+
+    if (modalMode === "add") {
       // THÊM MỚI
       if (!shipperData.branch_id && currentBranchId) {
         shipperData.branch_id = currentBranchId;
-        console.log(' Tự động điền branch_id từ context:', currentBranchId);
+        console.log("✅ Tự động điền branch_id từ context:", currentBranchId);
       }
-      
+
       if (!shipperData.branch_id) {
+        console.error("❌ Thiếu branch_id");
         Modal.error({
-          title: 'Thiếu thông tin',
-          content: 'Không xác định được chi nhánh. Vui lòng chọn chi nhánh.',
-          centered: true
+          title: "Thiếu thông tin",
+          content: "Không xác định được chi nhánh. Vui lòng chọn chi nhánh.",
+          centered: true,
         });
+        console.groupEnd();
         return;
       }
-      
+
+      console.log("4. Gọi addShipper với data:", shipperData);
       result = await addShipper(shipperData);
     } else {
       // EDIT
       const shipperId = selectedShipper.shipper_id;
       const updateData = {
         ...shipperData,
-        branch_id: selectedShipper.branch_id
+        branch_id: selectedShipper.branch_id,
       };
-      
+
+      console.log("4. Update data gửi đi:", updateData);
+      console.log("5. Shipper ID:", shipperId);
+
       result = await updateShipper(shipperId, updateData);
     }
-    
+
+    console.log("6. Result từ API:", result);
+    console.groupEnd();
+
     if (result?.success) {
       handleCloseModal();
     }
@@ -157,45 +187,56 @@ const Shipper = () => {
 
   const handleDelete = (shipper) => {
     confirm({
-      title: 'Xác nhận xóa shipper',
+      title: "Xác nhận xóa shipper",
       icon: <ExclamationCircleOutlined />,
       content: `Bạn có chắc chắn muốn xóa shipper "${shipper.name}"?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
       centered: true,
       async onOk() {
         await deleteShipper(shipper.shipper_id);
-      }
+      },
     });
   };
 
   const getFormFields = () => {
-    const baseFields = modalMode === 'edit' ? SHIPPER_EDIT_FIELDS : SHIPPER_FIELDS;
-    
-    if (modalMode === 'add') {
-      return baseFields.map(field => {
-        if (field.name === 'branch_id') {
+    const baseFields =
+      modalMode === "edit" ? SHIPPER_EDIT_FIELDS : SHIPPER_FIELDS;
+
+    if (modalMode === "add") {
+      return baseFields.map((field) => {
+        if (field.name === "branch_id") {
           return {
             ...field,
             options: branches,
             disabled: loadingBranches || branchError !== null,
-            placeholder: loadingBranches ? 'Đang tải...' : 'Chọn chi nhánh',
-            defaultValue: currentBranchId ? String(currentBranchId) : ''
+            placeholder: loadingBranches ? "Đang tải..." : "Chọn chi nhánh",
+            defaultValue: currentBranchId ? String(currentBranchId) : "",
           };
         }
         return field;
       });
     }
-    
+
+    console.log("📋 Form fields cho EDIT:", baseFields);
     return baseFields;
   };
 
   const handleExport = () => {
     if (filteredShippers.length === 0) return;
-    
-    const headers = ['ID', 'Tên', 'Email', 'Số điện thoại', 'Chi nhánh', 'Trạng thái', 'Rating', 'Thành công'];
-    const rows = filteredShippers.map(s => [
+
+    const headers = [
+      "ID",
+      "Tên",
+      "Email",
+      "Số điện thoại",
+      "Chi nhánh",
+      "Trạng thái",
+      "Rating",
+      "Thành công",
+    ];
+    const rows = filteredShippers.map((s) => [
       s.shipper_id,
       s.name,
       s.email,
@@ -203,18 +244,19 @@ const Shipper = () => {
       getBranchName(s.branch_id, branches),
       s.status,
       s.rating || 0,
-      s.total_success || 0
+      s.total_success || 0,
     ]);
-    
-    const csv = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
+      "\n"
+    );
+
+    const blob = new Blob(["\ufeff" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `shippers_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `shippers_${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
   };
 
@@ -223,142 +265,123 @@ const Shipper = () => {
   // ========================================
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'shipper_id',
-      key: 'shipper_id',
+      title: "ID",
+      dataIndex: "shipper_id",
+      key: "shipper_id",
       width: 80,
-      align: 'center',
-      fixed: 'left',
+      align: "center",
+      fixed: "left",
       render: (id) => (
-        <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#475569", fontSize: "14px" }}>
           {id}
         </span>
-      )
+      ),
     },
     {
-      title: 'Shipper',
-      key: 'shipper',
+      title: "Tên Shipper",
+      dataIndex: "name",
+      key: "name",
       width: 220,
-      render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              background: '#FFBD71',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#5D0C0C',
-              fontWeight: '600',
-              fontSize: '14px'
-            }}
-          >
-            {getInitials(record.name)}
-          </div>
-          <div>
-            <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
-              {record.name}
-            </div>
-          </div>
-        </div>
-      )
+      render: (name) => (
+        <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>
+          {name}
+        </span>
+      ),
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
       width: 220,
       render: (email) => (
-        <span style={{ color: '#475569', fontSize: '13px' }}>{email}</span>
-      )
+        <span style={{ color: "#475569", fontSize: "13px" }}>{email}</span>
+      ),
     },
     {
-      title: 'Số điện thoại',
-      dataIndex: 'phone',
-      key: 'phone',
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      key: "phone",
       width: 130,
       render: (phone) => (
-        <span style={{ color: '#475569', fontSize: '13px' }}>{phone}</span>
-      )
+        <span style={{ color: "#475569", fontSize: "13px" }}>{phone}</span>
+      ),
     },
     {
-      title: 'Chi nhánh',
-      dataIndex: 'branch_id',
-      key: 'branch_id',
+      title: "Chi nhánh",
+      dataIndex: "branch_id",
+      key: "branch_id",
       width: 180,
       render: (branchId) => (
-        <span style={{ color: '#64748b', fontSize: '13px' }}>
+        <span style={{ color: "#64748b", fontSize: "13px" }}>
           {getBranchName(branchId, branches)}
         </span>
-      )
+      ),
     },
     {
-      title: 'Rating',
-      dataIndex: 'rating',
-      key: 'rating',
+      title: "Rating",
+      dataIndex: "rating",
+      key: "rating",
       width: 150,
-      align: 'center',
+      align: "center",
       render: (rating) => {
-        // ✅ Logic render rating ở đây
         const stars = [];
         const fullStars = Math.floor(rating || 0);
-        
+
         for (let i = 0; i < 5; i++) {
           stars.push(
             <FiStar
               key={i}
               style={{
-                color: i < fullStars ? '#FFA500' : '#e2e8f0',
-                fill: i < fullStars ? '#FFA500' : 'none',
-                width: '16px',
-                height: '16px'
+                color: i < fullStars ? "#FFA500" : "#e2e8f0",
+                fill: i < fullStars ? "#FFA500" : "none",
+                width: "16px",
+                height: "16px",
               }}
             />
           );
         }
-        
+
         return (
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {stars}
-            <span style={{ marginLeft: '8px', color: '#64748b', fontSize: '13px' }}>
+            <span
+              style={{ marginLeft: "8px", color: "#64748b", fontSize: "13px" }}
+            >
               {(rating || 0).toFixed(1)}
             </span>
           </div>
         );
-      }
+      },
     },
     {
-      title: 'Thành công',
-      dataIndex: 'total_success',
-      key: 'total_success',
+      title: "Thành công",
+      dataIndex: "total_success",
+      key: "total_success",
       width: 110,
-      align: 'center',
+      align: "center",
       render: (total) => (
-        <span style={{ fontWeight: '600', color: '#059669', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#059669", fontSize: "14px" }}>
           {total || 0}
         </span>
-      )
+      ),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
       width: 140,
-      align: 'center',
+      align: "center",
       render: (status) => (
-        <Tag color={getStatusColor(status)} style={{ fontSize: '13px' }}>
+        <Tag color={getStatusColor(status)} style={{ fontSize: "13px" }}>
           {status}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Thao tác',
-      key: 'action',
+      title: "Thao tác",
+      key: "action",
       width: 120,
-      align: 'center',
-      fixed: 'right',
+      align: "center",
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Chỉnh sửa">
@@ -366,7 +389,7 @@ const Shipper = () => {
               type="text"
               icon={<FiEdit2 />}
               onClick={() => handleEditClick(record)}
-              style={{ color: '#3b82f6' }}
+              style={{ color: "#3b82f6" }}
             />
           </Tooltip>
           <Tooltip title="Xóa">
@@ -378,15 +401,15 @@ const Shipper = () => {
             />
           </Tooltip>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   const paginationConfig = {
     current: currentPage,
     pageSize: 10,
     total: filteredShippers.length,
-    showSizeChanger: false
+    showSizeChanger: false,
   };
 
   const handleTableChange = (pagination) => {
@@ -410,7 +433,7 @@ const Shipper = () => {
           type="error"
           showIcon
           closable
-          style={{ marginBottom: '16px' }}
+          style={{ marginBottom: "16px" }}
           action={
             <Button size="small" onClick={fetchBranches}>
               Thử lại
@@ -472,10 +495,10 @@ const Shipper = () => {
         onClose={handleCloseModal}
         onSubmit={handleSaveShipper}
         title={{
-          add: 'Thêm shipper mới',
-          addDesc: 'Điền thông tin shipper vào form bên dưới',
-          edit: 'Chỉnh sửa shipper',
-          editDesc: 'Cập nhật thông tin shipper'
+          add: "Thêm shipper mới",
+          addDesc: "Điền thông tin shipper vào form bên dưới",
+          edit: "Chỉnh sửa shipper",
+          editDesc: "Cập nhật thông tin shipper",
         }}
         icon={FiTruck}
         data={selectedShipper}

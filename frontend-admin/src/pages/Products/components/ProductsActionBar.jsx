@@ -3,7 +3,7 @@
 // ===============================================
 import React from 'react';
 import { FiSearch, FiDownload, FiPlus } from 'react-icons/fi';
-import { STATS_CONFIG } from '../productConstants';
+import { STATS_CONFIG } from '../utils/productConstants';
 
 const ProductsActionBar = ({
   activeCategory,

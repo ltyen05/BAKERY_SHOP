@@ -5,7 +5,7 @@ import React from 'react';
 import { Tag, Space, Button, Tooltip, Rate } from 'antd';
 import { FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import DataTable from '../../../components/Table/Table';
-import { getCategoryName, getCategoryColor } from '../productConstants';
+import { getCategoryName, getCategoryColor } from '../utils/productConstants';
 
 const ProductsTable = ({ 
   products, 

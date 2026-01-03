@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Customers/useCustomer.js
-// ✅ FIXED: Hiển thị TẤT CẢ khách hàng (không phân biệt chi nhánh)
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
@@ -26,7 +25,6 @@ export const useCustomer = () => {
     try {
       setLoading(true);
       
-      // ✅ KHÔNG GỬI branchId - Lấy TẤT CẢ khách hàng
       const data = await customerApi.getAllCustomers();
       
       if (!Array.isArray(data)) {
@@ -45,7 +43,7 @@ export const useCustomer = () => {
       setCustomers(processedCustomers);
       
     } catch (error) {
-      console.error('❌ [useCustomer] Error:', error);
+      console.error(' [useCustomer] Error:', error);
       message.error(error.message || 'Không thể tải dữ liệu khách hàng');
       setCustomers([]);
     } finally {
@@ -97,7 +95,7 @@ export const useCustomer = () => {
         return matchRank && matchSearch;
       });
     } catch (error) {
-      console.error('❌ [useCustomer] Filter error:', error);
+      console.error(' [useCustomer] Filter error:', error);
       return [];
     }
   }, [customers, activeRank, searchQuery]);
@@ -113,7 +111,6 @@ export const useCustomer = () => {
 
   // ============= DELETE CUSTOMER =============
   const deleteCustomer = async (customerId, customerName) => {
-    // ✅ Check permission
     if (!isSuperAdmin && !isBranchAdmin) {
       message.error('Bạn không có quyền xóa khách hàng');
       return { success: false };
@@ -132,7 +129,7 @@ export const useCustomer = () => {
       return { success: true };
       
     } catch (err) {
-      console.error('❌ [useCustomer] Delete error:', err);
+      console.error(' [useCustomer] Delete error:', err);
       message.error('Không thể xóa khách hàng');
       return { success: false };
     }

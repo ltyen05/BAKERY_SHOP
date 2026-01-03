@@ -5,20 +5,30 @@ import React, { useState } from 'react';
 import { Modal } from 'antd';
 import { FiPackage } from 'react-icons/fi';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+
+// Components
 import FormModal from '../../components/FormModal/FormModal';
-import { useProduct } from './useProduct';
 import ProductsHeader from './components/ProductsHeader';
 import ProductsActionBar from './components/ProductsActionBar';
 import ProductsTable from './components/ProductsTable';
 import ProductDetailModal from './components/ProductDetailModal';
+
+// Hooks
+import { useProduct } from './hooks/useProduct';
+
+// Utils
 import { exportProductsToCSV } from './utils/productHelpers';
-import { PRODUCT_FIELDS, PRODUCT_EDIT_FIELDS } from './productConstants';
+
+// Constants
+import { PRODUCT_FIELDS, PRODUCT_EDIT_FIELDS } from './constants/productConstants';
+
+// Styles
 import './ProductsView.css';
 
 const { confirm } = Modal;
 
 const ProductsView = () => {
-  // HOOKS
+  // ============= HOOKS =============
   const {
     filteredProducts,
     stats,
@@ -38,21 +48,21 @@ const ProductsView = () => {
     canManage
   } = useProduct();
 
-  // LOCAL STATE
+  // ============= LOCAL STATE =============
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewProduct, setViewProduct] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  // HANDLERS - ADD
+  // ============= HANDLERS - ADD =============
   const handleAddClick = () => {
     setModalMode('add');
     setSelectedProduct(null);
     setIsModalOpen(true);
   };
 
-  // HANDLERS - EDIT
+  // ============= HANDLERS - EDIT =============
   const handleEditClick = (product) => {
     setModalMode('edit');
     
@@ -69,7 +79,7 @@ const ProductsView = () => {
     setIsModalOpen(true);
   };
 
-  // HANDLERS - VIEW DETAIL
+  // ============= HANDLERS - VIEW DETAIL =============
   const handleViewClick = (product) => {
     setViewProduct(product);
     setIsViewModalOpen(true);
@@ -80,13 +90,13 @@ const ProductsView = () => {
     setViewProduct(null);
   };
 
-  // HANDLERS - CLOSE MODAL
+  // ============= HANDLERS - CLOSE MODAL =============
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
   };
 
-  // HANDLERS - SAVE
+  // ============= HANDLERS - SAVE =============
   const handleSaveProduct = async (productData) => {
     let result;
     
@@ -102,7 +112,7 @@ const ProductsView = () => {
     }
   };
 
-  // HANDLERS - DELETE
+  // ============= HANDLERS - DELETE =============
   const handleDelete = (product) => {
     if (!canManage) {
       return;
@@ -122,12 +132,12 @@ const ProductsView = () => {
     });
   };
 
-  // HANDLERS - EXPORT
+  // ============= HANDLERS - EXPORT =============
   const handleExport = () => {
     exportProductsToCSV(filteredProducts);
   };
 
-  // PAGINATION CONFIG
+  // ============= PAGINATION CONFIG =============
   const paginationConfig = {
     current: currentPage,
     pageSize: 10,
@@ -140,7 +150,7 @@ const ProductsView = () => {
     setCurrentPage(pagination.current);
   };
 
-  // RENDER
+  // ============= RENDER =============
   return (
     <div className="products-container">
       {/* Header */}

@@ -1,9 +1,9 @@
 // ===============================================
 // Location: src/pages/Employee/components/EmployeeActionBar.jsx
 // ===============================================
-import React from 'react';
-import { FiSearch, FiDownload, FiPlus } from 'react-icons/fi';
-import { ROLE_TABS } from '../employeeConstants';
+import React from "react";
+import { FiSearch, FiDownload, FiPlus } from "react-icons/fi";
+import { ROLE_TABS } from "../utils/employeeConstants";
 
 const EmployeeActionBar = ({
   activeRole,
@@ -16,16 +16,16 @@ const EmployeeActionBar = ({
   onRoleChange,
   onSearchChange,
   onExport,
-  onAdd
+  onAdd,
 }) => {
   return (
     <div className="tabs-action-bar">
       {/* Role Tabs */}
       <div className="role-tabs">
-        {ROLE_TABS.map(tab => (
+        {ROLE_TABS.map((tab) => (
           <div
             key={tab.id}
-            className={`role-tab ${activeRole === tab.id ? 'active' : ''}`}
+            className={`role-tab ${activeRole === tab.id ? "active" : ""}`}
             onClick={() => onRoleChange(tab.id)}
           >
             {tab.label} <span className="tab-count">({roleCount(tab.id)})</span>

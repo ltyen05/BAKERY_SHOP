@@ -122,47 +122,19 @@
   display: none !important;
 }
 
-/* ================= CLICKABLE ID ================= */
-.clickable-id {
-  font-weight: 700;
+/* ================= ID - ĐỔI SANG MÀU ĐEN ================= */
+.admin-id {
+  font-weight: 600;
   font-size: 14px;
-  color: #FFBD71;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
+  color: #1e293b;
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 6px;
 }
 
-.clickable-id:hover {
-  background: #fffbf5;
-  transform: scale(1.05);
-  color: #ff9d3d;
-}
-
-.clickable-id:active {
-  transform: scale(0.98);
-}
-
-/* ================= ADMIN INFO - ICON VÀNG ================= */
+/* ================= ADMIN INFO - BỎ ICON VÀNG ================= */
 .admin-info {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.admin-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #FFBD71 0%, #ff9d3d 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  box-shadow: 0 4px 12px rgba(255, 189, 113, 0.3);
 }
 
 .admin-name-text {
@@ -177,13 +149,13 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #475569;
+  color: #1e293b;
 }
 
 .contact-item-text svg {
   width: 16px;
   height: 16px;
-  color: #3b82f6;
+  color: #64748b;
   flex-shrink: 0;
 }
 
@@ -191,7 +163,7 @@
 .branch-info-text {
   display: flex;
   align-items: center;
-  color: #64748b;
+  color: #1e293b;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -273,12 +245,6 @@
 
   .admin-info {
     gap: 8px;
-  }
-
-  .admin-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
   }
 
   .contact-item-text {

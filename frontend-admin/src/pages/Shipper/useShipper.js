@@ -1,6 +1,6 @@
 // ===============================================
 // Location: src/pages/Shipper/useShipper.js
-// Status: Synced with Branches Logic
+// Status: WITH DEBUG LOGS
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
@@ -143,21 +143,40 @@ export const useShipper = () => {
 
   const updateShipper = async (id, updatedShipper) => {
     try {
+      console.group(" UPDATE SHIPPER HOOK");
+      console.log("1. ID nhận được:", id);
+      console.log("2. Data nhận được:", updatedShipper);
+      console.log("3. shipper_name trong data:", updatedShipper.shipper_name);
+      
       setLoading(true);
+      
       if (isBranchAdmin) {
         updatedShipper.branch_id = currentBranchId;
       }
+      
       delete updatedShipper.password;
       
+      console.log("4. Data sau khi xử lý:", updatedShipper);
+      console.log("5. Gọi shipperApi.updateShipper...");
+      
       const response = await shipperApi.updateShipper(id, updatedShipper);
+      
+      console.log("6. Response từ API:", response);
+      console.log("7. Response success:", response.success);
+      console.log("8. Response message:", response.message);
+      console.groupEnd();
+      
       if (response.success) {
         message.success('Cập nhật shipper thành công!');
+        console.log("9. Đang reload shippers...");
         await loadShippers();
         return { success: true };
       }
       message.error(response.message || 'Không thể cập nhật shipper');
       return { success: false };
     } catch (error) {
+      console.error(" Error trong updateShipper:", error);
+      console.groupEnd();
       message.error('Lỗi hệ thống khi cập nhật shipper');
       return { success: false };
     } finally {
@@ -194,7 +213,7 @@ export const useShipper = () => {
 
   const getHeaderSubtitle = () => {
     if (isBranchAdmin) return `Quản lý ${stats.total} shipper chi nhánh ${user.branch_name}`;
-    if (isSuperAdmin && user.viewing_branch) return `Đang xem ${stats.total} shipper tại ${user.viewing_branch.name}`;
+    if (isSuperAdmin && user.viewing_branch) return `Quản lý Shipper của cửa hàng`;
     return `Quản lý ${stats.total} shipper trên toàn hệ thống`;
   };
 

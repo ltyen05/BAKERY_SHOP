@@ -3,7 +3,7 @@
 // ===============================================
 import React from 'react';
 import { Modal, Rate } from 'antd';
-import { getCategoryName } from '../productConstants';
+import { getCategoryName } from '../utils/productConstants';
 
 const ProductDetailModal = ({ product, visible, onClose }) => {
   if (!product) return null;

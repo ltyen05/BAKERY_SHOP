@@ -1,28 +1,17 @@
 // ===============================================
 // Location: src/pages/Orders/OrdersView.jsx
-// FIXED: Removed avatar from customer column
 // ===============================================
 
-import React, { useState } from 'react';
-import { Tag, Space, Button, Tooltip, Modal, message } from 'antd';
-import { 
-  FiSearch, 
-  FiDownload, 
-  FiEye, 
-  FiTrash2
-} from 'react-icons/fi';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import DataTable from '../../components/Table/Table';
-import OrderDetailModal from './OrderDetailModal';
-import { useOrders } from './useOrders';
-import { 
-  STATUS_TABS, 
-  STATUS_INFO,
-  formatCurrency,
-  formatDate,
-  getStatusColor
-} from './orderConstants';
-import './OrdersView.css';
+import React, { useState } from "react";
+import { Tag, Space, Button, Tooltip, Modal, message } from "antd";
+import { FiSearch, FiDownload, FiEye, FiTrash2 } from "react-icons/fi";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import DataTable from "../../components/Table/Table";
+import OrderDetailModal from "./components/OrderDetailModal";
+import { useOrders } from "./hooks/useOrders";
+import { STATUS_TABS, STATUS_INFO } from "./utils/constants";
+import { formatCurrency, formatDate, getStatusColor } from "./utils/helpers";
+import "./styles/OrdersView.css";
 
 const { confirm } = Modal;
 
@@ -41,7 +30,7 @@ const OrdersView = () => {
     setCurrentPage,
     handleStatusChange,
     handleSearchChange,
-    canDeleteOrder   
+    canDeleteOrder,
   } = useOrders();
 
   // ============= MODAL STATE =============
@@ -55,13 +44,13 @@ const OrdersView = () => {
     setSelectedOrder(order);
     setIsDetailModalOpen(true);
     setLoadingDetails(true);
-    
+
     try {
       const details = await fetchOrderDetails(order.order_id);
       setOrderDetails(details);
     } catch (error) {
-      console.error('Error fetching details:', error);
-      message.error('Không thể tải chi tiết đơn hàng');
+      console.error("Error fetching details:", error);
+      message.error("Không thể tải chi tiết đơn hàng");
     } finally {
       setLoadingDetails(false);
     }
@@ -76,134 +65,144 @@ const OrdersView = () => {
   // ============= DELETE =============
   const handleDelete = (order) => {
     if (!canDeleteOrder) {
-      message.warning('Bạn không có quyền xóa đơn hàng');
+      message.warning("Bạn không có quyền xóa đơn hàng");
       return;
     }
 
     confirm({
-      title: 'Xác nhận xóa đơn hàng',
+      title: "Xác nhận xóa đơn hàng",
       icon: <ExclamationCircleOutlined />,
       content: `Bạn có chắc chắn muốn xóa đơn hàng ${order.order_id}?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
       centered: true,
       async onOk() {
         await deleteOrder(order.order_id);
-      }
+      },
     });
   };
 
   // ============= EXPORT =============
   const handleExport = () => {
     if (filteredOrders.length === 0) {
-      message.warning('Không có dữ liệu để export');
+      message.warning("Không có dữ liệu để export");
       return;
     }
-    
-    const headers = ['Mã đơn', 'Khách hàng', 'Tổng tiền', 'Trạng thái', 'Ngày đặt'];
-    const rows = filteredOrders.map(order => [
+
+    const headers = [
+      "Mã đơn",
+      "Khách hàng",
+      "Tổng tiền",
+      "Trạng thái",
+      "Ngày đặt",
+    ];
+    const rows = filteredOrders.map((order) => [
       order.order_id,
-      order.recipient_name || order.customer_name || 'N/A',
+      order.recipient_name || order.customer_name || "N/A",
       order.total_amount,
       STATUS_INFO[order.status]?.label || order.status,
-      formatDate(order.created_at)
+      formatDate(order.created_at),
     ]);
-    
-    const csv = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
+      "\n"
+    );
+
+    const blob = new Blob(["\ufeff" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `orders_${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
-    
-    message.success('Export thành công!');
+
+    message.success("Export thành công!");
   };
 
   // ============= TABLE COLUMNS =============
   const columns = [
     {
-      title: 'Mã đơn',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      width: 100,
-      align: 'center',
-      fixed: 'left',
+      title: "Mã đơn",
+      dataIndex: "order_id",
+      key: "order_id",
+      width: 80,
+      align: "center",
+      fixed: "left",
       render: (id) => (
-        <span style={{ fontWeight: '600', color: '#475569', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#475569", fontSize: "14px" }}>
           {id}
         </span>
       ),
-      sorter: (a, b) => a.order_id - b.order_id
+      sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Khách hàng',
-      key: 'customer',
-      width: 200,
+      title: "Khách hàng",
+      key: "customer",
+      width: 160,
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
-            {record.recipient_name || record.customer_name || 'N/A'}
+          <div
+            style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}
+          >
+            {record.recipient_name || record.customer_name || "N/A"}
           </div>
-          {record.phone && record.phone !== 'N/A' && (
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+          {record.phone && record.phone !== "N/A" && (
+            <div
+              style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}
+            >
               {record.phone}
             </div>
           )}
         </div>
-      )
+      ),
     },
     {
-      title: 'Tổng tiền',
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      width: 150,
-      align: 'right',
+      title: "Tổng tiền",
+      dataIndex: "total_amount",
+      key: "total_amount",
+      width: 120,
+      align: "right",
       render: (amount) => (
-        <span style={{ fontWeight: '600', color: '#059669', fontSize: '14px' }}>
+        <span style={{ fontWeight: "600", color: "#059669", fontSize: "14px" }}>
           {formatCurrency(amount)}
         </span>
       ),
-      sorter: (a, b) => a.total_amount - b.total_amount
+      sorter: (a, b) => a.total_amount - b.total_amount,
     },
     {
-      title: 'Ngày đặt',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 160,
-      align: 'center',
+      title: "Ngày đặt",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 100,
+      align: "center",
       render: (date) => (
-        <span style={{ color: '#64748b', fontSize: '13px' }}>
+        <span style={{ color: "#64748b", fontSize: "13px" }}>
           {formatDate(date)}
         </span>
       ),
-      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
       width: 140,
-      align: 'center',
+      align: "center",
       render: (status) => (
-        <Tag 
-          color={getStatusColor(status)} 
-          style={{ fontWeight: '600', fontSize: '13px', margin: 0 }}
+        <Tag
+          color={getStatusColor(status)}
+          style={{ fontWeight: "600", fontSize: "13px", margin: 0 }}
         >
           {STATUS_INFO[status]?.label || status}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Thao tác',
-      key: 'action',
+      title: "Thao tác",
+      key: "action",
       width: 100,
-      align: 'center',
-      
+      align: "center",
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Xem chi tiết">
@@ -211,10 +210,10 @@ const OrdersView = () => {
               type="text"
               icon={<FiEye />}
               onClick={() => handleViewDetail(record)}
-              style={{ color: '#3b82f6' }}
+              style={{ color: "#3b82f6" }}
             />
           </Tooltip>
-          
+
           {canDeleteOrder && (
             <Tooltip title="Xóa">
               <Button
@@ -226,8 +225,8 @@ const OrdersView = () => {
             </Tooltip>
           )}
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   // ============= PAGINATION =============
@@ -236,7 +235,7 @@ const OrdersView = () => {
     pageSize: 10,
     total: filteredOrders.length,
     showSizeChanger: false,
-    showTotal: (total) => `Tổng ${total} đơn hàng`
+    showTotal: (total) => `Tổng ${total} đơn hàng`,
   };
 
   const handleTableChange = (pagination) => {
@@ -255,13 +254,16 @@ const OrdersView = () => {
       {/* TABS + ACTIONS */}
       <div className="tabs-action-bar">
         <div className="status-tabs">
-          {STATUS_TABS.map(tab => (
+          {STATUS_TABS.map((tab) => (
             <div
               key={tab.id}
-              className={`status-tab ${activeStatus === tab.id ? 'active' : ''}`}
+              className={`status-tab ${
+                activeStatus === tab.id ? "active" : ""
+              }`}
               onClick={() => handleStatusChange(tab.id)}
             >
-              {tab.label} <span className="tab-count">({statusCount(tab.id)})</span>
+              {tab.label}{" "}
+              <span className="tab-count">({statusCount(tab.id)})</span>
             </div>
           ))}
         </div>

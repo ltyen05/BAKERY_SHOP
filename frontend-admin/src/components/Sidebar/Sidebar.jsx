@@ -27,16 +27,17 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-  
-  const { 
-    user, 
-    isSuperAdmin, 
-    isBranchAdmin, 
-    isViewingBranch, 
-    viewAllBranches, 
-    getCurrentBranch 
+
+  const {
+    user,
+    logout,
+    isSuperAdmin,
+    isBranchAdmin,
+    isViewingBranch,
+    viewAllBranches,
+    getCurrentBranch,
   } = useAuth();
-  
+
   const currentBranch = getCurrentBranch();
 
   const isActive = (path) => location.pathname === path;
@@ -49,14 +50,14 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
 
   const handleBackToAllBranches = () => {
     viewAllBranches();
-    navigate('/branches');
+    navigate("/branches");
     handleMenuClick();
   };
 
   const handleLogout = () => {
-    if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+    if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
       onCloseSidebar();
-      console.log('Đăng xuất - Sẽ tích hợp với backend sau');
+      console.log("Đăng xuất - Sẽ tích hợp với backend sau");
     }
   };
 
@@ -68,47 +69,82 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
       <div className="menu-section">
         <div className="menu-title">TỔNG QUAN</div>
 
-        <Link to="/dashboard" className={`menu-item ${isActive("/dashboard") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbLayoutDashboard /></span>
+        <Link
+          to="/dashboard"
+          className={`menu-item ${isActive("/dashboard") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbLayoutDashboard />
+          </span>
           <span>Dashboard Tổng</span>
         </Link>
 
-        <Link to="/branches" className={`menu-item ${isActive("/branches") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbBuilding /></span>
+        <Link
+          to="/branches"
+          className={`menu-item ${isActive("/branches") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbBuilding />
+          </span>
           <span>Quản lý Chi nhánh</span>
         </Link>
 
-        <Link to="/products" className={`menu-item ${isActive("/products") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbCake /></span>
+        <Link
+          to="/products"
+          className={`menu-item ${isActive("/products") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbCake />
+          </span>
           <span>Quản lý Sản phẩm</span>
         </Link>
 
-        <Link to="/voucher" className={`menu-item ${isActive("/voucher") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbTicket /></span>
+        <Link
+          to="/voucher"
+          className={`menu-item ${isActive("/voucher") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbTicket />
+          </span>
           <span>Quản lý Voucher</span>
         </Link>
 
-        <Link to="/admins" className={`menu-item ${isActive("/admins") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbUserShield /></span>
+        <Link
+          to="/admins"
+          className={`menu-item ${isActive("/admins") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbUserShield />
+          </span>
           <span>Quản lý Admin</span>
         </Link>
       </div>
 
       <div className="menu-section">
         <div className="menu-title">CÀI ĐẶT</div>
-        
+
         <div className="settings-wrapper">
-          <div 
+          <div
             className={`menu-item ${isActive("/settings") ? "active" : ""}`}
-            onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+            onClick={logout}
           >
-            <span className="icon"><TbSettings /></span>
+            <span className="icon">
+              <TbSettings />
+            </span>
             <span>Cài đặt</span>
           </div>
 
           {showSettingsMenu && (
             <div className="settings-dropdown">
-              <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
+              <div
+                className="dropdown-item-sidebar logout"
+                onClick={handleLogout}
+              >
                 <TbLogout />
                 <span>Log out</span>
               </div>
@@ -125,18 +161,36 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
       <div className="menu-section">
         <div className="menu-title">MENU CHÍNH</div>
 
-        <Link to="/dashboard" className={`menu-item ${isActive("/dashboard") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbLayoutDashboard /></span>
+        <Link
+          to="/dashboard"
+          className={`menu-item ${isActive("/dashboard") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbLayoutDashboard />
+          </span>
           <span>Dashboard</span>
         </Link>
 
-        <Link to="/products" className={`menu-item ${isActive("/products") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbCake /></span>
+        <Link
+          to="/products"
+          className={`menu-item ${isActive("/products") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbCake />
+          </span>
           <span>Sản phẩm</span>
         </Link>
 
-        <Link to="/orders" className={`menu-item ${isActive("/orders") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbShoppingBag /></span>
+        <Link
+          to="/orders"
+          className={`menu-item ${isActive("/orders") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbShoppingBag />
+          </span>
           <span>Đơn hàng</span>
         </Link>
       </div>
@@ -144,13 +198,25 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
       <div className="menu-section">
         <div className="menu-title">KHÁCH HÀNG</div>
 
-        <Link to="/customers" className={`menu-item ${isActive("/customers") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbUser /></span>
+        <Link
+          to="/customers"
+          className={`menu-item ${isActive("/customers") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbUser />
+          </span>
           <span>Khách hàng</span>
         </Link>
 
-        <Link to="/voucher" className={`menu-item ${isActive("/voucher") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbTicket /></span>
+        <Link
+          to="/voucher"
+          className={`menu-item ${isActive("/voucher") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbTicket />
+          </span>
           <span>Voucher</span>
         </Link>
       </div>
@@ -158,28 +224,45 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
       <div className="menu-section">
         <div className="menu-title">QUẢN LÝ</div>
 
-        <Link to="/employee" className={`menu-item ${isActive("/employee") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbUsers /></span>
+        <Link
+          to="/employee"
+          className={`menu-item ${isActive("/employee") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbUsers />
+          </span>
           <span>Nhân viên</span>
         </Link>
 
-        <Link to="/shipper" className={`menu-item ${isActive("/shipper") ? "active" : ""}`} onClick={handleMenuClick}>
-          <span className="icon"><TbTruckDelivery /></span>
+        <Link
+          to="/shipper"
+          className={`menu-item ${isActive("/shipper") ? "active" : ""}`}
+          onClick={handleMenuClick}
+        >
+          <span className="icon">
+            <TbTruckDelivery />
+          </span>
           <span>Shipper</span>
         </Link>
 
         <div className="settings-wrapper">
-          <div 
+          <div
             className={`menu-item ${isActive("/settings") ? "active" : ""}`}
-            onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+            onClick={logout}
           >
-            <span className="icon"><TbSettings /></span>
-            <span>Cài đặt</span>
+            <span className="icon">
+              <TbSettings />
+            </span>
+            <span>Log out</span>
           </div>
 
           {showSettingsMenu && (
             <div className="settings-dropdown">
-              <div className="dropdown-item-sidebar logout" onClick={handleLogout}>
+              <div
+                className="dropdown-item-sidebar logout"
+                onClick={handleLogout}
+              >
                 <TbLogout />
                 <span>Log out</span>
               </div>
@@ -199,14 +282,19 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
 
       {isViewingBranch && (
         <div className="back-button-wrapper">
-          <button className="back-button-sidebar" onClick={handleBackToAllBranches}>
+          <button
+            className="back-button-sidebar"
+            onClick={handleBackToAllBranches}
+          >
             <TbArrowLeft size={16} />
             <span>Quay lại tất cả chi nhánh</span>
           </button>
         </div>
       )}
 
-      {isSuperAdmin && !isViewingBranch ? renderSuperAdminMenu() : renderBranchMenu()}
+      {isSuperAdmin && !isViewingBranch
+        ? renderSuperAdminMenu()
+        : renderBranchMenu()}
     </>
   );
 

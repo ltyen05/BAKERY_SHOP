@@ -1,10 +1,10 @@
 // ===============================================
 // Location: src/pages/Employee/components/EmployeeModal.jsx
 // ===============================================
-import React from 'react';
-import { FiUser } from 'react-icons/fi';
-import FormModal from '../../../components/FormModal/FormModal';
-import { EMPLOYEE_FIELDS, EMPLOYEE_EDIT_FIELDS } from '../employeeConstants';
+import React from "react";
+import { FiUser } from "react-icons/fi";
+import FormModal from "../../../components/FormModal/FormModal";
+import { EMPLOYEE_FIELDS, EMPLOYEE_EDIT_FIELDS } from "../utils/employeeConstants";
 
 const EmployeeModal = ({
   isOpen,
@@ -15,26 +15,26 @@ const EmployeeModal = ({
   branchError,
   currentBranchId,
   onClose,
-  onSubmit
+  onSubmit,
 }) => {
   const getFormFields = () => {
-    const baseFields = mode === 'edit' ? EMPLOYEE_EDIT_FIELDS : EMPLOYEE_FIELDS;
-    
-    if (mode === 'add') {
-      return baseFields.map(field => {
-        if (field.name === 'branch_id') {
+    const baseFields = mode === "edit" ? EMPLOYEE_EDIT_FIELDS : EMPLOYEE_FIELDS;
+
+    if (mode === "add") {
+      return baseFields.map((field) => {
+        if (field.name === "branch_id") {
           return {
             ...field,
             options: branches,
             disabled: loadingBranches || branchError !== null,
-            placeholder: loadingBranches ? 'Đang tải...' : 'Chọn chi nhánh',
-            defaultValue: currentBranchId ? String(currentBranchId) : ''
+            placeholder: loadingBranches ? "Đang tải..." : "Chọn chi nhánh",
+            defaultValue: currentBranchId ? String(currentBranchId) : "",
           };
         }
         return field;
       });
     }
-    
+
     return baseFields;
   };
 
@@ -44,10 +44,10 @@ const EmployeeModal = ({
       onClose={onClose}
       onSubmit={onSubmit}
       title={{
-        add: 'Thêm nhân viên mới',
-        addDesc: 'Điền thông tin nhân viên vào form bên dưới',
-        edit: 'Chỉnh sửa nhân viên',
-        editDesc: 'Cập nhật thông tin nhân viên'
+        add: "Thêm nhân viên mới",
+        addDesc: "Điền thông tin nhân viên vào form bên dưới",
+        edit: "Chỉnh sửa nhân viên",
+        editDesc: "Cập nhật thông tin nhân viên",
       }}
       icon={FiUser}
       data={selectedEmployee}

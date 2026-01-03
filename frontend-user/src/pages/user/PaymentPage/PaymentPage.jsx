@@ -483,19 +483,19 @@ export default function ShippingAddressForm() {
               onChange={setSelectedStore}
               className="newHeight w100"
             >
-              {stores.map((store) => {
+              {stores.map((store, index) => { // Thêm index ở đây để sửa lỗi Key
                   let distanceText = "";
                   if (verificationResult && verificationResult.valid) {
-                    // SỬA TẠI ĐÂY: Thêm kiểm tra tên biến lon/lng/longitude
-                    const storeLat = parseFloat(store.lat);
-                    const storeLng = parseFloat(store.lng || store.lon || store.longitude);
+                    // Ép kiểu số và kiểm tra cả lng hoặc lon
+                    const sLat = parseFloat(store.lat);
+                    const sLng = parseFloat(store.lng || store.lon || store.longitude);
 
-                    if (!isNaN(storeLat) && !isNaN(storeLng)) {
+                    if (!isNaN(sLat) && !isNaN(sLng)) {
                       const dist = calculateDistance(
                         parseFloat(verificationResult.lat),
                         parseFloat(verificationResult.lon),
-                        storeLat,
-                        storeLng
+                        sLat,
+                        sLng
                       );
                       distanceText = ` - ${dist.toFixed(2)} km`;
                     }

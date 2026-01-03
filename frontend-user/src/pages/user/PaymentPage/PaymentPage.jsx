@@ -107,8 +107,7 @@ export default function ShippingAddressForm() {
 
   const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
   // Danh sách cửa hàng mẫu
-  const stores = Array.isArray(branches) ? branches : [];
-
+  const stores = Array.isArray(branches) ? branches : (branches?.details || []);
   // Tính khoảng cách giữa 2 tọa độ (công thức Haversine)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Bán kính trái đất (km)
@@ -129,6 +128,7 @@ export default function ShippingAddressForm() {
   useEffect(() => {
     if (verificationResult && verificationResult.valid && selectedStore) {
       const store = stores.find((s) => s.branch_id === selectedStore);
+      console.log("Danh sách stores sau khi sửa:", stores);
       if (store) {
         const dist = calculateDistance(
           parseFloat(verificationResult.lat),

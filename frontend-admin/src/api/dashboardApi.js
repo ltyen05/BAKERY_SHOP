@@ -1,197 +1,209 @@
 // ===============================================
-// Location: src/api/dashboardApi.js (FIXED VERSION)
+// FILE: src/api/dashboardApi.js
 // ===============================================
 import api from "./axiosConfig";
 
-// ============= ADMIN DASHBOARD APIs =============
+export const dashboardApi = {
+  // ========================================
+  // BRANCH ADMIN APIs
+  // ========================================
 
-/**
- * Lấy tổng số đơn hàng theo thời gian
- * @param {number} year - Năm (bắt buộc)
- * @param {number} month - Tháng (tùy chọn, truyền null để lấy cả năm)
- */
-export const getTotalOrders = async (year, month) => {
-  try {
-    const params = { year };
-    if (month) params.month = month;
-
-    const response = await api.get("/api/admin/dashboard/total_orders", { params });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching total orders:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy tổng doanh thu theo thời gian
- * @param {number} year - Năm (bắt buộc)
- * @param {number} month - Tháng (tùy chọn, truyền null để lấy cả năm)
- */
-export const getTotalAmount = async (year, month) => {
-  try {
-    const params = { year };
-    if (month) params.month = month;
-
-    const response = await api.get("/api/admin/dashboard/total_amount", { params });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching total amount:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy tổng số khách hàng theo thời gian
- * @param {number} year - Năm (bắt buộc)
- * @param {number} month - Tháng (tùy chọn, truyền null để lấy cả năm)
- */
-export const getTotalCustomers = async (year, month) => {
-  try {
-    const params = { year };
-    if (month) params.month = month;
-
-    const response = await api.get("/api/admin/dashboard/total_customer", { params });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching total customers:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy tổng số sản phẩm đã bán theo thời gian
- * @param {number} year - Năm (bắt buộc)
- * @param {number} month - Tháng (tùy chọn, truyền null để lấy cả năm)
- */
-export const getTotalProducts = async (year, month) => {
-  try {
-    const params = { year };
-    if (month) params.month = month;
-
-    const response = await api.get("/api/admin/dashboard/total_product", { params });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching total products:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy phân bố trạng thái đơn hàng
- */
-export const getOrderStatusDistribution = async () => {
-  try {
-    const response = await api.get("/api/admin/dashboard/order-status-distribution");
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching order status distribution:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy danh sách sản phẩm bán chạy nhất
- * ⚠️ FIX: URL đã sửa từ "//apiadmin" -> "/api/admin"
- */
-export const getTopProducts = async (limit = 5) => {
-  try {
-    const response = await api.get("/api/admin/dashboard/top-products", {
-      params: { limit },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching top products:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy dữ liệu tăng trưởng khách hàng theo tháng
- */
-export const getCustomerGrowth = async () => {
-  try {
-    const response = await api.get("/api/admin/dashboard/customer-growth");
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching customer growth:", error);
-    throw error;
-  }
-};
-
-// ============= SUPERADMIN DASHBOARD APIs =============
-
-/**
- * Lấy tổng doanh thu của từng chi nhánh
- */
-export const getRevenuePerBranch = async () => {
-  try {
-    const response = await api.get("/api/superadmin/dashboard/revenue_per_branch");
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching revenue per branch:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy thống kê trạng thái đơn hàng toàn hệ thống
- */
-export const getOrderStats = async () => {
-  try {
-    const response = await api.get("/api/superadmin/dashboard/order_stats");
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching order stats:", error);
-    throw error;
-  }
-};
-
-/**
- * Lấy dữ liệu doanh thu theo thời gian để vẽ biểu đồ
- */
-export const getRevenueChart = async (period = "month") => {
-  try {
-    if (!["month", "week"].includes(period)) {
-      throw new Error("Period phải là 'month' hoặc 'week'");
+  getTotalOrders: async (month, year) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/total_orders",
+        {
+          params: { month, year },
+        }
+      );
+      return {
+        success: true,
+        data: response.data?.total_orders || 0,
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getTotalOrders error:", error);
+      return { success: false, data: 0 };
     }
+  },
 
-    const response = await api.get("/api/superadmin/dashboard/revenue_chart", {
-      params: { period },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error fetching revenue chart:", error);
-    throw error;
-  }
+  getTotalAmount: async (month, year, branch_id) => {
+    try {
+      const response = await api.post(
+        "http://localhost:5001/api/admin/dashboard/total_amount_for_month",
+        null,
+        {
+          params: { month, year, branch_id },
+        }
+      );
+      return {
+        success: true,
+        data: response.data?.total_amount || 0,
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getTotalAmount error:", error);
+      return { success: false, data: 0 };
+    }
+  },
+
+  getTotalCustomers: async (month, year) => {
+    console.log("DEBUG getTotalCustomers:", { month, year });
+    try {
+      const response = await api.post(
+        "http://localhost:5001/api/admin/dashboard/total_customer_of_month",
+        null,
+        {
+          params: { month, year },
+        }
+      );
+      console.log("Response total:", response.data);
+      return {
+        success: true,
+        data: response.data?.total_customers || 0,
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getTotalCustomers error:", error);
+      return { success: false, data: 0 };
+    }
+  },
+
+  getTotalProducts: async (month, year) => {
+    try {
+      const response = await api.post(
+        "http://localhost:5001/api/admin/dashboard/total_product_of_month",
+        null,
+        {
+          params: { month, year },
+        }
+      );
+      return {
+        success: true,
+        data: response.data?.total_products || 0,
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getTotalProducts error:", error);
+      return { success: false, data: 0 };
+    }
+  },
+
+  getOrderStatusDistribution: async (month, year, branch_id) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/order-status-distribution",
+        {
+          params: { month, year, branch_id },
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data?.data || { total_orders: 0, distribution: [] },
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getOrderStatusDistribution error:", error);
+      return { success: false, data: { total_orders: 0, distribution: [] } };
+    }
+  },
+
+  getTopProducts: async (month, year, branch_id) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/top-products",
+        {
+          params: { month, year, branch_id },
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getTopProducts error:", error);
+      return { success: false, data: [] };
+    }
+  },
+
+  getCustomerGrowth: async () => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/customer-growth"
+      );
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getCustomerGrowth error:", error);
+      return { success: false, data: [] };
+    }
+  },
+
+  // ========================================
+  // SUPER ADMIN APIs (CÓ FILTER MONTH/YEAR)
+  // ========================================
+
+  //  Doanh thu theo chi nhánh - THÊM month, year
+  getRevenuePerBranch: async (month, year) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/superadmin/dashboard/revenue_per_branch",
+        {
+          params: { month, year },
+        }
+      );
+      console.log(
+        "[dashboardApi] getRevenuePerBranch response:",
+        response.data
+      );
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getRevenuePerBranch error:", error);
+      return { success: false, data: [] };
+    }
+  },
+
+  // Thống kê đơn hàng theo status
+  getOrderStats: async (month, year) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/superadmin/dashboard/order_stats",
+        {
+          params: { month, year },
+        }
+      );
+      console.log("[dashboardApi] getOrderStats response:", response.data);
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getOrderStats error:", error);
+      return { success: false, data: [] };
+    }
+  },
+
+  //  Biểu đồ doanh thu theo thời gian
+  getRevenueChart: async (period = "month", month, year) => {
+    try {
+      const response = await api.get(
+        "http://localhost:5001/api/superadmin/dashboard/revenue_chart",
+        {
+          params: { period, month, year },
+        }
+      );
+      console.log("[dashboardApi] getRevenueChart response:", response.data);
+      return {
+        success: true,
+        data: response.data?.data || [],
+      };
+    } catch (error) {
+      console.error("[dashboardApi] getRevenueChart error:", error);
+      return { success: false, data: [] };
+    }
+  },
 };
 
-// ============= HELPER FUNCTIONS =============
-
-export const formatCurrency = (amount) => {
-  if (!amount) return '0 ₫';
-  return new Intl.NumberFormat('vi-VN', { 
-    style: 'currency', 
-    currency: 'VND' 
-  }).format(amount);
-};
-
-export const formatNumber = (num) => {
-  if (!num) return '0';
-  return new Intl.NumberFormat('vi-VN').format(num);
-};
-
-export default {
-  getTotalOrders,
-  getTotalAmount,
-  getTotalCustomers,
-  getTotalProducts,
-  getOrderStatusDistribution,
-  getTopProducts,
-  getCustomerGrowth,
-  getRevenuePerBranch,
-  getOrderStats,
-  getRevenueChart,
-  formatCurrency,
-  formatNumber
-};
+export default dashboardApi;

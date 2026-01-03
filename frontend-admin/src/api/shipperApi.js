@@ -83,7 +83,7 @@ export const shipperApi = {
 
       const payload = {
         shipper_id: null,
-        name: shipperData.shipper_name, 
+        name: shipperData.shipper_name,
         email: shipperData.email,
         phone: shipperData.phone,
         password: shipperData.password,
@@ -153,7 +153,7 @@ export const shipperApi = {
       }
 
       const payload = {
-        name: shipperData.shipper_name, 
+        name: shipperData.shipper_name,
         email: shipperData.email,
         phone: shipperData.phone,
         status: shipperData.status,
@@ -189,7 +189,7 @@ export const shipperApi = {
 
   deleteShipper: async (shipperId) => {
     try {
-      console.log("🗑️ Deleting shipper:", shipperId);
+      console.log(" Deleting shipper:", shipperId);
 
       const response = await api.delete(
         `${BASE_PATH}/delete_shipper/${shipperId}`
@@ -201,7 +201,7 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("❌ Error deleting shipper:", error);
+      console.error(" Error deleting shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,

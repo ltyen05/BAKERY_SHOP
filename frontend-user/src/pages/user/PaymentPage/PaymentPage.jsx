@@ -19,18 +19,20 @@ import {
   UserOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import logo from "../../../assets/logo-noText.svg";
+import logo from "../../../assets/logo-noText.svg"; // Đảm bảo đường dẫn ảnh đúng
 import { useLocation, useNavigate } from "react-router-dom";
 import ProductItem from "../../../components/Product/ProductItem";
 import Voucher from "../../../components/Voucher/Voucher";
-import cod from "../../../assets/COD.svg";
-import qrCodeImg from "../../../assets/QR.svg";
+import cod from "../../../assets/COD.svg"; // Đảm bảo đường dẫn ảnh đúng
+import qrCodeImg from "../../../assets/QR.svg"; // Đảm bảo đường dẫn ảnh đúng
 import { useOrder } from "../../../context/OrderContext";
 import { useAccount } from "../../../context/AccountContext";
+
 const { TextArea } = Input;
 const { Option } = Select;
 const BASE_TIME = 30; // phút
 const PER_KM_TIME = 5;
+
 export default function ShippingAddressForm() {
   const { branches } = useAccount();
   const [messageApi, contextHolder] = message.useMessage();
@@ -51,6 +53,7 @@ export default function ShippingAddressForm() {
   const [selectedStore, setSelectedStore] = useState(null);
   const [distance, setDistance] = useState(null);
   const { selectedVoucher, setSelectedVoucher, productInCart } = useOrder();
+
   // ===== Voucher =====
   const getEstimatedDeliveryTime = (distance) => {
     if (!distance) return null;
@@ -64,10 +67,9 @@ export default function ShippingAddressForm() {
     };
   };
   const estimatedDelivery = getEstimatedDeliveryTime(distance);
+
   // Kiểm tra voucher khi vào page
   useEffect(() => {
-    // Kiểm tra voucher có trong danh sách không
-
     console.log(selectedVoucher);
     if (!selectedVoucher) {
       return;
@@ -79,7 +81,6 @@ export default function ShippingAddressForm() {
       messageApi.warning(
         `Voucher yêu cầu đơn hàng tối thiểu ${selectedVoucher.min_purchase.toLocaleString()}đ. Voucher đã bị hủy.`
       );
-
       return;
     }
 
@@ -87,6 +88,7 @@ export default function ShippingAddressForm() {
     setSelectedVoucher(selectedVoucher);
     message.success("Đã áp dụng voucher!");
   }, [totalPrice]);
+
   const getShippingFee = (distance) => {
     if (distance < 2) return 10000;
     if (distance < 4) return 16000;
@@ -105,7 +107,8 @@ export default function ShippingAddressForm() {
     : 0;
 
   const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
-  // Danh sách cửa hàng mẫu
+  
+  // Danh sách cửa hàng (Lấy từ Context)
   const stores = branches;
 
   // Tính khoảng cách giữa 2 tọa độ (công thức Haversine)
@@ -126,7 +129,8 @@ export default function ShippingAddressForm() {
 
   // Tính khoảng cách khi có địa chỉ và cửa hàng
   useEffect(() => {
-    if (verificationResult && verificationResult.valid && selectedStore) {
+    // Chỉ tính khi verificationResult hợp lệ VÀ stores là mảng hợp lệ
+    if (verificationResult && verificationResult.valid && selectedStore && Array.isArray(stores)) {
       const store = stores.find((s) => s.id === selectedStore);
       if (store) {
         const dist = calculateDistance(
@@ -140,7 +144,7 @@ export default function ShippingAddressForm() {
     } else {
       setDistance(null);
     }
-  }, [verificationResult, selectedStore]);
+  }, [verificationResult, selectedStore, stores]);
 
   // Debounce để không gọi API liên tục khi gõ
   useEffect(() => {
@@ -287,7 +291,8 @@ export default function ShippingAddressForm() {
     }
     setLoading(true);
     try {
-      const store = stores.find((s) => s.id === selectedStore);
+      // Tìm store an toàn (thêm check Array.isArray)
+      const store = Array.isArray(stores) ? stores.find((s) => s.id === selectedStore) : null;
 
       // ===== CALL API CREATE ORDER =====
       const res = await create_order({
@@ -475,6 +480,8 @@ export default function ShippingAddressForm() {
             >
               <ShopOutlined /> Chọn cửa hàng
             </label>
+            
+            {/* === PHẦN SỬA LỖI: Kiểm tra Array.isArray(stores) === */}
             <Select
               size="large"
               placeholder="Chọn cửa hàng giao hàng"
@@ -482,48 +489,60 @@ export default function ShippingAddressForm() {
               onChange={setSelectedStore}
               className="newHeight w100"
             >
-              {stores.map((store) => {
-                let distanceText = "";
-                if (verificationResult && verificationResult.valid) {
-                  const dist = calculateDistance(
-                    parseFloat(verificationResult.lat),
-                    parseFloat(verificationResult.lon),
-                    store.lat,
-                    store.lon
-                  );
-                  distanceText = ` - ${dist.toFixed(2)} km`;
-                }
-                return (
-                  <Option key={store.id} value={store.id}>
-                    <div>
-                      <div
-                        className="fl-center"
-                        style={{
-                          fontWeight: "400",
-                          gap: "12px",
-                          justifyContent: "flex-start",
-                        }}
-                      >
-                        <img src={logo} alt="logo" style={{ width: "30px" }} />{" "}
-                        <div style={{ marginTop: "4px" }}>{store.name}</div>
-                        {distanceText && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: " #213547c1",
-                              fontWeight: "300",
-                              marginTop: "4px",
-                            }}
-                          >
-                            {distanceText}
-                          </span>
-                        )}
+              {Array.isArray(stores) && stores.length > 0 ? (
+                stores.map((store) => {
+                  let distanceText = "";
+                  if (verificationResult && verificationResult.valid) {
+                    const dist = calculateDistance(
+                      parseFloat(verificationResult.lat),
+                      parseFloat(verificationResult.lon),
+                      store.lat,
+                      store.lon
+                    );
+                    distanceText = ` - ${dist.toFixed(2)} km`;
+                  }
+                  return (
+                    <Option key={store.id} value={store.id}>
+                      <div>
+                        <div
+                          className="fl-center"
+                          style={{
+                            fontWeight: "400",
+                            gap: "12px",
+                            justifyContent: "flex-start",
+                          }}
+                        >
+                          <img
+                            src={logo}
+                            alt="logo"
+                            style={{ width: "30px" }}
+                          />{" "}
+                          <div style={{ marginTop: "4px" }}>{store.name}</div>
+                          {distanceText && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: " #213547c1",
+                                fontWeight: "300",
+                                marginTop: "4px",
+                              }}
+                            >
+                              {distanceText}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Option>
-                );
-              })}
+                    </Option>
+                  );
+                })
+              ) : (
+                <Option disabled key="empty">
+                  Không tìm thấy cửa hàng khả dụng
+                </Option>
+              )}
             </Select>
+            {/* === KẾT THÚC PHẦN SỬA === */}
+            
           </div>
         </Row>
         <Row

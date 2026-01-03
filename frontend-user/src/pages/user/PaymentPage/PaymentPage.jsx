@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   message,
+  Spin,
   Radio,
   Space,
   List,
@@ -12,137 +13,211 @@ import {
 } from "antd";
 import {
   EnvironmentOutlined,
+  CheckCircleOutlined,
   ShopOutlined,
   PhoneOutlined,
   UserOutlined,
   TagOutlined,
 } from "@ant-design/icons";
+import logo from "../../../assets/logo-noText.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import ProductItem from "../../../components/Product/ProductItem";
+import Voucher from "../../../components/Voucher/Voucher";
+import cod from "../../../assets/COD.svg";
+import qrCodeImg from "../../../assets/QR.svg";
 import { useOrder } from "../../../context/OrderContext";
 import { useAccount } from "../../../context/AccountContext";
 
 const { TextArea } = Input;
 const { Option } = Select;
-
-const BASE_TIME = 30;
+const BASE_TIME = 30; // phút
 const PER_KM_TIME = 5;
 
 export default function ShippingAddressForm() {
   const { branches } = useAccount();
-  const { coupons, create_order, loadingCreateOrder, selectedVoucher, setSelectedVoucher, productInCart } =
-    useOrder();
-
   const [messageApi, contextHolder] = message.useMessage();
+  const [note, setNote] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-
   const { totalPrice = 0 } = location.state || {};
-
+  const { coupons, create_order, loadingCreateOrder } = useOrder();
   const [receiverName, setReceiverName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [address, setAddress] = useState("");
-  const [note, setNote] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
+  const [searchingHints, setSearchingHints] = useState(false);
   const [selectedStore, setSelectedStore] = useState(null);
   const [distance, setDistance] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { selectedVoucher, setSelectedVoucher, productInCart } = useOrder();
 
-  // ===== SAFE DATA =====
-  const stores = Array.isArray(branches) ? branches : branches?.details || [];
+  // ===== Voucher =====
+  const getEstimatedDeliveryTime = (distance) => {
+    if (!distance) return null;
+    const roundedKm = Math.ceil(distance);
+    const totalMinutes = BASE_TIME + roundedKm * PER_KM_TIME;
+    return { roundedKm, totalMinutes };
+  };
 
-  // ===== DISTANCE =====
+  const estimatedDelivery = getEstimatedDeliveryTime(distance);
+
+  useEffect(() => {
+    if (!selectedVoucher) return;
+    if (totalPrice < selectedVoucher.min_purchase) {
+      setSelectedVoucher(null);
+      messageApi.warning(
+        `Voucher yêu cầu đơn hàng tối thiểu ${selectedVoucher.min_purchase.toLocaleString()}đ. Voucher đã bị hủy.`
+      );
+      return;
+    }
+    setSelectedVoucher(selectedVoucher);
+    messageApi.success("Đã áp dụng voucher!");
+  }, [totalPrice]);
+
+  const getShippingFee = (distance) => {
+    if (distance < 2) return 10000;
+    if (distance < 4) return 16000;
+    if (distance < 8) return 25000;
+    return 35000; 
+  };
+  const shippingFee = getShippingFee(distance);
+
+  const discount = selectedVoucher
+    ? selectedVoucher.discount_type === "percent"
+      ? Math.min(
+          Number(totalPrice) * (Number(selectedVoucher.discount_percent) / 100),
+          Number(selectedVoucher.max_discount)
+        )
+      : Number(selectedVoucher.discount_value)
+    : 0;
+
+  const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
+
+  // SỬA LỖI: Lấy danh sách stores từ Object trả về
+  const stores = Array.isArray(branches) ? branches : (branches?.details || []);
+
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371;
+    const R = 6371; 
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
-      Math.sin(dLat / 2) ** 2 +
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   };
 
   useEffect(() => {
     if (verificationResult?.valid && selectedStore) {
       const store = stores.find((s) => s.branch_id === selectedStore);
       if (store) {
-        setDistance(
-          calculateDistance(
-            +verificationResult.lat,
-            +verificationResult.lon,
-            +store.lat,
-            +(store.lng || store.lon)
-          )
+        // SỬA LỖI NaN: Ép kiểu và kiểm tra tên biến tọa độ
+        const d = calculateDistance(
+          parseFloat(verificationResult.lat),
+          parseFloat(verificationResult.lon),
+          parseFloat(store.lat),
+          parseFloat(store.lng || store.lon)
         );
+        setDistance(d);
       }
     } else {
       setDistance(null);
     }
   }, [verificationResult, selectedStore, stores]);
 
-  // ===== SHIPPING =====
-  const getShippingFee = (d) => {
-    if (!d) return 0;
-    if (d < 2) return 10000;
-    if (d < 4) return 16000;
-    if (d < 8) return 25000;
-    return 35000;
-  };
-
-  const shippingFee = getShippingFee(distance);
-
-  const discount = selectedVoucher
-    ? selectedVoucher.discount_type === "percent"
-      ? Math.min(
-          totalPrice * (selectedVoucher.discount_percent / 100),
-          selectedVoucher.max_discount
-        )
-      : selectedVoucher.discount_value
-    : 0;
-
-  const finalPrice = Math.max(totalPrice - discount + shippingFee, 0);
-
-  const estimatedDelivery =
-    distance &&
-    BASE_TIME + Math.ceil(distance) * PER_KM_TIME;
-
-  // ===== VERIFY ADDRESS =====
-  const verifyAddress = async () => {
-    if (!address.trim()) return;
-
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          address + ", Vietnam"
-        )}&format=json&limit=1`
-      );
-      const data = await res.json();
-      if (data.length) {
-        setVerificationResult({
-          valid: true,
-          lat: data[0].lat,
-          lon: data[0].lon,
-        });
-      }
-    } catch {}
-  };
-
-  // ===== SUBMIT =====
-  const handleSubmit = async () => {
-    if (!receiverName || !phoneNumber || !address) {
-      messageApi.error("Vui lòng điền đầy đủ thông tin!");
+  useEffect(() => {
+    if (address.trim().length < 3) {
+      setSuggestions([]);
       return;
     }
-    if (!verificationResult || !selectedStore) {
+    const timeoutId = setTimeout(() => {
+      searchAddressSuggestions(address);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [address]);
+
+  const searchAddressSuggestions = async (query) => {
+    if (query.trim().length < 3) return;
+    setSearchingHints(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ", Vietnam")}&format=json&addressdetails=1&limit=5`,
+        { headers: { "User-Agent": "ShippingAddressVerification/1.0" } }
+      );
+      const data = await response.json();
+      setSuggestions(data.map((item) => ({
+        displayName: item.display_name,
+        lat: item.lat,
+        lon: item.lon,
+        address: item.address,
+      })));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSearchingHints(false);
+    }
+  };
+
+  const selectSuggestion = (suggestion) => {
+    setAddress(suggestion.displayName);
+    setVerificationResult({
+      valid: true,
+      displayName: suggestion.displayName,
+      lat: suggestion.lat,
+      lon: suggestion.lon,
+      address: suggestion.address,
+    });
+    setSuggestions([]);
+    messageApi.success("Đã chọn địa chỉ!");
+  };
+
+  const verifyAddress = async () => {
+    if (!address.trim()) {
+      messageApi.error("Vui lòng nhập địa chỉ!");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address + ", Vietnam")}&format=json&addressdetails=1&limit=1`,
+        { headers: { "User-Agent": "ShippingAddressVerification/1.0" } }
+      );
+      const data = await response.json();
+      if (data.length > 0) {
+        const result = data[0];
+        setVerificationResult({
+          valid: true,
+          displayName: result.display_name,
+          lat: result.lat,
+          lon: result.lon,
+          address: result.address,
+        });
+        messageApi.success("Địa chỉ hợp lệ!");
+      } else {
+        messageApi.warning("Không tìm thấy địa chỉ này!");
+      }
+    } catch (error) {
+      messageApi.error("Lỗi xác thực!");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!receiverName.trim() || !phoneNumber.trim() || !address.trim()) {
+      messageApi.error("Vui lòng điền đủ thông tin!");
+      return;
+    }
+    if (!verificationResult?.valid || !selectedStore) {
       messageApi.warning("Vui lòng xác thực địa chỉ và chọn cửa hàng!");
       return;
     }
-
     setLoading(true);
     try {
       await create_order({
@@ -151,89 +226,143 @@ export default function ShippingAddressForm() {
         total_amount: finalPrice,
         branch_id: selectedStore,
         shipping_address: address,
-        payment_method: paymentMethod,
-        note,
+        payment_method: paymentMethod.toUpperCase(),
+        note: note || null,
         coupon_id: selectedVoucher?.coupon_id || null,
       });
       messageApi.success("Đặt hàng thành công!");
       navigate("/");
+    } catch (err) {
+      messageApi.error(err.message || "Đặt hàng thất bại!");
     } finally {
       setLoading(false);
     }
   };
 
-  // ===== UI (GIỮ NGUYÊN) =====
+  const handleVoucherChange = (voucherId) => {
+    if (!voucherId) {
+      setSelectedVoucher(null);
+      return;
+    }
+    const voucher = coupons.find((v) => v.coupon_id === voucherId);
+    if (voucher && totalPrice < voucher.min_purchase) {
+      messageApi.warning(`Đơn hàng tối thiểu ${voucher.min_purchase.toLocaleString()}đ`);
+      return;
+    }
+    setSelectedVoucher(voucher);
+  };
+
   return (
     <>
       {contextHolder}
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: 24 }}>
-        <h1 style={{ textAlign: "center" }}>Thông Tin Đặt Hàng</h1>
+      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "24px" }}>
+        <h1 style={{ textAlign: "center", marginBottom: "24px" }}>Thông Tin Đặt Hàng</h1>
 
-        <Row>
-          <label><UserOutlined /> Tên người nhận</label>
-          <Input value={receiverName} onChange={(e) => setReceiverName(e.target.value)} />
+        <Row style={{ width: "100%", textAlign: "start", marginBottom: "16px" }}>
+          <div style={{ width: "100%" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}><UserOutlined /> Tên người nhận</label>
+            <Input size="large" placeholder="Nhập tên người nhận" value={receiverName} onChange={(e) => setReceiverName(e.target.value)} style={{ fontSize: "16px" }} />
+          </div>
         </Row>
 
-        <Row>
-          <label><PhoneOutlined /> Số điện thoại</label>
-          <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+        <Row style={{ width: "100%", textAlign: "start", marginBottom: "16px" }}>
+          <div style={{ width: "100%" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}><PhoneOutlined /> Số điện thoại</label>
+            <Input size="large" placeholder="Nhập số điện thoại" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} maxLength={11} style={{ fontSize: "16px" }} />
+          </div>
         </Row>
 
-        <Row>
-          <label><EnvironmentOutlined /> Địa chỉ</label>
-          <TextArea
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setVerificationResult(null);
-            }}
-            onBlur={verifyAddress}
-          />
+        <Row style={{ width: "100%", textAlign: "start", marginBottom: "16px" }}>
+          <div style={{ width: "100%", position: "relative" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}><EnvironmentOutlined /> Địa chỉ nhận hàng</label>
+            <TextArea rows={3} size="large" placeholder="Nhập địa chỉ chi tiết" value={address} onChange={(e) => { setAddress(e.target.value); setVerificationResult(null); }} onBlur={() => { if (address.trim() && !verificationResult) verifyAddress(); }} style={{ fontSize: "16px" }} />
+            {suggestions.length > 0 && (
+              <Card size="small" style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 1000, marginTop: "4px", maxHeight: "300px", overflow: "auto", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+                <List size="small" dataSource={suggestions} renderItem={(item) => (
+                  <List.Item style={{ cursor: "pointer", padding: "8px 12px" }} onClick={() => selectSuggestion(item)}>
+                    <div style={{ fontWeight: "500" }}><EnvironmentOutlined style={{ marginRight: "8px", color: "#1890ff" }} />{item.displayName}</div>
+                  </List.Item>
+                )} />
+              </Card>
+            )}
+          </div>
         </Row>
 
-        <Row>
-          <label><ShopOutlined /> Chọn cửa hàng</label>
-          <Select value={selectedStore} onChange={setSelectedStore}>
-            {stores.map((s) => (
-              <Option key={s.branch_id} value={s.branch_id}>{s.name}</Option>
+        <Row style={{ width: "100%", textAlign: "start", marginBottom: "48px" }}>
+          <div style={{ width: "100%" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}><ShopOutlined /> Chọn cửa hàng</label>
+            <Select size="large" placeholder="Chọn cửa hàng giao hàng" value={selectedStore} onChange={setSelectedStore} className="newHeight w100">
+              {stores.map((store, index) => {
+                let distanceText = "";
+                if (verificationResult?.valid) {
+                  const dist = calculateDistance(parseFloat(verificationResult.lat), parseFloat(verificationResult.lon), parseFloat(store.lat), parseFloat(store.lng || store.lon));
+                  distanceText = ` - ${dist.toFixed(2)} km`;
+                }
+                return (
+                  // SỬA LỖI KEY: Đảm bảo key không null
+                  <Option key={store.branch_id || index} value={store.branch_id}>
+                    <div className="fl-center" style={{ fontWeight: "400", gap: "12px", justifyContent: "flex-start" }}>
+                      <img src={logo} alt="logo" style={{ width: "30px" }} />
+                      <div style={{ marginTop: "4px" }}>{store.name}</div>
+                      {distanceText && <span style={{ fontSize: "12px", color: " #213547c1", fontWeight: "300", marginTop: "4px" }}>{distanceText}</span>}
+                    </div>
+                  </Option>
+                );
+              })}
+            </Select>
+          </div>
+        </Row>
+
+        <Row style={{ width: "100%", textAlign: "start", marginBottom: "24px" }}>
+          <div style={{ width: "100%" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>📝 Ghi chú cho đơn hàng</label>
+            <TextArea rows={3} placeholder="Nhập ghi chú" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} showCount style={{ fontSize: "15px" }} />
+          </div>
+        </Row>
+
+        {verifying && (
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <Spin size="large" /><div style={{ marginTop: "12px", color: "#666" }}>Đang xác thực địa chỉ...</div>
+          </div>
+        )}
+
+        <div className="mb-6 pt-6" style={{ borderTop: "1px solid #2929293e" }}>
+          <h1 style={{ marginBottom: "16px" }}>Sản phẩm</h1>
+          {productInCart.map((productItem) => (<ProductItem key={productItem.product_id} product={productItem} />))}
+        </div>
+
+        <div className="mb-6 pt-6" style={{ borderTop: "1px solid #2929293e" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}><TagOutlined /> Mã Giảm Giá:</label>
+          <Select showSearch placeholder="Chọn hoặc nhập mã voucher" allowClear style={{ width: "100%", maxWidth: "400px", height: "45px" }} value={selectedVoucher?.coupon_id} onClear={() => setSelectedVoucher(null)} onChange={handleVoucherChange} optionLabelProp="label">
+            {coupons.map((voucher) => (
+              <Select.Option key={voucher.coupon_id} value={voucher.coupon_id} disabled={totalPrice < voucher.min_purchase} label={voucher.description + (totalPrice < voucher.min_purchase ? " (Không đủ điều kiện)" : "")}>
+                <div className="mt-3"><Voucher voucher={voucher} onSelect={setSelectedVoucher} disabled={totalPrice < voucher.min_purchase} /></div>
+              </Select.Option>
             ))}
           </Select>
-        </Row>
+        </div>
 
-        {productInCart.map((p) => (
-          <ProductItem key={p.product_id} product={p} />
-        ))}
+        <div className="mb-6">
+          <div className="info-row"><span className="info-label">Tổng tiền sản phẩm: </span><span className="info-value">{totalPrice.toLocaleString()}đ</span></div>
+          <div className="info-row"><span className="info-label">Tiền vận chuyển: </span><span className="info-value">{shippingFee.toLocaleString()}đ</span></div>
+          {selectedVoucher && (<div className="info-row"><span className="info-label">Giảm giá: </span><span className="info-value">- {discount.toLocaleString()}đ</span></div>)}
+          <div style={{ fontWeight: "500", fontSize: "20px" }} className="info-row pt-3"><span className="info-label">Tổng</span><span className="info-value">{finalPrice.toLocaleString()}đ</span></div>
+          {estimatedDelivery && (<div className="info-row"><span className="info-label">Thời gian giao hàng dự kiến: </span><span className="info-value">{estimatedDelivery?.totalMinutes} - {estimatedDelivery?.totalMinutes + 5} phút</span></div>)}
+        </div>
 
-        <Select
-          value={selectedVoucher?.coupon_id}
-          onChange={(id) =>
-            setSelectedVoucher(coupons.find((v) => v.coupon_id === id) || null)
-          }
-          allowClear
-        >
-          {coupons.map((v) => (
-            <Option key={v.coupon_id} value={v.coupon_id}>{v.description}</Option>
-          ))}
-        </Select>
+        <div className="mb-6 pt-6" style={{ borderTop: "1px solid #2929293e" }}>
+          <h1>Phương thức thanh toán</h1>
+          <Radio.Group className="radio-vertical mt-3 w100" onChange={(e) => setPaymentMethod(e.target.value)} value={paymentMethod}>
+            <Space style={{ justifyContent: "space-around" }} className="fl w100">
+              <Radio value="COD"><img src={cod} alt="COD" style={{ width: "130px" }} /><p>Thanh toán khi nhận hàng (COD)</p></Radio>
+              <Radio value="QR"><img src={qrCodeImg} alt="QR Code" style={{ width: "130px" }} /><p>Thanh toán bằng QR Code</p></Radio>
+            </Space>
+          </Radio.Group>
+        </div>
 
-        <h2>Tổng: {finalPrice.toLocaleString()}đ</h2>
-        {estimatedDelivery && <p>Giao hàng ~ {estimatedDelivery} phút</p>}
-
-        <Radio.Group value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-          <Space>
-            <Radio value="COD">COD</Radio>
-            <Radio value="QR">QR</Radio>
-          </Space>
-        </Radio.Group>
-
-        <Button
-          type="primary"
-          block
-          loading={loading || loadingCreateOrder}
-          onClick={handleSubmit}
-        >
-          Đặt hàng
-        </Button>
+        <div style={{ textAlign: "right" }}>
+          <Button className="btn btn-primary" size="large" loading={loading} onClick={handleSubmit} icon={<CheckCircleOutlined />} disabled={loadingCreateOrder}>Đặt hàng</Button>
+        </div>
       </div>
     </>
   );

@@ -144,7 +144,7 @@ def get_order_history_service(customer_id):
             "prices": prices,  # Cột Giá
 
             "branch_id": order.branch_id if order.branch_id else "Kho tổng",  # Cột Cơ sở
-            "created_at": order.created_at.strftime("%d/%m/%Y"),  # Cột Ngày đặt hàng
+            "created_at": order.created_at,  # Cột Ngày đặt hàng
             "received_at": received_date,  # Cột Ngày nhận hàng
             "total_amount": float(order.total_amount) if order.total_amount else 0,  # Cột Tổng tiền
             "status": status_text  # Cột Trạng thái

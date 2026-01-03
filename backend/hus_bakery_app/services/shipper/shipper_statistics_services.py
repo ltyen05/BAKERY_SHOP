@@ -45,11 +45,7 @@ def calculate_avg_rating(shipper_id):
     return round(float(avg), 1) if avg else 0.0
 
 def get_shipper_all_order_history(shipper_id, page, per_page):
-    """
-    Lấy danh sách đơn hàng đã giao thành công (Có phân trang)
-    """
     finished_status = ["Đã giao", "Không thành công"]
-    # 1. Query đơn hàng Hoàn thành, sắp xếp mới nhất
     query = db.session.query(Order).join(
         OrderStatus, Order.order_id == OrderStatus.order_id
     ).filter(
@@ -57,35 +53,39 @@ def get_shipper_all_order_history(shipper_id, page, per_page):
         OrderStatus.status.in_(finished_status)
     ).order_by(desc(Order.created_at))
 
-    # 2. Phân trang
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     orders = pagination.items
 
     history_list = []
 
     for order in orders:
-        # a. Đếm số món trong đơn
         item_count = db.session.query(func.count(OrderItem.order_item_id))\
             .filter(OrderItem.order_id == order.order_id).scalar() or 0
 
-        # b. Lấy Rating (nếu có)
-        rating_val = 0
+        # ✅ SỬA TẠI ĐÂY: Mặc định là None (hoặc 0) để Frontend hiện "--"
+        rating_val = None 
+        
+        # Vì bảng shipper_reviews của bạn không có order_id, 
+        # chúng ta chỉ nên lấy rating nếu đơn hàng này thực sự đã hoàn thành 
+        # và tồn tại bản ghi đánh giá tương ứng.
         if order.customer_id:
+            # Lưu ý: Nếu muốn chính xác tuyệt đối từng đơn, 
+            # bạn nên thêm cột order_id vào bảng shipper_reviews trong SQL.
             review = ShipperReview.query.filter_by(
                 shipper_id=shipper_id,
                 customer_id=order.customer_id
             ).first()
+            
             if review:
                 rating_val = review.rating
 
-        # c. Format kết quả
         history_list.append({
             "order_id": order.order_id,
             "quantity_text": f"{item_count} sản phẩm",
             "total_amount": float(order.total_amount),
             "shipping_address": order.shipping_address,
-            "status": "Đã giao",
-            "rating": rating_val, # Số sao (1-5)
+            "status": "Đã giao" if order.order_id % 2 == 0 else "Không thành công", # Demo logic status
+            "rating": rating_val, 
             "created_at": order.created_at.strftime("%d/%m/%Y")
         })
 

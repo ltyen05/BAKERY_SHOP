@@ -34,7 +34,6 @@ def get_coupons():
             'begin_date': c.begin_date,
             'end_date': c.end_date,
             'status': c.status,
-            'used_count': c.used_count,
             'created_at': c.created_at,
         })
 

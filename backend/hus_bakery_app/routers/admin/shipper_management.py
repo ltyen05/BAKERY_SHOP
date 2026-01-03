@@ -6,7 +6,7 @@ from hus_bakery_app.services.admin.shipper_management_services import (
     edit_shipper_service, delete_shipper_service,
     total_successful_order_of_shipper
 )
-from hus_bakery_app.services.shipper.shipper_statistics_services import calculate_avg_rating
+from hus_bakery_app.services.shipper.shipper_statistics_service import calculate_avg_rating
 
 shipper_admin_bp = Blueprint('shipper_admin_bp', __name__)
 

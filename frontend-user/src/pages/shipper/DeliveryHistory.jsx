@@ -173,11 +173,23 @@ const OrderHistory = () => {
       dataIndex: "rating",
       key: "rating",
       align: "center",
-      width: 80,
-      render: (rating) => (rating ? `⭐ ${rating}` : "--"),
-    },
-  ];
+      width: 120,
+      render: (rating) => {
+        // Kiểm tra: Nếu rating là null, undefined, hoặc bằng 0 thì hiện "--"
+        if (!rating || rating === 0 || rating === "0") {
+          return <span style={{ color: "#bfbfbf" }}>--</span>;
+        }
 
+        // Chỉ hiển thị sao khi có điểm đánh giá thực từ bảng feedback
+        return (
+          <span style={{ color: "#fadb14", fontWeight: "bold" }}>
+            ⭐ {rating}
+          </span>
+        );
+      },
+    },
+    // =============================
+  ];
   return (
     <div style={{ width: "90%", margin: "0 auto" }}>
       <Card

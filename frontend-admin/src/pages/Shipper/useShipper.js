@@ -1,127 +1,147 @@
 // ===============================================
-// src/pages/Shipper/useShipper.js - FIXED
+// Location: src/pages/Shipper/useShipper.js
+// Status: WITH DEBUG LOGS
 // ===============================================
-import { useState, useEffect, useMemo } from 'react';
-import { message } from 'antd';
-import { useAuth } from '../../context/AuthContext';
-import { shipperApi } from '../../api/shipperApi';
+import { useState, useEffect, useMemo } from "react";
+import { message } from "antd";
+import { useAuth } from "../../context/AuthContext";
+import { shipperApi } from "../../api/shipperApi";
+import { branchApi } from "../../api/branchApi";
 
 export const useShipper = () => {
   const { user, isSuperAdmin, isBranchAdmin, getCurrentBranch } = useAuth();
 
   const [shippers, setShippers] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Xác định branch_id hiện tại
+  // Determine current branch context
   const currentBranchId = useMemo(() => {
     if (isBranchAdmin) {
       return user.branch_id;
     }
-    
+
     if (isSuperAdmin && user.viewing_branch) {
       const branch = getCurrentBranch();
-      console.log('📍 Current branch:', branch);
-      
-      if (!branch || !branch.id) {
-        return null;
-      }
-      
-      if (typeof branch.id === 'number') {
-        return branch.id;
-      }
-      
-      if (typeof branch.id === 'string') {
-        const match = branch.id.match(/\d+/);
-        return match ? parseInt(match[0]) : null;
-      }
-      
-      return null;
+      if (!branch) return null;
+      return branch.id;
     }
-    
+
     return null;
   }, [user, isSuperAdmin, isBranchAdmin, getCurrentBranch]);
 
+  // Load branches metadata based on user role
   useEffect(() => {
-    console.log('🔄 Branch changed, reloading shippers. Current branch_id:', currentBranchId);
+    if (isSuperAdmin) {
+      loadBranches();
+    } else if (isBranchAdmin) {
+      setBranches([
+        {
+          id: user.branch_id,
+          name: user.branch_name,
+        },
+      ]);
+    }
+  }, [isSuperAdmin, isBranchAdmin, user]);
+
+  // Reload shippers whenever the branch context changes
+  useEffect(() => {
     loadShippers();
   }, [currentBranchId]);
+
+  const loadBranches = async () => {
+    try {
+      const response = await branchApi.getAllBranches();
+      if (response.success && response.data) {
+        const mappedBranches = response.data.map((b) => ({
+          id: b.branch_id,
+          name: b.branch_name,
+          ...b,
+        }));
+        setBranches(mappedBranches);
+        console.log("System: Loaded branches count", mappedBranches.length);
+      }
+    } catch (error) {
+      console.error("Error: Failed to load branches", error);
+    }
+  };
 
   const loadShippers = async () => {
     try {
       setLoading(true);
-      
-      console.log('📡 Loading shippers for branch_id:', currentBranchId || 'ALL');
-      
+      console.log(
+        "API: Fetching shippers for branch",
+        currentBranchId || "ALL"
+      );
+
       const response = await shipperApi.getAllShippers(currentBranchId);
-      
+
       if (response.success && response.data) {
         setShippers(response.data);
-        console.log(`✅ Loaded ${response.data.length} shippers`);
       } else {
-        message.error(response.message || 'Không thể tải danh sách shipper');
+        message.error(response.message || "Không thể tải danh sách shipper");
         setShippers([]);
       }
     } catch (error) {
-      console.error('❌ Error loading shippers:', error);
-      message.error('Lỗi khi tải danh sách shipper');
+      console.error("Error: Failed to fetch shippers", error);
+      message.error("Lỗi khi tải danh sách shipper");
       setShippers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ FIXED: Thêm stats cho "Nghỉ việc"
   const stats = useMemo(() => {
     const total = shippers.length;
-    const active = shippers.filter(s => s.status === 'Đang hoạt động').length;
-    const busy = shippers.filter(s => s.status === 'Đang giao').length;
-    const inactive = shippers.filter(s => s.status === 'Nghỉ việc').length;
-    
+    const active = shippers.filter((s) => s.status === "Đang hoạt động").length;
+    const busy = shippers.filter((s) => s.status === "Đang giao").length;
+    const inactive = shippers.filter((s) => s.status === "Nghỉ việc").length;
+
     return { total, active, busy, inactive };
   }, [shippers]);
 
   const filteredShippers = useMemo(() => {
-    return shippers.filter(shipper => {
+    return shippers.filter((shipper) => {
       const query = searchQuery.trim().toLowerCase();
-      const matchSearch = query === '' ||
+      return (
+        query === "" ||
         shipper.name?.toLowerCase().includes(query) ||
         shipper.email?.toLowerCase().includes(query) ||
         shipper.phone?.includes(query) ||
-        shipper.shipper_id.toString() === query;
-      
-      return matchSearch;
+        shipper.shipper_id.toString() === query
+      );
     });
   }, [shippers, searchQuery]);
 
   const addShipper = async (newShipper) => {
     try {
       setLoading(true);
-      
-      // ✅ Branch Admin: Bắt buộc dùng branch_id của mình
-      if (isBranchAdmin) {
-        newShipper.branch_id = currentBranchId;
+      const dataToSubmit = {
+        ...newShipper,
+        branch_id: parseInt(newShipper.branch_id, 10),
+      };
+
+      if (isBranchAdmin && currentBranchId) {
+        dataToSubmit.branch_id = currentBranchId;
       }
-      
-      // Super Admin: Nếu không chọn thì dùng branch đang xem
-      if (!newShipper.branch_id && currentBranchId) {
-        newShipper.branch_id = currentBranchId;
+
+      if (isSuperAdmin && currentBranchId) {
+        dataToSubmit.branch_id = dataToSubmit.branch_id || currentBranchId;
       }
-      
-      const response = await shipperApi.addShipper(newShipper);
-      
+
+      const response = await shipperApi.addShipper(dataToSubmit);
+
       if (response.success) {
-        message.success('Thêm shipper thành công!');
+        message.success("Thêm shipper thành công!");
         await loadShippers();
         return { success: true };
-      } else {
-        message.error(response.message || 'Không thể thêm shipper');
-        return { success: false };
       }
+      message.error(response.message || "Không thể thêm shipper");
+      return { success: false };
     } catch (error) {
-      console.error('❌ Error adding shipper:', error);
-      message.error('Lỗi khi thêm shipper');
+      message.error("Lỗi hệ thống khi thêm shipper");
       return { success: false };
     } finally {
       setLoading(false);
@@ -130,26 +150,41 @@ export const useShipper = () => {
 
   const updateShipper = async (id, updatedShipper) => {
     try {
+      console.group(" UPDATE SHIPPER HOOK");
+      console.log("1. ID nhận được:", id);
+      console.log("2. Data nhận được:", updatedShipper);
+      console.log("3. shipper_name trong data:", updatedShipper.shipper_name);
+
       setLoading(true);
-      
-      // ✅ Branch Admin: Không được đổi branch_id
+
       if (isBranchAdmin) {
         updatedShipper.branch_id = currentBranchId;
       }
-      
+
+      delete updatedShipper.password;
+
+      console.log("4. Data sau khi xử lý:", updatedShipper);
+      console.log("5. Gọi shipperApi.updateShipper...");
+
       const response = await shipperApi.updateShipper(id, updatedShipper);
-      
+
+      console.log("6. Response từ API:", response);
+      console.log("7. Response success:", response.success);
+      console.log("8. Response message:", response.message);
+      console.groupEnd();
+
       if (response.success) {
-        message.success('Cập nhật shipper thành công!');
+        message.success("Cập nhật shipper thành công!");
+        console.log("9. Đang reload shippers...");
         await loadShippers();
         return { success: true };
-      } else {
-        message.error(response.message || 'Không thể cập nhật shipper');
-        return { success: false };
       }
+      message.error(response.message || "Không thể cập nhật shipper");
+      return { success: false };
     } catch (error) {
-      console.error('❌ Error updating shipper:', error);
-      message.error('Lỗi khi cập nhật shipper');
+      console.error(" Error trong updateShipper:", error);
+      console.groupEnd();
+      message.error("Lỗi hệ thống khi cập nhật shipper");
       return { success: false };
     } finally {
       setLoading(false);
@@ -160,16 +195,14 @@ export const useShipper = () => {
     try {
       const response = await shipperApi.deleteShipper(shipperId);
       if (response.success) {
-        message.success('Xóa shipper thành công!');
+        message.success("Xóa shipper thành công!");
         await loadShippers();
         return { success: true };
-      } else {
-        message.error(response.message || 'Không thể xóa shipper');
-        return { success: false };
       }
+      message.error(response.message || "Không thể xóa shipper");
+      return { success: false };
     } catch (error) {
-      console.error('❌ Error deleting shipper:', error);
-      message.error('Lỗi khi xóa shipper');
+      message.error("Lỗi hệ thống khi xóa shipper");
       return { success: false };
     }
   };
@@ -180,31 +213,23 @@ export const useShipper = () => {
   };
 
   const getHeaderTitle = () => {
-    if (isBranchAdmin) {
-      return `Shipper ${user.branch_name || ''}`;
-    }
-    
-    if (isSuperAdmin && user.viewing_branch) {
+    if (isBranchAdmin) return `Shipper ${user.branch_name || ""}`;
+    if (isSuperAdmin && user.viewing_branch)
       return `Shipper ${user.viewing_branch.name}`;
-    }
-    
-    return 'Quản lý Shipper';
+    return "Quản lý Shipper";
   };
 
   const getHeaderSubtitle = () => {
-    if (isBranchAdmin) {
+    if (isBranchAdmin)
       return `Quản lý ${stats.total} shipper chi nhánh ${user.branch_name}`;
-    }
-    
-    if (isSuperAdmin && user.viewing_branch) {
-      return `Đang xem ${stats.total} shipper tại ${user.viewing_branch.name}`;
-    }
-    
+    if (isSuperAdmin && user.viewing_branch)
+      return `Quản lý Shipper của cửa hàng`;
     return `Quản lý ${stats.total} shipper trên toàn hệ thống`;
   };
 
   return {
     shippers,
+    branches,
     filteredShippers,
     stats,
     loading,
@@ -220,6 +245,6 @@ export const useShipper = () => {
     handleSearchChange,
     isSuperAdmin,
     isBranchAdmin,
-    currentBranchId
+    currentBranchId,
   };
 };

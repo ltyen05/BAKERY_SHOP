@@ -45,12 +45,18 @@ const AdminView = () => {
   });
 
   const handleEditClick = (admin) => {
+    // Map status từ English sang Tiếng Việt khi edit
+    const statusMap = {
+      'Active': 'Đang làm việc',
+      'Inactive': 'Nghỉ việc'
+    };
+    
     const formData = {
       manager_id: admin.manager_id,
       username: admin.manager_name, 
       email: admin.email,
       salary: admin.salary || '',
-      status: admin.status || 'Đang làm việc',
+      status: statusMap[admin.status] || admin.status || 'Đang làm việc',
       branch_id: admin.branch_id,
       branch_name: admin.branch_name,
       password: ''
@@ -93,8 +99,16 @@ const AdminView = () => {
   };
 
   const renderStatus = (status) => {
-    const config = STATUS_CONFIG[status] || { color: 'default' };
-    return <Tag color={config.color}>{status}</Tag>;
+    // Map từ English sang Tiếng Việt
+    const statusMap = {
+      'Active': 'Đang làm việc',
+      'Inactive': 'Nghỉ việc'
+    };
+    
+    const displayStatus = statusMap[status] || status;
+    const config = STATUS_CONFIG[displayStatus] || { color: 'default' };
+    
+    return <Tag color={config.color}>{displayStatus}</Tag>;
   };
 
   const columns = [
@@ -105,7 +119,7 @@ const AdminView = () => {
       width: 70,
       align: 'center',
       render: (id) => (
-        <span className="clickable-id">
+        <span className="admin-id">
           {id}
         </span>
       )
@@ -116,9 +130,6 @@ const AdminView = () => {
       width: 250,
       render: (_, record) => (
         <div className="admin-info">
-          <div className="admin-icon">
-            <FiUser />
-          </div>
           <div>
             <div className="admin-name-text">{record.manager_name}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>

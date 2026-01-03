@@ -17,8 +17,10 @@ def get_revenue_per_branch():
     if identity.get("role") != 'employee':
         return jsonify({"error": "Bạn không có quyền thực hiện thao tác này"}), 403
 
-    """Lấy tổng doanh thu của từng chi nhánh"""
-    data = get_total_revenue_per_branch_service()
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+
+    data = get_total_revenue_per_branch_service(month=month, year=year)
     return jsonify({"success": True, "data": data}), 200
 
 
@@ -30,7 +32,10 @@ def get_order_stats():
         return jsonify({"error": "Bạn không có quyền thực hiện thao tác này"}), 403
 
     """Lấy thống kê trạng thái các đơn hàng (đang giao, đã giao, hủy...)"""
-    data = get_order_delivery_stats_service()
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+
+    data = get_order_delivery_stats_service(month=month, year=year)
     return jsonify({"success": True, "data": data}), 200
 
 
@@ -45,8 +50,8 @@ def get_revenue_chart():
     Param: period (month/week) - mặc định là month
     """
     period = request.args.get('period', 'month')
-    if period not in ['month', 'week']:
-        return jsonify({"success": False, "message": "Period không hợp lệ"}), 400
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
 
-    data = get_revenue_by_time_and_branch_service(period)
+    data = get_revenue_by_time_and_branch_service(period, month, year)
     return jsonify({"success": True, "data": data}), 200

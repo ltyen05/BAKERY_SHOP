@@ -287,36 +287,33 @@ export default function ShippingAddressForm() {
       return;
     }
     setLoading(true);
-    try {
-      stores.find((s) => s.branch_id === selectedStore);
+  try {
+    // Gọi API tạo đơn hàng
+    const res = await create_order({
+      recipient_name: receiverName,
+      phone: phoneNumber,
+      total_amount: finalPrice,
+      branch_id: selectedStore,
+      shipping_address: address,
+      payment_method: paymentMethod.toUpperCase(),
+      note: note || null,
+      coupon_id: selectedVoucher?.coupon_id || null,
+    });
 
-      // ===== CALL API CREATE ORDER =====
-      const res = await create_order({
-        recipient_name: receiverName,
-        phone: phoneNumber,
-        total_amount: finalPrice,
-        branch_id: selectedStore,
-        shipping_address: address,
-        payment_method: paymentMethod.toUpperCase(),
-        note: note || null,
-        coupon_id: selectedVoucher?.coupon_id || null,
-      });
-      messageApi.success("Đặt hàng thành công!");
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      messageApi.error(err.message || "Đặt hàng thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Xử lý khi user chọn voucher
-  const handleVoucherChange = (voucherId) => {
-    if (!voucherId) {
-      setSelectedVoucher(null);
-      return;
-    }
+    // Nếu thành công
+    messageApi.success("Đặt hàng thành công!");
+    navigate("/");
+  } catch (err) {
+    // XỬ LÝ LỖI TẠI ĐÂY
+    console.error("Chi tiết lỗi:", err);
+    
+    // Hiển thị thông báo lỗi từ server (Ví dụ: "Không có shipper...") 
+    // lên màn hình cho người dùng thấy
+    messageApi.error(err.message || "Đặt hàng thất bại, vui lòng thử lại sau!");
+  } finally {
+    setLoading(false);
+  }
+};
 
     const voucher = coupons.find((v) => v.coupon_id === voucherId);
     if (totalPrice < voucher.min_purchase) {

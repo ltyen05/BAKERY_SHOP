@@ -139,7 +139,7 @@ function NavBar({ user, onLogout, productInCart }) {
               label: "Tài khoản",
               icon: <UserOutlined />,
               onClick: () => {
-                window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`;
+                window.location.href = `http://localhost:3001?token=${token}`;
               },
             },
           ]
@@ -191,7 +191,8 @@ function NavBar({ user, onLogout, productInCart }) {
 
     try {
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/notification/mark-read/${id}`,        { method: "POST" }
+        `http://localhost:5001/api/notification/mark-read/${id}`,
+        { method: "POST" }
       );
 
       if (!res.ok) {

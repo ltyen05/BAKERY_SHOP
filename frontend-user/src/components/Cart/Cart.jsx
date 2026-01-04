@@ -21,14 +21,13 @@ const ProductCart = ({ onCloseDrawer }) => {
   };
 
   const handleRemove = async (product_id) => {
- 
     if (!user) {
       alert.error("Bạn cần đăng nhập.");
       return;
     }
 
     if (user.role !== "customer") {
-      alert.error("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
+      alert.error("Chỉ khách hàng mới có thể xoá sản phẩm vào giỏ hàng.");
       return;
     }
 

@@ -20,6 +20,7 @@ const PurchasedProductList = lazy(() =>
 const ResetPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ResetPassword")
 );
+const NotFound = lazy(() => import("../pages/user/NotFound/NotFound"));
 const ShipperDashboard = lazy(() =>
   import("../pages/shipper/ShipperDashboard")
 );
@@ -174,5 +175,10 @@ export const routes = [
     name: "Đơn hàng hiện tại",
     onlyShipper: true,
     roles: ["shipper"],
+  },
+  {
+    path: "*",
+    page: NotFound,
+    isShowHeader: false,
   },
 ];

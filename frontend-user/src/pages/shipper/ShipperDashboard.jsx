@@ -9,11 +9,8 @@ import {
   Button,
   Tag,
   Typography,
-  Modal,
   Spin,
   Pagination,
-  message,
-
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -70,8 +67,7 @@ export default function Dashboard() {
     // Fetch song song bằng fetch thuần
     Promise.all(
       urls.map((url) =>
-        fetchWithAuth(`${import.meta.env.VITE_API_URL}/shipper/statistics${url}`, {
-
+        fetchWithAuth(`http://localhost:5001/api/shipper/statistics${url}`, {
           method: "GET",
         }).then((res) => res.json())
       )
@@ -93,20 +89,14 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/shipper/statistics/history?page=${page}&limit=${limit}`,
-
+        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }
       );
       const result = await res.json();
       if (result.status === "success") {
-        setData(
-          result.data.map((item) => ({
-            ...item,
-            status: item.status === "Đã giao" ? "completed" : "failed",
-          }))
-        );
+        setData(result.data);
         setPagination({
           current: page,
           pageSize: limit,

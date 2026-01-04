@@ -11,16 +11,17 @@ export default function Login() {
   const { login } = useAuth();
 
   const handleSubmit = async (values) => {
-    setLoading(true);
-    try {
-      // SỬA DÒNG NÀY: Thêm { user, token } để lấy cả 2 dữ liệu từ hàm login
-      const { user, token } = await login(values.email, values.password);
+    // values từ Ant Design Form: { email, password, remember }
 
-      // Điều hướng theo role
-      if (user.role === "employee" || user.role === "admin") {
-        // Bây giờ biến token đã có dữ liệu, link sẽ chạy đúng
-        window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`;
-      } else if (user.role === "shipper") {
+    setLoading(true);
+
+    try {
+      const user = await login(values.email, values.password);
+
+      // điều hướng theo role
+      if (user.role === "employee") {
+        window.location.href = `http://localhost:3001?token=${token}`;
+      } else if (user.role == "shipper") {
         navigate("/shipperDashBoard", { replace: true });
       } else {
         navigate("/", { replace: true });

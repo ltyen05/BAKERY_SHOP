@@ -67,7 +67,7 @@ export default function ProductList() {
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/product/filter?category_id=${category_id}`
+          `http://localhost:5001/api/product/filter?category_id=${category_id}`
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();

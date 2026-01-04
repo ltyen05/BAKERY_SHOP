@@ -4,7 +4,12 @@ import { ClockCircleOutlined } from "@ant-design/icons";
 import { timeAgo } from "../../utils/timeAgo";
 import { useNavigate } from "react-router-dom";
 import "./notification.css";
-function ReviewNotification({ notification, onMarkRead, handleOpenFeedback }) {
+function ReviewNotification({
+  notification,
+  now,
+  onMarkRead,
+  handleOpenFeedback,
+}) {
   const navigate = useNavigate();
   const handleClick = () => {
     if (notification.unread) {
@@ -58,7 +63,7 @@ function ReviewNotification({ notification, onMarkRead, handleOpenFeedback }) {
               }}
             >
               <p type="secondary" style={{ fontSize: "12px" }}>
-                <ClockCircleOutlined /> {notification.time}
+                <ClockCircleOutlined /> {timeAgo(notification.time, now)}
               </p>
               <Button
                 type="link"

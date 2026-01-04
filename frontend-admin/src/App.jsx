@@ -66,7 +66,7 @@ function AppContent() {
           title="Truy cập bị từ chối"
           subTitle="Bạn cần đăng nhập từ hệ thống chính để vào trang quản trị."
           extra={
-            <Button type="primary" href="http://localhost:3000">
+            <Button type="primary" href="https://husbakery.duckdns.org/login">
               Quay lại Trang chủ
             </Button>
           }

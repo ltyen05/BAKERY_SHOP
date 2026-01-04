@@ -1,12 +1,12 @@
 import { Suspense, useMemo } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout/Layout";
 import { getRoutesForUser } from "./routes";
-import { Spin } from "antd";
+import { Spin, Result, Button } from "antd";
 import "antd/dist/reset.css";
 
-// Fallback loading
+// Fallback loading khi dùng lazy load
 function LoadingFallback() {
   return (
     <div
@@ -15,34 +15,20 @@ function LoadingFallback() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        fontSize: "18px",
-        color: "#666",
       }}
     >
-      <Spin size="large" />
-      <p style={{ marginLeft: 16 }}>Đang tải trang...</p>
+      <Spin size="large" tip="Đang tải trang..." />
     </div>
   );
 }
 
-function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter  basename="/admin">
-        <Suspense fallback={<LoadingFallback />}>
-          <AppContent />
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
-  );
-}
-
-// Renders routes based on logged-in user
 function AppContent() {
   const { user, loading } = useAuth();
 
+  // Tính toán danh sách route dựa trên quyền user
   const routes = useMemo(() => getRoutesForUser(user), [user]);
 
+  // Giao diện loading khi kiểm tra Token/User lúc mới vào trang
   if (loading) {
     return (
       <div
@@ -55,7 +41,7 @@ function AppContent() {
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         }}
       >
-        <Spin size="large" />
+        <Spin size="large" white />
         <p
           style={{
             marginTop: 20,
@@ -64,43 +50,79 @@ function AppContent() {
             fontWeight: 500,
           }}
         >
-          Đang tải thông tin...
+          Đang xác thực quyền truy cập...
         </p>
       </div>
     );
   }
 
+  // Trường hợp không có user (Token sai hoặc chưa đăng nhập)
+  // Vì đây là trang Admin (port 3001), nếu ko có user ta đẩy về trang chính (port 3000)
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <div style={{ padding: "100px 0" }}>
+        <Result
+          status="403"
+          title="Truy cập bị từ chối"
+          subTitle="Bạn cần đăng nhập từ hệ thống chính để vào trang quản trị."
+          extra={
+            <Button type="primary" href="http://localhost:3000">
+              Quay lại Trang chủ
+            </Button>
+          }
+        />
+      </div>
+    );
   }
 
   return (
     <Routes>
-      {/* Layout wrapper */}
       <Route path="/" element={<Layout />}>
-        {/* Khi truy cập / → redirect /dashboard */}
+        {/* Khi vào đường dẫn gốc /admin/ -> tự động nhảy vào dashboard */}
         <Route index element={<Navigate to="dashboard" replace />} />
 
-        {/* Các route của user */}
+        {/* Render danh sách các route động từ cấu hình routes/index.jsx */}
         {routes.map((route) => {
           const Component = route.element;
-          // dùng path relative (không có / đầu)
           return (
-            <Route key={route.path} path={route.path} element={<Component />} />
+            <Route
+              key={route.path}
+              path={route.path} // các path như "dashboard", "products" (không có /)
+              element={<Component />}
+            />
           );
         })}
 
-        {/* Catch all 404 */}
+        {/* Bất kỳ path nào khác bên trong không gian /admin/ sẽ báo 404 */}
         <Route
           path="*"
           element={
-            <div style={{ padding: 40, textAlign: "center" }}>
-              <h1>404 - Page Not Found</h1>
-            </div>
+            <Result
+              status="404"
+              title="404"
+              subTitle="Trang bạn tìm kiếm không tồn tại trong khu vực quản trị."
+              extra={
+                <Button
+                  type="primary"
+                  onClick={() => (window.location.href = "/admin/")}
+                >
+                  Về Dashboard
+                </Button>
+              }
+            />
           }
         />
       </Route>
     </Routes>
+  );
+}
+
+// Giữ AuthProvider bọc ngoài cùng để toàn bộ App có thể dùng useAuth()
+function App() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <AppContent />
+    </Suspense>
   );
 }
 

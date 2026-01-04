@@ -67,7 +67,7 @@ export default function Dashboard() {
     // Fetch song song bằng fetch thuần
     Promise.all(
       urls.map((url) =>
-        fetchWithAuth(`http://localhost:5001/api/shipper/statistics${url}`, {
+        fetchWithAuth(`${import.meta.env.VITE_API_URL}/shipper/statistics${url}`, {
           method: "GET",
         }).then((res) => res.json())
       )
@@ -89,7 +89,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
+       `${import.meta.env.VITE_API_URL}/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }
@@ -331,3 +331,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

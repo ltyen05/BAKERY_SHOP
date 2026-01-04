@@ -20,7 +20,7 @@ export default function Login() {
 
       // điều hướng theo role
       if (user.role === "employee") {
-        window.location.href = `http://localhost:3001?token=${token}`;
+        window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`;
       } else if (user.role == "shipper") {
         navigate("/shipperDashBoard", { replace: true });
       } else {

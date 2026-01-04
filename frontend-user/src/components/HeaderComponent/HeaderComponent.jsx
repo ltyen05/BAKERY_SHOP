@@ -139,7 +139,7 @@ function NavBar({ user, onLogout, productInCart }) {
               label: "Tài khoản",
               icon: <UserOutlined />,
               onClick: () => {
-                window.location.href = `http://localhost:3001?token=${token}`;
+                window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`;
               },
             },
           ]

@@ -10,7 +10,7 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (values) => {
     try {
-      const res = await fetch("http://localhost:5000/api/reset-password", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,3 +98,4 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+

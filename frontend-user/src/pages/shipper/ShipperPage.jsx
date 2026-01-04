@@ -70,7 +70,7 @@ const OrderDetailPage = () => {
     setLoading(true);
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/current-order",
+       `${import.meta.env.VITE_API_URL}/shipper/notifications/current-order`,
         {
           method: "GET",
         }
@@ -124,7 +124,7 @@ const OrderDetailPage = () => {
 
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/update_order_status",
+       `${import.meta.env.VITE_API_URL}/shipper/notifications/update_order_status`,
         {
           method: "POST",
           headers: {
@@ -334,7 +334,7 @@ const OrderDetailPage = () => {
 
                   try {
                     const response = await fetchWithAuth(
-                      "http://localhost:5001/api/shipper/notifications/update_order_status",
+                      `${import.meta.env.VITE_API_URL}/shipper/notifications/update_order_status`,
                       {
                         method: "POST",
                         headers: {
@@ -404,3 +404,4 @@ const OrderDetailPage = () => {
 };
 
 export default OrderDetailPage;
+

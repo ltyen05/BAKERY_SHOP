@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = "http://localhost:5001/api/notification";
+const API = `${import.meta.env.VITE_API_URL}/notification`;
 
 export const notificationApi = {
   mark_read(order_id) {
@@ -21,3 +21,4 @@ export const notificationApi = {
     });
   },
 };
+

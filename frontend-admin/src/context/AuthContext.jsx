@@ -338,8 +338,7 @@ export const AuthProvider = ({ children }) => {
     const fetchBranches = async () => {
       setLoadingBranch(true);
       try {
-        const res = await fetch(
-          "https://husbakery.duckdns.org/api/account/branch_detail",
+        const res = await fetch("/api/account/branch_detail",
           
           {
             method: "GET",
@@ -396,7 +395,7 @@ export const AuthProvider = ({ children }) => {
       if (adminInfoStr) setUser(JSON.parse(adminInfoStr));
 
       // 4️⃣ Gọi API /me để xác thực token
-      const result = await fetchWithAuth("http://localhost:5001/api/me");
+      const result = await fetchWithAuth("/api/me");
 
       if (result.status === 401) {
         console.log("[Auth] Token hết hạn, logout...");
@@ -456,7 +455,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     resetAuthStorage();
     message.info("Đã đăng xuất");
-    window.location.href = "http://localhost:3000/";
+    window.location.href = "/";
   };
 
   // ========== RESET AUTH STORAGE ==========

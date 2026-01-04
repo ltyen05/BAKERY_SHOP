@@ -1,6 +1,7 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = "http://localhost:5001/api";
+const API = import.meta.env.VITE_API_URL;
+console.log("🔥 API URL HIỆN TẠI LÀ:", API);
 
 export const authApi = {
   login(data) {
@@ -21,3 +22,4 @@ export const authApi = {
     return fetchWithAuth(`${API}/me`);
   },
 };
+

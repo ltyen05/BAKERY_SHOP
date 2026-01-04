@@ -3,15 +3,17 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // BẮT BUỘC: Thêm dòng này để fix lỗi trắng trang khi chạy sub-path /admin
+  // 1. Giúp load file JS/CSS từ đường dẫn /admin/
   base: "/admin/", 
   server: {
     host: '0.0.0.0',
     port: 5173,
-    // Đảm bảo không có proxy cũ gây xung đột
-    strictPort: true,
+    // 2. GIẢI QUYẾT LỖI "Blocked request": Cho phép tên miền của bạn đi qua
+    allowedHosts: [
+      'husbakery.duckdns.org'
+    ],
+    // 3. Giúp Hot Reload hoạt động mượt qua Nginx Proxy Manager
     hmr: {
-      // Giúp Hot Reload hoạt động qua HTTPS của Nginx Proxy Manager
       clientPort: 443 
     }
   }

@@ -21,19 +21,6 @@ auth_bp = Blueprint('auth', __name__)
 def index():
     return jsonify({"message": "Welcome to Hus Bakery API"})
 
-
-# @auth_bp.route("/me", methods=["GET"])
-# @jwt_required()
-# def api_get_me():
-#     identity_str = get_jwt_identity()
-#     indetity = json.loads(identity_str)
-#     current_user_id = indetity["id"]
-#     customer_data = get_current_customer_service(current_user_id)
-#     if not customer_data:
-#         return jsonify({"error": "Customer not found"}), 404
-
-#     return jsonify(customer_data), 200
-
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
 def api_get_me():
@@ -59,35 +46,45 @@ def api_get_me():
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
-    data = request.get_json()
-    form = SignupForm(data=data, meta={'csrf': False})
-    if form.validate():
-        new_customer = Customer(
-            name=form.name.data,
-            email=form.email.data,
-            phone=form.phone.data,
-            password=form.password.data
-        )
+    data = request.get_json() or {}
 
-        try:
-            db.session.add(new_customer)
-            db.session.commit()
-            # Thành công
-            return jsonify({
-                "status": "success",
-                "message": "Đăng ký thành công!",
-                "user": {"name": new_customer.name, "email": new_customer.email}
-            }), 201
-        except Exception as e:
-            db.session.rollback()
-            # Lỗi server
-            return jsonify({"status": "error", "message": str(e)}), 500
+    # ⚠️ SignupForm là wtforms.Form → KHÔNG dùng meta, KHÔNG CSRF
+    form = SignupForm(data=data)
 
-    # Nếu dữ liệu sai
-    return jsonify({
-        "status": "fail",
-        "errors": form.errors
-    }), 400
+    # ❌ Dữ liệu không hợp lệ
+    if not form.validate():
+        return jsonify({
+            "status": "fail",
+            "errors": form.errors
+        }), 400
+
+    new_customer = Customer(
+        name=form.name.data,
+        email=form.email.data,
+        phone=form.phone.data,
+        password=form.password.data
+    )
+
+    try:
+        db.session.add(new_customer)
+        db.session.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Đăng ký thành công!",
+            "user": {
+                "name": new_customer.name,
+                "email": new_customer.email
+            }
+        }), 201
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": "Lỗi hệ thống"
+        }), 500
+
 
 
 @auth_bp.route('/check-email', methods=['POST'])
@@ -152,11 +149,6 @@ def login():
 
     except Exception as e:
         print("Lỗi Server:", str(e))
-        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
-        print("LỖI SERVER (500):", str(e))
-        import traceback
-        traceback.print_exc()
-        return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
         return jsonify({"status": "error", "message": "Lỗi Server: " + str(e)}), 500
 
 

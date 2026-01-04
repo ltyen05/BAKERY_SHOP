@@ -2,14 +2,13 @@ from flask_jwt_extended import create_access_token
 from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
-from werkzeug.security import check_password_hash
 from flask_mail import Message
 from datetime import timedelta
-from flask_jwt_extended import decode_token
-from werkzeug.security import generate_password_hash
-import json
-# Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
 from .. import db, mail
+import json
+import jwt
+from flask import current_app
+from werkzeug.security import generate_password_hash
 
 
 def get_current_customer_service(customer_id):
@@ -119,12 +118,6 @@ def request_password_reset(email):
     except Exception as e:
         print("MAIL ERROR >>>", repr(e))
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
-
-
-import json
-import jwt
-from flask import current_app
-from werkzeug.security import generate_password_hash
 
 
 def reset_password_with_token(token, new_password):

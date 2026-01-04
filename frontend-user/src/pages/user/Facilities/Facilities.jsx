@@ -3,38 +3,13 @@ import starIcon from "../../../assets/Star.svg";
 import { Row, Col } from "antd";
 import phone from "../../../assets/phone.svg";
 import { useAccount } from "../../../context/AccountContext";
-// ... các phần import giữ nguyên
-
 export default function Facilities() {
   const { branches } = useAccount();
 
-  // 1. Kiểm tra nếu chưa có dữ liệu (đang load)
-  if (!branches) {
-    return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <Spin size="large" tip="Đang tải danh sách chi nhánh..." />
-      </div>
-    );
-  }
-
-  // 2. LẤY MẢNG TỪ TRONG DETAILS RA
-  // Dựa vào log của bạn, dữ liệu nằm trong branches.details
-  const branchList = branches.details || [];
-
-  // 3. Nếu mảng rỗng
-  if (branchList.length === 0) {
-    return (
-      <div style={{ padding: "50px" }}>
-        <Empty description="Hiện chưa có thông tin chi nhánh" />
-      </div>
-    );
-  }
-
   return (
     <div>
-      {/* 4. SỬ DỤNG branchList ĐỂ MAP */}
-      {branchList.map((branch, index) => (
-        <div key={branch.branch_id || index} className="fl-center" style={{ textAlign: "start" }}>
+      {branches.map((branch) => (
+        <div className="fl-center" style={{ textAlign: "start" }}>
           <Row
             className="mt-12 mb-12"
             style={{ width: "95%", maxWidth: "1200px" }}
@@ -57,7 +32,7 @@ export default function Facilities() {
                   {branch.name}
                 </h1>
                 <div className="rating">
-                  <span>4.5</span>
+                  <span>{branch.rating}</span>
                   <img src={starIcon} alt="star" />
                 </div>
               </div>
@@ -72,8 +47,8 @@ export default function Facilities() {
             </Col>
             <Col xs={24} md={24} xl={12}>
               <iframe
-                title={`map_${branch.branch_id || index}`}
-                src={branch.mapSrc} // Lưu ý: Kiểm tra lại tên field này trong log (có thể là mapSrc hoặc map_link)
+                title="map_Src"
+                src={branch.mapSrc}
                 style={{
                   border: 0,
                   height: "450px",

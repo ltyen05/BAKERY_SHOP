@@ -28,7 +28,7 @@ function LoadingFallback() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter  basename="/admin">
         <Suspense fallback={<LoadingFallback />}>
           <AppContent />
         </Suspense>

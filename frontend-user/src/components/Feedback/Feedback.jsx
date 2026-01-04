@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Rate, Button, message } from "antd";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
-
 const FeedbackComponent = ({ order_id }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [ratings, setRatings] = useState({
@@ -60,12 +59,11 @@ const FeedbackComponent = ({ order_id }) => {
       <div
         style={{
           backgroundColor: "transparent",
-          textAlign: "center",
           maxWidth: 500,
           borderRadius: 8,
           flexDirection: "column",
         }}
-        className="fl-center w100"
+        className="fl-center w100 text-center"
       >
         <h2
           style={{
@@ -146,3 +144,4 @@ const FeedbackComponent = ({ order_id }) => {
 };
 
 export default FeedbackComponent;
+

@@ -20,6 +20,7 @@ const PurchasedProductList = lazy(() =>
 const ResetPassword = lazy(() =>
   import("../pages/auth/ForgotPassword/ResetPassword")
 );
+const NotFound = lazy(() => import("../pages/user/NotFound/NotFound"));
 const ShipperDashboard = lazy(() =>
   import("../pages/shipper/ShipperDashboard")
 );
@@ -150,7 +151,7 @@ export const routes = [
     name: "Đổi mật khẩu",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "shipper", "admin"],
+    roles: ["customer", "shipper", "Quản lý", "Siêu quản lý"],
   },
   {
     path: "/payment",
@@ -176,3 +177,4 @@ export const routes = [
     roles: ["shipper"],
   },
 ];
+

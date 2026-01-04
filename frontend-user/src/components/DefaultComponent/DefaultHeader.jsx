@@ -7,13 +7,15 @@ const DefaultHeader = ({ children }) => {
   const { productInCart, refetchCart, setProductInCart } = useOrder();
   return (
     <div className="bg-color">
-      <HeaderComponent
-        user={user}
-        onLogout={logout}
-        productInCart={productInCart}
-        refetchCart={refetchCart}
-        setProductInCart={setProductInCart}
-      />
+      <div>
+        <HeaderComponent
+          user={user}
+          onLogout={logout}
+          productInCart={productInCart}
+          refetchCart={refetchCart}
+          setProductInCart={setProductInCart}
+        />
+      </div>
 
       {children}
       <Footer />

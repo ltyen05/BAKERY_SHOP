@@ -18,7 +18,7 @@ export function AccountProvider({ children }) {
 
         if (res.ok) {
           // backend có thể trả { data: [...] } hoặc [...]
-          setBranches(data.branch_details || data);
+          setBranches(data.details || data);
         } else {
           console.error(data.message || "Fetch branch thất bại");
         }

@@ -52,7 +52,6 @@ function NavBar({ user, onLogout }) {
     try {
       const res = await fetchWithAuth(
         `${import.meta.env.VITE_API_URL}/shipper/notifications/check-status`,
-
         { method: "GET" }
       );
 
@@ -89,8 +88,7 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/shipper/notifications/all-notifications?page=${page}`,
-
+       `${import.meta.env.VITE_API_URL}/shipper/notifications/all-notifications?page=${page}`,
         { method: "GET" }
       );
 
@@ -149,9 +147,8 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/shipper/notifications/mark-read/${id}`,
-                { method: "POST" }
-
+       `${import.meta.env.VITE_API_URL}/shipper/notifications/mark-read/${id}`,
+        { method: "POST" }
       );
 
       if (!res.ok) {
@@ -447,3 +444,4 @@ function NavBar({ user, onLogout }) {
 }
 
 export default NavBar;
+

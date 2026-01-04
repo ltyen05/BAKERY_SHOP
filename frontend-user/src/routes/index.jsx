@@ -151,7 +151,7 @@ export const routes = [
     name: "Đổi mật khẩu",
     isShowHeader: true,
     isShowBreadCrumbs: true,
-    roles: ["customer", "shipper", "admin"],
+    roles: ["customer", "shipper", "Quản lý", "Siêu quản lý"],
   },
   {
     path: "/payment",
@@ -176,9 +176,5 @@ export const routes = [
     onlyShipper: true,
     roles: ["shipper"],
   },
-  {
-    path: "*",
-    page: NotFound,
-    isShowHeader: false,
-  },
 ];
+

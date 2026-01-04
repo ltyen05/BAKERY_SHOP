@@ -191,7 +191,7 @@ function NavBar({ user, onLogout, productInCart }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/notification/mark-read/${id}`,
+       `${import.meta.env.VITE_API_URL}/notification/mark-read/${id}`,
         { method: "POST" }
       );
 
@@ -506,4 +506,5 @@ function NavBar({ user, onLogout, productInCart }) {
 }
 
 export default NavBar;
+
 

@@ -1,7 +1,10 @@
+// FILE: src/pages/Products/utils/api.js
+// FIXED: Changed baseURL to production domain
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5001", // đổi theo backend của cậu
+  // 👇 SỬA Ở ĐÂY: Trỏ về domain thật
+  baseURL: "https://husbakery.duckdns.org", 
   headers: {
     "Content-Type": "application/json",
   },

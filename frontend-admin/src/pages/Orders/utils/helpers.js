@@ -1,5 +1,6 @@
 // ===============================================
 // Location: src/pages/Orders/utils/helpers.js
+// FIXED: Changed image URL to production domain
 // ===============================================
 
 import { FiClock, FiTruck, FiPackage } from "react-icons/fi";
@@ -45,11 +46,15 @@ export const getStatusColor = (status) => {
 // ============= IMAGE HELPERS =============
 export const getImageUrl = (imageUrl) => {
   if (!imageUrl) return null;
+  
+  // Nếu ảnh đã là link full (http...) thì giữ nguyên
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl;
   }
+
+  // 👇 SỬA Ở ĐÂY: Trỏ về domain thật thay vì localhost
   if (imageUrl.startsWith('/')) {
-    return `http://localhost:5001${imageUrl}`;
+    return `https://husbakery.duckdns.org${imageUrl}`;
   }
-  return `http://localhost:5001/${imageUrl}`;
+  return `https://husbakery.duckdns.org/${imageUrl}`;
 };

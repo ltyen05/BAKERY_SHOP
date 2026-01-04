@@ -1,24 +1,25 @@
-from flask_jwt_extended import create_access_token
+import os
+import json
+import jwt
+from flask import current_app
+from flask_jwt_extended import create_access_token, decode_token
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Message
+from datetime import timedelta
+
+# Import models
 from ..models.customer import Customer
 from ..models.employee import Employee
 from ..models.shipper import Shipper
-from werkzeug.security import check_password_hash
-from flask_mail import Message
-from datetime import timedelta
-from flask_jwt_extended import decode_token
-from werkzeug.security import generate_password_hash
-import json
-# Import db và mail (Giả sử bạn đã khởi tạo mail ở __init__.py cùng chỗ với db)
+
+# Import db và mail
 from .. import db, mail
 
+# --- CÁC HÀM GET INFO ---
 
 def get_current_customer_service(customer_id):
-    # Chỉ tìm kiếm trong bảng Customer
     user = Customer.query.get(customer_id)
-
-    if not user:
-        return None
-
+    if not user: return None
     return {
         "user_id": user.customer_id,
         "full_name": user.name,
@@ -29,13 +30,9 @@ def get_current_customer_service(customer_id):
         "role": "customer"
     }
 
-
 def get_current_shipper_service(shipper_id):
     user = Shipper.query.get(shipper_id)
-
-    if not user:
-        return None
-
+    if not user: return None
     return {
         "user_id": user.shipper_id,
         "full_name": user.name,
@@ -44,14 +41,10 @@ def get_current_shipper_service(shipper_id):
         "role": "shipper"
     }
 
-
 def get_current_admin_service(employee_id):
     employee = Employee.query.get(employee_id)
-
-    if not employee:
-        return None
-
-    info = {
+    if not employee: return None
+    return {
         "id": employee.employee_id,
         "full_name": employee.employee_name,
         "role": employee.role_name,
@@ -60,8 +53,6 @@ def get_current_admin_service(employee_id):
         "status": employee.status,
         "branch_id": employee.branch_id,
     }
-    return info
-
 
 def get_user_by_id_and_role(user_id, role):
     if role == 'customer': return Customer.query.get(user_id)
@@ -69,6 +60,7 @@ def get_user_by_id_and_role(user_id, role):
     if role == 'shipper': return Shipper.query.get(user_id)
     return None
 
+# --- LOGIC QUÊN MẬT KHẨU (QUAN TRỌNG ĐÃ SỬA) ---
 
 def find_user_instance(email):
     """Tìm user trong 3 bảng và trả về (user_object, role)"""
@@ -76,21 +68,18 @@ def find_user_instance(email):
     if user: return user, 'customer'
 
     user = Employee.query.filter_by(email=email).first()
-    if user:
-        return user, 'employee'
+    if user: return user, 'employee'
 
     user = Shipper.query.filter_by(email=email).first()
     if user: return user, 'shipper'
 
     return None, None
 
-
 def request_password_reset(email):
     user, role = find_user_instance(email)
     if not user:
         return False, "Email này chưa được đăng ký trong hệ thống."
 
-    # 🔥 FIX: identity PHẢI là string
     identity_data = json.dumps({
         "id": user.get_id(),
         "role": role,
@@ -102,7 +91,18 @@ def request_password_reset(email):
         expires_delta=timedelta(minutes=15)
     )
 
-    link = f"http://localhost:3000/resetPassword?token={reset_token}"
+    # --- ĐOẠN CODE ĐÃ SỬA ---
+    # Tự động chọn domain dựa trên vai trò
+    if role == 'customer':
+        # Nếu là khách hàng, dùng FRONTEND_URL (Cổng 3000)
+        base_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    else:
+        # Nếu là nhân viên/shipper, dùng FRONTEND_ADMIN_URL (Cổng 3001)
+        base_url = os.environ.get('FRONTEND_ADMIN_URL', 'http://localhost:3001')
+
+    # Tạo link reset hoàn chỉnh
+    link = f"{base_url}/resetPassword?token={reset_token}"
+    # ------------------------
 
     try:
         msg = Message(
@@ -120,24 +120,16 @@ def request_password_reset(email):
         print("MAIL ERROR >>>", repr(e))
         return False, "Gửi email thất bại. Vui lòng thử lại sau."
 
-
-import json
-import jwt
-from flask import current_app
-from werkzeug.security import generate_password_hash
-
-
 def reset_password_with_token(token, new_password):
     try:
-        # 1. Giải mã bằng thư viện jwt gốc để tránh lỗi "Subject must be a string"
+        # 1. Giải mã bằng thư viện jwt gốc
         secret_key = current_app.config['JWT_SECRET_KEY']
-        # Không dùng decode_token của flask-jwt-extended ở đây
         decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
 
-        # 2. Lấy dữ liệu identity từ trường 'sub'
+        # 2. Lấy dữ liệu identity
         identity_raw = decoded.get('sub')
 
-        # 3. Xử lý linh hoạt: Nếu là chuỗi JSON thì loads, nếu là dict thì dùng luôn
+        # 3. Xử lý linh hoạt JSON
         if isinstance(identity_raw, str):
             try:
                 identity = json.loads(identity_raw)
@@ -146,18 +138,14 @@ def reset_password_with_token(token, new_password):
         else:
             identity = identity_raw
 
-        # 4. Kiểm tra ID và Role (Xử lý cả trường hợp identity là dict hoặc giá trị đơn)
+        # 4. Kiểm tra ID và Role
         if isinstance(identity, dict):
             user_id = identity.get('id')
             role = identity.get('role')
-            token_type = identity.get('type')
         else:
-            # Trường hợp identity chỉ chứa ID đơn thuần
             user_id = identity
-            role = 'customer'  # Mặc định hoặc xử lý thêm
-            token_type = 'reset'
+            role = 'customer'
 
-        # Kiểm tra an toàn
         if not user_id:
             return False, "Token không chứa ID người dùng."
 
@@ -187,35 +175,25 @@ def reset_password_with_token(token, new_password):
         print(f"CRITICAL RESET ERROR: {str(e)}")
         return False, "Link không hợp lệ hoặc lỗi hệ thống."
 
-
 def generate_token(user, role):
     identity_data = json.dumps({"id": user.get_id(), "role": role})
-
     return create_access_token(
         identity=identity_data,
         expires_delta=timedelta(days=1)
     )
 
-
-# Thêm vào services/auth_services.py
-
 def check_email_exist(email):
-    # Kiểm tra lần lượt trong 3 bảng
-    if Customer.query.filter_by(email=email).first():
-        return True
-    if Employee.query.filter_by(email=email).first():
-        return True
-    if Shipper.query.filter_by(email=email).first():
-        return True
+    if Customer.query.filter_by(email=email).first(): return True
+    if Employee.query.filter_by(email=email).first(): return True
+    if Shipper.query.filter_by(email=email).first(): return True
     return False
-
 
 def login_user(email, password):
     # Try Customer
     user = Customer.query.filter_by(email=email).first()
     if user:
         if user.check_password(password):
-            return user, "customer", None  # Thành công (Error = None)
+            return user, "customer", None
         else:
             return None, None, "Mật khẩu không đúng!"
 

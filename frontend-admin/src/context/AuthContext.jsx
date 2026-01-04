@@ -339,7 +339,8 @@ export const AuthProvider = ({ children }) => {
       setLoadingBranch(true);
       try {
         const res = await fetch(
-          "http://localhost:5001/api/account/branch_detail",
+          "https://husbakery.duckdns.org/api/account/branch_detail",
+          
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

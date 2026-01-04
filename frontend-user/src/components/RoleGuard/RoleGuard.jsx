@@ -31,7 +31,7 @@ const RoleGuard = ({ roles, children }) => {
       return <Navigate to="/" replace />;
     }
     if (currentRole === "Quản lý" || currentRole === "Siêu quản lý") {
-      return (window.location.href = `http://localhost:3001?token=${token}`);
+      return (window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`);
     }
   }
 
@@ -57,3 +57,4 @@ const RoleGuard = ({ roles, children }) => {
 };
 
 export default RoleGuard;
+

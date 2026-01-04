@@ -44,7 +44,7 @@ def get_total_products(year, month=None, day=None, branch_id=None):
     return int(res) if res else 0
 
 
-def get_weekly_revenue_overview():
+def get_weekly_revenue_overview(branch_id = None):
     today = datetime.now()
     start_of_week = today - timedelta(days=today.weekday())
     start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)

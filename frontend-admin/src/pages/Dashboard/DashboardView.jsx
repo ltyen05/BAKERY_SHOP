@@ -59,6 +59,7 @@ const DashboardView = () => {
 
   // ===== BRANCH ADMIN =====
   if (isAdmin) {
+    // CHỈ LẤY 3 TRẠNG THÁI và MAP SANG TIẾNG VIỆT
     const statusMapping = {
       'Pending': 'Chưa xử lý',
       'Delivered': 'Đã giao',
@@ -151,7 +152,7 @@ const DashboardView = () => {
           </div>
         </div>
 
-        {/* DOANH THU */}
+        {/*  CHỈ DOANH THU */}
         <Row gutter={[16, 16]}>
           <Col xs={24}>
             <Card
@@ -164,7 +165,7 @@ const DashboardView = () => {
               <Statistic
                 title={
                   <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16 }}>
-                    💰 Doanh thu tháng {selectedMonth}/{selectedYear}
+                     Doanh thu tháng {selectedMonth}/{selectedYear}
                   </span>
                 }
                 value={branchStats.amount || 0}
@@ -257,6 +258,7 @@ const DashboardView = () => {
       }]
     };
 
+    // CHỈ LẤY 3 TRẠNG THÁI và MAP SANG TIẾNG VIỆT
     const statusMapping = {
       'Pending': 'Chưa xử lý',
       'Delivered': 'Đã giao',
@@ -387,7 +389,7 @@ const DashboardView = () => {
               <Statistic
                 title={
                   <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>
-                    Tổng đơn hàng
+                     Tổng đơn hàng
                   </span>
                 }
                 value={totalOrders}

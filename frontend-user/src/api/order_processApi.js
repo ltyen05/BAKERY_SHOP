@@ -1,6 +1,7 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = "http://localhost:5001/api";
+const API = import.meta.env.VITE_API_URL;
+
 
 export const orderApi = {
   get_coupons() {
@@ -44,3 +45,4 @@ export const orderApi = {
     });
   },
 };
+

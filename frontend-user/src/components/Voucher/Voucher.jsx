@@ -1,11 +1,20 @@
 import { Row, Col, Button } from "antd";
 import logo from "../../assets/logo-noText.svg";
 import { RightOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 export default function Voucher({
   voucher,
   setSelectedVoucher,
   disabled = false,
 }) {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    // Lưu voucher được chọn
+    setSelectedVoucher(voucher);
+
+    // Điều hướng sang trang Menu
+    navigate("/menu/bread");
+  };
   return (
     <div style={{ textAlign: "start", maxWidth: "360px" }}>
       <Row>
@@ -45,7 +54,7 @@ export default function Voucher({
                 }}
                 disabled={disabled}
                 className="out-line"
-                onClick={() => setSelectedVoucher(voucher)}
+                onClick={handleClick}
               >
                 Dùng ngay <RightOutlined />
               </Button>

@@ -128,6 +128,39 @@ export function OrderProvider({ children }) {
       setAddingToCart(false);
     }
   };
+  const changeQuantity = async (product_id, quantity) => {
+    // Nếu quantity < 1 thì giữ nguyên, không gửi request
+    if (quantity < 1) return;
+
+    const previousCart = [...productInCart];
+
+    // Optimistic update
+    setProductInCart((prev) =>
+      prev.map((item) =>
+        item.product_id === product_id ? { ...item, quantity } : item
+      )
+    );
+
+    try {
+      const res = await orderApi.changeQuantity({ product_id, quantity });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Cập nhật số lượng thất bại");
+      }
+
+      // Sync lại cart với server
+      await fetchCart();
+
+      return data;
+    } catch (err) {
+      // Rollback nếu có lỗi
+      setProductInCart(previousCart);
+      console.error("Change quantity error:", err);
+      throw err;
+    }
+  };
+
   const create_order = async (data) => {
     // Thay vì 7 tham số, chỉ nhận 1 object 'data'
     setLoadingCreateOrder(true);
@@ -202,7 +235,7 @@ export function OrderProvider({ children }) {
   };
   // Fetch khi user đăng nhập
   useEffect(() => {
-    if (user && user.role === "customer") {
+    if (user && user?.role === "customer") {
       fetchCoupons();
       fetchCart();
     } else {
@@ -231,6 +264,7 @@ export function OrderProvider({ children }) {
         removeFromCart,
         create_order,
         loadingCreateOrder,
+        changeQuantity,
       }}
     >
       {children}

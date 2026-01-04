@@ -39,7 +39,7 @@ export default function ProductList() {
 
   useEffect(() => {
     const fetchBoughtProducts = async () => {
-      if (!user || user.role !== "customer") return;
+      if (!user || user?.role !== "customer") return;
 
       setLoading(true);
       const startTime = Date.now();
@@ -79,7 +79,7 @@ export default function ProductList() {
       return;
     }
 
-    if (user.role !== "customer") {
+    if (user?.role !== "customer") {
       alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
       return;
     }

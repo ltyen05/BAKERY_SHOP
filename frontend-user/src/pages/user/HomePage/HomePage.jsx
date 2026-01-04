@@ -50,7 +50,7 @@ function HomePage() {
       return;
     }
 
-    if (user.role !== "customer") {
+    if (user?.role !== "customer") {
       alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
       return;
     }
@@ -285,7 +285,7 @@ function HomePage() {
               </p>
             </Col>
 
-            <Col xs={24} md={10} xl={5} className="feature-card">
+            <Col xs={24} md={10} xl={5} className="feature-card mb-6">
               <div className="icon-wrapper fl-center icon-wrapper-4">
                 <UserOutlined
                   style={{ fontSize: "32px", color: " rgba(46, 33, 0, 1)" }}

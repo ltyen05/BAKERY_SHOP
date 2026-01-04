@@ -32,7 +32,7 @@ export default function Facilities() {
                   {branch.name}
                 </h1>
                 <div className="rating">
-                  <span>4.5</span>
+                  <span>{branch.rating}</span>
                   <img src={starIcon} alt="star" />
                 </div>
               </div>

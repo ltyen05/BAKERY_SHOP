@@ -139,7 +139,7 @@ function NavBar({ user, onLogout, productInCart }) {
               label: "Tài khoản",
               icon: <UserOutlined />,
               onClick: () => {
-                window.location.href = `http://localhost:3001?token=${token}`;
+                window.location.href = `http://localhost:3001/admin?token=${token}`;
               },
             },
           ]
@@ -191,7 +191,7 @@ function NavBar({ user, onLogout, productInCart }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5000/api/notification/mark-read/${id}`,
+        `http://localhost:5001/api/notification/mark-read/${id}`,
         { method: "POST" }
       );
 

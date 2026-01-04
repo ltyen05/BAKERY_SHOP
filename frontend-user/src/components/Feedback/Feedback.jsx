@@ -26,7 +26,7 @@ const FeedbackComponent = ({ order_id }) => {
     try {
       // hoặc từ context/state nếu bạn dùng
       const res = await fetchWithAuth(
-        "http://localhost:5000/api/feedback/add",
+        "http://localhost:5001/api/feedback/add",
         {
           method: "POST",
           body: JSON.stringify({
@@ -59,12 +59,11 @@ const FeedbackComponent = ({ order_id }) => {
       <div
         style={{
           backgroundColor: "transparent",
-          textAlign: "center",
           maxWidth: 500,
           borderRadius: 8,
           flexDirection: "column",
         }}
-        className="fl-center w100"
+        className="fl-center w100 text-center"
       >
         <h2
           style={{

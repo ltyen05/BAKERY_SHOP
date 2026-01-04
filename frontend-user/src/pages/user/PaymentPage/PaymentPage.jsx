@@ -194,10 +194,19 @@ export default function ShippingAddressForm() {
 
   // Chọn địa chỉ từ gợi ý
   const selectSuggestion = (suggestion) => {
-    setAddress(suggestion.displayName);
+    // Tách chuỗi thành mảng theo dấu phẩy
+    const parts = suggestion.displayName.split(",");
+
+    // Bỏ 2 phần tử cuối
+    const trimmedParts = parts.slice(0, -2);
+
+    // Ghép lại thành chuỗi
+    const cleanedAddress = trimmedParts.join(",");
+
+    setAddress(cleanedAddress);
     setVerificationResult({
       valid: true,
-      displayName: suggestion.displayName,
+      displayName: cleanedAddress, // dùng địa chỉ đã loại bỏ 2 phần tử cuối
       lat: suggestion.lat,
       lon: suggestion.lon,
       address: suggestion.address,

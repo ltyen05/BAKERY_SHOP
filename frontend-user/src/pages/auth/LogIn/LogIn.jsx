@@ -19,9 +19,9 @@ export default function Login() {
       const user = await login(values.email, values.password);
 
       // điều hướng theo role
-      if (user.role === "employee") {
+      if (user?.role === "employee") {
         window.location.href = `http://localhost:3001?token=${token}`;
-      } else if (user.role == "shipper") {
+      } else if (user?.role == "shipper") {
         navigate("/shipperDashBoard", { replace: true });
       } else {
         navigate("/", { replace: true });

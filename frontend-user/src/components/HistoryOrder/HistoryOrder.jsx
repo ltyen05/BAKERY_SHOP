@@ -127,10 +127,23 @@ const OrderHistory = () => {
       key: "created_at",
       align: "center",
       width: 110,
-      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+      sorter: (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+
       sortOrder:
-        sortedInfo.columnKey === "created_date" ? sortedInfo.order : null,
-      render: (date) => date,
+        sortedInfo.columnKey === "created_at" ? sortedInfo.order : null,
+
+      // ✅ CHỈ FORMAT KHI RENDER (UTC+7)
+      render: (date) =>
+        new Date(date).toLocaleString("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          hour12: false,
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
     },
     {
       title: "Ngày nhận",
@@ -164,12 +177,6 @@ const OrderHistory = () => {
       key: "status",
       align: "center",
       width: 140,
-      // filters: [
-      //   { text: "Hoàn thành", value: "completed" },
-      //   { text: "Không thành công", value: "failed" },
-      // ],
-      // filteredValue: filteredInfo.status || null,
-      // onFilter: (value, record) => record.status === value,
       render: (status) => (
         <Tag className="px-3 py-1 text-xs font-medium">{status}</Tag>
       ),
@@ -209,11 +216,10 @@ const OrderHistory = () => {
           className="shadow-xl rounded-2xl overflow-hidden border-0"
           style={{ backgroundColor: "#fdfbf5", border: "none" }}
         >
-          <div
-            style={{ textAlign: "start" }}
-            className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6"
-          >
-            <Title level={2}>Lịch sử mua hàng</Title>
+          <div className="text-start">
+            <Title level={2} style={{ color: "#3e2723" }}>
+              Lịch sử mua hàng
+            </Title>
           </div>
 
           <div className="mb-6 mt-3">
@@ -345,10 +351,10 @@ const OrderHistory = () => {
           background: #f97316;
         }
           .ant-table,
-.ant-table-container,
-.ant-table-cell {
-  border-color: #7a4f2b !important; /* màu bạn muốn */
-}
+        .ant-table-container,
+        .ant-table-cell {
+          border-color: #7a4f2b !important; /* màu bạn muốn */
+        }
 
 
       `}</style>

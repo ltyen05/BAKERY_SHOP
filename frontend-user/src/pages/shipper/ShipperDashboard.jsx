@@ -96,12 +96,7 @@ export default function Dashboard() {
       );
       const result = await res.json();
       if (result.status === "success") {
-        setData(
-          result.data.map((item) => ({
-            ...item,
-            status: item.status === "Đã giao" ? "completed" : "failed",
-          }))
-        );
+        setData(result.data);
         setPagination({
           current: page,
           pageSize: limit,

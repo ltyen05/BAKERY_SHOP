@@ -109,7 +109,7 @@ export default function ProductDetail() {
       return;
     }
 
-    if (user.role !== "customer") {
+    if (user?.role !== "customer") {
       alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
       return;
     }

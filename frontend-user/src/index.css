@@ -35,6 +35,13 @@ body,
 .text-main-color {
   color: #4e423d;
 }
+.text-center {
+  text-align: center !important;
+}
+
+.text-start {
+  text-align: start !important;
+}
 .my-dropdown {
   width: 150px;
 }
@@ -48,7 +55,7 @@ body,
   font-size: 16px;
 }
 .bg-color {
-  background-color: #fdfbf5;
+  background-color: #fdfbf5 !important;
 }
 .out-line {
   border: none !important;

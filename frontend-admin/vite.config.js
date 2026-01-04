@@ -3,9 +3,16 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  // BẮT BUỘC: Thêm dòng này để fix lỗi trắng trang khi chạy sub-path /admin
+  base: "/admin/", 
   server: {
-    host: '0.0.0.0', // Bắt buộc để chạy được trong Docker
-    port: 5173,      // Cổng mặc định của Vite
-    // Xóa sạch phần proxy đi để tránh xung đột đường dẫn
+    host: '0.0.0.0',
+    port: 5173,
+    // Đảm bảo không có proxy cũ gây xung đột
+    strictPort: true,
+    hmr: {
+      // Giúp Hot Reload hoạt động qua HTTPS của Nginx Proxy Manager
+      clientPort: 443 
+    }
   }
 })

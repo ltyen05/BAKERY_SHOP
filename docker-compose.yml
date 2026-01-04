@@ -25,6 +25,7 @@ services:
       - bakery-network
 
   # Flask Backend
+  # Flask Backend
   backend:
     build: 
       context: ./backend
@@ -36,6 +37,7 @@ services:
     environment:
       FLASK_APP: main.py
       FLASK_ENV: development
+      # ... (giữ nguyên các dòng MAIL_... cũ) ...
       MAIL_SERVER: smtp.gmail.com
       MAIL_PORT: 587
       MAIL_USE_TLS: "True"
@@ -47,6 +49,13 @@ services:
       SQLALCHEMY_DATABASE_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
       SECRET_KEY: nguyenbaothach
       JWT_SECRET_KEY: hus_bakery_backend
+      
+      # 👇 THÊM 2 DÒNG NÀY VÀO 👇
+      # Đây là địa chỉ thật trên mạng của trang web (không dùng localhost nữa)
+      FRONTEND_URL: "https://husbakery.duckdns.org"
+      FRONTEND_ADMIN_URL: "https://husbakery.duckdns.org" 
+      # (Lưu ý: Nếu trang Admin bạn cài domain khác, ví dụ admin.husbakery... thì sửa lại dòng trên)
+
     volumes:
       - ./backend:/app
       - /app/__pycache__

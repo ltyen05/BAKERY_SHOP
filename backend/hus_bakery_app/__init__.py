@@ -15,17 +15,15 @@ mail = Mail()
 
 def create_app():
     app = Flask(__name__)
-    CORS(
-        app,
-        supports_credentials=True,
-        resources={
-            r"/api/*": {
-                "origins": ["http://localhost:3000", "http://localhost:3001"],
-                "allow_headers": ["Content-Type", "Authorization"],
-                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-            }
+    # ... các đoạn import ...
+
+    cors = CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",  # <--- SỬA THÀNH CÁI NÀY (Chấp nhận tất cả)
+            "allow_headers": ["Content-Type", "Authorization"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
         }
-    )
+    })
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

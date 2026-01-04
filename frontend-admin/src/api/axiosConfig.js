@@ -1,19 +1,23 @@
 // ===============================================
 // Location: src/api/axiosConfig.js
+// FIXED: Auto-detect correct Env Var & Production Domain
 // ===============================================
 import axios from "axios";
 import { tokenStorage } from "../utils/token";
 
-// Lấy URL từ biến môi trường, nếu không có thì dùng localhost
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+// 👇 ĐÃ SỬA ĐOẠN NÀY:
+// 1. Ưu tiên VITE_API_URL (cho khớp với docker-compose)
+// 2. Dự phòng VITE_API_BASE_URL (cho code cũ)
+// 3. Cuối cùng dùng domain thật (HUS BAKERY) thay vì localhost
+const BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://husbakery.duckdns.org";
 
 const api = axios.create({
-  baseURL: BASE_URL, // <--- QUAN TRỌNG: Phải có cái này
+  baseURL: BASE_URL, 
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Gửi cookies nếu cần
-  timeout: 10000, // 10s timeout
+  withCredentials: true, 
+  timeout: 10000, 
 });
 
 // ============= REQUEST INTERCEPTOR =============
@@ -24,12 +28,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Vite dùng import.meta.env.DEV thay vì process.env.NODE_ENV
     if (import.meta.env.DEV) {
       console.log("🚀 Request:", {
         method: config.method?.toUpperCase(),
         url: config.url,
-        fullUrl: `${config.baseURL}${config.url}`, // Log full URL để dễ debug
+        fullUrl: `${config.baseURL}${config.url}`,
         params: config.params,
         data: config.data,
       });
@@ -57,20 +60,16 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      // Server responded with error
       console.error("🔥 API Error:", {
         status: error.response.status,
         url: error.config?.url,
         message: error.response.data?.message || error.message,
       });
 
-      // Handle specific status codes
       switch (error.response.status) {
         case 401:
           console.error("⛔ Unauthorized - Token invalid or expired");
-          // Có thể thêm logic tự động logout ở đây:
-          // tokenStorage.remove();
-          // window.location.href = '/login';
+          // Có thể thêm logic logout: tokenStorage.remove(); window.location.href = '/';
           break;
         case 403:
           console.error("🚫 Forbidden - No permission");

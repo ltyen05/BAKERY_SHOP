@@ -90,7 +90,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    fetch(`http://localhost:5000/api/product/${productId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/product/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
@@ -335,3 +335,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

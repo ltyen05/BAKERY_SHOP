@@ -11,6 +11,7 @@ from hus_bakery_app.services.shipper.shipper_statistics_service import (
 
 shipper_stats_bp = Blueprint("shipper_stats", __name__)
 
+
 # Hàm tiện ích để lấy shipper_id từ token (đỡ phải viết lại nhiều lần)
 def get_current_shipper_id():
     identity_str = get_jwt_identity()
@@ -22,7 +23,8 @@ def get_current_shipper_id():
         return identity.get("id"), identity.get("role")
     except:
         return None, None
-    
+
+
 # API 1: Lấy tổng đơn hàng
 @shipper_stats_bp.route("/stats/total-orders", methods=["GET"])
 @jwt_required()
@@ -32,6 +34,7 @@ def api_total_orders():
 
     total = count_total_orders(shipper_id)
     return jsonify({"status": "success", "data": total}), 200
+
 
 # API 2: Lấy đơn thành công
 @shipper_stats_bp.route("/stats/successful", methods=["GET"])
@@ -43,6 +46,7 @@ def api_successful_orders():
     count = count_successful_orders(shipper_id)
     return jsonify({"status": "success", "data": count}), 200
 
+
 # API 3: Lấy đơn thất bại
 @shipper_stats_bp.route("/stats/failed", methods=["GET"])
 @jwt_required()
@@ -52,6 +56,7 @@ def api_failed_orders():
 
     count = count_failed_orders(shipper_id)
     return jsonify({"status": "success", "data": count}), 200
+
 
 # API 4: Lấy điểm đánh giá (Sao)
 @shipper_stats_bp.route("/stats/rating", methods=["GET"])

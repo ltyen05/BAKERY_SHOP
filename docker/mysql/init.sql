@@ -513,7 +513,7 @@ CREATE TABLE `employees` (
 
 INSERT INTO `employees` (`employee_id`, `employee_name`, `role_name`, `email`, `password`, `salary`, `status`, `branch_id`) VALUES
 (1, 'Nguyễn Bảo Thạch', 'Quản lý', 'thach.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 18000000.00, 'Đang làm việc', 1),
-(2, 'Lê Văn Hùng', 'Siêu quản lý\r\n', 'hung.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 1),
+(2, 'Lê Văn Hùng', 'Siêu quản lý', 'hung.le@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11000000.00, 'Đang làm việc', 1),
 (3, 'Trần Thị Mai', 'Thợ làm bánh', 'mai.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 11200000.00, 'Đang làm việc', 1),
 (4, 'Nguyễn Văn An', 'Bán hàng', 'an.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 1),
 (5, 'Bùi Thị Chi', 'Bán hàng', 'chi.bui@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 1),
@@ -551,7 +551,7 @@ INSERT INTO `employees` (`employee_id`, `employee_name`, `role_name`, `email`, `
 (37, 'Nguyễn Văn Toàn', 'Bán hàng', 'toan.nguyen@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 5),
 (38, 'Trần Minh Vương', 'Bán hàng', 'vuong.tran@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9100000.00, 'Đang làm việc', 5),
 (39, 'Phan Văn Đức', 'Bán hàng', 'duc.phan@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9000000.00, 'Đang làm việc', 5),
-(40, 'Đỗ Duy Mạnh', 'Bán hàng', 'manh.do@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 5);
+(40, 'Đỗ Duy Mạnh', 'Siêu quản lý', 'manh.do@husbakery.vn', 'scrypt:32768:8:1$a1u4m2Jyd8tidK4o$1b3ff103e5413deb65a1391b912880facb93124c8afa2618fdb3cada6e3216a35fc02eb6e534c8fe6b8d4ab5541a61869aa867842907e457218dac3aa4e40b69', 9200000.00, 'Đang làm việc', 5);
 
 -- --------------------------------------------------------
 

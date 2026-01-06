@@ -1,10 +1,9 @@
 // ===============================================
-// FILE: src/api/shipperApi.js - FINAL CLEAN
+// FILE: src/api/shipperApi.js
 // ===============================================
 import api from "./axiosConfig";
 
-// Đã sửa: Dùng path tương đối, bỏ http://localhost:5001
-const BASE_PATH = "/api/admin/shipper_management";
+const BASE_PATH = "http://localhost:5001/api/admin/shipper_management";
 
 const mapShipperFromBackend = (shipper) => {
   if (!shipper) return null;
@@ -23,16 +22,12 @@ const mapShipperFromBackend = (shipper) => {
 };
 
 export const shipperApi = {
-  /**
-   * Lấy danh sách shipper theo branch
-   */
   getAllShippers: async (branchId) => {
     try {
       const url = branchId
         ? `${BASE_PATH}/infomation?branch_id=${branchId}`
         : `${BASE_PATH}/infomation`;
 
-      // Axios tự động ghép domain
       const response = await api.get(url);
 
       const mappedData = Array.isArray(response.data)
@@ -44,7 +39,6 @@ export const shipperApi = {
         data: mappedData,
       };
     } catch (error) {
-      console.error("Error fetching shippers:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -53,9 +47,6 @@ export const shipperApi = {
     }
   },
 
-  /**
-   * Thêm shipper
-   */
   addShipper: async (shipperData) => {
     try {
       let branchId;
@@ -109,7 +100,6 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error adding shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -117,9 +107,6 @@ export const shipperApi = {
     }
   },
 
-  /**
-   * Cập nhật shipper
-   */
   updateShipper: async (shipperId, shipperData) => {
     try {
       if (!shipperData.branch_id) {
@@ -152,7 +139,6 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error updating shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,
@@ -160,9 +146,6 @@ export const shipperApi = {
     }
   },
 
-  /**
-   * Xóa shipper
-   */
   deleteShipper: async (shipperId) => {
     try {
       const response = await api.delete(
@@ -175,7 +158,6 @@ export const shipperApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error deleting shipper:", error);
       return {
         success: false,
         message: error.response?.data?.error || error.message,

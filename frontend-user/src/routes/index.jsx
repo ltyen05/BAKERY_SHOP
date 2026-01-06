@@ -176,5 +176,9 @@ export const routes = [
     onlyShipper: true,
     roles: ["shipper"],
   },
+  {
+    path: "*",
+    page: NotFound,
+    isShowHeader: false,
+  },
 ];
-

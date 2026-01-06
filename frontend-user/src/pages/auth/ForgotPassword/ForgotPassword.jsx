@@ -5,10 +5,9 @@ import React, { useState } from "react";
 import { message } from "antd";
 
 export default function ForgotPassword() {
-  const [messageApi, contextHolder] = message.useMessage();
   const handleSendEmail = async (values) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/forgot-password`, {
+      const res = await fetch("http://localhost:5001/api/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,59 +20,55 @@ export default function ForgotPassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        messageApi.error(data.message || "Có lỗi xảy ra");
+        message.error(data.message || "Có lỗi xảy ra");
         return;
       }
 
-      messageApi.success(data.message);
+      message.success(data.message);
     } catch (err) {
-      messageApi.error("Không thể kết nối server");
+      message.error("Không thể kết nối server");
     }
   };
 
   return (
-    <>
-      {contextHolder}
-      <div className="bound">
-        <div className="fl-center bg-color pb-6 pt-3">
-          <Link to={"/"} className="mb-6">
-            <img
-              src={bakesLogo}
-              alt="Stylized bakery logo"
-              style={{ height: "100px" }}
-            />
-          </Link>
+    <div className="bound">
+      <div className="fl-center bg-color pb-6 pt-3">
+        <Link to={"/"} className="mb-6">
+          <img
+            src={bakesLogo}
+            alt="Stylized bakery logo"
+            style={{ height: "100px" }}
+          />
+        </Link>
 
-          <Form
-            name="basic"
-            style={{
-              maxWidth: "430px",
-              width: "80%",
-              display: "flex",
-              flexDirection: "column",
-            }}
-            className="main-font pt-3"
-            layout="vertical"
-            onFinish={handleSendEmail}
+        <Form
+          name="basic"
+          style={{
+            maxWidth: "430px",
+            width: "80%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+          className="main-font pt-3"
+          layout="vertical"
+          onFinish={handleSendEmail}
+        >
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: "Nhập email" },
+              { type: "email", message: "Email không hợp lệ" },
+            ]}
+            className="mb-6"
           >
-            <Form.Item
-              name="email"
-              rules={[
-                { required: true, message: "Nhập email" },
-                { type: "email", message: "Email không hợp lệ" },
-              ]}
-              className="mb-6"
-            >
-              <Input placeholder="Nhập email" className="newHeight" />
-            </Form.Item>
+            <Input placeholder="Nhập email" className="newHeight" />
+          </Form.Item>
 
-            <Button className="mb-3 btn btn-primary" htmlType="submit" block>
-              Gửi link đặt lại mật khẩu
-            </Button>
-          </Form>
-        </div>
+          <Button className="mb-3 btn btn-primary" htmlType="submit" block>
+            Gửi link đặt lại mật khẩu
+          </Button>
+        </Form>
       </div>
-    </>
+    </div>
   );
 }
-

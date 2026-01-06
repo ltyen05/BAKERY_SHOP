@@ -3,20 +3,9 @@
 // ===============================================
 import api from "./axiosConfig";
 
-// LƯU Ý: Nếu axiosConfig của bạn đã set baseURL là ".../api"
-// thì ở đây chỉ cần để chuỗi rỗng hoặc prefix cụ thể của module (nếu có).
-// Code cũ của bạn là ".../api/api", tôi đoán đó là lỗi lặp, nên tôi sửa thành root "/"
-const BASE_PATH = ""; 
+const BASE_PATH = "http://localhost:5001/api/api";
 
 export const superAdminApi = {
-  // ==========================================
-  // QUẢN LÝ NHÂN VIÊN TOÀN HỆ THỐNG
-  // ==========================================
-
-  /**
-   * Thêm nhân viên mới - CHỈ SUPER ADMIN
-   * POST /api/employees
-   */
   addEmployee: async (employeeData) => {
     try {
       const payload = {
@@ -30,7 +19,6 @@ export const superAdminApi = {
         branch_id: parseInt(employeeData.branch_id),
       };
 
-      // Gọi relative path: axios sẽ ghép thành {BASE_URL}/employees
       const response = await api.post(`${BASE_PATH}/employees`, payload);
 
       return {
@@ -39,8 +27,6 @@ export const superAdminApi = {
         id: response.data.id,
       };
     } catch (error) {
-      console.error("Error adding employee:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,
@@ -55,10 +41,6 @@ export const superAdminApi = {
     }
   },
 
-  /**
-   * Cập nhật nhân viên - CHỈ SUPER ADMIN
-   * PUT /api/employees/:id
-   */
   updateEmployee: async (employeeId, employeeData) => {
     try {
       const payload = {
@@ -84,8 +66,6 @@ export const superAdminApi = {
         message: response.data.message || "Cập nhật nhân viên thành công",
       };
     } catch (error) {
-      console.error("Error updating employee:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,
@@ -100,14 +80,6 @@ export const superAdminApi = {
     }
   },
 
-  // ==========================================
-  // QUẢN LÝ VOUCHER TOÀN HỆ THỐNG
-  // ==========================================
-
-  /**
-   * Tạo voucher mới - CHỈ SUPER ADMIN
-   * POST /api/coupons
-   */
   createVoucher: async (voucherData) => {
     try {
       const payload = {
@@ -136,8 +108,6 @@ export const superAdminApi = {
         id: response.data.id,
       };
     } catch (error) {
-      console.error("Error creating voucher:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,
@@ -152,10 +122,6 @@ export const superAdminApi = {
     }
   },
 
-  /**
-   * Cập nhật voucher - CHỈ SUPER ADMIN
-   * PUT /api/coupons/:id
-   */
   updateVoucher: async (voucherId, voucherData) => {
     try {
       const payload = {
@@ -186,8 +152,6 @@ export const superAdminApi = {
         message: response.data.message || "Cập nhật voucher thành công",
       };
     } catch (error) {
-      console.error("Error updating voucher:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,

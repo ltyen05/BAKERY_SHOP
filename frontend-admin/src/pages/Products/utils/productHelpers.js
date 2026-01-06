@@ -29,5 +29,5 @@ export const exportProductsToCSV = (products) => {
   link.download = `products_${new Date().toISOString().split('T')[0]}.csv`;
   link.click();
   
-  message.success('✅ Xuất file CSV thành công!');
+  message.success(' Xuất file CSV thành công!');
 };

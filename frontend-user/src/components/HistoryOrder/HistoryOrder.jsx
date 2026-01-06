@@ -217,7 +217,9 @@ const OrderHistory = () => {
           style={{ backgroundColor: "#fdfbf5", border: "none" }}
         >
           <div className="text-start">
-            <Title level={2}>Lịch sử mua hàng</Title>
+            <Title level={2} style={{ color: "#3e2723" }}>
+              Lịch sử mua hàng
+            </Title>
           </div>
 
           <div className="mb-6 mt-3">

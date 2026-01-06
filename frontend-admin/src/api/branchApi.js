@@ -3,20 +3,15 @@
 // ===============================================
 import api from "./axiosConfig";
 
-// Định nghĩa path gốc để code gọn hơn (tùy chọn)
-// Lưu ý: Đây là đường dẫn tương đối, không có http://localhost...
-const ROOT_PATH = "/api/superadmin";
+const BASE_PATH = "http://localhost:5001/api/superadmin";
 
 export const branchApi = {
-  // ================= GET ALL BRANCHES =================
   getAllBranches: async () => {
     try {
-      // Đã sửa: dùng đường dẫn tương đối
-      const response = await api.get(`${ROOT_PATH}/api/branches`);
+      const response = await api.get(`${BASE_PATH}/api/branches`);
 
       let branches = [];
 
-      // Logic xử lý dữ liệu trả về (giữ nguyên như cũ)
       if (response.data) {
         if (response.data.success && response.data.data) {
           branches = response.data.data;
@@ -32,14 +27,13 @@ export const branchApi = {
         }
       }
 
-      // Fetch manager info for each branch
+      //  Fetch manager info for each branch
       const branchesWithManager = await Promise.all(
         branches.map(async (branch) => {
           try {
             if (branch.manager_id) {
-              // Đã sửa: dùng đường dẫn tương đối
               const managerRes = await api.get(
-                `${ROOT_PATH}/branch/${branch.branch_id}/manager`
+                `http://localhost:5001/api/superadmin/branch/${branch.branch_id}/manager`
               );
 
               if (managerRes.data?.success && managerRes.data?.data) {
@@ -55,7 +49,7 @@ export const branchApi = {
 
             return branch;
           } catch (err) {
-            // Silent fail for manager fetch - not critical
+            //  Silent fail for manager fetch - not critical
             return branch;
           }
         })
@@ -83,12 +77,10 @@ export const branchApi = {
     }
   },
 
-  // ================= GET BRANCH DETAIL =================
   getBranchDetail: async (branchId) => {
     try {
-      // Đã sửa: dùng đường dẫn tương đối
       const response = await api.get(
-        `${ROOT_PATH}/branch/${branchId}`
+        `http://localhost:5001/api/superadmin/branch/${branchId}`
       );
 
       return {
@@ -110,12 +102,10 @@ export const branchApi = {
     }
   },
 
-  // ================= GET BRANCH MANAGER =================
   getBranchManager: async (branchId) => {
     try {
-      // Đã sửa: dùng đường dẫn tương đối
       const response = await api.get(
-        `${ROOT_PATH}/branch/${branchId}/manager`
+        `http://localhost:5001/api/superadmin/branch/${branchId}/manager`
       );
 
       return {
@@ -137,10 +127,9 @@ export const branchApi = {
     }
   },
 
-  // ================= ADD BRANCH =================
   addBranch: async (branchData) => {
     try {
-      // Chuẩn hóa dữ liệu
+      //  Chuẩn hóa dữ liệu
       const payload = {
         name: branchData.name,
         address: branchData.address,
@@ -151,7 +140,7 @@ export const branchApi = {
         lng: branchData.lng ? parseFloat(branchData.lng) : null,
       };
 
-      // Chỉ thêm manager_id nếu có giá trị hợp lệ
+      //  Chỉ thêm manager_id nếu có giá trị hợp lệ
       if (
         branchData.manager_id &&
         branchData.manager_id !== "" &&
@@ -160,9 +149,8 @@ export const branchApi = {
         payload.manager_id = parseInt(branchData.manager_id);
       }
 
-      // Đã sửa: dùng đường dẫn tương đối
       const response = await api.post(
-        `${ROOT_PATH}/add_branch`,
+        "http://localhost:5001/api/superadmin/add_branch",
         payload
       );
 
@@ -184,10 +172,9 @@ export const branchApi = {
     }
   },
 
-  // ================= UPDATE BRANCH =================
   updateBranch: async (branchId, branchData) => {
     try {
-      // Chuẩn hóa dữ liệu
+      //  Chuẩn hóa dữ liệu
       const payload = {
         name: branchData.name,
         address: branchData.address,
@@ -198,7 +185,7 @@ export const branchApi = {
         lng: branchData.lng ? parseFloat(branchData.lng) : null,
       };
 
-      // Chỉ thêm manager_id nếu có giá trị hợp lệ
+      //  Chỉ thêm manager_id nếu có giá trị hợp lệ
       if (
         branchData.manager_id &&
         branchData.manager_id !== "" &&
@@ -207,9 +194,8 @@ export const branchApi = {
         payload.manager_id = parseInt(branchData.manager_id);
       }
 
-      // Đã sửa: dùng đường dẫn tương đối
       const response = await api.put(
-        `${ROOT_PATH}/update_branch/${branchId}`,
+        `http://localhost:5001/api/superadmin/update_branch/${branchId}`,
         payload
       );
 
@@ -231,12 +217,10 @@ export const branchApi = {
     }
   },
 
-  // ================= DELETE BRANCH =================
   deleteBranch: async (branchId) => {
     try {
-      // Đã sửa: dùng đường dẫn tương đối
       const response = await api.delete(
-        `${ROOT_PATH}/delete_branch/${branchId}`
+        `http://localhost:5001/api/superadmin/delete_branch/${branchId}`
       );
 
       return {

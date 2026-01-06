@@ -3,28 +3,29 @@
 // ===============================================
 import api from "./axiosConfig";
 
-// Định nghĩa endpoint gốc để dễ quản lý nếu backend thay đổi đường dẫn
-const ENDPOINT = "/admin/coupon_management";
-
 const voucherApi = {
   /**
    * GET: Lấy tất cả vouchers
    */
   getAllVouchers: async () => {
     try {
-      // Chỉ dùng đường dẫn tương đối, axiosConfig sẽ tự ghép với baseURL
-      const response = await api.get(`${ENDPOINT}/coupon`);
+      const response = await api.get(
+        "http://localhost:5001/api/admin/coupon_management/coupon"
+      );
+
+      const vouchers = Array.isArray(response.data) ? response.data : [];
 
       return {
         success: true,
-        data: Array.isArray(response.data) ? response.data : [],
+        data: vouchers,
       };
     } catch (error) {
       console.error("[voucherApi] GET error:", error);
       return {
         success: false,
         data: [],
-        message: error.response?.data?.error || "Không thể tải danh sách voucher",
+        message:
+          error.response?.data?.error || "Không thể tải danh sách voucher",
       };
     }
   },
@@ -45,7 +46,10 @@ const voucherApi = {
         status: voucherData.status || "active",
       };
 
-      const response = await api.post(`${ENDPOINT}/add_coupon`, payload);
+      const response = await api.post(
+        "http://localhost:5001/api/admin/coupon_management/add_coupon",
+        payload
+      );
 
       return {
         success: true,
@@ -78,7 +82,7 @@ const voucherApi = {
       };
 
       const response = await api.put(
-        `${ENDPOINT}/update_coupon/${couponId}`,
+        `http://localhost:5001/api/admin/coupon_management/update_coupon/${couponId}`,
         payload
       );
 
@@ -104,7 +108,7 @@ const voucherApi = {
   deleteVoucher: async (couponId) => {
     try {
       const response = await api.delete(
-        `${ENDPOINT}/delete_coupon/${couponId}`
+        `http://localhost:5001/api/admin/coupon_management/delete_coupon/${couponId}`
       );
 
       return {

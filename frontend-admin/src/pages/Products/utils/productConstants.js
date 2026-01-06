@@ -1,5 +1,5 @@
 // ===============================================
-// FILE: src/pages/Products/productConstants.js
+// FILE: src/pages/Products/utils/productConstants.js
 // ===============================================
 import {
   FiPackage,

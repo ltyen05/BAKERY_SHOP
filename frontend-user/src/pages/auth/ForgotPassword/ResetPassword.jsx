@@ -10,7 +10,7 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (values) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/reset-password`, {
+      const res = await fetch("http://localhost:5001/api/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +42,7 @@ const ResetPassword = () => {
   return (
     <div className="bound">
       <div className="fl-center bg-color pb-6 pt-3">
-        <Link to="/" className="mb-6">
+        <Link to={"/"} className="mb-6">
           <img
             src={bakesLogo}
             alt="Stylized bakery logo"
@@ -98,4 +98,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-

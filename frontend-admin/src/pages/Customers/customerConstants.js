@@ -6,33 +6,39 @@ import { FiUsers, FiAward } from 'react-icons/fi';
 // ============= RANK TABS =============
 export const RANK_TABS = [
   { id: 'all', label: 'Tất cả', rank: null },
-  { id: 'bronze', label: 'Bronze', rank: 'bronze' },
-  { id: 'silver', label: 'Silver', rank: 'silver' },
-  { id: 'gold', label: 'Gold', rank: 'gold' },
-  { id: 'platinum', label: 'Platinum', rank: 'platinum' }
+  { id: 'dong', label: 'Đồng', rank: 'Đồng' },
+  { id: 'bac', label: 'Bạc', rank: 'Bạc' },
+  { id: 'vang', label: 'Vàng', rank: 'Vàng' },
+  { id: 'kimcuong', label: 'Kim cương', rank: 'Kim Cương' }
 ];
 
 // ============= RANK CONFIG =============
 export const RANK_CONFIG = {
-  'Bronze': { 
+  'Đồng': { 
     color: '#92400e', 
     bg: '#fef3c7', 
     border: '#fde68a',
     icon: FiAward
   },
-  'Silver': { 
+  'Bạc': { 
     color: '#475569', 
     bg: '#f1f5f9', 
     border: '#cbd5e1',
     icon: FiAward
   },
-  'Gold': { 
+  'Vàng': { 
     color: '#b45309', 
     bg: '#fef3c7', 
     border: '#fcd34d',
     icon: FiAward
   },
-  'Platinum': { 
+  'Kim Cương': { 
+    color: '#4338ca', 
+    bg: '#e0e7ff', 
+    border: '#c7d2fe',
+    icon: FiAward
+  },
+  'Kim cương': { 
     color: '#4338ca', 
     bg: '#e0e7ff', 
     border: '#c7d2fe',
@@ -53,5 +59,5 @@ export const getInitials = (name) => {
 };
 
 export const getRankStyle = (rank) => {
-  return RANK_CONFIG[rank] || RANK_CONFIG['Bronze'];
+  return RANK_CONFIG[rank] || RANK_CONFIG['Đồng'];
 };

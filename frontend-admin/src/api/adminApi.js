@@ -7,9 +7,8 @@ export const adminApi = {
   // ================= GET ALL BRANCHES =================
   getAllBranches: async () => {
     try {
-      // Đã sửa: bỏ http://localhost:5001
       const response = await api.get(
-        "/api/superadmin/api/branches"
+        "http://localhost:5001/api/superadmin/api/branches"
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -49,9 +48,8 @@ export const adminApi = {
 
       const adminPromises = branches.map(async (branch) => {
         try {
-          // Đã sửa: bỏ http://localhost:5001
           const managerResponse = await api.get(
-            `/api/superadmin/branch/${branch.branch_id}/manager`
+            `http://localhost:5001/api/superadmin/branch/${branch.branch_id}/manager`
           );
 
           if (managerResponse.data && managerResponse.data.data) {
@@ -125,9 +123,8 @@ export const adminApi = {
         }
       }
 
-      // Đã sửa: bỏ http://localhost:5001
       const response = await api.put(
-        `/api/superadmin/update_admin/${adminId}`,
+        `http://localhost:5001/api/superadmin/update_admin/${adminId}`,
         payload
       );
 
@@ -151,9 +148,8 @@ export const adminApi = {
   // ================= DELETE ADMIN =================
   deleteAdmin: async (adminId) => {
     try {
-      // Đã sửa: bỏ http://localhost:5001
       const response = await api.delete(
-        `/api/superadmin/delete_admin/${adminId}`
+        `http://localhost:5001/api/superadmin/delete_admin/${adminId}`
       );
 
       return {

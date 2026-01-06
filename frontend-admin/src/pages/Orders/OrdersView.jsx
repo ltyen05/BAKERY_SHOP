@@ -1,5 +1,6 @@
 // ===============================================
 // Location: src/pages/Orders/OrdersView.jsx
+// FIXED: Removed avatar from customer column
 // ===============================================
 
 import React, { useState } from "react";
@@ -7,11 +8,16 @@ import { Tag, Space, Button, Tooltip, Modal, message } from "antd";
 import { FiSearch, FiDownload, FiEye, FiTrash2 } from "react-icons/fi";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import DataTable from "../../components/Table/Table";
-import OrderDetailModal from "./components/OrderDetailModal";
-import { useOrders } from "./hooks/useOrders";
-import { STATUS_TABS, STATUS_INFO } from "./utils/constants";
-import { formatCurrency, formatDate, getStatusColor } from "./utils/helpers";
-import "./styles/OrdersView.css";
+import OrderDetailModal from "./OrderDetailModal";
+import { useOrders } from "./useOrders";
+import {
+  STATUS_TABS,
+  STATUS_INFO,
+  formatCurrency,
+  formatDate,
+  getStatusColor,
+} from "./orderConstants";
+import "./OrdersView.css";
 
 const { confirm } = Modal;
 
@@ -203,6 +209,7 @@ const OrdersView = () => {
       key: "action",
       width: 100,
       align: "center",
+
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="Xem chi tiết">

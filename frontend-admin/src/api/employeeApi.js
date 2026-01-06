@@ -1,10 +1,9 @@
 // ===============================================
-// src/api/employeeApi.js
+// FILE: src/api/employeeApi.js 
 // ===============================================
 import api from "./axiosConfig";
 
-// Đã sửa: Xóa http://localhost:5001, giữ lại path tương đối
-const BASE_PATH = "/api/admin/employee_management";
+const BASE_PATH = "http://localhost:5001/api/admin/employee_management";
 
 const mapEmployeeFromBackend = (employee) => {
   return {
@@ -18,9 +17,7 @@ const mapEmployeeFromBackend = (employee) => {
   };
 };
 
-// ============= API FUNCTIONS =============
 export const employeeApi = {
-  // ============= GET ALL EMPLOYEES =============
   getAllEmployees: async (options = {}) => {
     try {
       const params = {};
@@ -44,8 +41,6 @@ export const employeeApi = {
         data: mappedData,
       };
     } catch (error) {
-      console.error("Error fetching employees:", error);
-
       return {
         success: false,
         message:
@@ -57,7 +52,6 @@ export const employeeApi = {
     }
   },
 
-  // ============= ADD EMPLOYEE =============
   addEmployee: async (employeeData) => {
     try {
       let branchId;
@@ -113,8 +107,6 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error adding employee:", error);
-
       return {
         success: false,
         message:
@@ -125,7 +117,6 @@ export const employeeApi = {
     }
   },
 
-  // ============= UPDATE EMPLOYEE =============
   updateEmployee: async (employeeId, employeeData) => {
     try {
       if (!employeeData.branch_id) {
@@ -158,8 +149,6 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error updating employee:", error);
-
       return {
         success: false,
         message:
@@ -170,7 +159,6 @@ export const employeeApi = {
     }
   },
 
-  // ============= DELETE EMPLOYEE =============
   deleteEmployee: async (employeeId) => {
     try {
       const response = await api.delete(
@@ -183,8 +171,6 @@ export const employeeApi = {
         data: response.data,
       };
     } catch (error) {
-      console.error("Error deleting employee:", error);
-
       return {
         success: false,
         message:

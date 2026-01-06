@@ -1,21 +1,37 @@
 // ===============================================
 // FILE: src/api/orderApi.js - CLEAN VERSION
 // ===============================================
-import api from "./axiosConfig";
 
-// Đã sửa: Dùng path tương đối, bỏ http://localhost:5001
-const BASE_PATH = "/api/admin/order_management";
+const BASE_URL = "http://localhost:5001/api/admin/order_management";
+import { tokenStorage } from "../utils/token";
+
+const getAuthHeaders = () => {
+  const token = tokenStorage.get();
+
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
 
 export const orderApi = {
   // GET - Lấy tất cả orders theo branch
   getAllOrders: async (branchId) => {
     try {
-      const response = await api.get(`${BASE_PATH}/orders`, {
-        params: { branch_id: branchId },
+      const response = await fetch(`${BASE_URL}/orders?branch_id=${branchId}`, {
+        method: "GET",
+        headers: getAuthHeaders(),
       });
 
-      // Axios trả về data nằm trong response.data
-      const result = response.data;
+      if (response.status === 401) {
+        throw new Error("UNAUTHORIZED - Token invalid or expired");
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
 
       return {
         success: result.success,
@@ -24,28 +40,21 @@ export const orderApi = {
         branch_id: result.branch_id,
       };
     } catch (error) {
-      console.error("[orderApi] getAllOrders error:", error);
       throw error;
     }
   },
 
   getOrderDetail: async (orderId) => {
     try {
-      const response = await api.get(`${BASE_PATH}/order_detail`, {
-        params: { order_id: orderId },
-      });
+      const response = await fetch(
+        `${BASE_URL}/order_detail?order_id=${orderId}`,
+        {
+          method: "GET",
+          headers: getAuthHeaders(),
+        }
+      );
 
-      const data = response.data;
-
-      return {
-        success: true,
-        items: data.order_items || [],
-        shipping_address: data.shipping_address || null,
-        total_amount: data.total_amount || 0,
-      };
-    } catch (error) {
-      // Giữ nguyên logic cũ: Nếu lỗi 404 (không tìm thấy) thì trả về rỗng chứ không throw lỗi
-      if (error.response && error.response.status === 404) {
+      if (response.status === 404) {
         return {
           success: true,
           items: [],
@@ -54,7 +63,19 @@ export const orderApi = {
         };
       }
 
-      console.error("[orderApi] getOrderDetail error:", error);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return {
+        success: true,
+        items: data.data.items || [],
+        shipping_address: data.data.address || null,
+        total_amount: data.data.total_money || 0,
+      };
+    } catch (error) {
       return {
         success: false,
         items: [],
@@ -64,25 +85,30 @@ export const orderApi = {
   },
 
   deleteOrder: async (orderId) => {
-    try {
-      const response = await api.delete(`${BASE_PATH}/delete_order/${orderId}`);
-      return response.data;
-    } catch (error) {
-      console.error("[orderApi] deleteOrder error:", error);
-      throw error;
+    const response = await fetch(`${BASE_URL}/delete_order/${orderId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return response.json();
   },
 
   updateOrderStatus: async (orderId, newStatus) => {
-    try {
-      const response = await api.put(`${BASE_PATH}/orders/${orderId}`, {
-        status: newStatus,
-      });
-      return response.data;
-    } catch (error) {
-      console.error("[orderApi] updateOrderStatus error:", error);
-      throw error;
+    const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return response.json();
   },
 };
 

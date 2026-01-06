@@ -29,8 +29,8 @@ const { Title } = Typography;
 const MAX_VALUE = 100;
 
 const STATUS_COLOR = {
-  "Đã giao": "green",
-  "Không hoàn thành": "red",
+  "Đã giao": "#52c41a",
+  "Không thành công": "#c01108ff",
   "Đang giao": "orange",
 };
 export default function Dashboard() {
@@ -67,7 +67,7 @@ export default function Dashboard() {
     // Fetch song song bằng fetch thuần
     Promise.all(
       urls.map((url) =>
-        fetchWithAuth(`${import.meta.env.VITE_API_URL}/shipper/statistics${url}`, {
+        fetchWithAuth(`http://localhost:5001/api/shipper/statistics${url}`, {
           method: "GET",
         }).then((res) => res.json())
       )
@@ -89,7 +89,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const res = await fetchWithAuth(
-       `${import.meta.env.VITE_API_URL}/shipper/statistics/history?page=${page}&limit=${limit}`,
+        `http://localhost:5001/api/shipper/statistics/history?page=${page}&limit=${limit}`,
         {
           method: "GET",
         }
@@ -280,7 +280,9 @@ export default function Dashboard() {
                   columns={columns}
                   dataSource={filteredData}
                   rowKey="order_id"
-                  onChange={handleChange}
+                  onChange={(pagination, filters, sorter) =>
+                    setSortedInfo(sorter)
+                  }
                   pagination={false}
                   scroll={{ x: "max-content" }}
                   bordered
@@ -331,4 +333,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

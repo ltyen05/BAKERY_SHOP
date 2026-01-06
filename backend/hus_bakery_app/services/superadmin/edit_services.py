@@ -7,7 +7,7 @@ from hus_bakery_app.models.coupon import Coupon
 from datetime import datetime
 from hus_bakery_app import db
 from hus_bakery_app.services.customer.account_services import get_customer_rank_service
-
+from hus_bakery_app.services.customer.product_services import get_rating_star_service
 
 #============================BRANCH==================================
 
@@ -229,7 +229,8 @@ def get_all_products_service():
             "unit_price": float(product.unit_price) if product.unit_price else 0,
             "category_id": product.category_id,
             "created_at": product.created_at.strftime('%Y-%m-%d %H:%M:%S') if product.created_at else None,
-            "updated_at": product.updated_at.isoformat() if product.updated_at else None
+            "updated_at": product.updated_at.isoformat() if product.updated_at else None,
+            "rating": get_rating_star_service(product.product_id)
         })
     return result
 
@@ -350,4 +351,5 @@ def delete_coupon_service(coupon_id):
         # Nếu mã đã được áp dụng vào Đơn hàng (Order), Database sẽ chặn xóa do ràng buộc khóa ngoại
         print(f"Lỗi khi xóa coupon: {str(e)}")
         return False
+
 

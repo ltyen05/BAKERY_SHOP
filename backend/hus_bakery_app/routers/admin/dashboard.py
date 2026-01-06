@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from hus_bakery_app.models.branches import Branch
+import json
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from hus_bakery_app.services.admin.dashboard_services import (
-    get_total_orders,
-    get_total_amount,
-    get_total_customers,
-    get_total_products,
+    total_order_of_month,
+    total_amount_of_month,
+    total_customer_of_month,
+    total_product_of_month,
     get_order_status_distribution,
     get_top_selling_products,
     get_customer_growth_service
@@ -14,162 +14,175 @@ from hus_bakery_app.services.admin.dashboard_services import (
 dashboard_bp = Blueprint('dashboard', __name__)
 
 
-# --- HÀM BỔ TRỢ ĐỂ LẤY CHI NHÁNH TỪ TOKEN ---
-
-def get_branch_info_from_token():
-    try:
-        identity = get_jwt_identity()
-
-        # Nếu identity là string (do sub chứa JSON string), hãy parse nó
-        if isinstance(identity, str):
-            import json
-            identity = json.loads(identity)
-
-        # 1. Kiểm tra Role từ identity
-        if identity.get("role") != "employee":
-            return None, "Quyền truy cập bị từ chối. Chỉ dành cho Employee."
-
-        employee_id = identity.get("id")
-        if not employee_id:
-            return None, "Token không chứa ID nhân viên hợp lệ."
-
-        # 2. Truy vấn lấy chi nhánh
-        branch = Branch.query.filter_by(manager_id=employee_id).first()
-        if not branch:
-            return None, f"Tài khoản (ID: {employee_id}) không quản lý chi nhánh nào."
-
-        return branch.branch_id, None
-    except Exception as e:
-        return None, f"Lỗi xác thực: {str(e)}"
-
-
-# --- CÁC ROUTE VỚI URL GIỮ NGUYÊN ---
-
 @dashboard_bp.route('/total_orders', methods=['GET'])
 @jwt_required()
 def api_get_order_stats():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
-
-    # Lấy linh hoạt year, month, day từ URL (có thể thiếu bất kỳ trường nào)
-    year = request.args.get('year', type=int)
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Bạn không có quyền truy cập dữ liệu thống kê"}), 403
+    # Lấy tham số month và year từ query string (ví dụ: /api/stats/orders?month=12&year=2025)
     month = request.args.get('month', type=int)
-    day = request.args.get('day', type=int)
+    year = request.args.get('year', type=int)
 
-    # Chỉ bắt buộc year để đảm bảo tính hợp lệ của query thời gian
-    if not year:
-        return jsonify({"success": False, "message": "Tham số 'year' là bắt buộc"}), 400
+    # Kiểm tra nếu thiếu tham số
+    if not month or not year:
+        return jsonify({"error": "Vui lòng cung cấp cả month và year"}), 400
 
-    total = get_total_orders(year=year, month=month, day=day, branch_id=branch_id)
+    total = total_order_of_month(month, year)
+
     return jsonify({
-        "status": "success",
-        "data": total,
-        "filters": {"year": year, "month": month, "day": day, "branch_id": branch_id}
+        "month": month,
+        "year": year,
+        "total_orders": total
     }), 200
 
 
-@dashboard_bp.route('/total_amount', methods=['GET'])
+@dashboard_bp.route('/total_amount_for_month', methods=['POST'])
 @jwt_required()
 def api_get_total_amount():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
 
-    year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
-    day = request.args.get('day', type=int)
+    year = request.args.get('year', type=int)
+    branch_id = request.args.get('branch_id', type=int)  # 🔹 thêm branch_id
 
-    if not year:
-        return jsonify({"success": False, "message": "Tham số 'year' là bắt buộc"}), 400
+    if not month or not year:
+        return jsonify({"error": "Thiếu thông tin tháng hoặc năm"}), 400
 
-    total = get_total_amount(year=year, month=month, day=day, branch_id=branch_id)
+    # Gọi hàm service đã tối ưu, truyền branch_id nếu có
+    total = total_amount_of_month(month, year, branch_id)
+    
     return jsonify({
-        "status": "success",
-        "data": total,
-        "filters": {"year": year, "month": month, "day": day, "branch_id": branch_id}
+        "month": month,
+        "year": year,
+        "branch_id": branch_id,       # 🔹 trả về branch_id để debug
+        "total_amount": total
     }), 200
 
-
-@dashboard_bp.route('/total_customer', methods=['GET'])
+@dashboard_bp.route('/total_customer_of_month', methods=['POST'])
 @jwt_required()
 def api_get_total_customer():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
 
-    year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
-    day = request.args.get('day', type=int)
+    year = request.args.get('year', type=int)
 
-    if not year:
-        return jsonify({"success": False, "message": "Tham số 'year' là bắt buộc"}), 400
+    if not month or not year:
+        return jsonify({"error": "Thiếu thông tin tháng hoặc năm"}), 400
 
-    total = get_total_customers(year=year, month=month, day=day, branch_id=branch_id)
+        # Gọi hàm service đã tối ưu ở trên
+    total = total_customer_of_month(month, year)
+
     return jsonify({
-        "status": "success",
-        "data": total,
-        "filters": {"year": year, "month": month, "day": day, "branch_id": branch_id}
+        "month": month,
+        "year": year,
+        "total_customers": total
     }), 200
 
 
-@dashboard_bp.route('/total_product', methods=['GET'])
+@dashboard_bp.route('/total_product_of_month', methods=['POST'])
 @jwt_required()
 def api_get_total_product():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
 
-    year = request.args.get('year', type=int)
     month = request.args.get('month', type=int)
-    day = request.args.get('day', type=int)
+    year = request.args.get('year', type=int)
 
-    if not year:
-        return jsonify({"success": False, "message": "Tham số 'year' là bắt buộc"}), 400
+    if not month or not year:
+        return jsonify({"error": "Thiếu thông tin tháng hoặc năm"}), 400
 
-    total = get_total_products(year=year, month=month, day=day, branch_id=branch_id)
+        # Gọi hàm service đã tối ưu ở trên
+    total = total_product_of_month(month, year)
+
     return jsonify({
-        "status": "success",
-        "data": total,
-        "filters": {"year": year, "month": month, "day": day, "branch_id": branch_id}
+        "month": month,
+        "year": year,
+        "total_products": total
     }), 200
 
 
-@dashboard_bp.route('/order-status-distribution', methods=['GET'])
-@jwt_required()
-def api_order_status_distribution():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
-
-    try:
-        data = get_order_status_distribution(branch_id=branch_id)
-        return jsonify({"success": True, "data": data}), 200
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
 
 
+# ------------------------------
+# Top Selling Products
+# ------------------------------
 @dashboard_bp.route('/top-products', methods=['GET'])
 @jwt_required()
 def api_top_products():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
 
-    limit = request.args.get('limit', default=5, type=int)
-    data = get_top_selling_products(limit=limit, branch_id=branch_id)
-    return jsonify({"success": True, "data": data}), 200
+    # Lấy params từ query string: ?month=1&year=2026&branch_id=2
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+    branch_id = request.args.get('branch_id', type=int)
+
+    try:
+        data = get_top_selling_products(month=month, year=year, branch_id=branch_id)
+        return jsonify({
+            "success": True,
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+
+# ------------------------------
+# Order Status Distribution
+# ------------------------------
+@dashboard_bp.route('/order-status-distribution', methods=['GET'])
+@jwt_required()
+def api_order_status_distribution():
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
+
+    # Lấy params từ query string
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+    branch_id = request.args.get('branch_id', type=int)
+
+    try:
+        data = get_order_status_distribution(month=month, year=year, branch_id=branch_id)
+        return jsonify({
+            "success": True,
+            "data": data
+        }), 200
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc()) 
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
 
 
 @dashboard_bp.route('/customer-growth', methods=['GET'])
 @jwt_required()
 def api_customer_growth():
-    branch_id, error = get_branch_info_from_token()
-    if error:
-        return jsonify({"success": False, "message": error}), 403
+    identity = json.loads(get_jwt_identity())
+    if identity.get("role") != 'employee':
+        return jsonify({"error": "Truy cập bị từ chối"}), 403
 
     try:
-        data = get_customer_growth_service(branch_id=branch_id)
-        return jsonify({"success": True, "data": data}), 200
+        growth_stats = get_customer_growth_service()
+
+        return jsonify({
+            "success": True,
+            "data": growth_stats
+        }), 200
     except Exception as e:
-        return jsonify({"success": False, "message": f"Lỗi hệ thống: {str(e)}"}), 500
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500

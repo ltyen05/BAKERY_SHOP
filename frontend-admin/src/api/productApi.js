@@ -3,40 +3,24 @@
 // ===============================================
 import api from "./axiosConfig";
 
-// Đã sửa: Bỏ http://localhost:5001
-// Lưu ý: Code cũ của bạn trỏ vào /api/superadmin. 
-// Nếu đúng ra là /api/admin/product_management thì bạn sửa lại dòng dưới này nhé.
-const BASE_PATH = "/api/superadmin";
+const BASE_PATH = "http://localhost:5001/api/superadmin";
 
 export const productApi = {
-  /**
-   * Lấy tất cả sản phẩm
-   * GET /api/superadmin/products
-   */
   getAllProducts: async () => {
     try {
-      console.log(" [productApi] Fetching all products...");
-
-      // Axios tự động ghép domain từ axiosConfig
       const response = await api.get(`${BASE_PATH}/products`);
-
-      console.log(" [productApi] Raw backend response:", response.data);
 
       let productsArray = [];
 
-      // Xử lý response format
       if (Array.isArray(response.data)) {
         productsArray = response.data;
       } else if (response.data.success && Array.isArray(response.data.data)) {
         productsArray = response.data.data;
       } else {
-        console.warn(" [productApi] Unexpected response format");
         return [];
       }
 
-      // Map đúng field name từ backend
       const mappedProducts = productsArray.map((p) => ({
-        // Primary keys
         product_id: p.product_id,
         name: p.name,
         category_id: p.category_id,
@@ -45,32 +29,22 @@ export const productApi = {
         description: p.description || "",
         rating: p.rating || 0,
         updated_at: p.updated_at || null,
-
-        // Aliases for backward compatibility
         id: p.product_id,
         categoryId: p.category,
         price: p.unit_price,
         image: p.image,
       }));
 
-      console.log(" [productApi] Mapped products:", mappedProducts);
       return mappedProducts;
     } catch (error) {
-      console.error(" [productApi] Error fetching products:", error);
       throw new Error(
         error.response?.data?.message || "Không thể tải danh sách sản phẩm"
       );
     }
   },
 
-  /**
-   * Thêm sản phẩm mới
-   * POST /api/superadmin/add_products
-   */
   addProduct: async (productData) => {
     try {
-      console.log("[productApi] Adding product:", productData);
-
       const payload = {
         name: productData.name,
         description: productData.description || "",
@@ -79,11 +53,7 @@ export const productApi = {
         category_id: parseInt(productData.category_id),
       };
 
-      console.log(" [productApi] Sending payload:", payload);
-
       const response = await api.post(`${BASE_PATH}/add_products`, payload);
-
-      console.log(" [productApi] Add response:", response.data);
 
       return {
         success: response.data.success !== false,
@@ -91,12 +61,10 @@ export const productApi = {
         id: response.data.id || response.data.product_id,
       };
     } catch (error) {
-      console.error(" [productApi] Error adding product:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Bạn không có quyền thêm sản phẩm",
+          message: "Bạn không có quyền thêm sản phẩm",
         };
       }
 
@@ -107,14 +75,8 @@ export const productApi = {
     }
   },
 
-  /**
-   * Cập nhật sản phẩm
-   * PUT /api/superadmin/update_products/:id
-   */
   updateProduct: async (productId, productData) => {
     try {
-      console.log(" [productApi] Updating product:", productId);
-
       const payload = {
         name: productData.name,
         description: productData.description || "",
@@ -123,33 +85,27 @@ export const productApi = {
         category_id: parseInt(productData.category_id),
       };
 
-      console.log(" [productApi] Update payload:", payload);
-
       const response = await api.put(
         `${BASE_PATH}/update_products/${productId}`,
         payload
       );
-
-      console.log(" [productApi] Update response:", response.data);
 
       return {
         success: response.data.success !== false,
         message: response.data.message || "Cập nhật sản phẩm thành công",
       };
     } catch (error) {
-      console.error(" [productApi] Error updating product:", error);
-
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Bạn không có quyền cập nhật sản phẩm",
+          message: "Bạn không có quyền cập nhật sản phẩm",
         };
       }
 
       if (error.response?.status === 404) {
         return {
           success: false,
-          message: " Không tìm thấy sản phẩm",
+          message: "Không tìm thấy sản phẩm",
         };
       }
 
@@ -160,38 +116,28 @@ export const productApi = {
     }
   },
 
-  /**
-   * Xóa sản phẩm
-   * DELETE /api/superadmin/delete_products/:id
-   */
   deleteProduct: async (productId) => {
     try {
-      console.log(" [productApi] Deleting product:", productId);
-
       const response = await api.delete(
         `${BASE_PATH}/delete_products/${productId}`
       );
-
-      console.log(" [productApi] Delete response:", response.data);
 
       return {
         success: response.data.success !== false,
         message: response.data.message || "Xóa sản phẩm thành công",
       };
     } catch (error) {
-      console.error(" [productApi] Error deleting product:", error);
-
       if (error.response?.status === 404) {
         return {
           success: false,
-          message: " Không tìm thấy sản phẩm",
+          message: "Không tìm thấy sản phẩm",
         };
       }
 
       if (error.response?.status === 403) {
         return {
           success: false,
-          message: " Bạn không có quyền xóa sản phẩm",
+          message: "Bạn không có quyền xóa sản phẩm",
         };
       }
 

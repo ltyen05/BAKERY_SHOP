@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, TextAreaField
 from wtforms.validators import DataRequired, NumberRange, Length
 
-
 class FeedbackForm(FlaskForm):
     # Frontend bắt buộc phải gửi order_id để biết đang đánh giá đơn nào
     order_id = IntegerField('Order ID', validators=[DataRequired()])

@@ -50,3 +50,4 @@ def delete_customer(customer_id):
         return jsonify({"message": "Đã xóa khách hàng thành công"}), 200
     return jsonify({"error": "Không tìm thấy khách hàng"}), 404
 
+

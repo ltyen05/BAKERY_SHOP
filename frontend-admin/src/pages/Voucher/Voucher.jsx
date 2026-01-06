@@ -1,6 +1,6 @@
 // ===============================================
 // FILE: src/pages/Voucher/Voucher.jsx
-// ✅ UPDATED: Bỏ Stats Cards, giữ nguyên form fields
+
 // ===============================================
 import React, { useState } from "react";
 import { Tag, Space, Button, Tooltip, Modal } from "antd";
@@ -76,15 +76,14 @@ const Voucher = () => {
       return;
     }
 
-    // ✅ Format dates cho input khi edit + log để debug
     const formattedVoucher = {
       ...voucher,
       begin_date: formatDateForInput(voucher.begin_date),
       end_date: formatDateForInput(voucher.end_date),
     };
 
-    console.log("📝 Original voucher:", voucher);
-    console.log("📝 Formatted voucher:", formattedVoucher);
+    console.log(" Original voucher:", voucher);
+    console.log(" Formatted voucher:", formattedVoucher);
 
     setModalMode("edit");
     setSelectedVoucher(formattedVoucher);
@@ -302,6 +301,7 @@ const Voucher = () => {
         <h1 className="voucher-title">{getHeaderTitle()}</h1>
         <p className="voucher-subtitle">{getHeaderSubtitle()}</p>
       </div>
+
 
       {/* TOOLBAR */}
       <div className="tabs-action-bar">

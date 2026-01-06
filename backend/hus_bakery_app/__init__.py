@@ -15,15 +15,17 @@ mail = Mail()
 
 def create_app():
     app = Flask(__name__)
-    # ... các đoạn import ...
-
-    cors = CORS(app, resources={
-        r"/api/*": {
-            "origins": "*",  # <--- SỬA THÀNH CÁI NÀY (Chấp nhận tất cả)
-            "allow_headers": ["Content-Type", "Authorization"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={
+            r"/api/*": {
+                "origins": ["http://localhost:3000", "http://localhost:3001"],
+                "allow_headers": ["Content-Type", "Authorization"],
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+            }
         }
-    })
+    )
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -57,19 +59,19 @@ def create_app():
 
 
     from hus_bakery_app.routers.admin.dashboard import dashboard_bp
-    app.register_blueprint(dashboard_bp, url_prefix='/admin/dashboard')
+    app.register_blueprint(dashboard_bp, url_prefix='/api/admin/dashboard')
     from hus_bakery_app.routers.admin.order_management import order_admin_bp
-    app.register_blueprint(order_admin_bp, url_prefix='/admin/order_management')
+    app.register_blueprint(order_admin_bp, url_prefix='/api/admin/order_management')
     from hus_bakery_app.routers.admin.product_management import product_admin_bp
-    app.register_blueprint(product_admin_bp, url_prefix='/admin/product_management')
+    app.register_blueprint(product_admin_bp, url_prefix='/api/admin/product_management')
     from hus_bakery_app.routers.admin.customer_management import customer_admin_bp
-    app.register_blueprint(customer_admin_bp, url_prefix='/admin/customer_management')
+    app.register_blueprint(customer_admin_bp, url_prefix='/api/admin/customer_management')
     from hus_bakery_app.routers.admin.employee_management import employee_admin_bp
-    app.register_blueprint(employee_admin_bp, url_prefix='/admin/employee_management')
+    app.register_blueprint(employee_admin_bp, url_prefix='/api/admin/employee_management')
     from hus_bakery_app.routers.admin.coupon_management import coupon_admin_bp
-    app.register_blueprint(coupon_admin_bp, url_prefix='/admin/coupon_management')
+    app.register_blueprint(coupon_admin_bp, url_prefix='/api/admin/coupon_management')
     from hus_bakery_app.routers.admin.shipper_management import shipper_admin_bp
-    app.register_blueprint(shipper_admin_bp, url_prefix='/admin/shipper_management')
+    app.register_blueprint(shipper_admin_bp, url_prefix='/api/admin/shipper_management')
 
 
     from hus_bakery_app.routers.shipper.shipper_notifications import shipper_notifications_bp
@@ -78,9 +80,9 @@ def create_app():
     app.register_blueprint(shipper_stats_bp, url_prefix='/api/shipper/statistics')
 
     from hus_bakery_app.routers.superadmin.superadmin_dashboard import superadmin_dashboard_bp
-    app.register_blueprint(superadmin_dashboard_bp, url_prefix='/superadmin/dashboard')
+    app.register_blueprint(superadmin_dashboard_bp, url_prefix='/api/superadmin/dashboard')
     from hus_bakery_app.routers.superadmin.edit import admin_mgmt_bp
-    app.register_blueprint(admin_mgmt_bp, url_prefix='/superadmin')
+    app.register_blueprint(admin_mgmt_bp, url_prefix='/api/superadmin')
 
     @app.route("/test_db")
     def test_db():

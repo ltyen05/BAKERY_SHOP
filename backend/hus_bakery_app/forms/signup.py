@@ -1,38 +1,34 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import Form, StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from ..models.customer import Customer
 
-class SignupForm(FlaskForm):
-    class Meta:
-        csrf = False
-
+class SignupForm(Form):
     name = StringField('Username', validators=[
-        DataRequired(message='Please enter your username.'),
-        Length(max=50, message='Username is at most 50 characters.')
+        DataRequired(message='Vui lòng nhập tên đăng nhập'),
+        Length(max=50, message='Tên đăng nhập tối đa 50 ký tự')
     ])
+
     email = StringField('Email', validators=[
-        DataRequired(),
-        Email(message='Email này đã tồn tại')
+        DataRequired(message='Vui lòng nhập email'),
+        Email(message='Email không hợp lệ')
     ])
+
     phone = StringField('Phone', validators=[
-        DataRequired(),
-        Length(max=10, message='Số điện thoại phải có 10 số')
+        DataRequired(message='Vui lòng nhập số điện thoại'),
+        Length(min=10, max=10, message='Số điện thoại phải có đúng 10 số')
     ])
+
     password = PasswordField('Password', validators=[
-        DataRequired(),
-        Length(min=6, message='Password must be at least 6 characters.'),
+        DataRequired(message='Vui lòng nhập mật khẩu'),
+        Length(min=6, message='Mật khẩu phải có ít nhất 6 ký tự'),
         EqualTo('confirm', message='Mật khẩu không khớp')
     ])
-    confirm = PasswordField('Repeat Password')
-    submit = SubmitField('Create account')
 
-    def validate_name(self, name):
-        user = Customer.query.filter_by(name=name.data).first()
-        if user:
-            raise ValidationError('Tên đăng nhập này đã tồn tại.')
+    confirm = PasswordField('Repeat Password', validators=[
+        DataRequired(message='Vui lòng xác nhận mật khẩu')
+    ])
+
 
     def validate_email(self, email):
-        user = Customer.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('Email này đã tồn tại.')
+        if Customer.query.filter_by(email=email.data).first():
+            raise ValidationError('Email đã được sử dụng')

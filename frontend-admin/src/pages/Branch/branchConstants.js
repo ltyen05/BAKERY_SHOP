@@ -38,7 +38,7 @@ export const BRANCH_FIELDS = [
     placeholder: "VD: 2 (để trống nếu chưa có)",
     required: false, // ← CHANGED: Không bắt buộc vì có thể chưa có manager
     helpText:
-      " Nhập employee_id hợp lệ từ bảng employees. Có thể để trống nếu chưa có quản lý.",
+      "⚠️ Nhập employee_id hợp lệ từ bảng employees. Có thể để trống nếu chưa có quản lý.",
   },
   {
     name: "email",

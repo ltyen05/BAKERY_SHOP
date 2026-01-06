@@ -30,10 +30,10 @@ import HistoryOrder from "../../../components/HistoryOrder/HistoryOrder";
 
 const { Title, Text } = Typography;
 const rankColors = {
-  diamond: "#b9f2ff", // màu xanh sáng cho diamond
-  gold: "gold",
-  silver: "silver",
-  bronze: "#cd7f32", // màu đồng
+  "Kim cương": "#b9f2ff", // màu xanh sáng cho diamond
+  Vàng: "gold",
+  Bạc: "silver",
+  Đồng: "#cd7f32", // màu đồng
 };
 const style = {
   container: {

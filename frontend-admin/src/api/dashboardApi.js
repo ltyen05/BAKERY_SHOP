@@ -1,23 +1,24 @@
 // ===============================================
 // FILE: src/api/dashboardApi.js
+
 // ===============================================
 import api from "./axiosConfig";
-
-// Định nghĩa đường dẫn gốc cho gọn code
-const ADMIN_PATH = "/api/admin/dashboard";
-const SUPER_ADMIN_PATH = "/api/superadmin/dashboard";
 
 export const dashboardApi = {
   // ========================================
   // BRANCH ADMIN APIs
   // ========================================
 
+  //  4 APIs  theo month/year
+
   getTotalOrders: async (month, year) => {
     try {
-      // Đã sửa: dùng ADMIN_PATH
-      const response = await api.get(`${ADMIN_PATH}/total_orders`, {
-        params: { month, year },
-      });
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/total_orders",
+        {
+          params: { month, year },
+        }
+      );
       return {
         success: true,
         data: response.data?.total_orders || 0,
@@ -31,7 +32,7 @@ export const dashboardApi = {
   getTotalAmount: async (month, year, branch_id) => {
     try {
       const response = await api.post(
-        `${ADMIN_PATH}/total_amount_for_month`,
+        "http://localhost:5001/api/admin/dashboard/total_amount_for_month",
         null,
         {
           params: { month, year, branch_id },
@@ -48,16 +49,16 @@ export const dashboardApi = {
   },
 
   getTotalCustomers: async (month, year) => {
-    console.log("DEBUG getTotalCustomers:", { month, year });
+    console.log("DEBUG getTotalCustomers:", { month, year }); // Thêm dòng này
     try {
       const response = await api.post(
-        `${ADMIN_PATH}/total_customer_of_month`,
+        "http://localhost:5001/api/admin/dashboard/total_customer_of_month",
         null,
         {
           params: { month, year },
         }
       );
-      console.log("Response total:", response.data);
+      console.log("Response total:", response.data); // Thêm dòng này
       return {
         success: true,
         data: response.data?.total_customers || 0,
@@ -71,7 +72,7 @@ export const dashboardApi = {
   getTotalProducts: async (month, year) => {
     try {
       const response = await api.post(
-        `${ADMIN_PATH}/total_product_of_month`,
+        "http://localhost:5001/api/admin/dashboard/total_product_of_month",
         null,
         {
           params: { month, year },
@@ -87,12 +88,13 @@ export const dashboardApi = {
     }
   },
 
+  // trả tất cả data)
   getOrderStatusDistribution: async (month, year, branch_id) => {
     try {
       const response = await api.get(
-        `${ADMIN_PATH}/order-status-distribution`,
+        "http://localhost:5001/api/admin/dashboard/order-status-distribution",
         {
-          params: { month, year, branch_id },
+          params: { month, year, branch_id }, // gửi params
         }
       );
 
@@ -101,22 +103,22 @@ export const dashboardApi = {
         data: response.data?.data || { total_orders: 0, distribution: [] },
       };
     } catch (error) {
-      console.error(
-        "[dashboardApi] getOrderStatusDistribution error:",
-        error
-      );
-      return {
-        success: false,
-        data: { total_orders: 0, distribution: [] },
-      };
+      console.error("[dashboardApi] getOrderStatusDistribution error:", error);
+      return { success: false, data: { total_orders: 0, distribution: [] } };
     }
   },
 
+  // -------------------------------
+  // Top Selling Products
+  // -------------------------------
   getTopProducts: async (month, year, branch_id) => {
     try {
-      const response = await api.get(`${ADMIN_PATH}/top-products`, {
-        params: { month, year, branch_id },
-      });
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/top-products",
+        {
+          params: { month, year, branch_id }, // gửi params
+        }
+      );
 
       return {
         success: true,
@@ -130,7 +132,9 @@ export const dashboardApi = {
 
   getCustomerGrowth: async () => {
     try {
-      const response = await api.get(`${ADMIN_PATH}/customer-growth`);
+      const response = await api.get(
+        "http://localhost:5001/api/admin/dashboard/customer-growth"
+      );
       return {
         success: true,
         data: response.data?.data || [],
@@ -148,9 +152,8 @@ export const dashboardApi = {
   //  Doanh thu theo chi nhánh - THÊM month, year
   getRevenuePerBranch: async (month, year) => {
     try {
-      // Đã sửa: dùng SUPER_ADMIN_PATH
       const response = await api.get(
-        `${SUPER_ADMIN_PATH}/revenue_per_branch`,
+        "http://localhost:5001/api/superadmin/dashboard/revenue_per_branch",
         {
           params: { month, year },
         }
@@ -172,9 +175,12 @@ export const dashboardApi = {
   // Thống kê đơn hàng theo status
   getOrderStats: async (month, year) => {
     try {
-      const response = await api.get(`${SUPER_ADMIN_PATH}/order_stats`, {
-        params: { month, year },
-      });
+      const response = await api.get(
+        "http://localhost:5001/api/superadmin/dashboard/order_stats",
+        {
+          params: { month, year },
+        }
+      );
       console.log("[dashboardApi] getOrderStats response:", response.data);
       return {
         success: true,
@@ -189,9 +195,12 @@ export const dashboardApi = {
   //  Biểu đồ doanh thu theo thời gian
   getRevenueChart: async (period = "month", month, year) => {
     try {
-      const response = await api.get(`${SUPER_ADMIN_PATH}/revenue_chart`, {
-        params: { period, month, year },
-      });
+      const response = await api.get(
+        "http://localhost:5001/api/superadmin/dashboard/revenue_chart",
+        {
+          params: { period, month, year },
+        }
+      );
       console.log("[dashboardApi] getRevenueChart response:", response.data);
       return {
         success: true,

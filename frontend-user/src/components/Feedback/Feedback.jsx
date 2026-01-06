@@ -26,7 +26,7 @@ const FeedbackComponent = ({ order_id }) => {
     try {
       // hoặc từ context/state nếu bạn dùng
       const res = await fetchWithAuth(
-        `${import.meta.env.VITE_API_URL}/feedback/add`,
+        "http://localhost:5001/api/feedback/add",
         {
           method: "POST",
           body: JSON.stringify({
@@ -144,4 +144,3 @@ const FeedbackComponent = ({ order_id }) => {
 };
 
 export default FeedbackComponent;
-

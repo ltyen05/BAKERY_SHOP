@@ -10,7 +10,7 @@ import { useCustomer } from './useCustomer';
 import { 
   RANK_TABS, 
   formatCurrency, 
-  getRankStyle 
+  getRankStyle
 } from './customerConstants';
 import './CustomersView.css';
 

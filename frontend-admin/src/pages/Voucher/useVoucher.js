@@ -35,7 +35,7 @@ export const useVoucher = () => {
         return;
       }
 
-      console.log(" [useVoucher] Loaded vouchers:", response.data);
+      console.log("[useVoucher] Loaded vouchers:", response.data);
       setVouchers(response.data); 
     } catch (error) {
       console.error(" [useVoucher] Error loading vouchers:", error);
@@ -74,7 +74,7 @@ export const useVoucher = () => {
       console.log("🔍 Voucher ID:", voucherId, "| Query:", query);
       console.log("🔍 ID includes?", voucherId.includes(query));
 
-      // Tìm theo ID (số), code, description, name
+      //  Tìm theo ID (số), code, description, name
       const matchSearch =
         !query ||
         voucherId.includes(query) ||
@@ -105,7 +105,7 @@ export const useVoucher = () => {
       const response = await voucherApi.addVoucher(newVoucher);
 
       if (response.success) {
-        message.success(" Thêm voucher thành công!");
+        message.success("Thêm voucher thành công!");
         await loadVouchers();
         return { success: true };
       } else {
@@ -143,7 +143,7 @@ export const useVoucher = () => {
         return { success: false };
       }
     } catch (error) {
-      console.error(" [useVoucher] Error updating voucher:", error);
+      console.error("[useVoucher] Error updating voucher:", error);
       message.error("Lỗi khi cập nhật voucher");
       return { success: false };
     } finally {
@@ -153,7 +153,7 @@ export const useVoucher = () => {
 
   const deleteVoucher = async (voucherId) => {
     if (!canManage) {
-      message.error(" Bạn không có quyền xóa voucher");
+      message.error("Bạn không có quyền xóa voucher");
       return { success: false };
     }
 

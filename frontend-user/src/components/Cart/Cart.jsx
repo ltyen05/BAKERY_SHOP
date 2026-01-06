@@ -7,17 +7,16 @@ import { useAuth } from "../../context/AuthContext";
 const ProductCart = ({ onCloseDrawer }) => {
   const { user } = useAuth();
   const { productInCart, setProductInCart, removeFromCart } = useOrder();
+  const { changeQuantity } = useOrder();
+
   const navigate = useNavigate();
-  const handleQuantityChange = (id, newQuantity) => {
-    if (newQuantity < 1) {
-      setProductInCart(productInCart.filter((p) => p.product_id !== id));
-      return;
+  const handleQuantityChange = async (id, newQuantity) => {
+    if (newQuantity < 1) return; // giữ nguyên
+    try {
+      await changeQuantity(id, newQuantity);
+    } catch (err) {
+      console.log("Cập nhật số lượng thất bại:", err.message);
     }
-    setProductInCart(
-      productInCart.map((p) =>
-        p.product_id === id ? { ...p, quantity: newQuantity } : p
-      )
-    );
   };
 
   const handleRemove = async (product_id) => {
@@ -26,7 +25,7 @@ const ProductCart = ({ onCloseDrawer }) => {
       return;
     }
 
-    if (user.role !== "customer") {
+    if (user?.role !== "customer") {
       alert.error("Chỉ khách hàng mới có thể xoá sản phẩm vào giỏ hàng.");
       return;
     }

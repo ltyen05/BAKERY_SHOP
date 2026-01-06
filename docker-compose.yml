@@ -7,11 +7,14 @@ services:
     container_name: bakery_mysql
     restart: always
     environment:
+      # Mình giữ password của file gốc để code backend kết nối được
+      # Nếu muốn đổi password, phải đổi cả trong file .env của backend
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: bakery_db
       MYSQL_USER: bakery_user
       MYSQL_PASSWORD: bakery123
     ports:
+      # Map ra port 3307 để tránh đụng port 3306 gốc trên máy (giống file của bạn)
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
@@ -25,7 +28,6 @@ services:
       - bakery-network
 
   # Flask Backend
-  # Flask Backend
   backend:
     build: 
       context: ./backend
@@ -37,7 +39,6 @@ services:
     environment:
       FLASK_APP: main.py
       FLASK_ENV: development
-      # ... (giữ nguyên các dòng MAIL_... cũ) ...
       MAIL_SERVER: smtp.gmail.com
       MAIL_PORT: 587
       MAIL_USE_TLS: "True"
@@ -45,23 +46,21 @@ services:
       MAIL_USERNAME: "thachnb.mathtech@gmail.com"
       MAIL_PASSWORD: "rpiziafljmspbwkc"
       MAIL_DEFAULT_SENDER: "hus_bakery <thachnb.mathtech@gmail.com>"
+      # SQLALCHEMY_DATABASE_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
       DB_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
       SQLALCHEMY_DATABASE_URI: mysql+pymysql://bakery_user:bakery123@mysql:3306/bakery_db
       SECRET_KEY: nguyenbaothach
       JWT_SECRET_KEY: hus_bakery_backend
-      
-      # 👇 THÊM 2 DÒNG NÀY VÀO 👇
-      # Đây là địa chỉ thật trên mạng của trang web (không dùng localhost nữa)
-      FRONTEND_URL: "https://husbakery.duckdns.org"
-      FRONTEND_ADMIN_URL: "https://husbakery.duckdns.org" 
-      # (Lưu ý: Nếu trang Admin bạn cài domain khác, ví dụ admin.husbakery... thì sửa lại dòng trên)
-
     volumes:
       - ./backend:/app
       - /app/__pycache__
     depends_on:
       mysql:
         condition: service_healthy
+    # command: >
+    #   sh -c "pip install --upgrade pip && 
+    #   pip install -r requirements.txt && 
+    #   python main.py"
     networks:
       - bakery-network
 
@@ -78,8 +77,8 @@ services:
       - /app/node_modules
       - /app/dist
     environment:
-      # --- ĐÃ SỬA: Dùng HTTPS và bỏ port 5001 ---
-      VITE_API_URL: https://husbakery.duckdns.org/api
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
       VITE_APP_NAME: "Bakery Shop"
     depends_on:
       - backend
@@ -102,8 +101,8 @@ services:
       - /app/node_modules
       - /app/dist
     environment:
-      # --- ĐÃ SỬA: Dùng HTTPS và bỏ port 5001 ---
-      VITE_API_URL: https://husbakery.duckdns.org/api
+      # SỬA: Cập nhật API URL trỏ về port 5001
+      VITE_API_URL: http://localhost:5001/api
       VITE_APP_NAME: "Bakery Admin"
     depends_on:
       - backend

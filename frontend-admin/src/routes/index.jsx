@@ -1,6 +1,6 @@
+
 // ===============================================
 // Location: src/routes/index.jsx
-// FIXED: Path naming for basename consistency
 // ===============================================
 import { lazy } from "react";
 
@@ -15,21 +15,20 @@ const Voucher = lazy(() => import("../pages/Voucher/Voucher"));
 const BranchView = lazy(() => import("../pages/Branch/BranchView"));
 const AdminView = lazy(() => import("../pages/Admin/AdminView"));
 
-// 404 fallback component
-export const NotFound = () => (
-  <div style={{ padding: "100px 40px", textAlign: "center" }}>
-    <h1 style={{ fontSize: "48px", color: "#ff4d4f" }}>404</h1>
-    <h2>Không tìm thấy trang</h2>
-    <p>Đường dẫn bạn truy cập không tồn tại trong hệ thống quản trị.</p>
+// 404 fallback
+const NotFound = () => (
+  <div style={{ padding: "40px", textAlign: "center" }}>
+    <h1>404 - Page Not Found</h1>
+    <p>The page you are looking for does not exist.</p>
   </div>
 );
 
 // ========================================
-// Super Admin routes (Global Scope)
+// Super Admin routes (global)
 // ========================================
 export const superAdminRoutes = [
   {
-    path: "dashboard", // KHÔNG dùng "/dashboard"
+    path: "dashboard",
     element: DashboardView,
     name: "Dashboard Tổng",
     roles: ["super_admin"],
@@ -61,7 +60,7 @@ export const superAdminRoutes = [
 ];
 
 // ========================================
-// Branch routes (Branch Scope)
+// Branch routes (Branch Admin or Super Admin viewing branch)
 // ========================================
 export const branchRoutes = [
   {
@@ -117,13 +116,8 @@ export const getRoutesForUser = (user) => {
   const isSuperAdmin = user?.role === "super_admin";
   const isViewingBranch = isSuperAdmin && user?.viewing_branch !== null;
 
-  // Trả về danh sách route phù hợp
-  const targetRoutes =
-    isViewingBranch || user?.role === "admin"
-      ? [...branchRoutes]
-      : isSuperAdmin
-      ? [...superAdminRoutes]
-      : [];
+  if (isViewingBranch || user?.role === "admin") return branchRoutes;
+  if (isSuperAdmin) return superAdminRoutes;
 
-  return targetRoutes;
+  return [];
 };

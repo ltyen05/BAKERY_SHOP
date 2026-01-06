@@ -1,6 +1,6 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
-const API = `${import.meta.env.VITE_API_URL}/account`;
+const API = "http://localhost:5001/api/account";
 
 export const accountApi = {
   update_profile(data) {
@@ -44,4 +44,3 @@ export const accountApi = {
     });
   },
 };
-

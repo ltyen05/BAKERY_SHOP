@@ -19,8 +19,7 @@ import { useProduct } from './hooks/useProduct';
 // Utils
 import { exportProductsToCSV } from './utils/productHelpers';
 
-// Constants
-import { PRODUCT_FIELDS, PRODUCT_EDIT_FIELDS } from './constants/productConstants';
+import { PRODUCT_FIELDS, PRODUCT_EDIT_FIELDS } from './utils/productConstants';
 
 // Styles
 import './ProductsView.css';

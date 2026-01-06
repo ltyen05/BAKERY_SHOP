@@ -90,7 +90,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    fetch(`${import.meta.env.VITE_API_URL}/product/${productId}`)
+    fetch(`http://localhost:5000/api/product/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
@@ -109,7 +109,7 @@ export default function ProductDetail() {
       return;
     }
 
-    if (user.role !== "customer") {
+    if (user?.role !== "customer") {
       alert("Chỉ khách hàng mới có thể thêm sản phẩm vào giỏ hàng.");
       return;
     }
@@ -335,4 +335,3 @@ export default function ProductDetail() {
     </div>
   );
 }
-

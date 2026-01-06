@@ -13,6 +13,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* ================= THÊM PHẦN NÀY ================= */
   /* Employee Component Variables */
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --green-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);

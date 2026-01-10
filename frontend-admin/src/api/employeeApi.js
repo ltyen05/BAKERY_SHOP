@@ -3,7 +3,7 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/admin/employee_management";
+const BASE_PATH = "https://husbakery.duckdns.org/api/admin/employee_management";
 
 const mapEmployeeFromBackend = (employee) => {
   return {

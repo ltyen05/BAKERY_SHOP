@@ -33,9 +33,9 @@ const OrderDetailModal = ({
       return imageUrl;
     }
     if (imageUrl.startsWith("/")) {
-      return `http://localhost:5001${imageUrl}`;
+      return `https://husbakery.duckdns.org${imageUrl}`;
     }
-    return `http://localhost:5001/${imageUrl}`;
+    return `https://husbakery.duckdns.org/${imageUrl}`;
   };
 
   return (

@@ -3,11 +3,11 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/admin/shipper_management";
+const BASE_PATH = "https://husbakery.duckdns.org/api/admin/shipper_management";
 
 const mapShipperFromBackend = (shipper) => {
   if (!shipper) return null;
-  
+
   return {
     shipper_id: shipper.shipper_id || 0,
     name: shipper.shipper_name || shipper.name || 'N/A',

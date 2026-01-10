@@ -213,7 +213,7 @@ function LoadingFallback() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <Suspense fallback={<LoadingFallback />}>
           <AppContent />
         </Suspense>
@@ -256,7 +256,7 @@ function AppContent() {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    window.location.href = "/login";
   }
 
   return (

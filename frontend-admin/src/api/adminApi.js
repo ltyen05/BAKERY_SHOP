@@ -8,7 +8,7 @@ export const adminApi = {
   getAllBranches: async () => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/superadmin/api/branches"
+        "https://husbakery.duckdns.org/api/superadmin/api/branches"
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -49,7 +49,7 @@ export const adminApi = {
       const adminPromises = branches.map(async (branch) => {
         try {
           const managerResponse = await api.get(
-            `http://localhost:5001/api/superadmin/branch/${branch.branch_id}/manager`
+            `https://husbakery.duckdns.org/api/superadmin/branch/${branch.branch_id}/manager`
           );
 
           if (managerResponse.data && managerResponse.data.data) {
@@ -124,7 +124,7 @@ export const adminApi = {
       }
 
       const response = await api.put(
-        `http://localhost:5001/api/superadmin/update_admin/${adminId}`,
+        `https://husbakery.duckdns.org/api/superadmin/update_admin/${adminId}`,
         payload
       );
 
@@ -149,7 +149,7 @@ export const adminApi = {
   deleteAdmin: async (adminId) => {
     try {
       const response = await api.delete(
-        `http://localhost:5001/api/superadmin/delete_admin/${adminId}`
+        `https://husbakery.duckdns.org/api/superadmin/delete_admin/${adminId}`
       );
 
       return {

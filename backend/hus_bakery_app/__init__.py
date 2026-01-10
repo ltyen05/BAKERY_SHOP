@@ -20,7 +20,9 @@ def create_app():
         supports_credentials=True,
         resources={
             r"/api/*": {
-                "origins": ["http://localhost:3000", "http://localhost:3001"],
+                "origins": ["http://localhost:3000", "http://localhost:3001",
+                    "https://husbakery.duckdns.org",
+                    "https://husbakery.duckdns.org/admin"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
             }

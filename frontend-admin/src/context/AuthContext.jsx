@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       setLoadingBranch(true);
       try {
         const res = await fetch(
-          "http://localhost:5001/api/account/branch_detail",
+          "https://husbakery.duckdns.org/api/account/branch_detail",
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       if (adminInfoStr) setUser(JSON.parse(adminInfoStr));
 
       // 4️⃣ Gọi API /me để xác thực token
-      const result = await fetchWithAuth("http://localhost:5001/api/me");
+      const result = await fetchWithAuth("https://husbakery.duckdns.org/api/me");
 
       if (result.status === 401) {
         console.log("[Auth] Token hết hạn, logout...");

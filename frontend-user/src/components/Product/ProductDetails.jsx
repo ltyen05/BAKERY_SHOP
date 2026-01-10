@@ -90,7 +90,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    fetch(`http://localhost:5000/api/product/${productId}`)
+    fetch(`https://husbakery.duckdns.org/api/product/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);

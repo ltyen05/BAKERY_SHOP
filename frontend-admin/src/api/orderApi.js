@@ -2,7 +2,7 @@
 // FILE: src/api/orderApi.js - CLEAN VERSION
 // ===============================================
 
-const BASE_URL = "http://localhost:5001/api/admin/order_management";
+const BASE_URL = "https://husbakery.duckdns.org/api/admin/order_management";
 import { tokenStorage } from "../utils/token";
 
 const getAuthHeaders = () => {

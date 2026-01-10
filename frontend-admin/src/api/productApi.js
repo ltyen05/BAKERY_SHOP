@@ -3,7 +3,7 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/superadmin";
+const BASE_PATH = "https://husbakery.duckdns.org/api/superadmin";
 
 export const productApi = {
   getAllProducts: async () => {

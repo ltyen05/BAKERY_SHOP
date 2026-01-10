@@ -4,7 +4,7 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/admin/customer_management";
+const BASE_PATH = "https://husbakery.duckdns.org/api/admin/customer_management";
 
 export const customerApi = {
   getAllCustomers: async (branchId = null) => {
@@ -36,8 +36,8 @@ export const customerApi = {
     } catch (error) {
       throw new Error(
         error.response?.data?.error ||
-          error.message ||
-          "Không thể tải danh sách khách hàng"
+        error.message ||
+        "Không thể tải danh sách khách hàng"
       );
     }
   },

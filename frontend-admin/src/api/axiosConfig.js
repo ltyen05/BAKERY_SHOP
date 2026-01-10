@@ -6,7 +6,7 @@ import { tokenStorage } from "../utils/token";
 
 const api = axios.create({
   // Vite proxy sẽ chuyển:
-  // /superadmin/... -> http://localhost:5001/superadmin/...
+  // /superadmin/... -> https://husbakery.duckdns.org/superadmin/...
 
   headers: {
     "Content-Type": "application/json",
@@ -68,7 +68,7 @@ api.interceptors.response.use(
         case 401:
           // Token expired or invalid
           console.error(" Unauthorized - Token invalid");
-      
+
           break;
         case 403:
           console.error(" Forbidden - No permission");

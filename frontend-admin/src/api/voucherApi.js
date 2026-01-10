@@ -10,7 +10,7 @@ const voucherApi = {
   getAllVouchers: async () => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/admin/coupon_management/coupon"
+        "https://husbakery.duckdns.org/api/admin/coupon_management/coupon"
       );
 
       const vouchers = Array.isArray(response.data) ? response.data : [];
@@ -47,7 +47,7 @@ const voucherApi = {
       };
 
       const response = await api.post(
-        "http://localhost:5001/api/admin/coupon_management/add_coupon",
+        "https://husbakery.duckdns.org/api/admin/coupon_management/add_coupon",
         payload
       );
 
@@ -82,7 +82,7 @@ const voucherApi = {
       };
 
       const response = await api.put(
-        `http://localhost:5001/api/admin/coupon_management/update_coupon/${couponId}`,
+        `https://husbakery.duckdns.org/api/admin/coupon_management/update_coupon/${couponId}`,
         payload
       );
 
@@ -108,7 +108,7 @@ const voucherApi = {
   deleteVoucher: async (couponId) => {
     try {
       const response = await api.delete(
-        `http://localhost:5001/api/admin/coupon_management/delete_coupon/${couponId}`
+        `https://husbakery.duckdns.org/api/admin/coupon_management/delete_coupon/${couponId}`
       );
 
       return {

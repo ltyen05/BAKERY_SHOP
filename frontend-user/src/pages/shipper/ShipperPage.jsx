@@ -70,7 +70,7 @@ const OrderDetailPage = () => {
     setLoading(true);
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/current-order",
+        "https://husbakery.duckdns.org/api/shipper/notifications/current-order",
         {
           method: "GET",
         }
@@ -124,7 +124,7 @@ const OrderDetailPage = () => {
 
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/update_order_status",
+        "https://husbakery.duckdns.org/api/shipper/notifications/update_order_status",
         {
           method: "POST",
           headers: {
@@ -334,7 +334,7 @@ const OrderDetailPage = () => {
 
                   try {
                     const response = await fetchWithAuth(
-                      "http://localhost:5001/api/shipper/notifications/update_order_status",
+                      "https://husbakery.duckdns.org/api/shipper/notifications/update_order_status",
                       {
                         method: "POST",
                         headers: {

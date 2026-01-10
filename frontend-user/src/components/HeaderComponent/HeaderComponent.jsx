@@ -116,33 +116,33 @@ function NavBar({ user, onLogout, productInCart }) {
       },
       ...(user?.role === "shipper"
         ? [
-            {
-              key: "shipperPage",
-              label: <Link to="/shipperDelivery">Shipper</Link>,
-              icon: <UserOutlined />,
-            },
-          ]
+          {
+            key: "shipperPage",
+            label: <Link to="/shipperDelivery">Shipper</Link>,
+            icon: <UserOutlined />,
+          },
+        ]
         : []),
       ...(user?.role === "customer"
         ? [
-            {
-              key: "Tài khoản",
-              label: <Link to="/viewProfile">Tài khoản</Link>,
-              icon: <UserOutlined />,
-            },
-          ]
+          {
+            key: "Tài khoản",
+            label: <Link to="/viewProfile">Tài khoản</Link>,
+            icon: <UserOutlined />,
+          },
+        ]
         : []),
       ...(user?.role === "Quản lý" || user?.role === "Siêu quản lý"
         ? [
-            {
-              key: "account",
-              label: "Tài khoản",
-              icon: <UserOutlined />,
-              onClick: () => {
-                window.location.href = `http://localhost:3001?token=${token}`;
-              },
+          {
+            key: "account",
+            label: "Tài khoản",
+            icon: <UserOutlined />,
+            onClick: () => {
+              window.location.href = `https://husbakery.duckdns.org/admin?token=${token}`;
             },
-          ]
+          },
+        ]
         : []),
       {
         key: "3",
@@ -191,7 +191,7 @@ function NavBar({ user, onLogout, productInCart }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/notification/mark-read/${id}`,
+        `https://husbakery.duckdns.org/api/notification/mark-read/${id}`,
         { method: "POST" }
       );
 

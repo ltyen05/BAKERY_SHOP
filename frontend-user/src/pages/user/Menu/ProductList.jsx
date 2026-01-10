@@ -67,7 +67,7 @@ export default function ProductList() {
 
       try {
         const response = await fetch(
-          `http://localhost:5001/api/product/filter?category_id=${category_id}`
+          `https://husbakery.duckdns.org/api/product/filter?category_id=${category_id}`
         );
         if (!response.ok) throw new Error("Lỗi tải dữ liệu");
         const data = await response.json();
@@ -97,27 +97,27 @@ export default function ProductList() {
       <Row justify="center" align="top">
         {loading
           ? // Hiện 8 skeleton giả khi đang load
-            Array(8)
-              .fill(0)
-              .map((_, index) => (
-                <Col key={`skeleton-${index}`}>
-                  <ProductSkeleton />
-                </Col>
-              ))
-          : // Hiện sản phẩm thật khi load xong
-            products.map((item) => (
-              <Col key={item?.product_id}>
-                <Product
-                  product_id={item?.product_id}
-                  product_name={item?.name}
-                  price={item?.price}
-                  image={item?.image}
-                  rating={item?.rating}
-                  onAddToCart={handleAddToCart}
-                  isAddingToCart={addingToCart}
-                />
+          Array(8)
+            .fill(0)
+            .map((_, index) => (
+              <Col key={`skeleton-${index}`}>
+                <ProductSkeleton />
               </Col>
-            ))}
+            ))
+          : // Hiện sản phẩm thật khi load xong
+          products.map((item) => (
+            <Col key={item?.product_id}>
+              <Product
+                product_id={item?.product_id}
+                product_name={item?.name}
+                price={item?.price}
+                image={item?.image}
+                rating={item?.rating}
+                onAddToCart={handleAddToCart}
+                isAddingToCart={addingToCart}
+              />
+            </Col>
+          ))}
       </Row>
     </div>
   );

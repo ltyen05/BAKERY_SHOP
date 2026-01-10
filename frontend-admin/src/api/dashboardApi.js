@@ -14,7 +14,7 @@ export const dashboardApi = {
   getTotalOrders: async (month, year) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/admin/dashboard/total_orders",
+        "https://husbakery.duckdns.org/api/admin/dashboard/total_orders",
         {
           params: { month, year },
         }
@@ -32,7 +32,7 @@ export const dashboardApi = {
   getTotalAmount: async (month, year, branch_id) => {
     try {
       const response = await api.post(
-        "http://localhost:5001/api/admin/dashboard/total_amount_for_month",
+        "https://husbakery.duckdns.org/api/admin/dashboard/total_amount_for_month",
         null,
         {
           params: { month, year, branch_id },
@@ -52,7 +52,7 @@ export const dashboardApi = {
     console.log("DEBUG getTotalCustomers:", { month, year }); // Thêm dòng này
     try {
       const response = await api.post(
-        "http://localhost:5001/api/admin/dashboard/total_customer_of_month",
+        "https://husbakery.duckdns.org/api/admin/dashboard/total_customer_of_month",
         null,
         {
           params: { month, year },
@@ -72,7 +72,7 @@ export const dashboardApi = {
   getTotalProducts: async (month, year) => {
     try {
       const response = await api.post(
-        "http://localhost:5001/api/admin/dashboard/total_product_of_month",
+        "https://husbakery.duckdns.org/api/admin/dashboard/total_product_of_month",
         null,
         {
           params: { month, year },
@@ -92,7 +92,7 @@ export const dashboardApi = {
   getOrderStatusDistribution: async (month, year, branch_id) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/admin/dashboard/order-status-distribution",
+        "https://husbakery.duckdns.org/api/admin/dashboard/order-status-distribution",
         {
           params: { month, year, branch_id }, // gửi params
         }
@@ -114,7 +114,7 @@ export const dashboardApi = {
   getTopProducts: async (month, year, branch_id) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/admin/dashboard/top-products",
+        "https://husbakery.duckdns.org/api/admin/dashboard/top-products",
         {
           params: { month, year, branch_id }, // gửi params
         }
@@ -133,7 +133,7 @@ export const dashboardApi = {
   getCustomerGrowth: async () => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/admin/dashboard/customer-growth"
+        "https://husbakery.duckdns.org/api/admin/dashboard/customer-growth"
       );
       return {
         success: true,
@@ -153,7 +153,7 @@ export const dashboardApi = {
   getRevenuePerBranch: async (month, year) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/superadmin/dashboard/revenue_per_branch",
+        "https://husbakery.duckdns.org/api/superadmin/dashboard/revenue_per_branch",
         {
           params: { month, year },
         }
@@ -176,7 +176,7 @@ export const dashboardApi = {
   getOrderStats: async (month, year) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/superadmin/dashboard/order_stats",
+        "https://husbakery.duckdns.org/api/superadmin/dashboard/order_stats",
         {
           params: { month, year },
         }
@@ -196,7 +196,7 @@ export const dashboardApi = {
   getRevenueChart: async (period = "month", month, year) => {
     try {
       const response = await api.get(
-        "http://localhost:5001/api/superadmin/dashboard/revenue_chart",
+        "https://husbakery.duckdns.org/api/superadmin/dashboard/revenue_chart",
         {
           params: { period, month, year },
         }

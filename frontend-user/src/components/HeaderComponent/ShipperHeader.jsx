@@ -51,7 +51,7 @@ function NavBar({ user, onLogout }) {
     if (!isShipper) return;
     try {
       const res = await fetchWithAuth(
-        "http://localhost:5001/api/shipper/notifications/check-status",
+        "https://husbakery.duckdns.org/api/shipper/notifications/check-status",
         { method: "GET" }
       );
 
@@ -88,7 +88,7 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/shipper/notifications/all-notifications?page=${page}`,
+        `https://husbakery.duckdns.org/api/shipper/notifications/all-notifications?page=${page}`,
         { method: "GET" }
       );
 
@@ -147,7 +147,7 @@ function NavBar({ user, onLogout }) {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:5001/api/shipper/notifications/mark-read/${id}`,
+        `https://husbakery.duckdns.org/api/shipper/notifications/mark-read/${id}`,
         { method: "POST" }
       );
 

@@ -3,7 +3,7 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/api";
+const BASE_PATH = "https://husbakery.duckdns.org/api/api";
 
 export const superAdminApi = {
   addEmployee: async (employeeData) => {

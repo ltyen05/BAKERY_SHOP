@@ -4,13 +4,20 @@ import {
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  base: '/admin/',
   plugins: [react()],
+  build: {
+    sourcemap: false, // TẮT cái này để tiết kiệm RAM
+    rollupOptions: {
+      maxParallelFileOps: 2 // Giới hạn số file xử lý cùng lúc
+    }
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
     proxy: {
       '/admin': {
-        target: 'http://localhost:5001',
+        target: 'https://husbakery.duckdns.org',
         changeOrigin: true,
       },
       '/api': {
@@ -18,7 +25,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/superadmin': {
-        target: 'http://localhost:5001',
+        target: 'https://husbakery.duckdns.org',
         changeOrigin: true
       }
     }

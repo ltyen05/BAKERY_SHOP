@@ -3,7 +3,7 @@
 // ===============================================
 import api from "./axiosConfig";
 
-const BASE_PATH = "http://localhost:5001/api/superadmin";
+const BASE_PATH = "https://husbakery.duckdns.org/api/superadmin";
 
 export const branchApi = {
   getAllBranches: async () => {
@@ -33,7 +33,7 @@ export const branchApi = {
           try {
             if (branch.manager_id) {
               const managerRes = await api.get(
-                `http://localhost:5001/api/superadmin/branch/${branch.branch_id}/manager`
+                `https://husbakery.duckdns.org/api/superadmin/branch/${branch.branch_id}/manager`
               );
 
               if (managerRes.data?.success && managerRes.data?.data) {
@@ -80,7 +80,7 @@ export const branchApi = {
   getBranchDetail: async (branchId) => {
     try {
       const response = await api.get(
-        `http://localhost:5001/api/superadmin/branch/${branchId}`
+        `https://husbakery.duckdns.org/api/superadmin/branch/${branchId}`
       );
 
       return {
@@ -105,7 +105,7 @@ export const branchApi = {
   getBranchManager: async (branchId) => {
     try {
       const response = await api.get(
-        `http://localhost:5001/api/superadmin/branch/${branchId}/manager`
+        `https://husbakery.duckdns.org/api/superadmin/branch/${branchId}/manager`
       );
 
       return {
@@ -150,7 +150,7 @@ export const branchApi = {
       }
 
       const response = await api.post(
-        "http://localhost:5001/api/superadmin/add_branch",
+        "https://husbakery.duckdns.org/api/superadmin/add_branch",
         payload
       );
 
@@ -195,7 +195,7 @@ export const branchApi = {
       }
 
       const response = await api.put(
-        `http://localhost:5001/api/superadmin/update_branch/${branchId}`,
+        `https://husbakery.duckdns.org/api/superadmin/update_branch/${branchId}`,
         payload
       );
 
@@ -220,7 +220,7 @@ export const branchApi = {
   deleteBranch: async (branchId) => {
     try {
       const response = await api.delete(
-        `http://localhost:5001/api/superadmin/delete_branch/${branchId}`
+        `https://husbakery.duckdns.org/api/superadmin/delete_branch/${branchId}`
       );
 
       return {

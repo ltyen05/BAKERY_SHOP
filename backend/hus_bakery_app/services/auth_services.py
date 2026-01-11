@@ -100,9 +100,13 @@ def request_password_reset(email):
         identity=identity_data,
         expires_delta=timedelta(minutes=15)
     )
+    RESET_PASSWORD_URL = "https://husbakery.duckdns.org/resetPassword"
 
-    link = f"http://localhost:3000/resetPassword?token={reset_token}"
-
+    base_url = current_app.config.get(
+        "RESET_PASSWORD_URL", 
+        "https://husbakery.duckdns.org/resetPassword"
+    )
+    link = f"{base_url}?token={reset_token}"
     try:
         msg = Message(
             subject="[Hus Bakery] Yêu cầu đặt lại mật khẩu",
